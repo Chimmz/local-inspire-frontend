@@ -1,0 +1,59 @@
+.auth {
+  display: grid;
+  grid-template-columns: min-content 1fr;
+  align-items: center;
+  gap: 1.2rem;
+  // border: 1px solid black;
+
+  & input[type='text'],
+  & input[type='password'] {
+    background-color: transparent;
+    border: 1px solid #bbbbbb;
+    min-width: 25ch;
+    padding: 0.7rem 1.2rem;
+    border-radius: 3px;
+    font-size: 1.4rem;
+    color: gray;
+
+    &:focus {
+      border-color: #8a8a8a;
+    }
+  }
+
+  & > label {
+    font-size: 1.3rem;
+    justify-self: right;
+  }
+
+  & > button {
+    grid-column: 1 / 3;
+  }
+
+  & > small {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+.btnSocial {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: $color-pry-lightest !important;
+    color: $color-pry-dark !important;
+  }
+}
+
+.link {
+  font-size: 1.15rem;
+  grid-column: 1 / 2;
+  color: $color-pry;
+
+  &:hover {
+    color: $color-pry-dark;
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,47 @@
+.nav {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: max(2rem, 2vw) max(4rem, 4vw);
+  background-color: rgba(#000, 0.2);
+  z-index: 5;
+
+  &-logo {
+    color: #fff;
+    transform: scale(0.7);
+    transform-origin: left;
+  }
+
+  &-breadcrumb {
+    cursor: pointer;
+    transform: scale(2);
+    display: none;
+    visibility: hidden;
+
+    &:hover iconify-icon {
+      color: $color-pry !important;
+    }
+  }
+
+  &-auth {
+    font-size: 1.4rem;
+    display: flex;
+    gap: 1.5rem;
+
+    & > * {
+      min-width: 10rem;
+    }
+    @media screen and (max-width: 37.5em) {
+      display: none;
+
+      & + .nav-breadcrumb {
+        display: inline-block !important;
+        visibility: visible;
+      }
+    }
+  }
+}

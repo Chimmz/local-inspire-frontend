@@ -1,0 +1,10 @@
+.textfield {
+   outline: none;
+   border: #f5f5f5;
+   font: inherit;
+   color: inherit;
+
+   &::placeholder {
+      color: rgba(#000, 0.5);
+   }
+}

@@ -1,0 +1,45 @@
+.btn {
+  outline: none;
+  font: inherit;
+  font-size: 1.3rem;
+  border-color: transparent;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &-pry {
+    background-color: $color-pry;
+    color: #fff;
+
+    &:hover {
+      background-color: $color-pry-dark;
+    }
+  }
+
+  &[class*='btn-outline'] {
+    background-color: transparent;
+    border: 1px solid;
+
+    &:is(.btn-outline-white) {
+      border-color: #838383;
+      color: #d1d1d1;
+
+      &:hover {
+        border-color: $color-pry;
+        color: #fff;
+      }
+    }
+    &:is(.btn-outline-gray) {
+      border: 1px solid #adadad;
+      color: $text-color;
+
+      &:hover {
+        background-color: #eee;
+        border-color: $color-pry-dark;
+        color: $text-dark;
+      }
+    }
+  }
+}
