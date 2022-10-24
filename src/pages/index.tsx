@@ -1,4 +1,4 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 
@@ -8,6 +8,7 @@ import BestPlaces from '../features/components/home/BestPlaces';
 import Footer from '../features/components/layout/Footer';
 import styles from '../styles/sass/pages/Home.module.scss';
 import Layout from '../features/components/layout/index';
+import { getProviders } from 'next-auth/react';
 
 function Home() {
   return (
@@ -18,5 +19,11 @@ function Home() {
     </Layout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const authProviders = await getProviders();
+  console.log('authProviders: ', authProviders);
+  return { props: {} };
+};
 
 export default Home as NextPage;

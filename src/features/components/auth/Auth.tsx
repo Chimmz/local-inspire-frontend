@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
 import cls from 'classnames';
 
@@ -25,6 +25,9 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
+  // const usernameRef = useRef<HTMLInputElement | null>(null);
+  // const emailRef = useRef<HTMLInputElement | null>(null);
+
   const { send: sendAuthRequest, loading: authRequestLoading } = useRequest();
   const {
     inputValue: username,
@@ -59,13 +62,17 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     validators: [{ isRequired: ['This field is required'] }],
   });
 
+  // useEffect(() => {
+
+  // }, [])
+
   const validateFields = () => {
     const results = [runEmailValidators(), runPasswordValidators()];
     if (authType === 'register') results.unshift(runUsernameValidators());
     console.log(results);
   };
 
-  const loginOrRegister: React.FormEventHandler<HTMLFormElement> = async ev => {
+  const authWithCredentials: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
     validateFields();
 
@@ -86,6 +93,12 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     console.table({ ok, error, status, url });
   };
 
+  const signInWithGoogle: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    const options: SignInOptions = { callbackUrl: '/' };
+    const result = await sendAuthRequest(signIn('google', options));
+    console.table(result);
+  };
+
   const isLoginAuthType = authType === 'login';
 
   if (!show) return <></>;
@@ -100,9 +113,9 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
         <h1 className="text-center w-100">{stringUtils.toTitleCase(authType)}</h1>
       </Modal.Header>
       <Modal.Body className="p-5">
-        {/* <div className="white-overlay"></div>
-        <Spinner /> */}
-        <form action="" className={styles.auth} onSubmit={loginOrRegister} noValidate>
+        {/* <div className="white-overlay"></div> */}
+        {(authRequestLoading && <Spinner />) || null}
+        <form action="" className={styles.auth} onSubmit={authWithCredentials} noValidate>
           {!isLoginAuthType ? (
             <div className={styles.authField}>
               <label htmlFor="">Username</label>
@@ -150,34 +163,50 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
           <LoadingButton
             type="submit"
             className="btn btn-pry"
-            isLoading={authRequestLoading}
+            // isLoading={authRequestLoading}
+            isLoading={false}
+            disabled={authRequestLoading}
           >
             {`${isLoginAuthType ? 'Log in' : 'Sign up'}`}
           </LoadingButton>
 
           <small>or</small>
 
-          <button
+          <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
+            onClick={signInWithGoogle}
+            // isLoading={authRequestLoading}
+            isLoading={false}
+            disabled={authRequestLoading}
           >
             <GoogleIcon fontSize="large" />
             {`Sign ${isLoginAuthType ? 'in' : 'up'} with Google`}
-          </button>
-          <button
+          </LoadingButton>
+
+          <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
+            // onClick={signInWithFacebook}
+            // isLoading={authRequestLoading}
+            isLoading={false}
+            disabled={authRequestLoading}
           >
             <FacebookIcon fontSize="large" />
             {`Sign ${isLoginAuthType ? 'in' : 'up'} with Facebook`}
-          </button>
-          <button
+          </LoadingButton>
+
+          <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
+            // onClick={signInWithTwitter}
+            // isLoading={authRequestLoading}
+            isLoading={false}
+            disabled={authRequestLoading}
           >
             <TwitterIcon fontSize="large" />
             {`Sign ${isLoginAuthType ? 'in' : 'up'} with Twitter`}
-          </button>
+          </LoadingButton>
           <small>
             <a href="" className={styles.link}>
               Forgot Password?

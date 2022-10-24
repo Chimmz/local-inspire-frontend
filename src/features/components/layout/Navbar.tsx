@@ -83,7 +83,7 @@ function Navbar({ bg }: NavbarProps) {
               )}
             >
               <PersonRoundedIcon htmlColor="white" fontSize="large" />
-              {authSession?.user?.username || authSession?.user?.email}
+              {authSession?.user?.username || authSession?.user?.name}
             </div>
             <button
               className="btn btn-outline-red"

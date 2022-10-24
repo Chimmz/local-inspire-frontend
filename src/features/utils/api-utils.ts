@@ -43,6 +43,15 @@ class API {
       },
     });
   }
+
+  async oathSignin({ user, account }: { user: object; account: object }) {
+    return this._makeRequest({
+      path: `/users/oauth`,
+      method: 'POST',
+      body: JSON.stringify({ user, account }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 export default new API();

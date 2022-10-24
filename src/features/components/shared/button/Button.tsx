@@ -19,7 +19,7 @@ function LoadingButton({ isLoading, ...otherProps }: ButtonProps) {
         gap: '1rem',
         justifyContent: 'center',
       }}
-      disabled={isLoading}
+      // disabled={isLoading}
     >
       <>
         {isLoading ? (
