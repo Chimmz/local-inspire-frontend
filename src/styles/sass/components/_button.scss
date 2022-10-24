@@ -3,7 +3,7 @@
   font: inherit;
   font-size: 1.3rem;
   border-color: transparent;
-  padding: 0.5em 1em;
+  padding: 0.6em 1em;
   border-radius: 4px;
   text-align: center;
   cursor: pointer;
@@ -15,6 +15,7 @@
 
     &:hover {
       background-color: $color-pry-dark;
+      color: #fff;
     }
   }
 
@@ -39,6 +40,14 @@
         background-color: #eee;
         border-color: $color-pry-dark;
         color: $text-dark;
+      }
+    }
+    &:is(.btn-outline-red) {
+      color: #a3a3a3;
+      border: 1px solid #702727;
+
+      &:hover {
+        border-color: #913131;
       }
     }
   }

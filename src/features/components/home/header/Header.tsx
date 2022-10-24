@@ -10,12 +10,11 @@ function Header() {
   return (
     <header className={styles.header}>
       <div className={styles['header-content']}>
-        <h1 className="">
+        <h1 className="fade-up">
           Where your inspired journey begins!
           <br />
           <span className="parag">
-            Discover your next great adventure & inspire local businesses to be
-            great.
+            Discover your next great adventure & inspire local businesses to be great.
           </span>
         </h1>
         <HeaderSearch />

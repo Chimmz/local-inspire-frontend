@@ -39,24 +39,20 @@ function Gallery() {
         </picture>
       </div>
       <div className={styles['gallery-text']}>
-        <h2 className="mb-1" style={{ maxWidth: '17ch' }}>
-          <span className="text-pry">Join us</span> in making our community
-          great!
+        <h2 className="mb-4" style={{ maxWidth: '17ch' }}>
+          <span className="text-pry">Join us</span> in making our community great!
         </h2>
-        <p className="mb-1">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam alias
-          expedita ratione voluptates! Veritatis quidem odio iste nesciunt,
-          ratione nemo.
+        <p className="mb-3">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam alias expedita
+          ratione voluptates! Veritatis quidem odio iste nesciunt, ratione nemo.
         </p>
-        <p className="mb-1">
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam
-          assumenda aut nostrum dicta. Quis fugiat provident, dolores quam hic
-          obcaecati.
+        <p className="mb-3">
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam assumenda aut
+          nostrum dicta. Quis fugiat provident, dolores quam hic obcaecati.
         </p>
         <p>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam
-          assumenda aut nostrum dicta. Quis fugiat provident, dolores quam hic
-          obcaecati.
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam assumenda aut
+          nostrum dicta. Quis fugiat provident, dolores quam hic obcaecati.
         </p>
       </div>
     </section>

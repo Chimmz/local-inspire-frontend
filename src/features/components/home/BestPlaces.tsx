@@ -6,11 +6,21 @@ import Image from 'next/image';
 function BestPlaces() {
   return (
     <section className={styles['best-places']}>
-      <h2 className="mb-3">
-        The <span className="text-pry"> best</span> places in the top cities
-      </h2>
+      <h2 className="mb-">The best places in the top cities</h2>
       <div className={styles.places}>
         <figure className={cls(styles.place, styles['place--special'])}>
+          <Image
+            src="/img/los-angeles-photo.jpg"
+            layout="fill"
+            alt="Los Angeles"
+            objectFit="cover"
+          />
+          <figcaption>
+            <span>Los Angeles</span>
+            <span>62 Listings</span>
+          </figcaption>
+        </figure>
+        <figure className={styles.place}>
           <Image
             src="/img/pexels-abdullah-ghatasheh-3069345.jpg"
             layout="fill"
@@ -22,18 +32,7 @@ function BestPlaces() {
             <span>62 Listings</span>
           </figcaption>
         </figure>
-        <figure className={styles.place}>
-          <Image
-            src="/img/pexels-fauxels-3184405.jpg"
-            layout="fill"
-            alt="Los Angeles"
-            objectFit="cover"
-          />
-          <figcaption>
-            <span>Los Angeles</span>
-            <span>62 Listings</span>
-          </figcaption>
-        </figure>
+
         <figure className={styles.place}>
           <Image
             src="/img/pexels-suzukii-xingfu-872831.jpg"
@@ -48,7 +47,7 @@ function BestPlaces() {
         </figure>
         <figure className={cls(styles.place, styles['place--special'])}>
           <Image
-            src="/img/pexels-pixabay-262978.jpg"
+            src="/img/newyork-photo.jpg"
             layout="fill"
             alt="New York"
             objectFit="cover"

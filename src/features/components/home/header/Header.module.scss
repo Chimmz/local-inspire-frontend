@@ -16,6 +16,7 @@
 
     & > h1 {
       font-size: 2.7rem;
+      font-weight: 700;
       line-height: 1.2;
       text-align: center;
       color: #fff;
@@ -45,7 +46,7 @@
     align-items: center;
     gap: 1rem;
     background-color: #fff;
-    padding: 1.7rem 3rem;
+    padding: 0.9rem 3rem;
     border-radius: 9999px;
     position: relative;
     // opacity: 0;
@@ -64,7 +65,7 @@
       flex: 1;
       display: flex;
       align-items: center;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
 
       @media screen and (max-width: 37.5em) {
         width: 100%;
@@ -77,6 +78,7 @@
         border: none;
         outline: none;
         background-color: transparent;
+        color: gray;
 
         @media screen and (max-width: 37.5em) {
           border: none !important;
@@ -143,22 +145,23 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        background-color: #e6e6e6;
+        background-color: #f3f3f3;
         font-size: 1.3rem;
         text-align: center;
         border-radius: 4px;
         color: black;
         font-weight: 500;
+        box-shadow: 0 2px 15px rgba(#000, 0.2);
         transition: transform 0.2s;
 
         & > img {
           width: 3rem;
           height: 3rem;
-          // flex: 1;
         }
         &:hover {
           transform: translateY(-1rem);
           background-color: #fff;
+          box-shadow: 0 2px 20px rgba(#000, 0.15);
         }
       }
     }
