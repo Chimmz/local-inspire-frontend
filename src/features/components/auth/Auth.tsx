@@ -17,6 +17,7 @@ import styles from './Auth.module.scss';
 import TextInput from '../shared/text-input/TextInput';
 import LoadingButton from '../shared/button/Button';
 import Spinner from '../shared/spinner/Spinner';
+import useLoading from '../../hooks/useLoading';
 
 interface AuthProps {
   show: boolean;
@@ -28,7 +29,14 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
   // const usernameRef = useRef<HTMLInputElement | null>(null);
   // const emailRef = useRef<HTMLInputElement | null>(null);
 
-  const { send: sendAuthRequest, loading: authRequestLoading } = useRequest();
+  const {
+    send: sendAuthRequest,
+    loading: authRequestLoading,
+    stopLoading: stopAuthRequestLoading,
+  } = useRequest({
+    autoStopLoading: false,
+  });
+
   const {
     inputValue: username,
     handleChange: handleChangeUsername,
@@ -62,9 +70,11 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     validators: [{ isRequired: ['This field is required'] }],
   });
 
-  // useEffect(() => {
-
-  // }, [])
+  useEffect(() => {
+    return () => {
+      stopAuthRequestLoading();
+    };
+  }, []);
 
   const validateFields = () => {
     const results = [runEmailValidators(), runPasswordValidators()];
@@ -73,6 +83,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
   };
 
   const authWithCredentials: React.FormEventHandler<HTMLFormElement> = async ev => {
+    console.log('In authWithCredentials...');
     ev.preventDefault();
     validateFields();
 
@@ -93,9 +104,11 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     console.table({ ok, error, status, url });
   };
 
-  const signInWithGoogle: React.MouseEventHandler<HTMLButtonElement> = async () => {
+  const signInWith3rdParty: React.MouseEventHandler<HTMLButtonElement> = async ev => {
+    if (!(ev.target instanceof HTMLButtonElement)) return;
+
     const options: SignInOptions = { callbackUrl: '/' };
-    const result = await sendAuthRequest(signIn('google', options));
+    const result = await sendAuthRequest(signIn(ev.target.dataset.provider, options));
     console.table(result);
   };
 
@@ -175,7 +188,8 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
           <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-            onClick={signInWithGoogle}
+            data-provider="google"
+            onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
             isLoading={false}
             disabled={authRequestLoading}
@@ -187,7 +201,8 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
           <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-            // onClick={signInWithFacebook}
+            data-provider="facebook"
+            onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
             isLoading={false}
             disabled={authRequestLoading}
@@ -199,7 +214,8 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
           <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-            // onClick={signInWithTwitter}
+            data-provider="twitter"
+            onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
             isLoading={false}
             disabled={authRequestLoading}

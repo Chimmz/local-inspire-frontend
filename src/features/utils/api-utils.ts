@@ -44,11 +44,13 @@ class API {
     });
   }
 
-  async oathSignin({ user, account }: { user: object; account: object }) {
+  async oauthSignIn(user: object, account: { provider: object }) {
+    const { provider, ...accountInfo } = account;
+
     return this._makeRequest({
-      path: `/users/oauth`,
+      path: `/users/oauth/${provider}`,
       method: 'POST',
-      body: JSON.stringify({ user, account }),
+      body: JSON.stringify({ user, account: accountInfo }),
       headers: { 'Content-Type': 'application/json' },
     });
   }

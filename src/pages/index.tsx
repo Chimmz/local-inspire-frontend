@@ -22,7 +22,7 @@ function Home() {
 
 export const getServerSideProps: GetServerSideProps = async context => {
   const authProviders = await getProviders();
-  console.log('authProviders: ', authProviders);
+  // console.log('authProviders: ', authProviders);
   return { props: {} };
 };
 
