@@ -92,23 +92,29 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     const options: SignInOptions = { email, password, redirect: false };
     if (authType === 'register') options.username = username;
 
-    // console.log(authType);
-    const result = await sendAuthRequest(signIn(authType, options));
-    if (!result) return;
-
-    const { ok, error, status, url } = result;
-    if (ok) {
-      close();
+    try {
+      // console.log(authType);
+      const result = await sendAuthRequest(signIn(authType, options));
+      if (!result) return;
+      const { ok, error, status, url } = result;
+      if (ok) {
+        close();
+      }
+      console.table({ ok, error, status, url });
+    } catch (err) {
+      console.log('Credential signin Error: ', err);
     }
-    console.table({ ok, error, status, url });
   };
 
   const signInWith3rdParty: React.MouseEventHandler<HTMLButtonElement> = async ev => {
     if (!(ev.target instanceof HTMLButtonElement)) return;
-
-    const options: SignInOptions = { callbackUrl: '/' };
-    const result = await sendAuthRequest(signIn(ev.target.dataset.provider, options));
-    console.table(result);
+    try {
+      const options: SignInOptions = { callbackUrl: '/' };
+      const result = await sendAuthRequest(signIn(ev.target.dataset.provider, options));
+      console.table(result);
+    } catch (err) {
+      console.log(`${ev.target.dataset.provider} signin error: `, err);
+    }
   };
 
   const isLoginAuthType = authType === 'login';
