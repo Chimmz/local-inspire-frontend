@@ -17,7 +17,6 @@ import styles from './Auth.module.scss';
 import TextInput from '../shared/text-input/TextInput';
 import LoadingButton from '../shared/button/Button';
 import Spinner from '../shared/spinner/Spinner';
-import useLoading from '../../hooks/useLoading';
 
 interface AuthProps {
   show: boolean;
@@ -74,7 +73,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     return () => {
       stopAuthRequestLoading();
     };
-  }, []);
+  }, [stopAuthRequestLoading]);
 
   const validateFields = () => {
     const results = [runEmailValidators(), runPasswordValidators()];

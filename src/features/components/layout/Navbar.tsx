@@ -16,6 +16,7 @@ import Modal from '../shared/modal/Modal';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import cls from 'classnames';
 import styles from './Navbar.module.scss';
+import Image from 'next/image';
 
 interface NavbarProps {
   bg?: string;
@@ -51,7 +52,12 @@ function Navbar({ bg }: NavbarProps) {
   return (
     <nav className={styles.nav} style={{ backgroundColor: bg }}>
       <a className={styles['nav-logo']} href="#">
-        <img src="img/localinspire-logo-white.png" alt="" />
+        <Image
+          src="/img/localinspire-logo-white.png"
+          alt="Local Inspire"
+          width={150}
+          height={30}
+        />
       </a>
       <div className={styles['nav-auth']}>
         {!authSession ? (
@@ -83,6 +89,7 @@ function Navbar({ bg }: NavbarProps) {
               )}
             >
               <PersonRoundedIcon htmlColor="white" fontSize="large" />
+              {/* @ts-ignore */}
               {authSession?.user?.username || authSession?.user?.name}
             </div>
             <button

@@ -13,8 +13,8 @@ function Footer() {
       <nav className="footer-nav">
         <ul className="no-bullets">
           <li className="footer-col">
-            <a href="#">
-              <img src="img/localinspire-logo.jpeg" alt="" />
+            <a href="#" style={{ width: 'max-content' }}>
+              <Image src="/img/localinspire-logo.jpeg" alt="" width={200} height={40} />
             </a>
             <span>© 2022 Local Inspire Inc.</span>
           </li>
@@ -45,10 +45,7 @@ function Footer() {
               </li>
               <li>
                 <a href="#">
-                  <PersonRoundedIcon
-                    fontSize="large"
-                    style={{ marginLeft: '-3px' }}
-                  />
+                  <PersonRoundedIcon fontSize="large" style={{ marginLeft: '-3px' }} />
                   Your account
                 </a>
               </li>
