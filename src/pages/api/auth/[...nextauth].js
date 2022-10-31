@@ -5,10 +5,6 @@ import FacebookProvider from 'next-auth/providers/facebook';
 
 import API from '../../../features/utils/api-utils';
 
-// NOTE: When deploying to production, set the:
-// NEXTAUTH_URL environment variable to the canonical URL of your site". NEXTAUTH_URL=https://example.com
-// NEXTAUTH_SECRET
-
 const callbacks = {};
 
 const loginProvider = CredentialsProvider({
@@ -28,7 +24,7 @@ const loginProvider = CredentialsProvider({
           throw new Error(res.reason);
       }
     } catch (err) {
-      console.log('Error: ', err);
+      console.log('Login Error: ', err);
       throw new Error('An error occurred');
     }
   },
@@ -39,7 +35,7 @@ const signupProvider = CredentialsProvider({
   authorize: async function (credentials, req) {
     try {
       const res = await API.register(credentials);
-      console.log(res);
+      // console.log(res);
 
       switch (res.status) {
         case 'SUCCESS':
@@ -51,7 +47,7 @@ const signupProvider = CredentialsProvider({
           throw new Error(res.reason);
       }
     } catch (err) {
-      console.log('Error: ', err);
+      // console.log('Error: ', err);
     }
   },
 });
@@ -75,7 +71,7 @@ callbacks.signIn = async ({ user, account, credentials }) => {
 };
 
 callbacks.jwt = async ({ user, token, account, isNewUser }) => {
-  console.log('In JWT: ', user, token, account, isNewUser);
+  // console.log('In JWT: ', user, token, account, isNewUser);
   // If token is not being created
   if (!user) return token;
 
@@ -88,9 +84,9 @@ callbacks.jwt = async ({ user, token, account, isNewUser }) => {
       try {
         const res = await API.oauthSignIn(user, account);
         if (res.status === 'SUCCESS') token = res.data;
-        console.log('API Response: ', res);
+        // console.log('API Response: ', res);
       } catch (err) {
-        console.log('Error: ' + err.message);
+        // console.log('Error: ' + err.message);
       }
     }
   }
@@ -108,13 +104,6 @@ export const authOptions = {
   callbacks,
 };
 export default NextAuth(authOptions);
-
-// const facebookProvider = async () => {
-
-// }
-// const twitterProvider = async () => {
-
-// }
 
 // Persisting data into a session: scroll 40% down
 // https://github.com/nextauthjs/next-auth/issues/371

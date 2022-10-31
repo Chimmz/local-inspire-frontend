@@ -1,0 +1,49 @@
+.searchSuggestions {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  border-radius: 5px;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  text-align: left;
+  z-index: 99;
+
+  & ul {
+    padding: 7px 3px;
+  }
+  & li {
+    list-style: none;
+
+    & a {
+      font-size: 1.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 500;
+      color: #2d2d2d;
+      padding: 8px 20px;
+      border-radius: 6px;
+      transition: color 0.3s, background-color 0.3s;
+
+      & > svg {
+        color: $color-pry;
+        transition: color 0.3s;
+      }
+    }
+
+    &:hover a {
+      background-color: $color-pry;
+      color: #ffffff;
+      & > svg {
+        color: #ffffff;
+      }
+    }
+  }
+}

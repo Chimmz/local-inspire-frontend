@@ -1,22 +1,194 @@
-import React from 'react';
-import { Icon } from '@iconify/react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import useInput from '../../../hooks/useInput';
+import useAPISearchResults from '../../../hooks/useAPISearchResults';
+
+import API from '../../../utils/api-utils';
 import cls from 'classnames';
+import * as uuid from 'uuid';
+
+import { Icon } from '@iconify/react';
+import SearchResults from '../../shared/search-result/SearchResults';
+import { Spinner as BootstrapSpinner } from 'react-bootstrap';
 import styles from './Header.module.scss';
 
+const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
+const MIN_CHARS_FOR_CITY_SEARCH = 2;
+
 function HeaderSearch() {
+  const categoryInput = useRef<HTMLInputElement | null>(null);
+  const cityInput = useRef<HTMLInputElement | null>(null);
+
+  const {
+    inputValue: categoryValue,
+    handleChange: handleChangeCategory,
+    setInputValue: setCategoryValue,
+  } = useInput({ init: '' });
+  const {
+    inputValue: cityValue,
+    handleChange: handleChangeCity,
+    setInputValue: setCityValue,
+  } = useInput({ init: '' });
+
+  const {
+    search: searchCategories,
+    searchResults: categoryResults,
+    loading: categoryResultsLoading,
+    resultsShown: categoryResultsShown,
+    showResults: showCategoryResults,
+    hideResults: hideCategoryResults,
+    resetResults: resetCategoryResults,
+  } = useAPISearchResults({
+    makeRequest: () => API.searchBusinessCategories(categoryValue),
+    responseDataField: 'categories',
+  });
+
+  const {
+    search: searchCities,
+    searchResults: cityResults,
+    loading: cityResultsLoading,
+    resultsShown: cityResultsShown,
+    showResults: showCityResults,
+    hideResults: hideCityResults,
+    resetResults: resetCityResults,
+  } = useAPISearchResults({
+    makeRequest: () => API.searchCities(cityValue),
+    responseDataField: 'cities',
+  });
+
+  const {
+    search: findBusinesses,
+    searchResults: businessResults,
+    loading: businessResultsLoading,
+    resultsShown: businessResultsShown,
+    showResults: showBusinessResults,
+    hideResults: hideBusinessResults,
+    resetResults: resetBusinessResults,
+  } = useAPISearchResults({
+    makeRequest: () => API.searchCities(cityValue),
+    responseDataField: 'cities',
+  });
+
+  useEffect(() => {
+    categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
+  }, [categoryValue]);
+
+  useEffect(() => {
+    cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
+  }, [cityValue]);
+
+  const search: React.FormEventHandler<HTMLFormElement> = ev => {
+    ev.preventDefault();
+    if (!categoryValue || !cityValue) return;
+    console.table({ categoryValue, cityValue });
+  };
+
+  const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
+    ev.preventDefault();
+
+    const { field, value } = (ev.target as Element).closest('a')?.dataset as {
+      field: string;
+      value: string;
+    };
+
+    switch (field) {
+      case 'category':
+        setCategoryValue(value);
+        hideCategoryResults();
+        if (!cityValue) cityInput.current!.focus();
+        break;
+
+      case 'city':
+        setCityValue(value);
+        hideCityResults();
+        if (!categoryValue) categoryInput.current!.focus();
+        break;
+    }
+    console.table({ field, value });
+  };
+
+  useEffect(() => {
+    categoryInput.current?.focus();
+
+    const clickHandler = (ev: MouseEvent) => {
+      const clickedOn = ev.target as Element;
+      console.log((ev.target as Element)?.closest('form'));
+      if (clickedOn?.closest('form')?.className.includes('header-search')) return;
+
+      hideCategoryResults();
+      hideCityResults();
+    };
+    document.addEventListener('click', clickHandler);
+
+    return () => document.removeEventListener('click', clickHandler);
+  }, []);
+
   return (
-    <form action="" className={styles['header-search']}>
+    <form className={styles['header-search']} onSubmit={search}>
       <div className={styles['header-search-field']}>
         <input
           type="text"
+          onChange={handleChangeCategory}
+          value={categoryValue}
           className="textfield"
           placeholder="Ex: hotel, restaurant..."
+          ref={categoryInput}
+          onFocus={() => {
+            hideCityResults();
+            if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH)
+              categoryResults.length ? showCategoryResults() : searchCategories();
+            else resetCategoryResults();
+          }}
         />
         <label htmlFor="">Find:</label>
+        <SearchResults
+          show={categoryResultsShown && !!categoryResults.length}
+          resultItems={categoryResults}
+          renderItem={categ => (
+            <li key={uuid.v4()}>
+              <a
+                href="#"
+                data-field="category"
+                data-value={categ}
+                onClick={handleSelectResult}
+              >
+                <span>{categ as unknown as React.ReactNode}</span>
+              </a>
+            </li>
+          )}
+        />
       </div>
       <div className={styles['header-search-field']}>
-        <input type="text" className="textfield" placeholder="Your city" />
+        <input
+          type="text"
+          onChange={handleChangeCity}
+          value={cityValue}
+          ref={cityInput}
+          className="textfield"
+          placeholder="Your city"
+          onFocus={() => {
+            hideCategoryResults();
+            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH)
+              cityResults.length ? showCityResults() : searchCities();
+            else resetCategoryResults();
+          }}
+        />
         <label htmlFor="">Near:</label>
+        <SearchResults
+          show={cityResultsShown && !!cityResults.length}
+          resultItems={cityResults}
+          renderItem={city => (
+            <li key={uuid.v4()}>
+              <a
+                href="#"
+                data-field="city"
+                data-value={city}
+                onClick={handleSelectResult}
+              >
+                <span>{city as unknown as React.ReactNode}</span>
+              </a>
+            </li>
+          )}
+        />
       </div>
       <button className={cls(styles.btn, 'btn btn-pry')} type="submit">
         <Icon icon="akar-icons:search" />

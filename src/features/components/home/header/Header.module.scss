@@ -50,6 +50,7 @@
     border-radius: 9999px;
     position: relative;
     // opacity: 0;
+    transition: width 0.5s;
     animation: fade-up 1s 0.3s forwards;
 
     @media screen and (max-width: 37.5em) {
@@ -58,7 +59,7 @@
       padding-block: 2rem;
       flex-direction: column;
       border-radius: 10px;
-      background-color: #dfdfdf;
+      // background-color: #dfdfdf;
     }
 
     &-field {
@@ -66,6 +67,7 @@
       display: flex;
       align-items: center;
       font-size: 1.4rem;
+      position: relative;
 
       @media screen and (max-width: 37.5em) {
         width: 100%;
@@ -85,8 +87,9 @@
           color: #000;
         }
 
-        &:focus + label {
-          color: $color-pry;
+        &:focus ~ label {
+          // color: $color-pry;
+          font-weight: bold;
         }
       }
 

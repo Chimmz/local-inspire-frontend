@@ -17,6 +17,8 @@ import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import cls from 'classnames';
 import styles from './Navbar.module.scss';
 import Image from 'next/image';
+import LoadingButton from '../shared/button/Button';
+import useRequest from '../../hooks/useRequest';
 
 interface NavbarProps {
   bg?: string;
@@ -30,11 +32,13 @@ function Navbar({ bg }: NavbarProps) {
   }>({ yes: false, authType: null });
 
   const router = useRouter();
-
   const { data: authSession, status: authStatus } = useSession();
+  const { send: sendLogooutRequest, loading: isLoggingOut } = useRequest({
+    autoStopLoading: true,
+  });
 
   const handleSignOut: React.MouseEventHandler<HTMLButtonElement> = async () => {
-    await signOut({ redirect: false });
+    await sendLogooutRequest(signOut({ redirect: false }));
   };
 
   const triggerAuthModal: React.MouseEventHandler<HTMLButtonElement> = ev => {
@@ -47,7 +51,7 @@ function Navbar({ bg }: NavbarProps) {
 
   const closeAuthModal = useCallback(() => {
     setUserWantsToAuth({ yes: false, authType: null });
-  }, []);
+  }, [setUserWantsToAuth]);
 
   return (
     <nav className={styles.nav} style={{ backgroundColor: bg }}>
@@ -90,15 +94,24 @@ function Navbar({ bg }: NavbarProps) {
             >
               <PersonRoundedIcon htmlColor="white" fontSize="large" />
               {/* @ts-ignore */}
-              {authSession?.user?.username || authSession?.user?.name}
+              {authSession?.user?.username}
             </div>
-            <button
+            <LoadingButton
+              className="btn btn-outline-red"
+              onClick={handleSignOut}
+              style={{ color: '#949494' }}
+              isLoading={isLoggingOut}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? 'Logging out...' : 'Log out'}
+            </LoadingButton>
+            {/* <button
               className="btn btn-outline-red"
               onClick={handleSignOut}
               style={{ color: '#949494' }}
             >
               Logout
-            </button>
+            </button> */}
           </>
         ) : null}
       </div>
