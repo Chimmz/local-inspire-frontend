@@ -8,7 +8,7 @@ import cls from 'classnames';
 import useRequest from '../../../hooks/useRequest';
 import { useRouter } from 'next/router';
 
-import SearchResults from '../../shared/search-result/SearchResults';
+import SearchResults from '../../shared/search-results/BusinessSearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import styles from './Header.module.scss';

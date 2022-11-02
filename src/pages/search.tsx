@@ -34,7 +34,7 @@ function Search() {
 
   useEffect(() => {
     if (!query.category || !query.city || !query.state) return resetBusinessResults();
-    // findBusinesses();
+    findBusinesses();
   }, []);
   return <Layout>Hi Search</Layout>;
 }

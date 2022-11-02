@@ -1,8 +1,7 @@
-
 import React from 'react';
 import * as uuid from 'uuid';
 import cls from 'classnames';
-import styles from './SearchResult.module.scss';
+import styles from './BusinessSearchResults.module.scss';
 
 type Item = { name: string; value: string };
 interface Props {
