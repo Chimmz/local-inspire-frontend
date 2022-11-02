@@ -10,8 +10,8 @@ interface RequestConfig {
 class API {
   async _makeRequest({ path, fromAPI = true, ...config }: RequestConfig) {
     try {
-      const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL + path : path;
-      // const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE + path : path;
+      // const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL + path : path;
+      const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE + path : path;
       // @ts-ignore
       const resp = await fetch(fullUrl, config);
       const data = await resp.json();
@@ -72,13 +72,13 @@ class API {
     });
   }
 
-  // async findBusinesses(category: string, city: string, stateCode: string): Promise<any> {
-  //   return this._makeRequest({
-  //     path: `/cities/search?textQuery=${query}`,
-  //     method: 'GET',
-  //     headers: { 'Content-Type': 'application/json' },
-  //   });
-  // }
+  async findBusinesses(category: string, city: string, stateCode: string): Promise<any> {
+    return this._makeRequest({
+      path: `/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }
 
 export default new API();

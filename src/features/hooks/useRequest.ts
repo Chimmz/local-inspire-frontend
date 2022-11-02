@@ -17,7 +17,7 @@ function useRequest({ autoStopLoading = true }: Params) {
     return req;
   };
 
-  return { send, loading, stopLoading };
+  return { send, loading, startLoading, stopLoading };
 }
 
 export default useRequest;

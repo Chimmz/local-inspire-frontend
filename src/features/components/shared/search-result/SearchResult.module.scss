@@ -1,8 +1,10 @@
 .searchSuggestions {
   position: absolute;
-  top: calc(100% + 2px);
+  top: calc(100% + 9px);
   left: 0;
   right: 0;
+  max-height: 40vh;
+  overflow-y: scroll;
   border-radius: 5px;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
@@ -10,7 +12,7 @@
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.3);
   background-color: #ffffff;
   text-align: left;
   z-index: 99;
@@ -21,13 +23,19 @@
   & li {
     list-style: none;
 
+    &:not(:last-child) {
+      border-bottom: 1px solid #e6e6e6;
+    }
+
     & a {
-      font-size: 1.05em;
+      // font-size: 1.05em;
       display: flex;
       align-items: center;
       gap: 0.7rem;
       font-weight: 500;
       color: #2d2d2d;
+      // color: #000;
+      font-weight: 600;
       padding: 8px 20px;
       border-radius: 6px;
       transition: color 0.3s, background-color 0.3s;

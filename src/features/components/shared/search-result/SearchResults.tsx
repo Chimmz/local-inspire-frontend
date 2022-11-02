@@ -1,5 +1,7 @@
+
 import React from 'react';
 import * as uuid from 'uuid';
+import cls from 'classnames';
 import styles from './SearchResult.module.scss';
 
 type Item = { name: string; value: string };
@@ -15,7 +17,7 @@ function SearchResults(props: Props) {
 
   if (!show) return <></>;
   return (
-    <div className={styles.searchSuggestions}>
+    <div className={cls(styles.searchSuggestions, 'thin-scrollbar')}>
       <ul>
         {resultItems?.map(
           item =>

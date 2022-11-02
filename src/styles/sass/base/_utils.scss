@@ -43,3 +43,29 @@
 .flex-gap-3 {
   gap: 3rem;
 }
+
+.thin-scrollbar {
+  &::-webkit-scrollbar {
+    height: 5px; // for horizontal scrollbars
+    width: 7px; // for vertical scrollbars
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    // background-color: #cacaca;
+    height: 7px;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background-color: #a0a0a0;
+    height: 3px;
+    border-radius: 999px;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #888888;
+  }
+}

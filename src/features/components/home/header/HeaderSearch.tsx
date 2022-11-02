@@ -1,14 +1,16 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import useInput from '../../../hooks/useInput';
 import useAPISearchResults from '../../../hooks/useAPISearchResults';
 
 import API from '../../../utils/api-utils';
-import cls from 'classnames';
 import * as uuid from 'uuid';
+import cls from 'classnames';
+import useRequest from '../../../hooks/useRequest';
+import { useRouter } from 'next/router';
 
-import { Icon } from '@iconify/react';
 import SearchResults from '../../shared/search-result/SearchResults';
-import { Spinner as BootstrapSpinner } from 'react-bootstrap';
+import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
+import { Icon } from '@iconify/react';
 import styles from './Header.module.scss';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
@@ -17,6 +19,13 @@ const MIN_CHARS_FOR_CITY_SEARCH = 2;
 function HeaderSearch() {
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
+  const {
+    startLoading: startFindBusinessLoader,
+    stopLoading: stopFindBusinessLoader,
+    loading: findBusinessesLoading,
+  } = useRequest({ autoStopLoading: false });
+
+  const router = useRouter();
 
   const {
     inputValue: categoryValue,
@@ -55,41 +64,33 @@ function HeaderSearch() {
     responseDataField: 'cities',
   });
 
-  const {
-    search: findBusinesses,
-    searchResults: businessResults,
-    loading: businessResultsLoading,
-    resultsShown: businessResultsShown,
-    showResults: showBusinessResults,
-    hideResults: hideBusinessResults,
-    resetResults: resetBusinessResults,
-  } = useAPISearchResults({
-    makeRequest: () => API.searchCities(cityValue),
-    responseDataField: 'cities',
-  });
-
   useEffect(() => {
     categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
+    if (!categoryValue.length) resetCategoryResults();
   }, [categoryValue]);
 
   useEffect(() => {
     cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
+    if (!cityValue.length) resetCityResults();
   }, [cityValue]);
+
+  useEffect(() => stopFindBusinessLoader, []);
 
   const search: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (!categoryValue || !cityValue) return;
-    console.table({ categoryValue, cityValue });
+    if (!categoryResults.length || !cityResults.length) return;
+
+    startFindBusinessLoader();
+    router.push(`/search?category=${categoryValue}&city=${cityValue}&state=${'AK'}`);
   };
 
   const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
     ev.preventDefault();
-
     const { field, value } = (ev.target as Element).closest('a')?.dataset as {
       field: string;
       value: string;
     };
-
     switch (field) {
       case 'category':
         setCategoryValue(value);
@@ -134,9 +135,9 @@ function HeaderSearch() {
           ref={categoryInput}
           onFocus={() => {
             hideCityResults();
-            if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH)
-              categoryResults.length ? showCategoryResults() : searchCategories();
-            else resetCategoryResults();
+            if (!categoryValue.length) return;
+            categoryResults.length ? showCategoryResults() : searchCategories();
+            // else resetCategoryResults();
           }}
         />
         <label htmlFor="">Find:</label>
@@ -167,9 +168,8 @@ function HeaderSearch() {
           placeholder="Your city"
           onFocus={() => {
             hideCategoryResults();
-            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH)
-              cityResults.length ? showCityResults() : searchCities();
-            else resetCategoryResults();
+            if (!cityValue.length) return;
+            cityResults.length ? showCityResults() : searchCities();
           }}
         />
         <label htmlFor="">Near:</label>
@@ -190,9 +190,21 @@ function HeaderSearch() {
           )}
         />
       </div>
-      <button className={cls(styles.btn, 'btn btn-pry')} type="submit">
-        <Icon icon="akar-icons:search" />
-      </button>
+      <Button
+        className={cls(styles.btn, 'btn btn-pry')}
+        type="submit"
+        disabled={findBusinessesLoading}
+      >
+        {findBusinessesLoading ? (
+          <BootstrapSpinner
+            animation="border"
+            size="sm"
+            style={{ width: '15px', height: '15px' }}
+          />
+        ) : (
+          <Icon icon="akar-icons:search" />
+        )}
+      </Button>
     </form>
   );
 }
