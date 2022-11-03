@@ -68,9 +68,16 @@ export const getStaticProps: GetStaticProps = async function (context) {
   if (!category || !city || !stateCode) return { notFound: true };
 
   try {
-    const { businesses } = await API.findBusinesses(category, city, stateCode);
+    const { businesses } = await API._makeRequest({
+      path: `https://localinspire-backend.vercel.app/api/v1/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      fromAPI: false,
+    });
+    if (!businesses) throw Error();
+
     console.log(businesses);
-    return { props: { businesses } };
+    return { props: { businesses: businesses || null } };
   } catch (err) {
     console.error('Error: ', err);
     return { props: { error: 'Sorry, something wrong happened' } };
