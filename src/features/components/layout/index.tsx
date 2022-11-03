@@ -9,13 +9,11 @@ type Props = {
 
 function Layout(props: Props) {
   return (
-    <Fragment>
-      <Navbar bg={props.navBg} />
-      <main>
-        {props.children}
-        <Footer />
-      </main>
-    </Fragment>
+    <>
+      {/* <Navbar bg={props.navBg} /> */}
+      <main>{props.children}</main>
+      <Footer />
+    </>
   );
 }
 

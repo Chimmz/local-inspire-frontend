@@ -8,10 +8,11 @@ import cls from 'classnames';
 import useRequest from '../../../hooks/useRequest';
 import { useRouter } from 'next/router';
 
-import SearchResults from '../../shared/search-results/BusinessSearchResults';
+import SearchResults from '../../shared/search-results/SearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import styles from './Header.module.scss';
+import * as stringUtils from '../../../utils/string-utils';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -32,6 +33,7 @@ function HeaderSearch() {
     handleChange: handleChangeCategory,
     setInputValue: setCategoryValue,
   } = useInput({ init: '' });
+
   const {
     inputValue: cityValue,
     handleChange: handleChangeCity,
@@ -82,7 +84,13 @@ function HeaderSearch() {
     if (!categoryResults.length || !cityResults.length) return;
 
     startFindBusinessLoader();
-    router.push(`/search?category=${categoryValue}&city=${cityValue}&state=${'AK'}`);
+
+    const [categParam, cityParam, stateParam] = [
+      stringUtils.toLowerSnakeCase(categoryValue),
+      stringUtils.toLowerSnakeCase(cityValue),
+      'AK',
+    ];
+    router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
   };
 
   const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
@@ -119,7 +127,6 @@ function HeaderSearch() {
       hideCityResults();
     };
     document.addEventListener('click', clickHandler);
-
     return () => document.removeEventListener('click', clickHandler);
   }, []);
 
@@ -137,7 +144,6 @@ function HeaderSearch() {
             hideCityResults();
             if (!categoryValue.length) return;
             categoryResults.length ? showCategoryResults() : searchCategories();
-            // else resetCategoryResults();
           }}
         />
         <label htmlFor="">Find:</label>

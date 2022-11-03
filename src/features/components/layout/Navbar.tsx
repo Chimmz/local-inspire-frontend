@@ -22,10 +22,11 @@ import useRequest from '../../hooks/useRequest';
 
 interface NavbarProps {
   bg?: string;
+  position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
 }
 type AuthType = 'login' | 'register';
 
-function Navbar({ bg }: NavbarProps) {
+function Navbar({ bg, position }: NavbarProps) {
   const [userWantsToAuth, setUserWantsToAuth] = useState<{
     yes: boolean;
     authType: AuthType | null;
@@ -54,7 +55,10 @@ function Navbar({ bg }: NavbarProps) {
   }, [setUserWantsToAuth]);
 
   return (
-    <nav className={styles.nav} style={{ backgroundColor: bg }}>
+    <nav
+      className={styles.nav}
+      style={{ backgroundColor: bg, position: position || 'relative' }}
+    >
       <a className={styles['nav-logo']} href="#">
         <Image
           src="/img/localinspire-logo-white.png"

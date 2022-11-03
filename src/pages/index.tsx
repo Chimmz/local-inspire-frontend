@@ -9,10 +9,13 @@ import Footer from '../features/components/layout/Footer';
 import styles from '../styles/sass/pages/Home.module.scss';
 import Layout from '../features/components/layout/index';
 import { getProviders } from 'next-auth/react';
+import { useEffect } from 'react';
+import Navbar from '../features/components/layout/Navbar';
 
 function Home() {
   return (
-    <Layout navBg="transparent">
+    <Layout>
+      <Navbar bg="transparent" position="absolute" />
       <Header />
       <Gallery />
       <BestPlaces />

@@ -17,6 +17,10 @@ export const toCamelCase = (str: string, divider = ' ') => {
     .join('');
 };
 
+export const toLowerSnakeCase = (str: string) => {
+  return str.toLowerCase().split(' ').join('_');
+};
+
 export const addSuffixToNumber = (number: string | number) => {
   console.log('ARG: ', number);
   let s = ['th', 'st', 'nd', 'rd'];
