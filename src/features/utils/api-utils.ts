@@ -12,8 +12,8 @@ interface RequestConfig {
 class API {
   async _makeRequest({ path, fromAPI = true, ...config }: RequestConfig) {
     try {
-      // const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
-      const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE + path : path;
+      const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
+      // const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE + path : path;
       // @ts-ignore
       const resp = await fetch(fullUrl, config as RequestInit);
       const data = await resp.json();
