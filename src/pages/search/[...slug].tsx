@@ -38,6 +38,10 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
     stopLoading: stopSearchLoader,
   } = useRequest({ autoStopLoading: false });
 
+  useEffect(() => {
+    return stopSearchLoader;
+  }, []);
+
   if (!businesses) return <div>{props.error}</div>;
 
   let [category, city, stateCode] = (query.slug as string[]) || [];
@@ -58,10 +62,6 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
   };
 
   const showLoader = () => startSearchLoader();
-
-  useEffect(() => {
-    return stopSearchLoader;
-  }, []);
 
   return (
     <>
