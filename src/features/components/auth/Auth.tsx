@@ -31,6 +31,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
   const {
     send: sendAuthRequest,
     loading: authRequestLoading,
+    startLoading: showLoader,
     stopLoading: stopAuthRequestLoading,
   } = useRequest({
     autoStopLoading: false,
@@ -110,7 +111,9 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     if (!(ev.target instanceof HTMLButtonElement)) return;
     try {
       const options: SignInOptions = { callbackUrl: '/' };
-      const result = await sendAuthRequest(signIn(ev.target.dataset.provider, options));
+      // const result = await sendAuthRequest(signIn(ev.target.dataset.provider, options));
+      const result = await signIn(ev.target.dataset.provider, options);
+      showLoader();
       console.table(result);
     } catch (err) {
       console.log(`${ev.target.dataset.provider} signin error: `, err);

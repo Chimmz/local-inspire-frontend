@@ -1,0 +1,225 @@
+.businessesResultsPage {
+  // background-color: orange;
+  min-height: 100%;
+  max-height: 100%;
+  padding: 5rem;
+  padding-top: 12rem;
+  // background-color: #ececec;
+
+  display: grid;
+  grid-template-columns: max(15%, 25rem) 1fr;
+  grid-template-rows: min-content auto 1fr;
+  grid-template-areas:
+    'heading heading'
+    'map businesses'
+    'filter businesses';
+  // '. . pagination';
+  align-items: start;
+  row-gap: 2.5rem;
+  column-gap: 2.5rem;
+
+  & > *:not(h2) {
+    border-radius: 7px;
+    box-shadow: 0 0 20px rgba(#000, 0.2);
+  }
+
+  & > h2 {
+    text-align: center;
+    // font-size: 2.7rem;
+    font-size: 3.2rem;
+    letter-spacing: 1px;
+    grid-area: heading;
+    margin-bottom: 4rem;
+    font-family: 'Baskervville', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: 600;
+  }
+
+  & > .mapPreview {
+    grid-area: map;
+    align-self: center;
+    height: 15rem;
+    background-color: #fff;
+    border: 1rem solid #fff;
+    overflow: hidden;
+
+    .btnViewMap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: max-content;
+      z-index: 2;
+      // background-color: #fff;
+      &:not(:hover) {
+        color: #000;
+      }
+    }
+  }
+
+  & > .filter {
+    grid-area: filter;
+    background-color: #fff;
+    padding: 2.5rem;
+    font-size: 1.3rem !important;
+
+    & > h4 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    & > .filterSection {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-block: 2rem;
+
+      & > .filterType {
+        font-size: 0.9em;
+        color: $text-dark;
+        font-weight: bold;
+      }
+      // &:not(:last-of-type) {
+      border-top: 1px solid #dadada;
+      // }
+      & > label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        & > [type='checkbox'] {
+          accent-color: $text-dark;
+
+          &:checked + span {
+            // color: black;
+          }
+        }
+        &:hover,
+        & > *:hover {
+          cursor: pointer;
+          color: black;
+        }
+      }
+    }
+  }
+  & > .businesses {
+    grid-area: businesses;
+    background-color: #fff;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    // justify-content: center;
+    flex-wrap: wrap;
+    font-size: 1.5rem;
+    gap: 10px;
+    row-gap: 2vw;
+    position: relative;
+
+    .businessResult {
+      flex: 1 1 30rem;
+      // max-width: 50rem;
+      text-align: center;
+
+      & > figure {
+        width: 100%;
+        height: 20rem;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+      }
+      & > figcaption {
+        padding: 0 2px;
+
+        & > h6 {
+          font-size: 1.1em;
+          font-weight: 600;
+          color: $text-dark;
+        }
+        & > address {
+          font-size: 0.8em;
+          margin: 0;
+        }
+      }
+    }
+
+    & .totalResults {
+      position: absolute;
+      bottom: calc(100% + 5px);
+      right: 1rem;
+      z-index: 6;
+    }
+  }
+
+  & .pagination {
+    // grid-area: pagination;
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+  }
+  .paginators {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    list-style-type: none;
+
+    & > li {
+      & > a.link {
+        width: 25px;
+        height: 25px;
+        // background-color: #f1f1f1;
+        display: grid;
+        place-items: center;
+        place-content: center;
+        font-size: 1.5rem;
+        color: #000;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          // height: ;
+          border-radius: 50%;
+          border: 1px solid $color-pry;
+          transform: scale(0.5);
+          opacity: 0;
+          z-index: -1;
+          transition: transform 0.1s;
+        }
+
+        &:hover {
+          color: $color-pry;
+
+          &::before {
+            opacity: 1;
+            transform: scale(1);
+            // background-color: $color-pry-lightest;
+            // border: 1px solid gray;
+          }
+        }
+
+        &.linkActive {
+          color: rgba(#fff, 0.9);
+
+          &::before {
+            border: none;
+            opacity: 1;
+            transform: scale(1);
+            background-color: $color-pry;
+          }
+        }
+      }
+    }
+  }
+
+  & .noResults {
+    min-height: 20rem;
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    place-content: center;
+    color: black;
+  }
+}

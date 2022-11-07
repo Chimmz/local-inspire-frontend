@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
@@ -10,23 +11,25 @@ import {
 import { Session } from 'next-auth';
 
 import { useRouter } from 'next/router';
+import useRequest from '../../hooks/useRequest';
+import cls from 'classnames';
 
 import Auth from '../auth/Auth';
 import Modal from '../shared/modal/Modal';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-import cls from 'classnames';
-import styles from './Navbar.module.scss';
-import Image from 'next/image';
 import LoadingButton from '../shared/button/Button';
-import useRequest from '../../hooks/useRequest';
+import styles from './Navbar.module.scss';
+import Link from 'next/link';
 
 interface NavbarProps {
   bg?: string;
+  style?: object;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
+  children?: React.ReactNode;
 }
 type AuthType = 'login' | 'register';
 
-function Navbar({ bg, position }: NavbarProps) {
+function Navbar({ bg, style, position, children }: NavbarProps) {
   const [userWantsToAuth, setUserWantsToAuth] = useState<{
     yes: boolean;
     authType: AuthType | null;
@@ -57,28 +60,32 @@ function Navbar({ bg, position }: NavbarProps) {
   return (
     <nav
       className={styles.nav}
-      style={{ backgroundColor: bg, position: position || 'relative' }}
+      style={{ backgroundColor: bg, position: position || 'relative', ...style }}
     >
-      <a className={styles['nav-logo']} href="#">
-        <Image
-          src="/img/localinspire-logo-white.png"
-          alt="Local Inspire"
-          width={150}
-          height={30}
-        />
-      </a>
+      <Link href="/">
+        <div className={styles['nav-logo']}>
+          <Image
+            src="/img/localinspire-logo-white.png"
+            // src="/img/localinspire-logo.jpeg"
+            alt="Local Inspire"
+            width={165}
+            height={35}
+          />
+        </div>
+      </Link>
+      {children}
       <div className={styles['nav-auth']}>
         {!authSession ? (
           <>
             <button
-              className="btn btn-outline-white"
+              className="btn btn-outline btn--sm"
               data-auth-type="login"
               onClick={triggerAuthModal}
             >
               Login
             </button>
             <button
-              className="btn btn-pry"
+              className="btn btn-pry btn--sm"
               data-auth-type="register"
               onClick={triggerAuthModal}
             >

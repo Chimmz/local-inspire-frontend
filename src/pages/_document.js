@@ -16,6 +16,10 @@ export default function MyDoc() {
           rel="stylesheet"
           async
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap"
+          rel="stylesheet"
+        />
         <script
           src="https://code.iconify.design/iconify-icon/1.0.1/iconify-icon.min.js"
           async

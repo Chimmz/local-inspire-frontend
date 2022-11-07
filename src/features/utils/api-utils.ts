@@ -6,17 +6,21 @@ interface RequestConfig {
   body?: string;
   headers?: object;
   mode?: string;
-  fromAPI?: boolean;
 }
 
 class API {
-  async _makeRequest({ path, fromAPI = true, ...config }: RequestConfig) {
+  async _makeRequest({ path, ...config }: RequestConfig) {
+    const isAPICall = path.startsWith('/');
+    const api =
+      process.env.NODE_ENV === 'development'
+        ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
+        : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
+
     try {
-      const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
-      // const fullUrl = fromAPI ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE + path : path;
-      // @ts-ignore
-      const resp = await fetch(fullUrl, config as RequestInit);
-      const data = await resp.json();
+      // const fullUrl = isAPICall ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
+      const fullUrl = isAPICall ? `${api}${path}` : path;
+      const res = await fetch(fullUrl, config as RequestInit);
+      const data = await res.json();
       return data;
     } catch (err) {
       console.log(err);
@@ -74,9 +78,15 @@ class API {
     });
   }
 
-  async findBusinesses(category: string, city: string, stateCode: string): Promise<any> {
+  async findBusinesses(
+    category: string,
+    city: string,
+    stateCode: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<any> {
     return this._makeRequest({
-      path: `/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}`,
+      path: `/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=${page}&limit=${limit}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

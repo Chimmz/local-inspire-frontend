@@ -17,7 +17,7 @@ function Header() {
             Discover your next great adventure & inspire local businesses to be great.
           </span>
         </h1>
-        <HeaderSearch />
+        <HeaderSearch fontSize="1.4rem" />
       </div>
       <HeaderServices />
     </header>

@@ -46,10 +46,12 @@
     align-items: center;
     gap: 1rem;
     background-color: #fff;
-    padding: 0.9rem 3rem;
+    padding: 0.6em 2em;
     border-radius: 9999px;
     position: relative;
     // opacity: 0;
+    // border: 1px solid #bdbdbd;
+    box-shadow: 0 2px 4px rgba(#000, 0.17);
     transition: width 0.5s;
     animation: fade-up 1s 0.3s forwards;
 
@@ -66,7 +68,7 @@
       flex: 1;
       display: flex;
       align-items: center;
-      font-size: 1.4rem;
+      // font-size: 1.4rem;
       position: relative;
 
       @media screen and (max-width: 37.5em) {
@@ -89,7 +91,7 @@
 
         &:focus ~ label {
           // color: $color-pry;
-          font-weight: bold;
+          // font-weight: bold;
         }
       }
 
@@ -154,7 +156,7 @@
         border-radius: 4px;
         color: black;
         font-weight: 500;
-        box-shadow: 0 2px 15px rgba(#000, 0.2);
+        box-shadow: 0 2px 15px rgba(#000, 0.25);
         transition: transform 0.2s;
 
         & > img {
@@ -164,7 +166,7 @@
         &:hover {
           transform: translateY(-1rem);
           background-color: #fff;
-          box-shadow: 0 2px 20px rgba(#000, 0.15);
+          box-shadow: 0 2px 25px rgba(#000, 0.2);
         }
       }
     }

@@ -8,28 +8,25 @@ import cls from 'classnames';
 import useRequest from '../../../hooks/useRequest';
 import { useRouter } from 'next/router';
 
-import SearchResults from '../../shared/search-results/SearchResults';
+import SearchResults from '../search-results/SearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
-import styles from './Header.module.scss';
 import * as stringUtils from '../../../utils/string-utils';
+import styles from './BusinessSearchForm.module.scss';
 
-interface HeaderSearchProps {
+interface BusinessSearchFormProps {
   fontSize?: string;
+  isLoading: boolean;
+  showLoader: Function;
 }
-
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
 
-function HeaderSearch({ fontSize }: HeaderSearchProps) {
+function BusinessSearchForm(props: BusinessSearchFormProps) {
+  const { fontSize } = props;
+
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
-  const {
-    startLoading: startFindBusinessLoader,
-    stopLoading: stopFindBusinessLoader,
-    loading: findBusinessesLoading,
-  } = useRequest({ autoStopLoading: false });
-
   const router = useRouter();
 
   const {
@@ -37,7 +34,6 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
     handleChange: handleChangeCategory,
     setInputValue: setCategoryValue,
   } = useInput({ init: '' });
-
   const {
     inputValue: cityValue,
     handleChange: handleChangeCity,
@@ -70,6 +66,12 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
     responseDataField: 'cities',
   });
 
+  const {
+    startLoading: startFindBusinessLoader,
+    stopLoading: stopFindBusinessLoader,
+    loading: findBusinessesLoading,
+  } = useRequest({ autoStopLoading: false });
+
   useEffect(() => {
     categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
     if (!categoryValue.length) resetCategoryResults();
@@ -82,18 +84,18 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
 
   useEffect(() => stopFindBusinessLoader, []);
 
-  const search: React.FormEventHandler<HTMLFormElement> = ev => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (!categoryValue || !cityValue) return;
-    if (!categoryResults.length || !cityResults.length) return;
-
-    startFindBusinessLoader();
+    props.showLoader();
 
     const [categParam, cityParam, stateParam] = [
       stringUtils.toLowerSnakeCase(categoryValue),
       stringUtils.toLowerSnakeCase(cityValue),
       'AK',
     ];
+    startFindBusinessLoader();
+    console.log('New page params: ', { categParam, cityParam, stateParam });
     router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
   };
 
@@ -103,6 +105,7 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
       field: string;
       value: string;
     };
+
     switch (field) {
       case 'category':
         setCategoryValue(value);
@@ -124,8 +127,8 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
 
     const clickHandler = (ev: MouseEvent) => {
       const clickedOn = ev.target as Element;
-      console.log((ev.target as Element)?.closest('form'));
-      if (clickedOn?.closest('form')?.className.includes('header-search')) return;
+      // console.log((ev.target as Element)?.closest('form'));
+      if (clickedOn?.closest('form')?.className.includes('search')) return;
 
       hideCategoryResults();
       hideCityResults();
@@ -135,8 +138,8 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
   }, []);
 
   return (
-    <form className={styles['header-search']} onSubmit={search}>
-      <div className={styles['header-search-field']} style={{ fontSize }}>
+    <form className={styles.search} onSubmit={handleSubmit}>
+      <div className={styles['search-field']} style={{ fontSize }}>
         <input
           type="text"
           onChange={handleChangeCategory}
@@ -168,7 +171,7 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
           )}
         />
       </div>
-      <div className={styles['header-search-field']} style={{ fontSize }}>
+      <div className={styles['search-field']} style={{ fontSize }}>
         <input
           type="text"
           onChange={handleChangeCity}
@@ -203,9 +206,9 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
       <Button
         className={cls(styles.btn, 'btn btn-pry')}
         type="submit"
-        disabled={findBusinessesLoading}
+        disabled={props.isLoading}
       >
-        {findBusinessesLoading ? (
+        {props.isLoading ? (
           <BootstrapSpinner
             animation="border"
             size="sm"
@@ -219,4 +222,4 @@ function HeaderSearch({ fontSize }: HeaderSearchProps) {
   );
 }
 
-export default HeaderSearch;
+export default BusinessSearchForm;

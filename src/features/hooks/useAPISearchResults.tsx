@@ -14,10 +14,10 @@ const useAPISearchResults = ({ makeRequest, responseDataField }: Params) => {
   const resetResults = () => setSearchResults([]);
 
   const search = () => {
-    console.log(`Searching ${responseDataField}...`);
+    // console.log(`Searching ${responseDataField}...`);
     sendRequest(makeRequest())
       .then(res => {
-        console.log('Data: ', res[responseDataField]);
+        // console.log('Data: ', res[responseDataField]);
         if (res?.status !== 'SUCCESS') return;
         setSearchResults(res[responseDataField]);
         setResultsShown(true);

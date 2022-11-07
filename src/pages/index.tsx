@@ -1,15 +1,10 @@
 import type { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
-import Image from 'next/image';
+import { getProviders } from 'next-auth/react';
 
 import Header from '../features/components/home/header/Header';
 import Gallery from '../features/components/home/Gallery';
 import BestPlaces from '../features/components/home/BestPlaces';
-import Footer from '../features/components/layout/Footer';
-import styles from '../styles/sass/pages/Home.module.scss';
 import Layout from '../features/components/layout/index';
-import { getProviders } from 'next-auth/react';
-import { useEffect } from 'react';
 import Navbar from '../features/components/layout/Navbar';
 
 function Home() {

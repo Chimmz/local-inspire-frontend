@@ -8,6 +8,7 @@
   text-align: center;
   cursor: pointer;
   transition: 0.2s;
+  transform-origin: left;
 
   &-pry {
     background-color: $color-pry;
@@ -21,7 +22,12 @@
 
   &[class*='btn-outline'] {
     background-color: transparent;
-    border: 1px solid;
+    border: 1px solid #949494;
+    color: #d1d1d1;
+
+    &:hover {
+      color: #a7a7a7;
+    }
 
     &:is(.btn-outline-white) {
       border-color: #838383;
@@ -50,5 +56,9 @@
         border-color: #af3d3d;
       }
     }
+  }
+  &--sm {
+    transform: scale(0.9);
+    border-radius: 5px;
   }
 }
