@@ -19,16 +19,7 @@ const AllBusinesses = (props: Props) => {
   const { styles } = props;
   const error = props.data?.status !== 'SUCCESS';
 
-  // if (props.showLoader) {
-  //   return (
-  //     <Spinner />
-  //     // <div className={styles.businesses}>
-  //     //   <Spinner />
-  //     // </div>
-  //   );
-  // }
-
-  if (!props.data && !error)
+  if (!props.data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         <Spinner />

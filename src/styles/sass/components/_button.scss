@@ -50,10 +50,12 @@
     }
     &:is(.btn-outline-red) {
       color: #c2c2c2 !important;
-      border: 1px solid #863131;
+      // border: 1px solid #863131;
+      border: none !important;
+      color: #e72d2d !important;
 
       &:hover {
-        border-color: #af3d3d;
+        color: #ff0000 !important;
       }
     }
   }

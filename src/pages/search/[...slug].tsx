@@ -18,6 +18,7 @@ import AllBusinesses from '../../features/components/business-results/AllBusines
 import styles from '../../styles/sass/pages/BusinessResults.module.scss';
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
+import GoogleMapView from '../../features/components/business-results/GoogleMapBusinessView';
 
 interface SearchParams extends ParsedUrlQuery {
   slug: string[];
@@ -41,6 +42,8 @@ const BusinessSearchResultsPage: NextPage<Props> = props => {
 
   const [propsData, setPropsData] = useState<Props>(props);
   const error = propsData?.status !== 'SUCCESS';
+
+  const [showGoogleMap, setShowGoogleMap] = useState(false);
 
   const {
     startLoading: startNewSearchLoader,
@@ -143,7 +146,10 @@ const BusinessSearchResultsPage: NextPage<Props> = props => {
           </h2>
           <aside className={styles.mapPreview} style={{ position: 'relative' }}>
             <Image src="/img/map-img.jpg" layout="fill" />
-            <button className={cls(styles.btnViewMap, 'btn btn-outline-pry')}>
+            <button
+              className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
+              onClick={() => setShowGoogleMap(true)}
+            >
               View on map
             </button>
           </aside>
@@ -173,6 +179,7 @@ const BusinessSearchResultsPage: NextPage<Props> = props => {
               />
             ) : null}
           </div>
+          <GoogleMapView shown={showGoogleMap} closeMap={() => setShowGoogleMap(false)} />
         </div>
       </Layout>
     </>
