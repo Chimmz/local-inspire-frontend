@@ -10,8 +10,6 @@ interface AnyHTMLElement extends HTMLElement {
 }
 
 const GoogleMapView = ({ shown, closeMap }: Props) => {
-  if (!shown) return <></>;
-
   useEffect(() => {
     setTimeout(() => {
       const modal = document.querySelector('.modal-dialog.modal-fullscreen');
@@ -19,6 +17,7 @@ const GoogleMapView = ({ shown, closeMap }: Props) => {
     }, 20);
   }, []);
 
+  if (!shown) return <></>;
   return (
     <Modal show={true} fullscreen onHide={() => closeMap()}>
       <Modal.Header closeButton>
