@@ -22,7 +22,7 @@ const AllBusinesses = (props: Props) => {
   if (!props.data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
-        <Spinner />
+        <Spinner colors={['#0084ff', '#0084ff']} />
       </div>
     );
 
