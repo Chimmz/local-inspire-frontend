@@ -20,7 +20,7 @@
 
   & > *:not(h2) {
     border-radius: 7px;
-    box-shadow: 0 0 20px rgba(#000, 0.2);
+    // box-shadow: 0 0 20px rgba(#000, 0.2);
   }
 
   & > h2 {
@@ -42,6 +42,7 @@
     background-color: #fff;
     border: 1rem solid #fff;
     overflow: hidden;
+    box-shadow: 0 0 20px rgba(#000, 0.2);
 
     .btnViewMap {
       position: absolute;
@@ -62,6 +63,7 @@
     background-color: #fff;
     padding: 2.5rem;
     font-size: 1.3rem !important;
+    box-shadow: 0 0 20px rgba(#000, 0.2);
 
     & > h4 {
       font-size: 2rem;
@@ -89,10 +91,6 @@
 
         & > [type='checkbox'] {
           accent-color: $text-dark;
-
-          &:checked + span {
-            // color: black;
-          }
         }
         &:hover,
         & > *:hover {
@@ -115,6 +113,7 @@
     gap: 10px;
     row-gap: 2vw;
     position: relative;
+    box-shadow: 0 0 20px rgba(#000, 0.2);
 
     .businessResult {
       flex: 1 1 30rem;
@@ -147,6 +146,7 @@
       position: absolute;
       bottom: calc(100% + 5px);
       right: 1rem;
+      color: #000;
       z-index: 6;
     }
   }
@@ -156,18 +156,22 @@
     grid-column: 2;
     display: flex;
     align-items: center;
+    display: flex;
+    justify-content: right;
   }
-  .paginators {
+
+  ul.paginators {
     display: flex;
     align-items: center;
     gap: 1rem;
     list-style-type: none;
 
     & > li {
-      & > a.link {
+      & > a.pageLink {
         width: 25px;
         height: 25px;
-        // background-color: #f1f1f1;
+        // background-color: rgba(#f1f1f1, 0.5);
+        border-radius: 50%;
         display: grid;
         place-items: center;
         place-content: center;
@@ -190,7 +194,7 @@
         }
 
         &:hover {
-          color: $color-pry;
+          // color: $color-pry;
 
           &::before {
             opacity: 1;
@@ -200,14 +204,15 @@
           }
         }
 
-        &.linkActive {
+        &.activePagelink {
           color: rgba(#fff, 0.9);
 
           &::before {
             border: none;
             opacity: 1;
             transform: scale(1);
-            background-color: $color-pry;
+            background-color: $color-pry !important;
+            opacity: 1;
           }
         }
       }

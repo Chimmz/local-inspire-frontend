@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import useInput from '../../../hooks/useInput';
-import useAPISearchResults from '../../../hooks/useAPISearchResults';
+import useAPISearchResults from '../../../hooks/useAPISearch';
 
 import API from '../../../utils/api-utils';
 import * as uuid from 'uuid';

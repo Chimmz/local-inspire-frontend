@@ -5,15 +5,44 @@ import { Icon } from '@iconify/react';
 import dummyImgs from './dummy-imgs';
 import Spinner from '../shared/spinner/Spinner';
 
-interface BusinessesResultsProps {
-  businesses: { [key: string]: any }[] | undefined;
+interface Props {
+  data: { [key: string]: any };
+  allResults: number;
   styles: { readonly [key: string]: string };
 }
+interface Business {
+  businessName: string;
+  address: string;
+}
 
-const AllBusinesses = (props: BusinessesResultsProps) => {
-  const { businesses, styles } = props;
+const AllBusinesses = (props: Props) => {
+  const { styles } = props;
+  const error = props.data?.status !== 'SUCCESS';
 
-  if (!businesses?.length)
+  // if (props.showLoader) {
+  //   return (
+  //     <Spinner />
+  //     // <div className={styles.businesses}>
+  //     //   <Spinner />
+  //     // </div>
+  //   );
+  // }
+
+  if (!props.data)
+    return (
+      <div className={cls(styles.businesses, styles.noResults)}>
+        <Spinner />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className={cls(styles.businesses, styles.noResults)}>
+        Sorry, something wrong happened
+      </div>
+    );
+
+  if (!props.data.businesses.length)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         No results. Try searching for something else
@@ -21,8 +50,8 @@ const AllBusinesses = (props: BusinessesResultsProps) => {
     );
   return (
     <div className={styles.businesses}>
-      <small className={styles.totalResults}>{businesses?.length} results</small>
-      {businesses?.map((b, i) => (
+      <small className={styles.totalResults}>{props.allResults} results</small>
+      {props.data.businesses?.map((b: Business, i: number) => (
         <div className={styles.businessResult} key={i}>
           <figure>
             <Image

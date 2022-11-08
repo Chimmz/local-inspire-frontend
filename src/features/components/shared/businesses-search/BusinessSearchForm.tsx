@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import useInput from '../../../hooks/useInput';
-import useAPISearchResults from '../../../hooks/useAPISearchResults';
+import useAPISearchResults from '../../../hooks/useAPISearch';
 
 import API from '../../../utils/api-utils';
 import * as uuid from 'uuid';
@@ -16,14 +16,16 @@ import styles from './BusinessSearchForm.module.scss';
 
 interface BusinessSearchFormProps {
   fontSize?: string;
-  isLoading: boolean;
-  showLoader: Function;
+  onSearch: (categ: string, city: string) => void;
+  loading: boolean;
 }
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
 
 function BusinessSearchForm(props: BusinessSearchFormProps) {
   const { fontSize } = props;
+
+  // const { startLoading: showLoader, stopLoading, loading: isSearchingNewBusinesses } = useRequest({ autoStopLoading: false})
 
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
@@ -84,21 +86,6 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   useEffect(() => stopFindBusinessLoader, []);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
-    ev.preventDefault();
-    if (!categoryValue || !cityValue) return;
-    props.showLoader();
-
-    const [categParam, cityParam, stateParam] = [
-      stringUtils.toLowerSnakeCase(categoryValue),
-      stringUtils.toLowerSnakeCase(cityValue),
-      'AK',
-    ];
-    startFindBusinessLoader();
-    console.log('New page params: ', { categParam, cityParam, stateParam });
-    router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
-  };
-
   const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
     ev.preventDefault();
     const { field, value } = (ev.target as Element).closest('a')?.dataset as {
@@ -136,6 +123,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   }, []);
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
+    ev.preventDefault();
+    props.onSearch(categoryValue, cityValue);
+  };
 
   return (
     <form className={styles.search} onSubmit={handleSubmit}>
@@ -206,9 +198,9 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       <Button
         className={cls(styles.btn, 'btn btn-pry')}
         type="submit"
-        disabled={props.isLoading}
+        disabled={props.loading}
       >
-        {props.isLoading ? (
+        {props.loading ? (
           <BootstrapSpinner
             animation="border"
             size="sm"

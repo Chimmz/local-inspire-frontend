@@ -1,12 +1,14 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import ReactPaginate from 'react-paginate';
 
+import { ParsedUrlQuery } from 'querystring';
+import * as uuid from 'uuid';
 import API from '../../features/utils/api-utils';
 import * as stringUtils from '../../features/utils/string-utils';
-import { ParsedUrlQuery } from 'querystring';
+
 import cls from 'classnames';
 import Layout from '../../features/components/layout';
 import Navbar from '../../features/components/layout/Navbar';
@@ -15,53 +17,88 @@ import Filters from '../../features/components/business-results/Filters';
 import AllBusinesses from '../../features/components/business-results/AllBusinesses';
 import styles from '../../styles/sass/pages/BusinessResults.module.scss';
 import useRequest from '../../features/hooks/useRequest';
+import usePaginate from '../../features/hooks/usePaginate';
 
 interface SearchParams extends ParsedUrlQuery {
   slug: string[];
 }
 interface Props {
   businesses?: { [key: string]: any }[];
-  all: number;
-  error?: string;
+  results?: number;
+  allResults?: number;
+  status: 'SUCCESS' | 'ERROR';
+  pageId: string;
 }
 
+const PER_PAGE = 20;
+
 const SearchBusinessResultsPage: NextPage<Props> = props => {
-  const [businesses, setBusinesses] = useState(props.businesses);
-  // const [currentPage, setCurrentPage] = useState(1);
-  const [itemOffset, setItemOffset] = useState(0);
-  const router = useRouter();
-  const query = router.query;
-  console.log(query);
+  const error = props.status !== 'SUCCESS';
+  const [propsData, setPropsData] = useState<Props>(props);
   const {
-    loading: isSearching,
-    startLoading: startSearchLoader,
-    stopLoading: stopSearchLoader,
+    startLoading: startNewSearchLoader,
+    stopLoading: stopNewSearchLoader,
+    loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  useEffect(() => {
-    return stopSearchLoader;
-  }, []);
+  const router = useRouter();
 
-  if (!businesses) return <div>{props.error}</div>;
+  const {
+    setPageData,
+    // getPageData,
+    currentPageData,
+    setCurrentPage,
+    pageHasData,
+  } = usePaginate({
+    defaultCurrentPage: 1,
+    init: { 1: propsData as any },
+  });
 
-  let [category, city, stateCode] = (query.slug as string[]) || [];
+  let [category, city, stateCode] = (router.query.slug as string[]) || [];
   category = category && stringUtils.toTitleCase(category?.split('_').join(' '));
   city = city && stringUtils.toTitleCase(city?.split('_').join(' '));
 
-  const endOffset = itemOffset + 20;
-  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  const currentItems = businesses.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(businesses.length / 20);
+  useEffect(() => {
+    setCurrentPage(1);
+    setPropsData(props);
+  }, [setPropsData, props]);
 
-  const handlePageChange = (event: { selected: number }): void => {
-    const newOffset = (event.selected * 20) % businesses.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`,
-    );
-    setItemOffset(newOffset);
+  const handleSearchBusinesses = (categoryValue: string, cityValue: string) => {
+    if (!categoryValue || !cityValue) return;
+    const [categParam, cityParam, stateParam] = [
+      stringUtils.toLowerSnakeCase(categoryValue),
+      stringUtils.toLowerSnakeCase(cityValue),
+      'AK',
+    ];
+    startNewSearchLoader();
+    console.log('New page params: ', { categParam, cityParam, stateParam });
+    router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
   };
 
-  const showLoader = () => startSearchLoader();
+  const handlePageChange: (arg: { selected: number }) => void = async param => {
+    const { selected: pageIndex } = param;
+    const currentPage = pageIndex + 1;
+    console.log({ currentPage });
+
+    setCurrentPage(currentPage);
+    if (pageHasData(currentPage)) return;
+
+    const res = await API.findBusinesses(
+      category,
+      city,
+      stateCode,
+      currentPage,
+      PER_PAGE,
+    );
+    if (res) {
+      setPageData(currentPage, res);
+    }
+    console.log(res);
+  };
+
+  useEffect(() => {
+    stopNewSearchLoader();
+  }, [props.pageId]);
 
   return (
     <>
@@ -69,14 +106,16 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
       <Navbar bg="rgba(0,0,0, .7)" position="fixed">
         <BusinessSearchForm
           fontSize="12px"
-          isLoading={isSearching}
-          showLoader={showLoader}
+          onSearch={handleSearchBusinesses}
+          loading={newSearchLoading}
         />
       </Navbar>
       <Layout>
         <div className={styles.businessesResultsPage}>
           <h2 className={styles.heading}>
-            {category} in {city}
+            {!props.results || error ? `"${category}"` : category}
+            {' in '}
+            {city}
           </h2>
           <aside className={styles.mapPreview} style={{ position: 'relative' }}>
             <Image src="/img/map-img.jpg" layout="fill" />
@@ -85,9 +124,13 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
             </button>
           </aside>
           <Filters styles={styles} />
-          <AllBusinesses businesses={businesses} styles={styles} />
-          {/* <div className={styles.pagination}>
-            <ul className={styles.paginators}>
+          <AllBusinesses
+            data={currentPageData as { [key: string]: any }}
+            allResults={props.allResults!}
+            styles={styles}
+          />
+          <div className={styles.pagination}>
+            {/* <ul className={styles.paginators}>
               <li>
                 <a href="">{'<'}</a>
               </li>
@@ -105,23 +148,35 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
               <li>
                 <a href="">{'>'}</a>
               </li>
-            </ul>
-            {props.businesses?.length ? (
+            </ul> */}
+            {props.allResults ? (
               <ReactPaginate
                 breakLabel="..."
                 nextLabel=">"
                 onPageChange={handlePageChange}
-                pageRangeDisplayed={10}
-                pageCount={pageCount}
+                // pageRangeDisplayed={10}
+                pageCount={props.allResults ? Math.ceil(props.allResults / PER_PAGE) : 0}
                 previousLabel="<"
                 renderOnZeroPageCount={() => {}}
+                className={styles.paginators}
+                pageLinkClassName={styles.pageLink}
+                activeLinkClassName={styles.activePagelink}
+                nextLinkClassName={styles.pageLink}
+                previousLinkClassName={styles.pageLink}
               />
             ) : null}
-          </div> */}
+          </div>
         </div>
       </Layout>
     </>
   );
+};
+
+export const getStaticPaths: GetStaticPaths = async function () {
+  return {
+    paths: [{ params: { slug: ['restaurants', 'anchorage', 'AK'] } }],
+    fallback: 'blocking',
+  };
 };
 
 export const getStaticProps: GetStaticProps = async function (context) {
@@ -143,22 +198,14 @@ export const getStaticProps: GetStaticProps = async function (context) {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
-
-    if (data.status !== 'SUCCESS') throw Error('An error occurred');
-    console.log(data);
-    console.log({ results: data.results, all: data.all });
-
-    return { props: data };
+    const { businesses, ...others } = data;
+    console.log(others);
+    return { props: { ...data, pageId: uuid.v4() } };
   } catch (err) {
     console.error('Error: ', err);
-    return { props: { error: 'Sorry, something wrong happened' } };
+    return { props: { error: 'Sorry, something wrong happened', pageId: uuid.v4() } };
   }
 };
 
-export const getStaticPaths: GetStaticPaths = async function () {
-  return {
-    paths: [{ params: { slug: ['restaurants', 'anchorage', 'AK'] } }],
-    fallback: 'blocking',
-  };
-};
 export default SearchBusinessResultsPage;
+// https://ihsavru.medium.com/react-paginate-implementing-pagination-in-react-f199625a5c8e
