@@ -126,7 +126,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
-    props.onSearch(categoryValue, cityValue);
+    props.onSearch(categoryValue.trim(), cityValue.trim());
   };
 
   return (

@@ -32,36 +32,54 @@ interface Props {
 
 const PER_PAGE = 20;
 
-const SearchBusinessResultsPage: NextPage<Props> = props => {
-  const error = props.status !== 'SUCCESS';
+const BusinessSearchResultsPage: NextPage<Props> = props => {
+  const router = useRouter();
+  let [category, city, stateCode] = (router.query.slug as string[]) || [];
+
+  category = category && stringUtils.toTitleCase(category?.split('_').join(' '));
+  city = city && stringUtils.toTitleCase(city?.split('_').join(' '));
+
   const [propsData, setPropsData] = useState<Props>(props);
+  const error = propsData?.status !== 'SUCCESS';
+
   const {
     startLoading: startNewSearchLoader,
     stopLoading: stopNewSearchLoader,
     loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const router = useRouter();
-
-  const {
-    setPageData,
-    // getPageData,
-    currentPageData,
-    setCurrentPage,
-    pageHasData,
-  } = usePaginate({
+  const { setPageData, currentPageData, setCurrentPage, pageHasData } = usePaginate({
     defaultCurrentPage: 1,
     init: { 1: propsData as any },
   });
 
-  let [category, city, stateCode] = (router.query.slug as string[]) || [];
-  category = category && stringUtils.toTitleCase(category?.split('_').join(' '));
-  city = city && stringUtils.toTitleCase(city?.split('_').join(' '));
-
   useEffect(() => {
-    setCurrentPage(1);
+    // setCurrentPage(1);
+    const paginators = document.querySelector("[class*='paginators']");
+    const previousActivePaginator = paginators?.querySelector('li.selected');
+    console.log({ previousActivePaginator });
+    // // previousActivePaginator?.classList.remove('selected');
+    // const previousActiveLink = previousActivePaginator?.firstElementChild;
+
+    // if (previousActiveLink) {
+    //   previousActiveLink.className = previousActiveLink.className
+    //     .split(' ')
+    //     .filter((cls, i) => {
+    //       return !cls.includes('activePagelink');
+    //     })
+    //     .join(' ');
+    //   previousActiveLink.setAttribute('aria-label', '');
+    // }
+    // const firstPageLink = document.querySelector("[aria-label='Page 1']");
+    // console.log({ firstPageLink });
+    // if (firstPageLink) {
+    //   firstPageLink.classList.add(styles.activePagelink);
+    //   firstPageLink.parentElement!.classList.add('selected');
+    // }
+
     setPropsData(props);
-  }, [setPropsData, props]);
+    setPageData(1, props as any);
+  }, [props, setPropsData, props.pageId]);
 
   const handleSearchBusinesses = (categoryValue: string, cityValue: string) => {
     if (!categoryValue || !cityValue) return;
@@ -70,6 +88,12 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
       stringUtils.toLowerSnakeCase(cityValue),
       'AK',
     ];
+    if (
+      category === stringUtils.toTitleCase(categoryValue) &&
+      city === stringUtils.toTitleCase(city)
+    )
+      return console.log('Same as current page query');
+    console.log(categoryValue, city);
     startNewSearchLoader();
     console.log('New page params: ', { categParam, cityParam, stateParam });
     router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
@@ -98,7 +122,7 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
 
   useEffect(() => {
     stopNewSearchLoader();
-  }, [props.pageId]);
+  }, [propsData.pageId]);
 
   return (
     <>
@@ -113,7 +137,7 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
       <Layout>
         <div className={styles.businessesResultsPage}>
           <h2 className={styles.heading}>
-            {!props.results || error ? `"${category}"` : category}
+            {!propsData.results || error ? `"${category}"` : category}
             {' in '}
             {city}
           </h2>
@@ -126,36 +150,19 @@ const SearchBusinessResultsPage: NextPage<Props> = props => {
           <Filters styles={styles} />
           <AllBusinesses
             data={currentPageData as { [key: string]: any }}
-            allResults={props.allResults!}
+            allResults={propsData.allResults!}
             styles={styles}
           />
           <div className={styles.pagination}>
-            {/* <ul className={styles.paginators}>
-              <li>
-                <a href="">{'<'}</a>
-              </li>
-              <li>
-                <a href="">1</a>
-              </li>
-              <li>
-                <a href="" className={styles.active}>
-                  2
-                </a>
-              </li>
-              <li>
-                <a href="">3</a>
-              </li>
-              <li>
-                <a href="">{'>'}</a>
-              </li>
-            </ul> */}
-            {props.allResults ? (
+            {propsData.allResults ? (
               <ReactPaginate
                 breakLabel="..."
                 nextLabel=">"
                 onPageChange={handlePageChange}
                 // pageRangeDisplayed={10}
-                pageCount={props.allResults ? Math.ceil(props.allResults / PER_PAGE) : 0}
+                pageCount={
+                  propsData.allResults ? Math.ceil(propsData.allResults / PER_PAGE) : 0
+                }
                 previousLabel="<"
                 renderOnZeroPageCount={() => {}}
                 className={styles.paginators}
@@ -192,20 +199,22 @@ export const getStaticProps: GetStaticProps = async function (context) {
       ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
       : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
 
+  const pageId = uuid.v4();
+
   try {
-    const data = await API._makeRequest({
+    const props = await API._makeRequest({
       path: `${api}/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=1&limit=20`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
-    const { businesses, ...others } = data;
+    const { businesses, ...others } = props;
     console.log(others);
-    return { props: { ...data, pageId: uuid.v4() } };
+    return { props: { ...props, pageId } };
   } catch (err) {
     console.error('Error: ', err);
-    return { props: { error: 'Sorry, something wrong happened', pageId: uuid.v4() } };
+    return { props: { error: 'Sorry, something wrong happened', pageId } };
   }
 };
 
-export default SearchBusinessResultsPage;
+export default BusinessSearchResultsPage;
 // https://ihsavru.medium.com/react-paginate-implementing-pagination-in-react-f199625a5c8e

@@ -28,7 +28,7 @@ const AllBusinesses = (props: Props) => {
   //   );
   // }
 
-  if (!props.data)
+  if (!props.data && !error)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         <Spinner />
