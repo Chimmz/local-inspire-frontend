@@ -22,13 +22,13 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
   return (
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
       <ul className={styles.categories}>
-        {popularCategories.map(categ => {
+        {Array.from(new Set(popularCategories)).map(categ => {
           const href = `/search/${toLowerSnakeCase(categ)},${toLowerSnakeCase(
             currentCity,
           )},${currentStateCode}`;
 
           return (
-            <li>
+            <li key={categ}>
               <Link href={href}>{categ}</Link>
             </li>
           );
