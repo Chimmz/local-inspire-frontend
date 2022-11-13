@@ -50,7 +50,7 @@ function AllBusinesses(props: Props) {
     <div className={styles.businesses} id="all-businesses">
       <small className={styles.totalResults}>{props.allResults} results</small>
       {(props.data.businesses as BusinessObj[])?.map(b => (
-        <Business {...b} />
+        <Business {...b} key={b.businessName} />
       ))}
     </div>
   );

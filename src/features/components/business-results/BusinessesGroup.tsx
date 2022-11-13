@@ -20,7 +20,7 @@ const BusinessesGroup: FC<Props> = props => {
         id="all-businesses"
       >
         {props.businesses.map(b => (
-          <Business {...b} />
+          <Business {...b} key={b.businessName} />
         ))}
       </div>
     </>
