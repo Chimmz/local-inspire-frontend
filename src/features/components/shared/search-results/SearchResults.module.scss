@@ -15,10 +15,10 @@
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.3);
   background-color: #ffffff;
   text-align: left;
-  z-index: 99;
+  z-index: 3;
 
   & ul {
-    padding: 7px 3px;
+    padding: 7px 3px 0px 3px;
   }
   & li {
     list-style: none;
@@ -31,7 +31,7 @@
       // font-size: 1.05em;
       display: flex;
       align-items: center;
-      gap: 0.7rem;
+      gap: 5px;
       font-weight: 500;
       color: #2d2d2d;
       // color: #000;
@@ -40,9 +40,12 @@
       border-radius: 6px;
       transition: color 0.3s, background-color 0.3s;
 
-      & > svg {
+      & svg {
         color: $color-pry;
         transition: color 0.3s;
+      }
+      &:hover svg {
+        color: #fff;
       }
     }
 

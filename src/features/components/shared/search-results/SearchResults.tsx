@@ -3,10 +3,10 @@ import * as uuid from 'uuid';
 import cls from 'classnames';
 import styles from './SearchResults.module.scss';
 
-type Item = { name: string; value: string };
+type Item = { label: React.ReactNode; value: string | number };
 interface Props {
   show: boolean;
-  resultItems?: Item[];
+  resultItems: Item[];
   renderItem?: (item: Item) => JSX.Element;
   onSelectItem?: () => any;
 }
@@ -28,7 +28,7 @@ function SearchResults(props: Props) {
                   data-value={item.value}
                   onClick={onSelectItem}
                 >
-                  <span>{item.value}</span>
+                  <span>{item.label}</span>
                 </a>
               </li>
             ),

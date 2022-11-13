@@ -1,34 +1,38 @@
 import React, { useEffect, useRef } from 'react';
-import useInput from '../../../hooks/useInput';
-import useAPISearchResults from '../../../hooks/useAPISearch';
 
-import API from '../../../utils/api-utils';
+import API from '../../../library/api';
 import * as uuid from 'uuid';
 import cls from 'classnames';
-import useRequest from '../../../hooks/useRequest';
 import { useRouter } from 'next/router';
+
+import useInput from '../../../hooks/useInput';
+import useRequest from '../../../hooks/useRequest';
+import useCurrentLocation from '../../../hooks/useCurrentLocation';
+import useAPISearchResults from '../../../hooks/useAPISearchResults';
+import * as stringUtils from '../../../utils/string-utils';
 
 import SearchResults from '../search-results/SearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
-import * as stringUtils from '../../../utils/string-utils';
 import styles from './BusinessSearchForm.module.scss';
 
-interface BusinessSearchFormProps {
-  fontSize?: string;
-  onSearch: (categ: string, city: string) => void;
-  loading: boolean;
-}
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
 
-function BusinessSearchForm(props: BusinessSearchFormProps) {
-  const { fontSize } = props;
+interface BusinessSearchFormProps {
+  promptUserInput: boolean;
+  fontSize?: string;
+  onSearch: (categ: string, city: string) => void;
+  loading: boolean;
+  defaultCategorySuggestions: string[];
+}
 
-  // const { startLoading: showLoader, stopLoading, loading: isSearchingNewBusinesses } = useRequest({ autoStopLoading: false})
+function BusinessSearchForm(props: BusinessSearchFormProps) {
+  const { fontSize, defaultCategorySuggestions } = props;
 
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
+  const currentLocation = useCurrentLocation();
   const router = useRouter();
 
   const {
@@ -36,6 +40,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     handleChange: handleChangeCategory,
     setInputValue: setCategoryValue,
   } = useInput({ init: '' });
+
   const {
     inputValue: cityValue,
     handleChange: handleChangeCity,
@@ -75,13 +80,13 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   } = useRequest({ autoStopLoading: false });
 
   useEffect(() => {
-    categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
     if (!categoryValue.length) resetCategoryResults();
+    categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
   }, [categoryValue]);
 
   useEffect(() => {
-    cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
     if (!cityValue.length) resetCityResults();
+    cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
   }, [cityValue]);
 
   useEffect(() => stopFindBusinessLoader, []);
@@ -92,25 +97,29 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       field: string;
       value: string;
     };
-
     switch (field) {
       case 'category':
         setCategoryValue(value);
-        hideCategoryResults();
-        if (!cityValue) cityInput.current!.focus();
+        setTimeout(hideCategoryResults, 20);
+        hideCityResults();
+        if (!cityValue) {
+          // cityInput.current!.focus();
+          // showCityResults();
+        }
         break;
 
       case 'city':
         setCityValue(value);
-        hideCityResults();
-        if (!categoryValue) categoryInput.current!.focus();
+        setTimeout(hideCityResults, 20);
+        hideCategoryResults();
         break;
     }
     console.table({ field, value });
   };
 
   useEffect(() => {
-    categoryInput.current?.focus();
+    if (props.promptUserInput) categoryInput.current?.focus();
+    hideCategoryResults();
 
     const clickHandler = (ev: MouseEvent) => {
       const clickedOn = ev.target as Element;
@@ -129,40 +138,69 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     props.onSearch(categoryValue.trim(), cityValue.trim());
   };
 
+  const getCategoriesToShow = () => {
+    const toShow = !categoryResults.length ? defaultCategorySuggestions : categoryResults;
+    return toShow.map(text => ({
+      label: text,
+      value: text,
+    }));
+  };
+
+  const allLocationSuggestions = [
+    {
+      label: (
+        <>
+          <Icon icon="material-symbols:location-on" width="22" height="20" /> Your
+          location
+        </>
+      ),
+      value: 'Your location',
+    },
+    ...cityResults.map(city => ({ label: city, value: city })),
+  ];
+
+  // console.log({ allLocationSuggestions });
+
+  // console.log({ categoriesToShow: getCategoriesToShow() }); // Check this re-evaluation later
+
   return (
     <form className={styles.search} onSubmit={handleSubmit}>
       <div className={styles['search-field']} style={{ fontSize }}>
         <input
+          ref={categoryInput}
           type="text"
           onChange={handleChangeCategory}
           value={categoryValue}
           className="textfield"
+          id="category"
           placeholder="Ex: hotel, restaurant..."
-          ref={categoryInput}
+          autoComplete="off"
           onFocus={() => {
             hideCityResults();
-            if (!categoryValue.length) return;
-            categoryResults.length ? showCategoryResults() : searchCategories();
+            showCategoryResults();
+            if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH) searchCategories();
           }}
         />
-        <label htmlFor="">Find:</label>
+        <label htmlFor="category">Find:</label>
+
         <SearchResults
-          show={categoryResultsShown && !!categoryResults.length}
-          resultItems={categoryResults}
+          show={categoryResultsShown}
+          resultItems={getCategoriesToShow()}
           renderItem={categ => (
             <li key={uuid.v4()}>
               <a
                 href="#"
                 data-field="category"
-                data-value={categ}
+                data-value={categ.value}
                 onClick={handleSelectResult}
               >
-                <span>{categ as unknown as React.ReactNode}</span>
+                {categ.label}
               </a>
             </li>
           )}
         />
       </div>
+
       <div className={styles['search-field']} style={{ fontSize }}>
         <input
           type="text"
@@ -171,25 +209,29 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           ref={cityInput}
           className="textfield"
           placeholder="Your city"
+          id="city"
+          autoComplete="off"
           onFocus={() => {
             hideCategoryResults();
+            showCityResults();
             if (!cityValue.length) return;
-            cityResults.length ? showCityResults() : searchCities();
+            if (categoryValue.length >= MIN_CHARS_FOR_CITY_SEARCH) searchCities();
           }}
         />
-        <label htmlFor="">Near:</label>
+        <label htmlFor="city">Near:</label>
+
         <SearchResults
-          show={cityResultsShown && !!cityResults.length}
-          resultItems={cityResults}
+          show={cityResultsShown}
+          resultItems={allLocationSuggestions}
           renderItem={city => (
             <li key={uuid.v4()}>
               <a
                 href="#"
                 data-field="city"
-                data-value={city}
+                data-value={city.value}
                 onClick={handleSelectResult}
               >
-                <span>{city as unknown as React.ReactNode}</span>
+                {city.label}
               </a>
             </li>
           )}
@@ -204,7 +246,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           <BootstrapSpinner
             animation="border"
             size="sm"
-            style={{ width: '15px', height: '15px' }}
+            style={{ width: '1.2em', height: '1.2em', borderWidth: '2px' }}
           />
         ) : (
           <Icon icon="akar-icons:search" />

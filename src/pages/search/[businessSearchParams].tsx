@@ -22,9 +22,10 @@ import GoogleMapView from '../../features/components/business-results/GoogleMapB
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
 import { BusinessProps } from '../../features/components/business-results/Business';
+import CategoriesNav from '../../features/components/business-results/CategoriesNav';
 
 interface SearchParams extends ParsedUrlQuery {
-  slug: string[];
+  businessSearchParams: string;
 }
 interface Props {
   businesses?: { [key: string]: any }[];
@@ -41,11 +42,15 @@ const PER_PAGE = 20;
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [propsData, setPropsData] = useState<Props>(props);
   const [showGoogleMap, setShowGoogleMap] = useState(false);
+
   const router = useRouter();
-  const [category, city, stateCode] = (router.query.slug as string[]) || [];
-  const categoryTitle =
-    category && stringUtils.toTitleCase(category.split('_').join(' '));
-  const cityTitle = city && stringUtils.toTitleCase(city.split('_').join(' '));
+  const { query } = router;
+
+  const [category, city, stateCode] =
+    (query.businessSearchParams as string)?.split(',') || [];
+
+  const categoryTitle = stringUtils.toTitleCase(category.split('_').join(' '));
+  const cityTitle = stringUtils.toTitleCase(city.split('_').join(' '));
 
   const error = propsData?.status !== 'SUCCESS';
 
@@ -66,7 +71,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const anchors = paginators?.querySelectorAll('a');
 
     anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 500);
+      a.onclick = () => window.scrollTo(0, 600);
     });
     console.log({ anchors });
   }, [currentPage]);
@@ -116,9 +121,9 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       city === stringUtils.toTitleCase(cityValue)
     )
       return console.log('Same as current page query');
+
     startNewSearchLoader();
-    console.log('New page params: ', { categParam, cityParam, stateParam });
-    router.push(`/search/${categParam}/${cityParam}/${stateParam}`);
+    router.push(`/search/${categParam},${cityParam},${stateParam}`);
   };
 
   const handlePageChange: (arg: { selected: number }) => void = async param => {
@@ -150,7 +155,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
         bg="#fff"
         position="sticky"
         style={{
-          borderBottom: '1px solid #ccc',
+          // borderBottom: '1px solid #ccc',
           position: 'sticky',
           width: '100%',
           left: '0',
@@ -159,32 +164,14 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
         }}
       >
         <BusinessSearchForm
-          fontSize="13px"
           promptUserInput={false}
+          fontSize="13px"
           defaultCategorySuggestions={props.defaultCategorySuggestions}
           onSearch={handleSearchBusinesses}
           loading={newSearchLoading}
         />
       </Navbar>
-      <nav className={cls(styles.categoriesNav, 'no-bullets')}>
-        <ul className={styles.categories}>
-          <li>
-            <a href="">Restaurants</a>
-          </li>
-          <li>
-            <a href="">Hotels</a>
-          </li>
-          <li>
-            <a href="">Cabin Rentals</a>
-          </li>
-          <li>
-            <a href="">Things to do</a>
-          </li>
-          <li>
-            <a href=""></a>
-          </li>
-        </ul>
-      </nav>
+      <CategoriesNav popularCategories={props.defaultCategorySuggestions} />
       <Layout>
         <div className={styles.businessesResultsPage}>
           <h2 className={styles.heading}>
@@ -243,19 +230,20 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
 export const getStaticPaths: GetStaticPaths = async function () {
   return {
-    paths: [{ params: { slug: ['restaurants', 'anchorage', 'AK'] } }],
+    paths: [{ params: { businessSearchParams: 'restaurants,anchorage,AK' } }],
     fallback: 'blocking',
   };
 };
 
 export const getStaticProps: GetStaticProps = async function (context) {
   console.log('getStaticProps Context: ', context);
-  const slug = (context.params as SearchParams).slug;
+  const params = (context.params as SearchParams).businessSearchParams;
 
-  let [category, city, stateCode] = slug;
+  let [category, city, stateCode] = params.split(',');
   [category, city] = [category, city].map(param => param.split('_').join(' '));
 
   if (!category || !city || !stateCode) return { notFound: true };
+
   const api =
     process.env.NODE_ENV === 'development'
       ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
@@ -285,7 +273,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
         ...data,
         pageId,
         defaultCategorySuggestions,
-        sponsored: data?.businesses?.slice(0, 4),
+        sponsored: data?.businesses?.slice(0, 10),
       },
     };
   } catch (err) {

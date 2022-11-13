@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import useInput from '../../../hooks/useInput';
-import useAPISearchResults from '../../../hooks/useAPISearch';
+import useAPISearchResults from '../../../hooks/useAPISearchResults';
 
-import API from '../../../utils/api-utils';
+import API from '../../../library/api';
 import * as uuid from 'uuid';
 import cls from 'classnames';
 import useRequest from '../../../hooks/useRequest';

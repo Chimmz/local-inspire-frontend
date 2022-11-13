@@ -26,10 +26,11 @@ interface NavbarProps {
   style?: object;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
   children?: React.ReactNode;
+  lightLogo?: boolean;
 }
 type AuthType = 'login' | 'register';
 
-function Navbar({ bg, style, position, children }: NavbarProps) {
+function Navbar({ bg, style, position, lightLogo, children }: NavbarProps) {
   const [userWantsToAuth, setUserWantsToAuth] = useState<{
     yes: boolean;
     authType: AuthType | null;
@@ -57,6 +58,8 @@ function Navbar({ bg, style, position, children }: NavbarProps) {
     setUserWantsToAuth({ yes: false, authType: null });
   }, [setUserWantsToAuth]);
 
+  console.log(`/img/localinspire-logo${lightLogo ? '-white' : ''}.png`);
+
   return (
     <nav
       className={styles.nav}
@@ -65,20 +68,24 @@ function Navbar({ bg, style, position, children }: NavbarProps) {
       <Link href="/">
         <div className={styles['nav-logo']}>
           <Image
-            src="/img/localinspire-logo-white.png"
+            src={`/img/localinspire-logo${lightLogo ? '-white' : ''}.${
+              lightLogo ? 'png' : 'jpeg'
+            }`}
             // src="/img/localinspire-logo.jpeg"
             alt="Local Inspire"
-            width={165}
+            width={170}
             height={35}
           />
         </div>
       </Link>
+
       {children}
+
       <div className={styles['nav-auth']}>
         {!authSession ? (
           <>
             <button
-              className="btn btn-outline btn--sm"
+              className="btn btn-outline-gray btn--sm"
               data-auth-type="login"
               onClick={triggerAuthModal}
             >

@@ -1,18 +1,3 @@
-// .mb {
-//   &-1 {
-//     margin-bottom: 1.5rem;
-//   }
-//   &-2 {
-//     margin-bottom: 3rem;
-//   }
-//   &-3 {
-//     margin-bottom: 5rem;
-//   }
-//   &-3 {
-//     margin-bottom: 6rem;
-//   }
-// }
-
 .xy-center {
   display: flex;
   justify-content: center;
@@ -25,6 +10,9 @@
 
 .text-pry {
   color: $color-pry;
+}
+.text-sec {
+  color: $color-sec;
 }
 
 // .d-flex {
@@ -44,7 +32,8 @@
   gap: 3rem;
 }
 
-.thin-scrollbar {
+.thin-scrollbar,
+.modal-body {
   &::-webkit-scrollbar {
     height: 5px; // for horizontal scrollbars
     width: 7px; // for vertical scrollbars

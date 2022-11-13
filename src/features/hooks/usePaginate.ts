@@ -14,13 +14,18 @@ const usePaginate = ({ init, defaultCurrentPage = 1 }: Params) => {
   const setPageData = (page: number, data: Array<any>) => {
     setPagesMap(map => ({ ...map, [page]: data }));
   };
-  const getPageData = (page: number) => pagesMap?.[page];
-  const pageHasData = (page: number) => !!pagesMap?.[page];
 
-  // useEffect(() => {
-  //   setPageData(currentPage, init || ({} as any));
-  //   // setPagesMap(init || {});
-  // }, []);
+  const getPageData = (page: number) => pagesMap?.[page];
+
+  const pageHasData = (page: number, dataField: string) => {
+    // @ts-ignore
+    return !!pagesMap[page]?.[dataField]?.length;
+  };
+
+  const resetPagesData = () => {
+    setPagesMap({});
+    setCurrentPage(1);
+  };
 
   return {
     currentPage,
@@ -29,6 +34,7 @@ const usePaginate = ({ init, defaultCurrentPage = 1 }: Params) => {
     getPageData,
     setPageData,
     pageHasData,
+    resetPagesData,
   };
 };
 

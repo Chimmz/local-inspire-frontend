@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 
-import API from '../../../features/utils/api-utils';
+import API from '../../../features/library/api';
 
 const callbacks = {};
 

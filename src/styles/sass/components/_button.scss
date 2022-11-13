@@ -20,13 +20,33 @@
     }
   }
 
+  &-sec {
+    background-color: $color-sec;
+    color: #fff;
+
+    &:hover {
+      background-color: $color-sec-dark;
+      color: #fff;
+    }
+  }
+
   &[class*='btn-outline'] {
     background-color: transparent;
     border: 1px solid #949494;
-    color: #d1d1d1;
+    color: #a7a7a7;
 
     &:hover {
-      color: #a7a7a7;
+      color: #000000;
+      border-color: #242424;
+    }
+
+    &:is(.btn-outline-sec) {
+      color: $color-sec !important;
+      border: 1px solid currentColor;
+
+      &:hover {
+        color: $color-sec-dark !important;
+      }
     }
 
     &:is(.btn-outline-white) {
@@ -43,7 +63,7 @@
       color: $text-color;
 
       &:hover {
-        background-color: #eee;
+        background-color: #f4f4f4;
         border-color: $color-pry-dark;
         color: $text-dark;
       }

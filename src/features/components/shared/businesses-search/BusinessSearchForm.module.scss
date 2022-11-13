@@ -1,15 +1,13 @@
 .search {
-  // max-width: 90%;
   display: flex;
   align-items: center;
   gap: 1rem;
-  background-color: #fff;
   padding: 0.6em 2em;
-  border-radius: 9999px;
+  border-radius: 0.5em;
+  // border: 1px solid #cfcfcf;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(#000, 0.3), 0 0 15px rgba(#000, 0.1);
   position: relative;
-  // opacity: 0;
-  // border: 1px solid #bdbdbd;
-  box-shadow: 0 2px 4px rgba(#000, 0.17);
   transition: width 0.5s;
   animation: fade-up 1s 0.3s forwards;
 
@@ -48,7 +46,7 @@
       }
 
       &:focus ~ label {
-        // color: $color-pry;
+        color: $color-pry;
         // font-weight: bold;
       }
     }
@@ -62,17 +60,15 @@
   }
 
   & .btn {
-    padding: 0;
-    display: inline-block;
+    font-size: 16px;
+    display: grid;
+    place-items: center;
     position: absolute;
-    top: 7px;
-    right: 9px;
-    bottom: 7px;
+    inset: 0.2em;
+    left: unset;
+    padding: 0;
     aspect-ratio: 1;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    border-radius: 0.35em;
 
     @media screen and (max-width: 37.5em) {
       position: unset;

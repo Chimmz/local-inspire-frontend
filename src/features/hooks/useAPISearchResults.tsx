@@ -6,23 +6,21 @@ interface Params {
   responseDataField: string;
 }
 
-const useAPISearchResults = ({ makeRequest, responseDataField }: Params) => {
+function useAPISearchResults({ makeRequest, responseDataField }: Params) {
   const { send: sendRequest, loading } = useRequest({ autoStopLoading: true });
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [resultsShown, setResultsShown] = useState(false);
 
   const resetResults = () => setSearchResults([]);
 
   const search = () => {
-    // console.log(`Searching ${responseDataField}...`);
-    sendRequest(makeRequest())
-      .then(res => {
-        // console.log('Data: ', res[responseDataField]);
-        if (res?.status !== 'SUCCESS') return;
-        setSearchResults(res[responseDataField]);
-        setResultsShown(true);
-      })
-      .catch(resetResults);
+    const req = sendRequest(makeRequest());
+    req.then(res => {
+      if (res?.status !== 'SUCCESS') return;
+      setSearchResults(res[responseDataField]);
+      setResultsShown(true);
+    });
+    req.catch(resetResults);
   };
 
   return {
@@ -34,6 +32,6 @@ const useAPISearchResults = ({ makeRequest, responseDataField }: Params) => {
     hideResults: () => setResultsShown(false),
     resetResults,
   };
-};
+}
 
 export default useAPISearchResults;

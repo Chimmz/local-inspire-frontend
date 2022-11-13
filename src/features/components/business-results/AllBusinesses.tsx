@@ -4,25 +4,31 @@ import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import dummyImgs from './dummy-imgs';
 import Spinner from '../shared/spinner/Spinner';
+import * as stringUtils from '../../utils/string-utils';
+import Business from './Business';
+import styles from './AllBusinesses.module.scss';
 
-interface Props {
-  data: { [key: string]: any };
-  allResults: number;
-  styles: { readonly [key: string]: string };
-}
-interface Business {
+interface BusinessObj {
   businessName: string;
   address: string;
+  rating: number;
 }
 
-const AllBusinesses = (props: Props) => {
-  const { styles } = props;
+interface Props {
+  data: { sponsored?: BusinessObj; [key: string]: any };
+  allResults?: number;
+  type?: string;
+}
+
+console.log(styles);
+
+function AllBusinesses(props: Props) {
   const error = props.data?.status !== 'SUCCESS';
 
   if (!props.data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
-        <Spinner colors={['#0084ff', '#0084ff']} />
+        <Spinner colors={['#0084ff', '#e87525']} />
       </div>
     );
 
@@ -39,34 +45,15 @@ const AllBusinesses = (props: Props) => {
         No results. Try searching for something else
       </div>
     );
+
   return (
-    <div className={styles.businesses}>
+    <div className={styles.businesses} id="all-businesses">
       <small className={styles.totalResults}>{props.allResults} results</small>
-      {props.data.businesses?.map((b: Business, i: number) => (
-        <div className={styles.businessResult} key={i}>
-          <figure>
-            <Image
-              src={dummyImgs[i % 10] || dummyImgs[i % 8]}
-              alt=""
-              layout="fill"
-              objectFit="cover"
-            />
-          </figure>
-          <figcaption className="details">
-            <h6 className={styles.businessName}>{b.businessName}</h6>
-            <address className="address">{b.address}</address>
-            <div className={styles.rating}>
-              <Icon icon="ant-design:star-filled" color="orange" />
-              <Icon icon="ant-design:star-filled" color="orange" />
-              <Icon icon="ant-design:star-filled" color="orange" />
-              <Icon icon="ant-design:star-filled" color="#bababa" />
-              <Icon icon="ant-design:star-filled" color="#bababa" />
-            </div>
-          </figcaption>
-        </div>
+      {(props.data.businesses as BusinessObj[])?.map(b => (
+        <Business {...b} />
       ))}
     </div>
   );
-};
+}
 
 export default AllBusinesses;

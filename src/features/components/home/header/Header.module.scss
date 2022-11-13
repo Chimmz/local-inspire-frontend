@@ -46,11 +46,10 @@
     align-items: center;
     gap: 1rem;
     background-color: #fff;
-    padding: 0.6em 2em;
-    border-radius: 9999px;
+    padding: 0.6em 1.3em;
+    border-radius: 10px;
     position: relative;
     // opacity: 0;
-    // border: 1px solid #bdbdbd;
     box-shadow: 0 2px 4px rgba(#000, 0.17);
     transition: width 0.5s;
     animation: fade-up 1s 0.3s forwards;
@@ -90,7 +89,7 @@
         }
 
         &:focus ~ label {
-          // color: $color-pry;
+          color: $color-pry;
           // font-weight: bold;
         }
       }
@@ -107,11 +106,13 @@
       padding: 0;
       display: inline-block;
       position: absolute;
-      top: 7px;
-      right: 9px;
-      bottom: 7px;
+      inset: 3px;
+      left: unset;
+      // top: 7px;
+      // right: 9px;
+      // bottom: 7px;
       aspect-ratio: 1;
-      border-radius: 50%;
+      border-radius: 7px;
       display: flex;
       justify-content: center;
       align-items: center;
