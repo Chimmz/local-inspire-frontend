@@ -9,13 +9,16 @@
   cursor: pointer;
   transition: 0.2s;
   transform-origin: left;
+  border: none;
 
   &-pry {
     background-color: $color-pry;
     color: #fff;
+    border: none;
 
     &:hover {
       background-color: $color-pry-dark;
+      // background-color: #0084ff;
       color: #fff;
     }
   }
@@ -24,9 +27,11 @@
     background-color: $color-sec;
     color: #fff;
 
-    &:hover {
-      background-color: $color-sec-dark;
-      color: #fff;
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: $color-sec-dark !important;
+      color: #fff !important;
     }
   }
 
@@ -58,6 +63,16 @@
         color: #fff;
       }
     }
+
+    &:is(.btn-outline-transp) {
+      color: rgba(#fff, 0.6);
+      border: 1px solid currentColor;
+
+      &:hover {
+        color: rgba(#fff, 0.8);
+      }
+    }
+
     &:is(.btn-outline-gray) {
       border: 1px solid #adadad;
       color: $text-color;
@@ -81,6 +96,7 @@
   }
   &--sm {
     transform: scale(0.9);
-    border-radius: 5px;
+    border-radius: 4px;
+    padding: 0.5em 1.2em;
   }
 }

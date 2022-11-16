@@ -31,7 +31,7 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
       toLowerSnakeCase(cityValue),
       'AK',
     ];
-    router.push(`/search/${categParam},${cityParam},${stateParam}`);
+    router.push(`/reviews/find=${categParam}&location=${cityParam}-${stateParam}`);
   };
 
   useEffect(() => stopSearchLoader, []);

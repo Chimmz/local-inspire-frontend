@@ -35,6 +35,9 @@ const usePaginate = ({ init, defaultCurrentPage = 1 }: Params) => {
     setPageData,
     pageHasData,
     resetPagesData,
+    resetCurrentPage: () => {
+      setPageData(currentPage, []);
+    },
   };
 };
 

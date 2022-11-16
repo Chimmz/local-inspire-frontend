@@ -47,12 +47,12 @@ function AllBusinesses(props: Props) {
     );
 
   return (
-    <div className={styles.businesses} id="all-businesses">
+    <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
       <small className={styles.totalResults}>{props.allResults} results</small>
       {(props.data.businesses as BusinessObj[])?.map(b => (
-        <Business {...b} key={b.businessName} />
+        <Business {...b} key={b.businessName} featured={false} />
       ))}
-    </div>
+    </ul>
   );
 }
 

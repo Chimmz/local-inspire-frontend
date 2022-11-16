@@ -1,27 +1,137 @@
 .business {
   flex: 1 1 25rem;
 
-  & > figure {
-    width: 100%;
-    height: 13rem;
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-  }
-  & > figcaption {
-    text-align: center;
-    padding: 0 2px;
+  &.featured {
+    flex: 0 1 17rem !important;
+    flex-wrap: wrap;
+    font-size: 1.3rem;
 
-    & > h6 {
+    & > figure {
+      width: 100%;
+      height: 13rem;
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+      height: 10rem;
+    }
+    & > figcaption {
       font-size: 1.1em;
       line-height: 1em;
       font-weight: 600;
       color: $text-dark;
+      text-align: center;
+      padding: 0 2px;
+      text-align: left;
+
+      & > h6 {
+        // margin: 0;
+        // color: $color-pry-light;
+        font-size: 1em;
+      }
+      & > address {
+        font-size: 0.8em;
+        color: #868686;
+        font-weight: 400;
+        margin-bottom: 5px;
+      }
+      & > .rating {
+        display: flex;
+        // align-items: center;
+
+        & > *:last-child:is(small) {
+          font-size: 0.8em !important;
+          color: gray !important;
+          font-weight: 300;
+          margin-left: 5px;
+        }
+      }
     }
-    & > address {
-      font-size: 0.8em;
-      margin: 0;
-      color: #4b4b4b;
+  }
+
+  &:not([class*='featured']) {
+    font-size: 1.2rem;
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      'figure details'
+      'figure que';
+    // column-gap: 3rem;
+    background-color: #fff;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2), 0px 0px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+
+    & > figure {
+      grid-area: figure;
+      width: 25rem;
+      height: 20rem;
+      // border: 1px solid gray;
+      border-radius: 5px;
+      margin: 10px;
+      margin-right: 0;
+      position: relative;
+
+      //  span element is injected by Next.js
+      & > span {
+        position: unset !important;
+      }
+      & img {
+        border-radius: 5px;
+      }
+    }
+    & > figcaption {
+      grid-area: details;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: $text-dark;
+      padding: 3rem 3.5rem;
+      align-self: center;
+
+      & > h6 {
+        // margin: 0;
+        // color: $color-pry-light;
+        font-size: 2em;
+      }
+      & > address {
+        font-size: 1.2em;
+        color: #757575;
+        font-weight: 400;
+      }
+    }
+    & > .question {
+      grid-area: que;
+      align-self: center;
+      display: flex;
+      align-items: center;
+      // flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem 3rem;
+      border-top: 1px solid #dddddd;
+      // transform: translateY(100%);
+      transition: transform 0.7s;
+
+      // font-size: 1.1em !important;
+
+      & > p {
+        max-width: 50ch;
+        margin: 0;
+        margin-right: auto;
+      }
+    }
+    &:hover {
+      & > .question {
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 56.25em) {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'figure'
+        'details'
+        'que';
     }
   }
 }

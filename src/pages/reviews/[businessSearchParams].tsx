@@ -32,9 +32,11 @@ interface Props {
   results?: number;
   allResults?: number;
   status: 'SUCCESS' | 'ERROR';
-  pageId: string;
   defaultCategorySuggestions: string[];
   sponsored?: BusinessProps[];
+  specials: Array<{ title: string; items: Array<BusinessProps> }>;
+  searchParams: { category: string; city: string; stateCode: string };
+  pageId: string;
 }
 
 const PER_PAGE = 20;
@@ -44,13 +46,17 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [showGoogleMap, setShowGoogleMap] = useState(false);
 
   const router = useRouter();
-  const { query } = router;
 
-  const [category, city, stateCode] =
-    (query.businessSearchParams as string)?.split(',') || [];
+  const {
+    category: currentCategory,
+    city: currentCity,
+    stateCode: currentStateCode,
+  } = props.searchParams;
 
-  const categoryTitle = stringUtils.toTitleCase(category.split('_').join(' '));
-  const cityTitle = stringUtils.toTitleCase(city.split('_').join(' '));
+  const [categoryTitle, cityTitle] = [
+    stringUtils.toTitleCase(currentCategory),
+    stringUtils.toTitleCase(currentCity),
+  ];
 
   const error = propsData?.status !== 'SUCCESS';
 
@@ -60,18 +66,25 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const { currentPage, currentPageData, setPageData, setCurrentPage, pageHasData } =
-    usePaginate({
-      defaultCurrentPage: 1,
-      init: { 1: propsData as any },
-    });
+  const {
+    currentPage,
+    currentPageData,
+    setPageData,
+    setCurrentPage,
+    pageHasData,
+    resetPagesData,
+    resetCurrentPage,
+  } = usePaginate({
+    defaultCurrentPage: 1,
+    init: { 1: propsData as any },
+  });
 
   useEffect(() => {
     const paginators = document.querySelector("[class*='paginators']");
     const anchors = paginators?.querySelectorAll('a');
 
     anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 600);
+      a.onclick = () => window.scrollTo(0, 1700);
     });
     console.log({ anchors });
   }, [currentPage]);
@@ -107,23 +120,14 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
   const handleSearchBusinesses = (categoryValue: string, cityValue: string) => {
     if (!categoryValue || !cityValue) return;
-    const [categParam, cityParam, stateParam] = [
-      stringUtils.toLowerSnakeCase(categoryValue),
-      stringUtils.toLowerSnakeCase(cityValue),
-      'AK',
-    ];
-    console.log({
-      category: [categoryValue, stringUtils.toTitleCase(categoryValue)],
-      city: [cityValue, stringUtils.toTitleCase(city)],
-    });
     if (
-      category === stringUtils.toTitleCase(categoryValue) &&
-      city === stringUtils.toTitleCase(cityValue)
+      currentCategory === categoryValue.toLowerCase() &&
+      currentCity === cityValue.toLowerCase()
     )
       return console.log('Same as current page query');
 
     startNewSearchLoader();
-    router.push(`/search/${categParam},${cityParam},${stateParam}`);
+    router.push(`/reviews/find=${categoryValue}&location=${cityValue}-${'AK'}`);
   };
 
   const handlePageChange: (arg: { selected: number }) => void = async param => {
@@ -135,9 +139,9 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     if (pageHasData(currentPage, 'businesses')) return;
 
     const res = await API.findBusinesses(
-      category,
-      city,
-      stateCode,
+      currentCategory,
+      currentCity,
+      currentStateCode,
       currentPage,
       PER_PAGE,
     );
@@ -151,18 +155,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
   return (
     <>
-      <Navbar
-        bg="#fff"
-        position="sticky"
-        style={{
-          // borderBottom: '1px solid #ccc',
-          position: 'sticky',
-          width: '100%',
-          left: '0',
-          top: '0',
-          zIndex: '5',
-        }}
-      >
+      <Navbar bg="#003366" position="sticky" styleName={styles.navbar} lightLogo>
         <BusinessSearchForm
           promptUserInput={false}
           fontSize="13px"
@@ -171,7 +164,10 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           loading={newSearchLoading}
         />
       </Navbar>
-      <CategoriesNav popularCategories={props.defaultCategorySuggestions} />
+      <CategoriesNav
+        popularCategories={props.defaultCategorySuggestions}
+        searchParams={props.searchParams}
+      />
       <Layout>
         <div className={styles.businessesResultsPage}>
           <h2 className={styles.heading}>
@@ -192,9 +188,13 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           <Filters styles={styles} />
 
           <div className={styles.searchResults}>
-            {props.sponsored && propsData.allResults ? (
-              <BusinessesGroup groupName="sponsored" businesses={props.sponsored || []} />
-            ) : null}
+            {propsData.specials.map(group => (
+              <BusinessesGroup
+                groupName={group.title}
+                businesses={group.items}
+                key={group.title}
+              />
+            ))}
             <AllBusinesses
               data={currentPageData as { [key: string]: any }}
               allResults={propsData.allResults!}
@@ -237,19 +237,16 @@ export const getStaticPaths: GetStaticPaths = async function () {
 
 export const getStaticProps: GetStaticProps = async function (context) {
   console.log('getStaticProps Context: ', context);
-  const params = (context.params as SearchParams).businessSearchParams;
 
-  let [category, city, stateCode] = params.split(',');
-  [category, city] = [category, city].map(param => param.split('_').join(' '));
+  const parsedResult = stringUtils.parseBusinessSearchUrlParams(
+    (context.params as SearchParams).businessSearchParams,
+  );
+  console.log({ parsedResult });
+  if (parsedResult instanceof Error) return { notFound: true };
+
+  const { category, city, stateCode } = parsedResult;
 
   if (!category || !city || !stateCode) return { notFound: true };
-
-  const api =
-    process.env.NODE_ENV === 'development'
-      ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-      : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
-
-  const pageId = uuid.v4();
 
   const defaultCategorySuggestions = [
     'Hotels and motels',
@@ -260,20 +257,34 @@ export const getStaticProps: GetStaticProps = async function (context) {
     'Cruises',
   ];
 
+  const pageId = uuid.v4();
+
+  const api =
+    process.env.NODE_ENV === 'development'
+      ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
+      : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
+
   try {
     const data = await API._makeRequest({
       path: `${api}/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=1&limit=20`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
+
     const { businesses, ...others } = data;
     console.log(others);
+
     return {
       props: {
         ...data,
         pageId,
         defaultCategorySuggestions,
+        specials: [
+          { title: 'Sponsored', items: data?.businesses?.slice(0, 10) },
+          { title: 'Top 10 businesses', items: data?.businesses?.slice(0, 10) },
+        ],
         sponsored: data?.businesses?.slice(0, 10),
+        searchParams: parsedResult,
       },
     };
   } catch (err) {

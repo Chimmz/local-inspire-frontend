@@ -27,3 +27,18 @@ export const addSuffixToNumber = (number: string | number) => {
   let v = +number % 100;
   return number + (s[(v - 20) % 10] || s[v] || s[0]);
 };
+
+export const parseBusinessSearchUrlParams = (
+  str: string,
+): { category: string; city: string; stateCode: string | undefined } | Error => {
+  if (['find=', 'location='].some(substr => !str.includes(substr))) return new Error('');
+
+  let [categoryPart, locationPart] = str.split('&');
+  const category = categoryPart.replace('find=', '').split('-').join(' ');
+
+  const location = locationPart.replace('location=', '').split('-'); // anchorage-AK
+  const stateCode = location.slice(-1).pop();
+  const city = location.slice(0, -1).join(' ');
+
+  return { category, city, stateCode };
+};

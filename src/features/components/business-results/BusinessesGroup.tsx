@@ -12,18 +12,21 @@ interface Props {
 }
 
 const BusinessesGroup: FC<Props> = props => {
+  if (!props.businesses?.length) return <></>;
   return (
-    <>
-      <h3 className="text-sec mb-3">{stringUtils.toTitleCase(props.groupName)}</h3>
+    <ul className={cls(styles.businessGroup, 'no-bullets')}>
+      <h3 className={cls(styles.groupName, 'mb-4')}>
+        {stringUtils.toTitleCase(props.groupName)}
+      </h3>
       <div
-        className={cls(styles.businessGroup, otherStyles.businesses)}
+        className={cls(styles.featuredBusinesses, otherStyles.businesses)}
         id="all-businesses"
       >
         {props.businesses.map(b => (
-          <Business {...b} key={b.businessName} />
+          <Business {...b} key={b.businessName} featured />
         ))}
       </div>
-    </>
+    </ul>
   );
 };
 

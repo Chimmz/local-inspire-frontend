@@ -23,21 +23,26 @@ import Link from 'next/link';
 
 interface NavbarProps {
   bg?: string;
-  style?: object;
+  styleName?: string;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
   children?: React.ReactNode;
   lightLogo?: boolean;
 }
 type AuthType = 'login' | 'register';
 
-function Navbar({ bg, style, position, lightLogo, children }: NavbarProps) {
+function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
   const [userWantsToAuth, setUserWantsToAuth] = useState<{
     yes: boolean;
     authType: AuthType | null;
   }>({ yes: false, authType: null });
 
   const router = useRouter();
-  const { data: authSession, status: authStatus } = useSession();
+  const { data: authSession, status: authStatus } = useSession({
+    required: false,
+    onUnauthenticated() {
+      setUserWantsToAuth({ yes: true, authType: 'login' });
+    },
+  });
   const { send: sendLogooutRequest, loading: isLoggingOut } = useRequest({
     autoStopLoading: true,
   });
@@ -58,12 +63,10 @@ function Navbar({ bg, style, position, lightLogo, children }: NavbarProps) {
     setUserWantsToAuth({ yes: false, authType: null });
   }, [setUserWantsToAuth]);
 
-  console.log(`/img/localinspire-logo${lightLogo ? '-white' : ''}.png`);
-
   return (
     <nav
-      className={styles.nav}
-      style={{ backgroundColor: bg, position: position || 'relative', ...style }}
+      className={cls(styles.nav, styleName || '')}
+      style={{ backgroundColor: bg, position: position || 'relative' }}
     >
       <Link href="/">
         <div className={styles['nav-logo']}>
@@ -85,14 +88,14 @@ function Navbar({ bg, style, position, lightLogo, children }: NavbarProps) {
         {!authSession ? (
           <>
             <button
-              className="btn btn-outline-gray btn--sm"
+              className="btn btn-outline-transp btn--sm"
               data-auth-type="login"
               onClick={triggerAuthModal}
             >
               Login
             </button>
             <button
-              className="btn btn-pry btn--sm"
+              className="btn btn-sec btn--sm"
               data-auth-type="register"
               onClick={triggerAuthModal}
             >

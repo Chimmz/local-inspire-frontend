@@ -247,9 +247,10 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             animation="border"
             size="sm"
             style={{ width: '1.2em', height: '1.2em', borderWidth: '2px' }}
+            color="#e87525"
           />
         ) : (
-          <Icon icon="akar-icons:search" />
+          <Icon icon="akar-icons:search" color="#fff" />
         )}
       </Button>
     </form>

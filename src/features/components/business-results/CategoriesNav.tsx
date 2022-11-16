@@ -9,23 +9,21 @@ console.log({ styles });
 
 interface CategoriesNavProps {
   popularCategories: string[];
+  searchParams: { category: string; city: string; stateCode: string };
 }
 
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
   const { popularCategories } = props;
-  const { query } = useRouter();
-  const [_, currentCity, currentStateCode] = (query.businessSearchParams as string).split(
-    ',',
-  );
-  console.log({ currentCity });
+  const { city: currentCity, stateCode: currentStateCode } = props.searchParams;
+
+  const uniqueItems = Array.from(new Set(popularCategories));
 
   return (
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
       <ul className={styles.categories}>
-        {Array.from(new Set(popularCategories)).map(categ => {
-          const href = `/search/${toLowerSnakeCase(categ)},${toLowerSnakeCase(
-            currentCity,
-          )},${currentStateCode}`;
+        {uniqueItems.map(categ => {
+          const category = categ.toLowerCase().split(' ').join('-');
+          const href = `/reviews/find=${category}&location=${currentCity}-${currentStateCode}`;
 
           return (
             <li key={categ}>

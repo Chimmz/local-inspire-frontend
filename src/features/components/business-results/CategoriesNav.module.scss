@@ -1,9 +1,9 @@
 .categoriesNav {
-  background-color: $color-sec-lightest;
+  background-color: $color-pry-dark;
   margin: 0;
   padding: max(1.5vw, 1.3rem) 2rem;
   // border-bottom: 1px solid #ccc;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   z-index: 4;
 
   .categories {
@@ -18,11 +18,9 @@
 
     & > li {
       & > a {
-        color: #707070;
-        color: $color-sec-darker;
-        text-transform: uppercase;
-        font-weight: 600;
-        transition: color 0.15s;
+        color: rgba(#fff, 0.9);
+        // font-weight: 600;
+        transition: color 0.15s 0.1s;
         position: relative;
 
         &::before {
@@ -30,7 +28,7 @@
           position: absolute;
           top: 100%;
           inset-inline: 0;
-          height: 2px;
+          height: 1px;
           background-color: currentColor;
           transform: scaleX(0);
           transform-origin: center;
@@ -39,11 +37,10 @@
       }
 
       &:hover a {
-        // color: #000;
-        color: $color-pry-dark;
+        color: $color-sec;
 
         &::before {
-          transform: scaleX(1);
+          transform: scaleX(0.8);
         }
       }
     }

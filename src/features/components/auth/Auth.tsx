@@ -70,11 +70,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close }) {
     validators: [{ isRequired: ['This field is required'] }],
   });
 
-  useEffect(() => {
-    return () => {
-      stopAuthRequestLoading();
-    };
-  }, [stopAuthRequestLoading]);
+  useEffect(() => stopAuthRequestLoading, [stopAuthRequestLoading]);
 
   const validateFields = () => {
     const results = [runEmailValidators(), runPasswordValidators()];
