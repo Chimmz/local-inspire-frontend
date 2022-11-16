@@ -12,6 +12,7 @@ export interface BusinessProps {
   rating: number;
   featured: boolean;
   [key: string]: any;
+  SIC8Category?: string;
 }
 
 const Business: FC<BusinessProps> = function (props) {
@@ -24,11 +25,9 @@ const Business: FC<BusinessProps> = function (props) {
         {/* <div style={{ width: '50%' }}> */}
         <Image
           src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
-          alt=""
+          alt={`${props.SIC8Category || ''} photo of ${businessName}`}
           layout="fill"
           objectFit="cover"
-          // width={200}
-          // height={200}
         />
         {/* </div> */}
       </figure>

@@ -1,8 +1,11 @@
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import ReactPaginate from 'react-paginate';
+
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import Head from 'next/head';
+
+import Image from 'next/image';
 
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
@@ -161,6 +164,13 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
   return (
     <>
+      <Head>
+        <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
+        <meta
+          name="description"
+          content={`Find Top Ranking ${categoryTitle} in ${cityTitle}`}
+        ></meta>
+      </Head>
       <Navbar bg="#003366" position="sticky" styleName={styles.navbar} lightLogo>
         <BusinessSearchForm
           promptUserInput={false}

@@ -75,7 +75,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
               lightLogo ? 'png' : 'jpeg'
             }`}
             // src="/img/localinspire-logo.jpeg"
-            alt="Local Inspire"
+            alt="Local Inspire Logo"
             width={170}
             height={35}
           />
