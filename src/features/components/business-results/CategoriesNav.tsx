@@ -4,6 +4,7 @@ import styles from './CategoriesNav.module.scss';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toLowerSnakeCase } from '../../utils/string-utils';
+import * as urlUtils from '../../utils/url-utils';
 
 console.log({ styles });
 
@@ -22,9 +23,11 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
       <ul className={styles.categories}>
         {uniqueItems.map(categ => {
-          const category = categ.toLowerCase().split(' ').join('-');
-          const href = `/reviews/find=${category}&location=${currentCity}-${currentStateCode}`;
-
+          const href = urlUtils.getBusinessSearchResultsUrl({
+            category: categ,
+            city: currentCity,
+            stateCode: currentStateCode,
+          });
           return (
             <li key={categ}>
               <Link href={href}>{categ}</Link>

@@ -8,6 +8,7 @@ import { toLowerSnakeCase } from '../../../utils/string-utils';
 import HeaderServices from './HeaderServices';
 import BusinessSearchForm from '../../shared/businesses-search/BusinessSearchForm';
 import styles from './Header.module.scss';
+import * as utlUtils from '../../../utils/url-utils';
 
 interface HeaderProps {
   defaultCategorySuggestions: string[];
@@ -22,16 +23,12 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
     loading: searchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const handleClickSearch = (categoryValue: string, cityValue: string) => {
-    if (!categoryValue || !cityValue) return;
+  const handleClickSearch = (category: string, city: string) => {
+    if (!category || !city) return;
 
     startSearchLoader();
-    const [categParam, cityParam, stateParam] = [
-      toLowerSnakeCase(categoryValue),
-      toLowerSnakeCase(cityValue),
-      'AK',
-    ];
-    router.push(`/reviews/find=${categParam}&location=${cityParam}-${stateParam}`);
+    const url = utlUtils.getBusinessSearchResultsUrl({ category, city, stateCode: 'AK' });
+    router.push(url);
   };
 
   useEffect(() => stopSearchLoader, []);

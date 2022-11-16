@@ -23,6 +23,7 @@ import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
+import * as urlUtils from '../../features/utils/url-utils';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
@@ -84,7 +85,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const anchors = paginators?.querySelectorAll('a');
 
     anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 1700);
+      a.onclick = () => window.scrollTo(0, 1500);
     });
     console.log({ anchors });
   }, [currentPage]);
@@ -127,7 +128,12 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       return console.log('Same as current page query');
 
     startNewSearchLoader();
-    router.push(`/reviews/find=${categoryValue}&location=${cityValue}-${'AK'}`);
+    const url = urlUtils.getBusinessSearchResultsUrl({
+      category: categoryValue,
+      city: cityValue,
+      stateCode: 'AK',
+    });
+    router.push(url);
   };
 
   const handlePageChange: (arg: { selected: number }) => void = async param => {
