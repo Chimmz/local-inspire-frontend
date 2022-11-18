@@ -50,6 +50,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [showGoogleMap, setShowGoogleMap] = useState(false);
 
   const router = useRouter();
+  console.log('PATHNAME: ', router.route);
 
   const {
     category: currentCategory,
@@ -88,7 +89,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const anchors = paginators?.querySelectorAll('a');
 
     anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 1500);
+      a.onclick = () => window.scrollTo(0, 1700);
     });
     console.log({ anchors });
   }, [currentPage]);
@@ -122,11 +123,15 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     setPageData(1, props as any);
   }, [props, setPropsData, props.pageId]);
 
-  const handleSearchBusinesses = (categoryValue: string, cityValue: string) => {
-    if (!categoryValue || !cityValue) return;
+  const onSearchHandler = (categoryValue: string, locationValue: string) => {
+    if (!categoryValue || !locationValue) return;
+
+    const [cityValue, stateValue] = locationValue.split(', ');
+    console.log({ cityValue, stateValue });
     if (
       currentCategory === categoryValue.toLowerCase() &&
-      currentCity === cityValue.toLowerCase()
+      currentCity === cityValue.toLowerCase() &&
+      currentStateCode === stateValue
     )
       return console.log('Same as current page query');
 
@@ -134,8 +139,9 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const url = urlUtils.getBusinessSearchResultsUrl({
       category: categoryValue,
       city: cityValue,
-      stateCode: 'AK',
+      stateCode: stateValue,
     });
+    console.log('To push: ', url);
     router.push(url);
   };
 
@@ -176,8 +182,9 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           promptUserInput={false}
           fontSize="13px"
           defaultCategorySuggestions={props.defaultCategorySuggestions}
-          onSearch={handleSearchBusinesses}
+          onSearch={onSearchHandler}
           loading={newSearchLoading}
+          // maxWidth="40vw"
         />
       </Navbar>
       <CategoriesNav
@@ -191,17 +198,19 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             {' in '}
             {propsData.results ? cityTitle : `"${cityTitle}"`}
           </h2>
-          <aside className={styles.mapPreview} style={{ position: 'relative' }}>
-            <Image src="/img/map-img.jpg" layout="fill" />
-            <button
-              className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
-              onClick={() => setShowGoogleMap(true)}
-            >
-              View map
-            </button>
-          </aside>
+          <aside className={styles.aside}>
+            <div className={styles.mapPreview} style={{ position: 'relative' }}>
+              <Image src="/img/map-img.jpg" layout="fill" />
+              <button
+                className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
+                onClick={() => setShowGoogleMap(true)}
+              >
+                View map
+              </button>
+            </div>
 
-          <Filters styles={styles} />
+            <Filters styles={styles} />
+          </aside>
 
           <div className={styles.searchResults}>
             {propsData.specials.map(group => (
@@ -254,7 +263,7 @@ export const getStaticPaths: GetStaticPaths = async function () {
 export const getStaticProps: GetStaticProps = async function (context) {
   console.log('getStaticProps Context: ', context);
 
-  const parsedResult = stringUtils.parseBusinessSearchUrlParams(
+  const parsedResult = urlUtils.parseBusinessSearchUrlParams(
     (context.params as SearchParams).businessSearchParams,
   );
   console.log({ parsedResult });
@@ -286,6 +295,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
+    if (!data) throw Error('');
 
     const { businesses, ...others } = data;
     console.log(others);
@@ -296,10 +306,9 @@ export const getStaticProps: GetStaticProps = async function (context) {
         pageId,
         defaultCategorySuggestions,
         specials: [
-          { title: 'Sponsored', items: data?.businesses?.slice(0, 10) },
-          { title: 'Top 10 businesses', items: data?.businesses?.slice(0, 10) },
+          { title: 'Sponsored', items: data?.businesses?.slice(0, 10) || [] },
+          { title: 'Top 10 businesses', items: data?.businesses?.slice(0, 10) || [] },
         ],
-        sponsored: data?.businesses?.slice(0, 10),
         searchParams: parsedResult,
       },
     };

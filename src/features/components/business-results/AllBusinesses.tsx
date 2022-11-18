@@ -1,26 +1,13 @@
 import cls from 'classnames';
-import Image from 'next/image';
-import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
-import dummyImgs from './dummy-imgs';
 import Spinner from '../shared/spinner/Spinner';
-import * as stringUtils from '../../utils/string-utils';
-import Business from './Business';
+import Business, { BusinessProps } from './Business';
 import styles from './AllBusinesses.module.scss';
 
-interface BusinessObj {
-  businessName: string;
-  address: string;
-  rating: number;
-}
-
 interface Props {
-  data: { sponsored?: BusinessObj; [key: string]: any };
+  data: { sponsored?: BusinessProps; [key: string]: any };
   allResults?: number;
   type?: string;
 }
-
-console.log(styles);
 
 function AllBusinesses(props: Props) {
   const error = props.data?.status !== 'SUCCESS';
@@ -49,7 +36,7 @@ function AllBusinesses(props: Props) {
   return (
     <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
       <small className={styles.totalResults}>{props.allResults} results</small>
-      {(props.data.businesses as BusinessObj[])?.map(b => (
+      {(props.data.businesses as BusinessProps[])?.map(b => (
         <Business {...b} key={b.businessName} featured={false} />
       ))}
     </ul>

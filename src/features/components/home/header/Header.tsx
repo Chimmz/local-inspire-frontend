@@ -23,11 +23,13 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
     loading: searchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const handleClickSearch = (category: string, city: string) => {
-    if (!category || !city) return;
-
+  const handleClickSearch = (category: string, location: string) => {
+    if (!category || !location) return;
+    console.log({ category, location });
+    const [city, stateCode] = location.split(', ');
     startSearchLoader();
-    const url = utlUtils.getBusinessSearchResultsUrl({ category, city, stateCode: 'AK' });
+    const url = utlUtils.getBusinessSearchResultsUrl({ category, city, stateCode });
+    console.log(url);
     router.push(url);
   };
 

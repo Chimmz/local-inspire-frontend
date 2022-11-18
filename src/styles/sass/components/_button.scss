@@ -38,7 +38,7 @@
   &[class*='btn-outline'] {
     background-color: transparent;
     border: 1px solid #949494;
-    color: #a7a7a7;
+    color: #2e2e2e;
 
     &:hover {
       color: #000000;
@@ -97,6 +97,6 @@
   &--sm {
     transform: scale(0.9);
     border-radius: 4px;
-    padding: 0.5em 1.2em;
+    padding-inline: 1.2em;
   }
 }

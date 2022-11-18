@@ -12,13 +12,14 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
   const [resultsShown, setResultsShown] = useState(false);
 
   const resetResults = () => setSearchResults([]);
+  const showResults = () => setResultsShown(true);
 
   const search = () => {
     const req = sendRequest(makeRequest());
     req.then(res => {
       if (res?.status !== 'SUCCESS') return;
       setSearchResults(res[responseDataField]);
-      setResultsShown(true);
+      showResults();
     });
     req.catch(resetResults);
   };
@@ -28,7 +29,7 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
     searchResults,
     resultsShown,
     loading,
-    showResults: () => setResultsShown(true),
+    showResults,
     hideResults: () => setResultsShown(false),
     resetResults,
   };

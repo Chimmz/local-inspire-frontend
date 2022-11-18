@@ -4,12 +4,12 @@
   align-content: flex-start;
   flex-wrap: wrap;
   font-size: 1.5rem;
-  gap: 10px;
+  gap: 20px;
   row-gap: 2vw;
   position: relative;
   // border: 1px solid gray;
+  margin: 0;
   margin-bottom: 5rem;
-  padding: 0;
 
   &.mainResults {
     all: unset;
@@ -21,20 +21,21 @@
   &.noResults {
     text-align: center;
     flex: 1;
-    border: 1px solid #cacaca;
-    padding-bottom: 5rem;
+    // border: 1px solid gray;
     display: grid;
     place-items: center;
     place-content: center;
+    margin-inline: auto;
     font-size: 2rem;
     color: black;
-    min-height: 50rem;
+    max-width: 40ch;
+    padding: 5rem;
+    transform: translateY(2rem);
   }
 
   & .totalResults {
     position: absolute;
     bottom: calc(100% + 5px);
-    left: 3px;
     color: $color-pry-light;
     z-index: 4;
   }

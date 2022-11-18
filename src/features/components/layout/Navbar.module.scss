@@ -6,7 +6,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: max(1rem, 0.5vw) max(4rem, 4vw);
+  gap: 2rem;
+  padding: max(1rem, 0.5vw) max(2rem, 2vw);
   // background-color: #2b2b2b;
   font-size: 1rem !important;
   z-index: 5;
@@ -32,18 +33,22 @@
   &-auth {
     font-size: 1.4rem;
     display: flex;
-    gap: 1.5rem;
 
     & > * {
       min-width: 10rem;
     }
-    @media screen and (max-width: 37.5em) {
-      display: none;
+    @media screen and (max-width: 56.25em) {
+      display: none !important;
 
       & + .nav-breadcrumb {
         display: inline-block !important;
         visibility: visible;
       }
+    }
+  }
+  @media screen and (max-width: 37.5em) {
+    & [class*='BusinessSearchForm'] {
+      display: none;
     }
   }
 }

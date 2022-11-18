@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
@@ -25,6 +25,7 @@ interface BusinessSearchFormProps {
   onSearch: (categ: string, city: string) => void;
   loading: boolean;
   defaultCategorySuggestions: string[];
+  maxWidth?: string;
 }
 
 function BusinessSearchForm(props: BusinessSearchFormProps) {
@@ -32,6 +33,9 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
+  const [categorySelected, setCategorySelected] = useState(false);
+  const [citySelected, setCitySelected] = useState(false);
+
   const currentLocation = useCurrentLocation();
   const router = useRouter();
 
@@ -81,11 +85,17 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   useEffect(() => {
     if (!categoryValue.length) resetCategoryResults();
+    setCategorySelected(false);
+    if (categorySelected) return hideCategoryResults();
+
     categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
   }, [categoryValue]);
 
   useEffect(() => {
     if (!cityValue.length) resetCityResults();
+    setCitySelected(false);
+    if (citySelected) return hideCityResults();
+
     cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
   }, [cityValue]);
 
@@ -100,21 +110,18 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     switch (field) {
       case 'category':
         setCategoryValue(value);
-        setTimeout(hideCategoryResults, 20);
+        // setTimeout(hideCategoryResults, 20);
         hideCityResults();
-        if (!cityValue) {
-          // cityInput.current!.focus();
-          // showCityResults();
-        }
+        setCategorySelected(true);
         break;
 
       case 'city':
         setCityValue(value);
-        setTimeout(hideCityResults, 20);
+        // setTimeout(hideCityResults, 20);
         hideCategoryResults();
+        setCitySelected(true);
         break;
     }
-    console.table({ field, value });
   };
 
   useEffect(() => {
@@ -164,7 +171,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   // console.log({ categoriesToShow: getCategoriesToShow() }); // Check this re-evaluation later
 
   return (
-    <form className={styles.search} onSubmit={handleSubmit}>
+    <form
+      className={styles.search}
+      onSubmit={handleSubmit}
+      style={{ maxWidth: props.maxWidth || '' }}
+    >
       <div className={styles['search-field']} style={{ fontSize }}>
         <input
           ref={categoryInput}
@@ -175,9 +186,12 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           id="category"
           placeholder="Ex: hotel, restaurant..."
           autoComplete="off"
-          onFocus={() => {
+          onFocus={function (ev) {
+            ev.target.select();
             hideCityResults();
             showCategoryResults();
+            if (!categoryValue) return resetCategoryResults();
+            if (categoryResults.length) return;
             if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH) searchCategories();
           }}
         />
@@ -211,11 +225,13 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           placeholder="Your city"
           id="city"
           autoComplete="off"
-          onFocus={() => {
+          onFocus={function (ev) {
+            ev.target.select();
             hideCategoryResults();
             showCityResults();
-            if (!cityValue.length) return;
-            if (categoryValue.length >= MIN_CHARS_FOR_CITY_SEARCH) searchCities();
+            if (!cityValue) return resetCityResults();
+            if (cityResults.length) return;
+            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH) searchCities();
           }}
         />
         <label htmlFor="city">Near:</label>
