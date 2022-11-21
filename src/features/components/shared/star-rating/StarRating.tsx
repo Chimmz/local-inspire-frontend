@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
 import styles from './StarRating.module.scss';
+import { v4 as uuid } from 'uuid';
 
 interface StarRatingProps {
   ratingOver5: number;
@@ -17,10 +18,10 @@ const StarRating = (props: StarRatingProps) => {
   return (
     <div className={styles.rating}>
       {Array.from({ length: ratingOver5 }).map(_ => (
-        <Icon icon="mdi:star-circle" color="#0955a1" inline width={size} />
+        <Icon icon="mdi:star-circle" color="#0955a1" inline width={size} key={uuid()} />
       ))}
       {Array.from({ length: nonColoredStarsCount }).map(_ => (
-        <Icon icon="mdi:star-circle" color="#9e9e9e" inline width={size} />
+        <Icon icon="mdi:star-circle" color="#9e9e9e" inline width={size} key={uuid()} />
       ))}
       {reviewsCount ? (
         <small style={{ marginLeft: '5px' }}>

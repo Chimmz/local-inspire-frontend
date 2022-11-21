@@ -54,7 +54,7 @@ const Business: FC<BusinessProps> = function (props) {
                   height="17"
                   color="#777"
                 />
-                {address.replace('<br/>', '\n') || 'No address available'}
+                {address.replace('<br/>', ' ') || 'No address available'}
               </address>
             ) : null}
           </div>
