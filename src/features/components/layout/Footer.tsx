@@ -7,7 +7,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import Image from 'next/image';
 
-function Footer() {
+const Footer: FunctionComponent = function () {
   return (
     <footer className="footer">
       <nav className="footer-nav">
@@ -83,6 +83,6 @@ function Footer() {
       </div>
     </footer>
   );
-}
+};
 
-export default Footer as FunctionComponent;
+export default Footer;

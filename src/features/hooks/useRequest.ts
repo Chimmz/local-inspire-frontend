@@ -13,7 +13,7 @@ function useRequest({ autoStopLoading = true }: Params) {
     req
       .then(data => data)
       .catch(err => console.log('Error in useRequest: ', err))
-      .finally(() => autoStopLoading && stopLoading());
+      .finally(autoStopLoading ? stopLoading : () => {});
     return req;
   };
 

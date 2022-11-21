@@ -126,12 +126,14 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const onSearchHandler = (categoryValue: string, locationValue: string) => {
     if (!categoryValue || !locationValue) return;
 
-    const [cityValue, stateValue] = locationValue.split(', ');
-    console.log({ cityValue, stateValue });
+    let [cityValue, stateValue] = locationValue.split(',');
+    [cityValue, stateValue] = [cityValue.trim(), stateValue.trim()];
+
+    console.log({ cityValue: cityValue.trim(), stateValue: stateValue.trim() });
     if (
       currentCategory === categoryValue.toLowerCase() &&
-      currentCity === cityValue.toLowerCase() &&
-      currentStateCode === stateValue
+      currentCity === cityValue.trim().toLowerCase() &&
+      currentStateCode === stateValue.trim()
     )
       return console.log('Same as current page query');
 
@@ -172,19 +174,15 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     <>
       <Head>
         <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
-        <meta
-          name="description"
-          content={`Find Top Ranking ${categoryTitle} in ${cityTitle}`}
-        ></meta>
+        <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
       <Navbar bg="#003366" position="sticky" styleName={styles.navbar} lightLogo>
         <BusinessSearchForm
           promptUserInput={false}
-          fontSize="13px"
+          fontSize="12px"
           defaultCategorySuggestions={props.defaultCategorySuggestions}
           onSearch={onSearchHandler}
           loading={newSearchLoading}
-          // maxWidth="40vw"
         />
       </Navbar>
       <CategoriesNav
@@ -199,7 +197,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             {propsData.results ? cityTitle : `"${cityTitle}"`}
           </h2>
           <aside className={styles.aside}>
-            <div className={styles.mapPreview} style={{ position: 'relative' }}>
+            <figure className={styles.mapPreview} style={{ position: 'relative' }}>
               <Image src="/img/map-img.jpg" layout="fill" />
               <button
                 className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
@@ -207,7 +205,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
               >
                 View map
               </button>
-            </div>
+            </figure>
 
             <Filters styles={styles} />
           </aside>

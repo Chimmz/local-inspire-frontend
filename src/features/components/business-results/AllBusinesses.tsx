@@ -2,6 +2,7 @@ import cls from 'classnames';
 import Spinner from '../shared/spinner/Spinner';
 import Business, { BusinessProps } from './Business';
 import styles from './AllBusinesses.module.scss';
+import { v4 as uuid } from 'uuid';
 
 interface Props {
   data: { sponsored?: BusinessProps; [key: string]: any };
@@ -36,8 +37,8 @@ function AllBusinesses(props: Props) {
   return (
     <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
       <small className={styles.totalResults}>{props.allResults} results</small>
-      {(props.data.businesses as BusinessProps[])?.map(b => (
-        <Business {...b} key={b.businessName} featured={false} />
+      {(props.data.businesses as BusinessProps[])?.map((b, i) => (
+        <Business {...b} key={uuid()} featured={false} index={i + 1} />
       ))}
     </ul>
   );

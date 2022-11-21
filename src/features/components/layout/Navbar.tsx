@@ -1,5 +1,6 @@
-import Image from 'next/image';
 import React, { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
   getSession,
@@ -18,8 +19,8 @@ import Auth from '../auth/Auth';
 import Modal from '../shared/modal/Modal';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import LoadingButton from '../shared/button/Button';
+import { Icon } from '@iconify/react';
 import styles from './Navbar.module.scss';
-import Link from 'next/link';
 
 interface NavbarProps {
   bg?: string;
@@ -40,7 +41,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
   const { data: authSession, status: authStatus } = useSession({
     required: false,
     onUnauthenticated() {
-      setUserWantsToAuth({ yes: true, authType: 'login' });
+      setUserWantsToAuth({ yes: false, authType: 'login' });
     },
   });
   const { send: sendLogooutRequest, loading: isLoggingOut } = useRequest({
@@ -77,12 +78,23 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
             // src="/img/localinspire-logo.jpeg"
             alt="Local Inspire Logo"
             width={170}
-            height={35}
+            height={32}
           />
         </div>
       </Link>
 
       {children}
+
+      <div
+        className={cls(styles.iconTrigger, styles.searchIcon)}
+        style={{ marginLeft: 'auto' }}
+      >
+        <Icon icon="akar-icons:search" color="#fff" width={20} />
+      </div>
+
+      <div className={cls(styles.iconTrigger, styles.userIcon)}>
+        <Icon icon="mdi:user" color="white" width={25} />
+      </div>
 
       <div className={styles['nav-auth']}>
         {!authSession ? (
@@ -136,8 +148,9 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
           </>
         ) : null}
       </div>
+
       <div className={styles['nav-breadcrumb']}>
-        <MenuIcon />
+        <Icon icon="material-symbols:menu" width={15} color="#eee" />
       </div>
       {userWantsToAuth.yes ? (
         <Auth show authType={userWantsToAuth.authType!} close={closeAuthModal} />

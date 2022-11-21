@@ -19,20 +19,18 @@ function LoadingButton({ isLoading, ...otherProps }: ButtonProps) {
         gap: '1rem',
         justifyContent: 'center',
       }}
-      // disabled={isLoading}
+      disabled={isLoading}
     >
-      <>
-        {isLoading ? (
-          <>
-            <Spinner animation="border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-            <span>Loading...</span>
-          </>
-        ) : (
-          otherProps.children
-        )}
-      </>
+      {isLoading ? (
+        <>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+          <span>Loading...</span>
+        </>
+      ) : (
+        otherProps.children
+      )}
     </Button>
   );
 }

@@ -5,7 +5,6 @@ interface Props {
 const Filters = ({ styles }: Props) => {
   return (
     <aside className={styles.filter}>
-      <h4>Filter</h4>
       <div className={styles.filterSection}>
         <span className={styles.filterType}>Establishment Type</span>
 

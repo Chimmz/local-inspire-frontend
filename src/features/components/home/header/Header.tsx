@@ -27,9 +27,10 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
     if (!category || !location) return;
     console.log({ category, location });
     const [city, stateCode] = location.split(', ');
+
     startSearchLoader();
     const url = utlUtils.getBusinessSearchResultsUrl({ category, city, stateCode });
-    console.log(url);
+    console.log({ url });
     router.push(url);
   };
 

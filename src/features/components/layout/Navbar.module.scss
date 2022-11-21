@@ -1,20 +1,28 @@
 .nav {
-  // position: absolute;
-  // left: 0;
-  // top: 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
+  // justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 3rem;
   padding: max(1rem, 0.5vw) max(2rem, 2vw);
   // background-color: #2b2b2b;
   font-size: 1rem !important;
   z-index: 5;
 
+  @media screen and (max-width: 37.5em) {
+    justify-content: space-between;
+    padding-inline: 6vw;
+
+    &-logo {
+      margin-left: 0 !important;
+    }
+  }
+
   &-logo {
     color: #fff;
     cursor: pointer;
+    // margin-left: auto;
     transform: scale(0.7);
     transform-origin: left;
   }
@@ -24,15 +32,43 @@
     transform: scale(2);
     display: none;
     visibility: hidden;
+    margin-left: auto;
 
-    &:hover iconify-icon {
-      color: $color-pry !important;
+    &:hover svg {
+      color: rgba(#fff, 0.7) !important;
+    }
+  }
+
+  & .userIcon {
+    display: none;
+    visibility: hidden;
+
+    @media screen and (max-width: 56.25em) {
+      display: inline-block !important;
+      visibility: visible;
+    }
+  }
+
+  .searchIcon {
+    display: none;
+    visibility: hidden;
+
+    @media screen and (max-width: 50em) {
+      display: inline-block !important;
+      visibility: visible;
+    }
+  }
+
+  @media screen and (max-width: 50em) {
+    > [class*='BusinessSearchForm'] {
+      display: none;
     }
   }
 
   &-auth {
     font-size: 1.4rem;
     display: flex;
+    margin-left: auto;
 
     & > * {
       min-width: 10rem;
@@ -51,9 +87,23 @@
       display: none;
     }
   }
+
+  & > .iconTrigger {
+    cursor: pointer;
+    // transition: color 0.2s;
+
+    & > svg {
+      // color: $color-sec !important;
+    }
+
+    &:hover svg {
+      color: $color-sec !important;
+    }
+  }
 }
 
 .currentUser {
+  width: max-content;
   color: #cecece;
   margin-right: 2rem;
 }

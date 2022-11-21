@@ -157,8 +157,13 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     {
       label: (
         <>
-          <Icon icon="material-symbols:location-on" width="22" height="20" /> Your
-          location
+          <Icon
+            icon="material-symbols:location-on"
+            color="#0955a1"
+            width="22"
+            height="20"
+          />{' '}
+          Your location
         </>
       ),
       value: 'Your location',
@@ -194,6 +199,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             if (categoryResults.length) return;
             if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH) searchCategories();
           }}
+          style={{ width: '20px', maxWidth: '20px' }}
         />
         <label htmlFor="category">Find:</label>
 

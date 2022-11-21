@@ -2,7 +2,6 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
-
 import API from '../../../features/library/api';
 
 const callbacks = {};
@@ -71,7 +70,7 @@ callbacks.signIn = async ({ user, account, credentials }) => {
 };
 
 callbacks.jwt = async ({ user, token, account, isNewUser }) => {
-  // console.log('In JWT: ', user, token, account, isNewUser);
+  console.log('In JWT: ', { user, token, account, isNewUser });
   // If token is not being created
   if (!user) return token;
 
@@ -84,7 +83,7 @@ callbacks.jwt = async ({ user, token, account, isNewUser }) => {
       try {
         const res = await API.oauthSignIn(user, account);
         if (res.status === 'SUCCESS') token = res.data;
-        // console.log('API Response: ', res);
+        console.log('API Response: ', res);
       } catch (err) {
         // console.log('Error: ' + err.message);
       }

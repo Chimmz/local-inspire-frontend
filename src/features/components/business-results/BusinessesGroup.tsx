@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import * as stringUtils from '../../utils/string-utils';
 
+import { v4 as uuid } from 'uuid';
 import cls from 'classnames';
 import Business, { BusinessProps } from './Business';
 import otherStyles from './AllBusinesses.module.scss';
@@ -23,7 +24,7 @@ const BusinessesGroup: FC<Props> = props => {
         id="all-businesses"
       >
         {props.businesses.map(b => (
-          <Business {...b} key={b.businessName} featured />
+          <Business {...b} key={uuid()} featured />
         ))}
       </div>
     </ul>

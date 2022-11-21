@@ -35,6 +35,19 @@
     }
   }
 
+  &-gray {
+    background-color: #f0f0f0;
+    color: $text-dark;
+    font-weight: 500;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: black;
+      background-color: #ddd !important;
+    }
+  }
+
   &[class*='btn-outline'] {
     background-color: transparent;
     border: 1px solid #949494;
