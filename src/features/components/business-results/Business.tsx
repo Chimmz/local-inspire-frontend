@@ -54,7 +54,7 @@ const Business: FC<BusinessProps> = function (props) {
                   height="17"
                   color="#777"
                 />
-                {address.replace('<br/>', ' ') || 'No address available'}
+                {address.replace('<br/>', '\n') || 'No address available'}
               </address>
             ) : null}
           </div>
@@ -70,9 +70,9 @@ const Business: FC<BusinessProps> = function (props) {
         </div>
         {!featured ? (
           <div className={styles.userComment}>
-            "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae
+            {`"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae
             at architecto possimus quas ullam! Accusantium, facilis! Magni, vitae
-            voluptatum."
+            voluptatum."`}
           </div>
         ) : null}
 
