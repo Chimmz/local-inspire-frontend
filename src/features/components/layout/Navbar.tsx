@@ -52,11 +52,13 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
     await sendLogooutRequest(signOut({ redirect: false }));
   };
 
-  const triggerAuthModal: React.MouseEventHandler<HTMLButtonElement> = ev => {
-    if (!(ev.target instanceof HTMLButtonElement)) return;
+  const triggerAuthModal: React.MouseEventHandler<HTMLElement> = ev => {
+    // if (!(ev.target instanceof HTMLButtonElement)) return;
+    const btn = (ev.target as HTMLElement).closest('button')!;
+    console.log(btn.dataset);
     setUserWantsToAuth({
       yes: true,
-      authType: ev.target.dataset.authType as AuthType,
+      authType: btn.dataset.authType as AuthType,
     });
   };
 
@@ -92,19 +94,24 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
         <Icon icon="akar-icons:search" color="#fff" width={20} />
       </div>
 
-      <div className={cls(styles.iconTrigger, styles.userIcon)}>
+      {/* <div className={cls(styles.iconTrigger, styles.userIcon)}>
         <Icon icon="mdi:user" color="white" width={25} />
-      </div>
+      </div> */}
 
       <div className={styles['nav-auth']}>
         {!authSession ? (
           <>
-            <button
+            {/* <button
               className="btn btn-outline-transp btn--sm"
               data-auth-type="login"
               onClick={triggerAuthModal}
             >
               Login
+            </button> */}
+            <button onClick={triggerAuthModal} data-auth-type="login">
+              <div className={cls(styles.iconTrigger, styles.userIcon)}>
+                <Icon icon="mdi:user" color="white" width={25} />
+              </div>
             </button>
             <button
               className="btn btn-sec btn--sm"

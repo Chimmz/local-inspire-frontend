@@ -17,6 +17,7 @@ import TextInput from '../shared/text-input/TextInput';
 import LoadingButton from '../shared/button/Button';
 // import Spinner from '../shared/spinner/Spinner';
 import Spinner from 'react-bootstrap/Spinner';
+import { Icon } from '@iconify/react';
 import styles from './Auth.module.scss';
 import { useRouter } from 'next/router';
 
@@ -157,12 +158,22 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
       aria-labelledby="contained-modal-title-vcenter"
       centered
       scrollable
+      // style={{ padding: '10vh' }}
     >
-      <Modal.Header closeButton className="p-4 py-4">
-        <h1 className="text-center w-100">{stringUtils.toTitleCase(authType)}</h1>
+      <Modal.Header
+        closeButton
+        className="p-4 py-3"
+        style={{ backgroundColor: '#f8f9fa ', position: 'relative', padding: '5rem' }}
+      >
+        <div className={styles.modalIconHeader}>
+          <Icon icon="mdi:user-circle" color="#024180" width={50} />
+        </div>
+        {/* <h1 className="text-center w-100">{stringUtils.toTitleCase(authType)}</h1> */}
+        {/* <h1 className="text-center w-100">Welcome!</h1> */}
       </Modal.Header>
       <Modal.Body className="modal-body p-5">
         {/* {(authRequestLoading && <Spinner />) || null} */}
+        <h1 className="text-center w-100 mb-5">Welcome!</h1>
 
         <form
           action=""
@@ -171,7 +182,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           noValidate
           autoComplete="off"
         >
-          {!isLoginAuthType ? (
+          {/* {!isLoginAuthType ? (
             <div className={styles.authField}>
               <label htmlFor="">Username</label>
               <div className={styles.inputGroup}>
@@ -232,24 +243,21 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
                 color: '#e87525',
               }}
             />
-          </button>
+          </button> */}
 
-          <small>or</small>
-
+          {/* <small>or</small> */}
           <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-            data-provider="google"
-            data-action-text={`Sign ${isLoginAuthType ? 'in' : 'up'} with Google`}
+            data-provider="facebook"
             onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
+            data-action-text={`Continue with Facebook`}
             isLoading={false}
             disabled={authRequestLoading}
           >
-            <GoogleIcon fontSize="large" />
-            <span className="text">{`Sign ${
-              isLoginAuthType ? 'in' : 'up'
-            } with Google`}</span>
+            <FacebookIcon fontSize="large" />
+            <span className="text">{`Continue with Facebook`}</span>
             <Spinner
               animation="border"
               size="sm"
@@ -265,17 +273,15 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           <LoadingButton
             type="button"
             className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-            data-provider="facebook"
+            data-provider="google"
+            data-action-text={`Sign ${isLoginAuthType ? 'in' : 'up'} with Google`}
             onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
-            data-action-text={`Sign ${isLoginAuthType ? 'in' : 'up'} with Facebook`}
             isLoading={false}
             disabled={authRequestLoading}
           >
-            <FacebookIcon fontSize="large" />
-            <span className="text">{`Sign ${
-              isLoginAuthType ? 'in' : 'up'
-            } with Facebook`}</span>
+            <GoogleIcon fontSize="large" />
+            <span className="text">{`Continue with Google`}</span>
             <Spinner
               animation="border"
               size="sm"
@@ -294,14 +300,12 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
             data-provider="twitter"
             onClick={signInWith3rdParty}
             // isLoading={authRequestLoading}
-            data-action-text={`Sign ${isLoginAuthType ? 'in' : 'up'} with Twitter`}
+            data-action-text={`Continue with Twitter`}
             isLoading={false}
             disabled={authRequestLoading}
           >
             <TwitterIcon fontSize="large" />
-            <span className="text">{`Sign ${
-              isLoginAuthType ? 'in' : 'up'
-            } with Twitter`}</span>
+            <span className="text">{`Continue with Twitter`}</span>
             <Spinner
               animation="border"
               size="sm"
@@ -320,6 +324,12 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           </small>
         </form>
       </Modal.Body>
+      <Modal.Footer className="text-center" style={{ fontSize: '13px' }}>
+        <small>
+          By proceeding, you agree to our Terms of Use and confirm you have read our
+          Privacy Policy.
+        </small>
+      </Modal.Footer>
     </Modal>
   );
 };

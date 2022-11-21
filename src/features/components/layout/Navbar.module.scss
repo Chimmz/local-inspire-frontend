@@ -39,16 +39,6 @@
     }
   }
 
-  & .userIcon {
-    display: none;
-    visibility: hidden;
-
-    @media screen and (max-width: 56.25em) {
-      display: inline-block !important;
-      visibility: visible;
-    }
-  }
-
   .searchIcon {
     display: none;
     visibility: hidden;
@@ -68,10 +58,28 @@
   &-auth {
     font-size: 1.4rem;
     display: flex;
+    align-items: center;
+    gap: 2rem;
     margin-left: auto;
 
-    & > * {
-      min-width: 10rem;
+    & > button {
+      &:first-child {
+        background-color: unset;
+        border: unset;
+        // all: unset;
+      }
+      &:not(:first-child) {
+        min-width: 10rem;
+      }
+    }
+    & > .userIcon {
+      // display: none;
+      // visibility: hidden;
+
+      @media screen and (max-width: 56.25em) {
+        // display: inline-block !important;
+        // visibility: visible;
+      }
     }
     @media screen and (max-width: 56.25em) {
       display: none !important;
@@ -88,7 +96,7 @@
     }
   }
 
-  & > .iconTrigger {
+  & .iconTrigger {
     cursor: pointer;
     // transition: color 0.2s;
 
