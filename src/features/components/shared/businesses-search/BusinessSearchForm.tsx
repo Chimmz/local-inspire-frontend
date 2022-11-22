@@ -153,8 +153,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     }));
   };
 
-  const allLocationSuggestions = [
-    {
+  const locationSuggestions: Array<{ label: React.ReactNode; value: string }> =
+    cityResults.map(city => ({ label: city, value: city }));
+
+  if (currentLocation.state.length) {
+    locationSuggestions.unshift({
       label: (
         <>
           <Icon
@@ -163,15 +166,14 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             width="22"
             height="20"
           />{' '}
-          Your location
+          {currentLocation.state}
         </>
       ),
-      value: 'Your location',
-    },
-    ...cityResults.map(city => ({ label: city, value: city })),
-  ];
+      value: currentLocation.state,
+    });
+  }
 
-  // console.log({ allLocationSuggestions });
+  // console.log({ locationSuggestions });
 
   // console.log({ categoriesToShow: getCategoriesToShow() }); // Check this re-evaluation later
 
@@ -244,7 +246,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
         <SearchResults
           show={cityResultsShown}
-          resultItems={allLocationSuggestions}
+          resultItems={locationSuggestions}
           renderItem={city => (
             <li key={uuid.v4()}>
               <a

@@ -48,7 +48,7 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
         </h1>
         {/* <HeaderSearch fontSize="1.4rem" /> */}
         <BusinessSearchForm
-          promptUserInput
+          promptUserInput={false}
           fontSize="1.4rem"
           onSearch={handleClickSearch}
           loading={searchLoading}

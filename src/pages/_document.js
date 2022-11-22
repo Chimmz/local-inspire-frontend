@@ -20,6 +20,14 @@ export default function MyDoc() {
           href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap"
           rel="stylesheet"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700;900&display=swap"
+          rel="stylesheet"
+        ></link>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        ></link>
         <script
           src="https://code.iconify.design/iconify-icon/1.0.1/iconify-icon.min.js"
           async

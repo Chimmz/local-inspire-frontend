@@ -5,15 +5,17 @@ import styles from './AllBusinesses.module.scss';
 import { v4 as uuid } from 'uuid';
 
 interface Props {
-  data: { sponsored?: BusinessProps; [key: string]: any };
+  data: { [key: string]: any };
+  page: number;
   allResults?: number;
   type?: string;
 }
 
 function AllBusinesses(props: Props) {
-  const error = props.data?.status !== 'SUCCESS';
+  const { data, allResults, page } = props;
+  const error = data?.status !== 'SUCCESS';
 
-  if (!props.data)
+  if (!data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         <Spinner colors={['#0084ff', '#e87525']} />
@@ -27,18 +29,25 @@ function AllBusinesses(props: Props) {
       </div>
     );
 
-  if (!props.data.businesses.length)
+  if (!data.businesses.length)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         No results. Try searching for something else
       </div>
     );
 
+  const getBusinessSerialNumber = (i: number) => (page - 1) * 20 + i + 1;
+
   return (
     <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
-      <small className={styles.totalResults}>{props.allResults} results</small>
-      {(props.data.businesses as BusinessProps[])?.map((b, i) => (
-        <Business {...b} key={uuid()} featured={false} index={i + 1} />
+      <small className={styles.totalResults}>{allResults} results</small>
+      {(data.businesses as BusinessProps[])?.map((b, i) => (
+        <Business
+          {...b}
+          key={uuid()}
+          featured={false}
+          index={getBusinessSerialNumber(i)}
+        />
       ))}
     </ul>
   );

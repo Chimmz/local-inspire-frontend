@@ -85,6 +85,8 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
   const authWithCredentials: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
     if (isAuthenticating) return;
+    if (!email || !password || (isLoginAuthType ? false : !username)) return;
+
     validateFields();
 
     const btnSubmit = (ev.target as Element).querySelector('[type="submit"]');
@@ -95,9 +97,6 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
     span && (span.textContent = 'Loading...');
     spinner.style.display = 'inline-block';
 
-    if (!email || !password || (isLoginAuthType ? false : !username)) {
-      return;
-    }
     const options: SignInOptions = { email, password, redirect: false };
     if (authType === 'register') options.username = username;
 
@@ -182,7 +181,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           noValidate
           autoComplete="off"
         >
-          {/* {!isLoginAuthType ? (
+          {!isLoginAuthType ? (
             <div className={styles.authField}>
               <label htmlFor="">Username</label>
               <div className={styles.inputGroup}>
@@ -243,7 +242,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
                 color: '#e87525',
               }}
             />
-          </button> */}
+          </button>
 
           {/* <small>or</small> */}
           <LoadingButton
@@ -317,15 +316,38 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
               }}
             />
           </LoadingButton>
+          {/* <LoadingButton
+            type="button"
+            className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
+            data-provider="twitter"
+            onClick={signInWith3rdParty}
+            // isLoading={authRequestLoading}
+            data-action-text={`Continue with Twitter`}
+            isLoading={false}
+            disabled={authRequestLoading}
+          >
+            <Icon icon="mdi:email" />
+            <span className="text">Continue with email and password</span>
+            <Spinner
+              animation="border"
+              size="sm"
+              style={{
+                width: '20px',
+                height: '20px',
+                display: 'none',
+                color: '#0955a1',
+              }}
+            />
+          </LoadingButton> */}
           <small>
-            <a href="" className={styles.link}>
+            <a href="" className={styles.link} style={{ fontSize: '13px' }}>
               Forgot Password?
             </a>
           </small>
         </form>
       </Modal.Body>
       <Modal.Footer className="text-center" style={{ fontSize: '13px' }}>
-        <small>
+        <small style={{ margin: '0 auto', maxWidth: '60ch' }}>
           By proceeding, you agree to our Terms of Use and confirm you have read our
           Privacy Policy.
         </small>

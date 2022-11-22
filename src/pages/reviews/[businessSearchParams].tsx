@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import ReactPaginate from 'react-paginate';
 
@@ -21,11 +21,12 @@ import Navbar from '../../features/components/layout/Navbar';
 import BusinessSearchForm from '../../features/components/shared/businesses-search/BusinessSearchForm';
 import Filters from '../../features/components/business-results/Filters';
 import AllBusinesses from '../../features/components/business-results/AllBusinesses';
-import GoogleMapView from '../../features/components/business-results/GoogleMapBusinessView';
+import MapView from '../../features/components/business-results/MapView';
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
+import { Icon } from '@iconify/react';
 import * as urlUtils from '../../features/utils/url-utils';
 
 interface SearchParams extends ParsedUrlQuery {
@@ -79,7 +80,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     pageHasData,
     resetPagesData,
     resetCurrentPage,
-  } = usePaginate({
+  } = usePaginate<{ status: string; businesses: BusinessProps[] }>({
     defaultCurrentPage: 1,
     init: { 1: propsData as any },
   });
@@ -89,13 +90,13 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const anchors = paginators?.querySelectorAll('a');
 
     anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 1700);
+      a.onclick = () => window.scrollTo(0, 2000);
     });
     console.log({ anchors });
   }, [currentPage]);
 
   useEffect(() => {
-    // setCurrentPage(1);
+    setCurrentPage(1);
     const paginators = document.querySelector("[class*='paginators']");
 
     const previousActivePaginator = paginators?.querySelector('li.selected');
@@ -162,7 +163,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       currentPage,
       PER_PAGE,
     );
-    if (res) setPageData(currentPage, res);
+    if (res)
+      setPageData(currentPage, { status: res?.status, businesses: res?.businesses });
     console.log(res);
   };
 
@@ -179,7 +181,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       <Navbar bg="#003366" position="sticky" styleName={styles.navbar} lightLogo>
         <BusinessSearchForm
           promptUserInput={false}
-          fontSize="12px"
+          fontSize="13px"
           defaultCategorySuggestions={props.defaultCategorySuggestions}
           onSearch={onSearchHandler}
           loading={newSearchLoading}
@@ -198,7 +200,16 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           </h2>
           <aside className={styles.aside}>
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
-              <Image src="/img/map-img.jpg" layout="fill" />
+              {/* <Image src="/img/map-img.jpg" layout="fill" /> */}
+              <MapView
+                shown
+                closeMap={useCallback(setShowGoogleMap.bind(null, false), [
+                  setShowGoogleMap,
+                ])}
+                coords={propsData.businesses?.[0]?.coordinates as string}
+                withModal={false}
+                scrollZoom={false}
+              />
               <button
                 className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
                 onClick={() => setShowGoogleMap(true)}
@@ -221,6 +232,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             <AllBusinesses
               data={currentPageData as { [key: string]: any }}
               allResults={propsData.allResults!}
+              page={currentPage}
             />
           </div>
 
@@ -228,13 +240,25 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             {propsData.allResults ? (
               <ReactPaginate
                 breakLabel="..."
-                nextLabel=">"
                 onPageChange={handlePageChange}
                 // pageRangeDisplayed={10}
                 pageCount={
                   propsData.allResults ? Math.ceil(propsData.allResults / PER_PAGE) : 0
                 }
-                previousLabel="<"
+                previousLabel={
+                  <Icon
+                    icon="material-symbols:chevron-left-rounded"
+                    width={22}
+                    color="gray"
+                  />
+                }
+                nextLabel={
+                  <Icon
+                    icon="material-symbols:chevron-right-rounded"
+                    color="gray"
+                    width={22}
+                  />
+                }
                 renderOnZeroPageCount={() => {}}
                 className={styles.paginators}
                 pageLinkClassName={styles.pageLink}
@@ -244,7 +268,13 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
               />
             ) : null}
           </div>
-          <GoogleMapView shown={showGoogleMap} closeMap={() => setShowGoogleMap(false)} />
+          <MapView
+            shown={showGoogleMap}
+            closeMap={useCallback(setShowGoogleMap.bind(null, false), [setShowGoogleMap])}
+            coords={currentPageData?.businesses?.[0]?.coordinates as string}
+            withModal
+            placeName={propsData.businesses?.[0]?.city as string}
+          />
         </div>
       </Layout>
     </>

@@ -61,20 +61,19 @@
 
     & > figure.mapPreview {
       height: 12rem;
-
-      & img {
-        border-radius: 3px;
-        background-position: right !important;
-        transform-origin: top right;
-        transition: scale 0.2s;
-      }
+      // border: 1px solid black;
+      overflow: hidden;
+      // & img {
+      //   border-radius: 3px;
+      //   background-position: right !important;
+      //   transform-origin: top right;
+      //   transition: scale 0.2s;
+      // }
       &:hover img {
+        // filter: blur(0);
         scale: 4;
       }
 
-      &:hover img {
-        filter: blur(0);
-      }
       // &:has(button:hover) img {
       //   filter: blur(0);
       // }
@@ -86,14 +85,13 @@
         transform: translate(-50%, -50%);
         min-width: max-content;
         z-index: 2;
-        background-color: rgba(#fff, 0.8);
-        border-color: gray;
-        color: #000 !important;
-        font-weight: 500;
+        background-color: rgba(#fff, 0.9);
+        color: #353535 !important;
+        border-color: currentColor;
+        font-weight: 600;
 
         &:hover {
-          color: #000;
-          border-color: #000;
+          color: #000 !important;
           background-color: #fff;
         }
       }
@@ -114,7 +112,7 @@
 
         & > .filterType {
           font-size: 1.1em;
-          color: $text-dark;
+          color: #2c2c2c;
         }
         & > label {
           display: flex;

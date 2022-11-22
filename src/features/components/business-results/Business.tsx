@@ -58,16 +58,21 @@ const Business: FC<BusinessProps> = function (props) {
               </address>
             ) : null}
           </div>
+
           <StarRating
             starSize={featured ? 'sm' : 'md'}
             ratingOver5={4}
             reviewsCount={53}
             printReviews={!featured ? n => `${n} reviews` : undefined}
           />
+
           {businessCategs.length ? (
-            <span style={{ fontSize: '1.1em' }}>{businessCategs.join(', ')}</span>
+            <span style={{ fontSize: '1.' }} className={styles.categories}>
+              {businessCategs.join(', ')}
+            </span>
           ) : null}
         </div>
+
         {!featured ? (
           <div className={styles.userComment}>
             {`"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae

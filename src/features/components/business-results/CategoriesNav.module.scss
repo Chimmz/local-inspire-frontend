@@ -2,7 +2,6 @@
   background-color: $color-pry-dark;
   margin: 0;
   padding: max(1.5vw, 1.5rem) 1rem;
-  // border-bottom: 1px solid #ccc;
   font-size: 1.35rem;
   z-index: 4;
 
@@ -25,6 +24,7 @@
         color: rgba(#fff, 0.9);
         // font-weight: 600;
         transition: color 0.15s 0.1s;
+        line-height: 0.5;
         position: relative;
 
         &::before {

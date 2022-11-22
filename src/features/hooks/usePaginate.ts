@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 
-type PageDataMap = { [page: number]: Array<any> | undefined };
+type PageDataMap<T> = { [page: number]: T | undefined };
 
-interface Params {
-  init?: PageDataMap;
+interface Params<T> {
+  init?: PageDataMap<T>;
   defaultCurrentPage?: number;
 }
 
-const usePaginate = ({ init, defaultCurrentPage = 1 }: Params) => {
+const usePaginate = <PageData>({ init, defaultCurrentPage = 1 }: Params<PageData>) => {
   const [currentPage, setCurrentPage] = useState(defaultCurrentPage);
-  const [pagesMap, setPagesMap] = useState<PageDataMap>(init || {});
+  const [pagesMap, setPagesMap] = useState<PageDataMap<PageData>>(init || {});
 
-  const setPageData = (page: number, data: Array<any>) => {
+  const setPageData = (page: number, data: any) => {
     setPagesMap(map => ({ ...map, [page]: data }));
   };
 
@@ -22,22 +22,17 @@ const usePaginate = ({ init, defaultCurrentPage = 1 }: Params) => {
     return !!pagesMap[page]?.[dataField]?.length;
   };
 
-  const resetPagesData = () => {
-    setPagesMap({});
-    setCurrentPage(1);
-  };
+  const resetPagesData = () => setPagesMap({});
 
   return {
     currentPage,
-    currentPageData: currentPage && pagesMap?.[currentPage],
+    currentPageData: pagesMap[currentPage],
     setCurrentPage,
     getPageData,
     setPageData,
     pageHasData,
     resetPagesData,
-    resetCurrentPage: () => {
-      setPageData(currentPage, []);
-    },
+    resetCurrentPage: () => setPageData(currentPage, []),
   };
 };
 

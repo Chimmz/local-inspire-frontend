@@ -96,23 +96,7 @@
         }
       }
       & > .categories {
-        margin-top: auto;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 5px;
-        padding: 0;
-
-        & > * {
-          min-width: max-content;
-          background-color: #f3f3f3;
-          background-color: $color-pry-lightest;
-          // border: 1px solid #cfcfcf;
-          padding: 4px 12px;
-          border-radius: 999px;
-          color: #383838;
-          color: $color-pry-light;
-        }
+        font-size: 1em;
       }
     }
 
@@ -158,7 +142,7 @@
 .business.featured {
   font-size: 0.8rem;
   flex-direction: column;
-  flex: 0 1 max(20%, 35ch);
+  flex: 1 1 max(20%, 35ch);
   align-self: stretch;
 
   & > figure {
@@ -167,6 +151,12 @@
 
   & > .details {
     flex: 1;
+
+    & > .info {
+      & > .categories {
+        font-size: 1.2em;
+      }
+    }
   }
   & div:has(> h4) {
     flex-direction: column;
