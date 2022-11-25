@@ -12,15 +12,15 @@ import {
 import { Session } from 'next-auth';
 
 import { useRouter } from 'next/router';
-import useRequest from '../../hooks/useRequest';
+import useRequest from '../../../hooks/useRequest';
 import cls from 'classnames';
 
-import Auth from '../auth/Auth';
-import Modal from '../shared/modal/Modal';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-import LoadingButton from '../shared/button/Button';
+import Auth from '../../auth/Auth';
+import Modal from '../../shared/modal/Modal';
+import LoadingButton from '../../shared/button/Button';
 import { Icon } from '@iconify/react';
 import styles from './Navbar.module.scss';
+import SignedInUser from './SignedInUser';
 
 interface NavbarProps {
   bg?: string;
@@ -29,7 +29,7 @@ interface NavbarProps {
   children?: React.ReactNode;
   lightLogo?: boolean;
 }
-type AuthType = 'login' | 'register';
+export type AuthType = 'login' | 'register';
 
 function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
   const [userWantsToAuth, setUserWantsToAuth] = useState<{
@@ -44,13 +44,9 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       setUserWantsToAuth({ yes: false, authType: 'login' });
     },
   });
-  const { send: sendLogooutRequest, loading: isLoggingOut } = useRequest({
+  const { send: sendLogoutRequest, loading: isLoggingOut } = useRequest({
     autoStopLoading: true,
   });
-
-  const handleSignOut: React.MouseEventHandler<HTMLButtonElement> = async () => {
-    await sendLogooutRequest(signOut({ redirect: false }));
-  };
 
   const triggerAuthModal: React.MouseEventHandler<HTMLElement> = ev => {
     // if (!(ev.target instanceof HTMLButtonElement)) return;
@@ -101,17 +97,12 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       <div className={styles['nav-auth']}>
         {!authSession ? (
           <>
-            {/* <button
+            <button
               className="btn btn-outline-transp btn--sm"
               data-auth-type="login"
               onClick={triggerAuthModal}
             >
               Login
-            </button> */}
-            <button onClick={triggerAuthModal} data-auth-type="login">
-              <div className={cls(styles.iconTrigger, styles.userIcon)}>
-                <Icon icon="mdi:user" color="white" width={25} />
-              </div>
             </button>
             <button
               className="btn btn-sec btn--sm"
@@ -122,38 +113,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
             </button>
           </>
         ) : null}
-        {authSession ? (
-          <>
-            <div
-              className={cls(
-                styles.currentUser,
-                'd-flex',
-                'align-items-center',
-                'flex-gap-1',
-              )}
-            >
-              <PersonRoundedIcon htmlColor="white" fontSize="large" />
-              {/* @ts-ignore */}
-              {authSession?.user?.username}
-            </div>
-            <LoadingButton
-              className="btn btn-outline-red"
-              onClick={handleSignOut}
-              style={{ color: '#949494' }}
-              isLoading={isLoggingOut}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? 'Logging out...' : 'Log out'}
-            </LoadingButton>
-            {/* <button
-              className="btn btn-outline-red"
-              onClick={handleSignOut}
-              style={{ color: '#949494' }}
-            >
-              Logout
-            </button> */}
-          </>
-        ) : null}
+        {authSession ? <SignedInUser session={authSession} /> : null}
       </div>
 
       <div className={styles['nav-breadcrumb']}>

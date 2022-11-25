@@ -17,7 +17,7 @@ import * as stringUtils from '../../features/utils/string-utils';
 
 import cls from 'classnames';
 import Layout from '../../features/components/layout';
-import Navbar from '../../features/components/layout/Navbar';
+import Navbar from '../../features/components/layout/navbar/Navbar';
 import BusinessSearchForm from '../../features/components/shared/businesses-search/BusinessSearchForm';
 import Filters from '../../features/components/business-results/Filters';
 import AllBusinesses from '../../features/components/business-results/AllBusinesses';
@@ -209,6 +209,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
                 coords={propsData.businesses?.[0]?.coordinates as string}
                 withModal={false}
                 scrollZoom={false}
+                zoom={7}
               />
               <button
                 className={cls(styles.btnViewMap, 'btn btn-outline-pry')}

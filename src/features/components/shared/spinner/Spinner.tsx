@@ -2,10 +2,12 @@ import React from 'react';
 import styles from './Spinner.module.scss';
 
 interface Props {
+  show?: boolean;
   colors?: [string, string];
 }
 
-function Spinner({ colors = ['#0084ff', '#e87525'] }: Props) {
+function Spinner({ show = true, colors = ['#0084ff', '#e87525'] }: Props) {
+  if (!show) return <></>;
   return (
     <div className={styles.spinner}>
       <div className={styles.dot1} style={{ backgroundColor: colors[0] }}></div>

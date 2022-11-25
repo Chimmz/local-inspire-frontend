@@ -9,22 +9,17 @@ const callbacks = {};
 const loginProvider = CredentialsProvider({
   id: 'login',
   authorize: async (credentials, req) => {
-    try {
-      const res = await API.login(credentials);
-      console.log('Response login: ', res);
+    const res = await API.login(credentials);
+    console.log('Response login: ', res);
 
-      switch (res.status) {
-        case 'SUCCESS':
-          const tokenPayload = res.data;
-          return tokenPayload;
+    switch (res.status) {
+      case 'SUCCESS':
+        const tokenPayload = res.data;
+        return tokenPayload;
 
-        case 'FAIL':
-        case 'ERROR':
-          throw new Error(res.reason);
-      }
-    } catch (err) {
-      console.log('Login Error: ', err);
-      throw new Error('An error occurred');
+      case 'FAIL':
+      case 'ERROR':
+        throw new Error(res.reason);
     }
   },
 });
@@ -32,21 +27,22 @@ const loginProvider = CredentialsProvider({
 const signupProvider = CredentialsProvider({
   id: 'register',
   authorize: async function (credentials, req) {
-    try {
-      const res = await API.register(credentials);
-      // console.log(res);
+    const { code, ...signupCredentials } = credentials;
+    const res = await API.register(signupCredentials, code);
 
-      switch (res.status) {
-        case 'SUCCESS':
-          const tokenPayload = res.data;
-          return tokenPayload;
+    console.log('Sign up response: ', res);
 
-        case 'FAIL':
-        case 'ERROR':
-          throw new Error(res.reason);
-      }
-    } catch (err) {
-      // console.log('Error: ', err);
+    switch (res.status) {
+      case 'SUCCESS':
+        const tokenPayload = res.data;
+        return tokenPayload;
+
+      case 'FAIL':
+        throw new Error(JSON.stringify(res));
+      case 'ERROR':
+        throw new Error(JSON.stringify(res));
+      default:
+        throw new Error('Something wrong happened');
     }
   },
 });

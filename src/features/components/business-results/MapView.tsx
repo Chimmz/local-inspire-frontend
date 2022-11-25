@@ -11,6 +11,7 @@ interface Props {
   withModal: boolean;
   scrollZoom?: boolean;
   placeName?: string;
+  zoom?: number;
 }
 
 interface Viewport {
@@ -20,14 +21,14 @@ interface Viewport {
 }
 
 const MapView = function (props: Props) {
-  const { shown, closeMap, coords, withModal = true, scrollZoom = true } = props;
+  const { shown, closeMap, coords, withModal = true, scrollZoom = true, zoom } = props;
   const userLocation = useCurrentLocation();
 
   const [lat, lng] = coords?.split(',') || [];
   const [view, setView] = useState<Viewport>({
     latitude: +lat,
     longitude: +lng,
-    zoom: 8,
+    zoom: zoom || 8,
   });
 
   useEffect(() => {

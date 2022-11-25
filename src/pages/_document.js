@@ -21,17 +21,9 @@ export default function MyDoc() {
           rel="stylesheet"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400;1,500&display=swap"
           rel="stylesheet"
         ></link>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        ></link>
-        <script
-          src="https://code.iconify.design/iconify-icon/1.0.1/iconify-icon.min.js"
-          async
-        ></script>
       </Head>
       <div id="modal-root"></div>
       <div id="alerts-root"></div>

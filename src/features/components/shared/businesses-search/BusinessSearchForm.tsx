@@ -25,7 +25,6 @@ interface BusinessSearchFormProps {
   onSearch: (categ: string, city: string) => void;
   loading: boolean;
   defaultCategorySuggestions: string[];
-  maxWidth?: string;
 }
 
 function BusinessSearchForm(props: BusinessSearchFormProps) {
@@ -37,6 +36,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const [citySelected, setCitySelected] = useState(false);
 
   const currentLocation = useCurrentLocation();
+  console.log(currentLocation);
   const router = useRouter();
 
   const {
@@ -49,7 +49,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     inputValue: cityValue,
     handleChange: handleChangeCity,
     setInputValue: setCityValue,
-  } = useInput({ init: '' });
+  } = useInput({ init: currentLocation.state });
 
   const {
     search: searchCategories,
@@ -82,6 +82,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     stopLoading: stopFindBusinessLoader,
     loading: findBusinessesLoading,
   } = useRequest({ autoStopLoading: false });
+
+  useEffect(() => {
+    setCityValue(currentLocation.state);
+    hideCityResults();
+  }, [currentLocation.state, setCityValue]);
 
   useEffect(() => {
     if (!categoryValue.length) resetCategoryResults();
@@ -178,11 +183,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   // console.log({ categoriesToShow: getCategoriesToShow() }); // Check this re-evaluation later
 
   return (
-    <form
-      className={styles.search}
-      onSubmit={handleSubmit}
-      style={{ maxWidth: props.maxWidth || '' }}
-    >
+    <form className={styles.search} onSubmit={handleSubmit} style={{}}>
       <div className={styles['search-field']} style={{ fontSize }}>
         <input
           ref={categoryInput}

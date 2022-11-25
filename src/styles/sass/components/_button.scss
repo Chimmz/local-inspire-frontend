@@ -13,13 +13,17 @@
 
   &-pry {
     background-color: $color-pry;
-    color: #fff;
+    color: #fff !important;
     border: none;
 
-    &:hover {
-      background-color: $color-pry-dark;
-      // background-color: #0084ff;
-      color: #fff;
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: $color-pry-dark !important;
+      color: #fff !important;
+    }
+    &:disabled {
+      background-color: $color-pry-light !important;
     }
   }
 

@@ -28,15 +28,18 @@ class API {
     }
   }
 
-  async register(credentials: { username: string; email: string; password: string }) {
+  async register(
+    credentials: { username: string; email: string; password: string },
+    verificationCode: number,
+  ) {
     console.log('credentials: ', credentials);
     return this._makeRequest({
-      path: '/users/signup',
+      path: `/users/signup`.concat(
+        verificationCode ? `?verification_code=${verificationCode}` : '',
+      ),
       method: 'POST',
       body: JSON.stringify(credentials),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -58,6 +61,15 @@ class API {
       path: `/users/oauth/${provider}`,
       method: 'POST',
       body: JSON.stringify({ user, account: accountInfo }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async changePassword(email: string, newPassword: string, code?: string) {
+    return this._makeRequest({
+      path: `/users/forgot-password?verification_code=${code}`,
+      method: 'POST',
+      body: JSON.stringify({ email, newPassword }),
       headers: { 'Content-Type': 'application/json' },
     });
   }

@@ -5,7 +5,7 @@ import Header from '../features/components/home/header/Header';
 import Gallery from '../features/components/home/Gallery';
 import BestPlaces from '../features/components/home/BestPlaces';
 import Layout from '../features/components/layout/index';
-import Navbar from '../features/components/layout/Navbar';
+import Navbar from '../features/components/layout/navbar/Navbar';
 
 interface HomeProps {
   popularCategorySuggestions: string[];

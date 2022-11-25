@@ -25,6 +25,7 @@ const useCurrentLocation: () => CurrentLocation = function () {
     );
 
     const handleResponse = (data: any) => {
+      console.log('Mapbox response: ', data);
       if (!data?.features) throw Error('Something went wrong');
 
       const stateName = data.features[0].context[1].text as string;
