@@ -71,7 +71,7 @@ const EmailVerification = function (props: Props) {
         className="mt-4 d-flex justify-content-center gap-2"
         style={{ fontSize: '15px' }}
       >
-        Didn't receive email?
+        Didn&apos;t receive email?
         <span className="link link-sec ml-5" onClick={props.resendEmail}>
           Resend
         </span>
