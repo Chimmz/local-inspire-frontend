@@ -19,7 +19,7 @@ class API {
     try {
       // const fullUrl = isAPICall ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
       const fullUrl = isAPICall ? `${api}${path}` : path;
-      const res = await fetch(fullUrl, config as RequestInit);
+      const res = await fetch(fullUrl, { ...config, mode: 'no-cors' } as RequestInit);
       const data = await res.json();
       return data;
     } catch (err) {
