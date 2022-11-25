@@ -75,9 +75,9 @@ const Business: FC<BusinessProps> = function (props) {
 
         {!featured ? (
           <div className={styles.userComment}>
-            {`Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae
+            {`"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae
             at architecto possimus quas ullam! Accusantium, facilis! Magni, vitae
-            voluptatum.`}
+            voluptatum."`}
           </div>
         ) : null}
 
