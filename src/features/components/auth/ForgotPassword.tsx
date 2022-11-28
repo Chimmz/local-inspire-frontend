@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import useRequest from '../../hooks/useRequest';
 import useInput from '../../hooks/useInput';
@@ -12,6 +12,7 @@ import AuthNav from './AuthNav';
 import EmailVerification from './EmailVerification';
 import styles from './Auth.module.scss';
 import AuthSuccess from './AuthSuccess';
+import CreatePassword from './CreatePassword';
 
 interface Props {
   goBack: () => void;
@@ -19,10 +20,11 @@ interface Props {
 
 const ForgotPassword: React.FC<Props> = props => {
   const { goBack } = props;
-  const { send: sendChangePasswordRequest, loading: isChangingPassword } = useRequest({
+  const [resendEmailHandler, setResendEmailHandler] = useState<(() => any) | null>(null);
+
+  const { send: sendChangePasswordRequest, loading } = useRequest({
     autoStopLoading: true,
   });
-  const [pageTitle, setPageTitle] = useState('Forgot Password');
 
   const [emailVerificationData, setEmailVerificationData] = useState<{
     shown: boolean;
@@ -30,6 +32,23 @@ const ForgotPassword: React.FC<Props> = props => {
     errorMsg: string;
     successMsg: string;
   }>({ shown: false, promptMsg: '', errorMsg: '', successMsg: '' });
+
+  const [pageTitle, setPageTitle] = useState({
+    title: 'Forgot Password',
+    subtitle:
+      "Please enter your email address below and we'll send you instructions on how to reset your password",
+  });
+
+  const showPageTitle = (name: string, newText: string) =>
+    setPageTitle(titles => ({
+      ...titles,
+      title: 'Forgot Password',
+      subtitle:
+        "Please enter your email address below and we'll send you instructions on how to reset your password",
+    }));
+
+  const changePageTitle = (name: 'title' | 'subtitle', newText: string) =>
+    setPageTitle(titles => ({ ...titles, [name]: newText }));
 
   const showEmailVerification = () => {
     setEmailVerificationData(data => ({ ...data, shown: true }));
@@ -43,147 +62,92 @@ const ForgotPassword: React.FC<Props> = props => {
     handleChange: handleChangeEmail,
     runValidators: runEmailValidators,
     validationErrors: emailErrors,
+    setValidationErrors: setEmailValidationErrors,
+    pushValidationError: pushEmailValidationError,
     clearInput: clearEmail,
     clearValidationErrors: clearEmailErrors,
   } = useInput({
     init: '',
-    validators: [{ isRequired: ['This field is required'], isEmail: [] }],
+    validators: [{ isRequired: ['Your email is required'] }, { isEmail: [] }],
   });
 
-  const {
-    inputValue: password,
-    handleChange: handleChangePassword,
-    runValidators: runPasswordValidators,
-    validationErrors: passwordErrors,
-    clearInput: clearPassword,
-    clearValidationErrors: clearPasswordErrors,
-  } = useInput({
-    init: '',
-    validators: [{ isRequired: ['This field is required'], isEmail: [] }],
-  });
+  const sendEmail = async () => {
+    const res = await sendChangePasswordRequest(API.forgotPassword(email));
+    console.log(res);
+    return res;
+  };
 
-  const {
-    inputValue: passwordConfirm,
-    handleChange: handleChangePasswordConfirm,
-    runValidators: runPasswordValidators2,
-    validationErrors: passwordConfirmErrors,
-    clearInput: clearPasswordConfirm,
-    clearValidationErrors: clearPasswordConfirmErrors,
-  } = useInput({
-    init: '',
-    validators: [{ isRequired: ['This field is required'], isEmail: [] }],
-  });
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
+    ev.preventDefault();
+    const emailErrs = runEmailValidators();
+    if (emailErrs.length) return setEmailValidationErrors(emailErrs);
 
-  const changePassword = async (verificationCode?: string) => {
     // const spin5s = () => new Promise((resolve, reject) => setTimeout(resolve, 5000));
     // const result = await sendChangePasswordRequest(spin5s());
-    const res = await sendChangePasswordRequest(
-      API.changePassword(email, password, verificationCode),
-    );
-    console.log('Change password response: ', res);
+    const res = await sendEmail();
 
-    switch (res.status) {
+    switch (res?.status) {
       case 'SUCCESS':
-        setEmailVerificationData(data => ({ ...data, successMsg: res.msg }));
-        return setPageTitle('Password Changed!');
-
+        changePageTitle('title', 'Check your Email');
+        changePageTitle('subtitle', res.fullMsg);
+        setResendEmailHandler(sendEmail);
+        showEmailVerification();
+        break;
       case 'FAIL':
-        if (res.reason === 'EMAIL_NOT_VERIFIED') {
-          setEmailVerificationData(data => ({ ...data, promptMsg: res.msg }));
-          showEmailVerification();
-          setPageTitle('Confirm your Email');
-        }
-        if (res.reason === 'WRONG_CODE')
-          setEmailVerificationData(data => ({ ...data, errorMsg: res.msg }));
+        if (res.reason === 'INVALID_EMAIL') pushEmailValidationError(res.msg);
         break;
     }
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
-    ev.preventDefault();
-    if (!email || !password || !passwordConfirm) return;
-    changePassword();
-  };
-
   return (
-    <AuthContentWrapper
-      contentTitle={pageTitle}
-      className={emailVerificationData.successMsg ? 'align-items-center' : ''}
-    >
-      {emailVerificationData.successMsg ? (
-        <AuthSuccess>{emailVerificationData.successMsg}</AuthSuccess>
-      ) : emailVerificationData.shown ? (
-        <EmailVerification
-          onEnterCode={changePassword}
-          promptMsg={emailVerificationData.promptMsg}
-          errorMsg={emailVerificationData.errorMsg}
-          email={email}
-          resendEmail={() => changePassword()}
-          loading={false}
-          goBack={closeEmailVerification}
-        />
-      ) : null}
+    <>
+      <Spinner show={loading} />
+      <AuthContentWrapper
+        contentTitle={pageTitle.title}
+        subtitle={pageTitle.subtitle}
+        className={emailVerificationData.successMsg ? 'align-items-center' : ''}
+      >
+        {emailVerificationData.shown && (
+          <EmailVerification
+            resendEmail={resendEmailHandler}
+            loading={loading}
+            goBack={closeEmailVerification}
+            promptMsg={emailVerificationData.promptMsg}
+          />
+        )}
+        {(!emailVerificationData.shown && (
+          <form noValidate onSubmit={handleSubmit} className="text-center">
+            <div className={cls(styles.authField, 'text-center')}>
+              <div className={styles.inputGroup}>
+                <TextInput
+                  type="email"
+                  value={email}
+                  onChange={handleChangeEmail}
+                  className="textfield text-center"
+                  placeholder="Enter your email"
+                  validationErrors={emailErrors}
+                  autoFocus
+                  id="email"
+                />
+              </div>
+            </div>
 
-      {(!emailVerificationData.shown && (
-        <form noValidate onSubmit={handleSubmit} className={styles.credentialsForm}>
-          <div className={styles.authField}>
-            <label htmlFor="email">Your email</label>
-            <div className={styles.inputGroup}>
-              <TextInput
-                type="email"
-                value={email}
-                onChange={handleChangeEmail}
-                className="textfield"
-                placeholder="Enter your email"
-                validationErrors={emailErrors}
-                id="email"
-              />
-            </div>
-          </div>
-          <div className={styles.authField}>
-            <label htmlFor="pass1">New password</label>
-            <div className={styles.inputGroup}>
-              <TextInput
-                type="password"
-                value={password}
-                onChange={handleChangePassword}
-                className="textfield"
-                placeholder="Enter a new password"
-                validationErrors={passwordErrors}
-                id="password"
-              />
-            </div>
-          </div>
-          <div className={styles.authField}>
-            <label htmlFor="passwordConfirm">Password confirm</label>
-            <div className={styles.inputGroup}>
-              <TextInput
-                type="password"
-                value={passwordConfirm}
-                onChange={handleChangePasswordConfirm}
-                className="textfield"
-                placeholder="Confirm your new password"
-                validationErrors={passwordConfirmErrors}
-                id="passwordConfirm"
-              />
-            </div>
-          </div>
-          <button
-            className="btn btn-pry mt-3"
-            type="submit"
-            disabled={isChangingPassword}
-          >
-            Continue
-          </button>
-        </form>
-      )) ||
-        null}
+            <button
+              className="btn btn-pry mt-3 py-3 px-5 fs-5"
+              type="submit"
+              disabled={loading}
+            >
+              Recover your password
+            </button>
+          </form>
+        )) ||
+          null}
 
-      <Spinner show={isChangingPassword} />
-      {!emailVerificationData.shown ? (
-        <AuthNav goBack={goBack} loading={isChangingPassword} />
-      ) : null}
-    </AuthContentWrapper>
+        {!emailVerificationData.shown ? (
+          <AuthNav goBack={goBack} loading={loading} />
+        ) : null}
+      </AuthContentWrapper>
+    </>
   );
 };
 

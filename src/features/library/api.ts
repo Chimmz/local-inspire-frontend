@@ -19,24 +19,19 @@ class API {
     try {
       // const fullUrl = isAPICall ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
       const fullUrl = isAPICall ? `${api}${path}` : path;
-      const res = await fetch(fullUrl, { ...config, mode: 'no-cors' } as RequestInit);
+      const res = await fetch(fullUrl, { ...config } as RequestInit);
       const data = await res.json();
+      console.log('Main data: ', data);
       return data;
     } catch (err) {
-      console.log(err);
+      console.log('ERR: ', err);
       return err;
     }
   }
 
-  async register(
-    credentials: { username: string; email: string; password: string },
-    verificationCode: number,
-  ) {
-    console.log('credentials: ', credentials);
+  async register(credentials: object) {
     return this._makeRequest({
-      path: `/users/signup`.concat(
-        verificationCode ? `?verification_code=${verificationCode}` : '',
-      ),
+      path: `/users/signup`,
       method: 'POST',
       body: JSON.stringify(credentials),
       headers: { 'Content-Type': 'application/json' },
@@ -65,11 +60,28 @@ class API {
     });
   }
 
-  async changePassword(email: string, newPassword: string, code?: string) {
+  async forgotPassword(email: string) {
+    console.log('In forgotPassword API: ', email);
     return this._makeRequest({
-      path: `/users/forgot-password?verification_code=${code}`,
+      path: `/users/forgot-password?email=${email}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async resetPassword(code: string, newPassword: string) {
+    return this._makeRequest({
+      path: `/users/reset-password?code=${code}`,
       method: 'POST',
-      body: JSON.stringify({ email, newPassword }),
+      body: JSON.stringify({ newPassword }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async confirmAccount(code: string) {
+    return this._makeRequest({
+      path: `/users/confirm-account?code=${code}`,
+      method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
   }

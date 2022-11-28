@@ -42,9 +42,19 @@
   .searchIcon {
     display: none;
     visibility: hidden;
+    font-size: 1.5rem;
+    color: #fff;
+
+    &:hover {
+      color: $color-sec !important;
+
+      & svg {
+        color: #fff !important;
+      }
+    }
 
     @media screen and (max-width: 50em) {
-      display: inline-block !important;
+      display: flex !important;
       visibility: visible;
     }
   }
@@ -74,10 +84,10 @@
       }
     }
     @media screen and (max-width: 56.25em) {
-      display: none !important;
+      // display: none !important;
 
       & + .nav-breadcrumb {
-        display: inline-block !important;
+        // display: inline-block !important;
         visibility: visible;
       }
     }
@@ -105,7 +115,7 @@
 .currentUser {
   width: max-content;
   color: #cecece;
-  margin-right: 2rem;
+  // margin-right: 2rem;
 }
 
 // .dropdownToggler > button {

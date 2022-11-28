@@ -11,6 +11,7 @@ import styles from './Navbar.module.scss';
 import { signOut, useSession } from 'next-auth/react';
 import { Spinner } from 'react-bootstrap';
 import useRequest from '../../../hooks/useRequest';
+import * as userUtils from '../../../utils/user-utils';
 
 interface Props {
   session: { [key: string]: any };
@@ -39,8 +40,16 @@ const SignedInUser: React.FC<Props> = function ({}) {
         color="white"
         title={
           <>
-            <Image src="/img/default-profile-pic.jpeg" width={50} height={50} />
-            <span className={styles.userName}>{(session as any)?.user?.username}</span>
+            {/* @ts-ignore */}
+            <Image
+              src={session?.user?.imgUrl || '/img/default-profile-pic.jpeg'}
+              width={40}
+              height={40}
+              objectFit="cover"
+            />
+            <span className={styles.userName}>
+              {userUtils.getFullName((session as any).user)}
+            </span>
           </>
         }
         align="end"

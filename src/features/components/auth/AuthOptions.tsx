@@ -15,7 +15,8 @@ import AuthContentWrapper from './AuthContentWrapper';
 export interface AuthOptionsProps {
   authType: AuthType;
   authRequestLoading: boolean;
-  goToCredentialsForm: () => void;
+  goToLogin: () => void;
+  goToSignup: () => void;
 }
 
 const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
@@ -98,13 +99,10 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
       {/* Email & Password auth trigger button */}
       <button
         type="button"
-        onClick={() => {
-          console.log('Clicked Continue with email and password');
-          props.goToCredentialsForm();
-        }}
+        onClick={props.authType === 'register' ? props.goToSignup : props.goToLogin}
         className={cls(
-          'btn btn-outline btn-outline-gray d-flex align-items-center',
           styles.btnSocial,
+          'btn btn-outline btn-outline-gray d-flex align-items-center',
         )}
       >
         <MailLockIcon fontSize="large" />

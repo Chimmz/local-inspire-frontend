@@ -1,0 +1,27 @@
+.success {
+  // max-height: 100%;
+  padding: 6rem 4rem;
+  // border: 1px solid #ccc !important;
+
+  h3 {
+    font-size: 3rem;
+  }
+}
+
+.successIcon {
+  margin-inline: auto;
+  max-width: min-content;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-radius: 50%;
+  padding: 2rem;
+  background-color: rgb(206, 255, 206);
+  position: relative;
+
+  & > &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+  }
+}

@@ -5,7 +5,7 @@ import styles from './Auth.module.scss';
 interface Props {
   contentTitle?: string;
   loading?: boolean;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 }
@@ -18,18 +18,12 @@ const AuthContentWrapper: React.FC<Props> = props => {
       {contentTitle && (
         <h1 className="text-center w-100 mb-5" style={{ color: '#000' }}>
           <span>{contentTitle || 'Welcome!'}</span>
-          {subtitle && (
-            <small
-              style={{
-                fontSize: '12px',
-                display: 'block',
-                marginTop: '7px',
-                color: 'gray',
-              }}
-            >
-              {subtitle}
-            </small>
-          )}
+          <p
+            className="parag fs-5 mt-3 mx-auto"
+            style={{ maxWidth: '50ch', fontSize: '34px' }}
+          >
+            {subtitle}
+          </p>
         </h1>
       )}
       <div className={cls(styles.authContent, props.className)}>{children}</div>

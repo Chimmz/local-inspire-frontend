@@ -36,7 +36,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const [citySelected, setCitySelected] = useState(false);
 
   const currentLocation = useCurrentLocation();
-  console.log(currentLocation);
+  // console.log(currentLocation);
   const router = useRouter();
 
   const {

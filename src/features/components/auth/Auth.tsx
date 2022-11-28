@@ -6,8 +6,10 @@ import Modal from 'react-bootstrap/Modal';
 import { Icon } from '@iconify/react';
 import AuthOptions, { AuthOptionsProps } from './AuthOptions';
 import ForgotPassword from './ForgotPassword';
-import CredentialsForm from './CredentialsForm';
+import LoginForm from './LoginForm';
 import styles from './Auth.module.scss';
+import SignupForm from './signup/SignupForm';
+import MoreSignupDetails from './signup/MoreSignupDetails';
 
 interface AuthProps {
   show: boolean;
@@ -17,13 +19,20 @@ interface AuthProps {
 
 const enum PossibleContent {
   authOptions = 'Login strategies content',
-  credentialsForm = 'Credentials form content',
+  loginForm = 'Credentials form content',
+  signupForm = 'Signup content',
   forgotPassword = 'Forgot password content',
+  moreSignupDetails = 'More signup details content',
+  // emailVerification = 'Email verification content',
 }
+
 type Content =
   | PossibleContent.authOptions
-  | PossibleContent.credentialsForm
-  | PossibleContent.forgotPassword;
+  | PossibleContent.loginForm
+  | PossibleContent.forgotPassword
+  | PossibleContent.signupForm
+  | PossibleContent.moreSignupDetails;
+// | PossibleContent.emailVerification;
 
 const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal }) {
   const [content, setContent] = useState<Content>(PossibleContent.authOptions);
@@ -38,7 +47,9 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
   });
 
   const switchToAuthOptions = () => setContent(PossibleContent.authOptions);
-  const switchToCredentialsForm = () => setContent(PossibleContent.credentialsForm);
+  const switchToLogin = () => setContent(PossibleContent.loginForm);
+  const switchToSignup = () => setContent(PossibleContent.signupForm);
+  const switchToMoreSignupDetails = () => setContent(PossibleContent.moreSignupDetails);
   const switchToForgotPassword = () => setContent(PossibleContent.forgotPassword);
 
   const getContent = () => {
@@ -49,21 +60,34 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           <AuthOptions
             authType={authType}
             authRequestLoading={authRequestLoading}
-            goToCredentialsForm={switchToCredentialsForm}
+            // goToCredentialsForm={switchToCredentialsForm}
+            goToSignup={switchToSignup}
+            goToLogin={switchToLogin}
           />
         );
-      case PossibleContent.credentialsForm:
+      case PossibleContent.loginForm:
         return (
-          <CredentialsForm
+          <LoginForm
             show
-            authType={authType}
             goBack={switchToAuthOptions}
+            goToSignup={switchToSignup}
             goToForgotPassword={switchToForgotPassword}
             closeModal={closeModal}
           />
         );
       case PossibleContent.forgotPassword:
-        return <ForgotPassword goBack={switchToCredentialsForm} />;
+        return <ForgotPassword goBack={switchToLogin} />;
+
+      case PossibleContent.signupForm:
+        return (
+          <SignupForm
+            goBack={switchToAuthOptions}
+            goNext={switchToMoreSignupDetails}
+            goToLogin={switchToLogin}
+          />
+        );
+      case PossibleContent.moreSignupDetails:
+        return <MoreSignupDetails closeModal={closeModal} goBack={switchToSignup} />;
     }
   };
 

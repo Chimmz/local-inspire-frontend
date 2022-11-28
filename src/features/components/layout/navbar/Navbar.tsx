@@ -21,6 +21,8 @@ import LoadingButton from '../../shared/button/Button';
 import { Icon } from '@iconify/react';
 import styles from './Navbar.module.scss';
 import SignedInUser from './SignedInUser';
+import { AuthContextProvider } from '../../../contexts/AuthContext';
+import MobileBusinessSearchForm from '../../shared/businesses-search/MobileBusinessSearchForm';
 
 interface NavbarProps {
   bg?: string;
@@ -36,6 +38,8 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
     yes: boolean;
     authType: AuthType | null;
   }>({ yes: false, authType: null });
+
+  const [searchModalOpen, setSearchOpen] = useState(false);
 
   const router = useRouter();
   const { data: authSession, status: authStatus } = useSession({
@@ -84,11 +88,16 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       {children}
 
       <div
-        className={cls(styles.iconTrigger, styles.searchIcon)}
+        className={cls(styles.iconTrigger, styles.searchIcon, 'd-flex gap-2')}
         style={{ marginLeft: 'auto' }}
+        onClick={setSearchOpen.bind(null, !searchModalOpen)}
       >
-        <Icon icon="akar-icons:search" color="#fff" width={20} />
+        <Icon icon="akar-icons:search" color="#e87525" width={20} />
+        <span>Search</span>
       </div>
+      {searchModalOpen ? (
+        <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
+      ) : null}
 
       {/* <div className={cls(styles.iconTrigger, styles.userIcon)}>
         <Icon icon="mdi:user" color="white" width={25} />
@@ -119,8 +128,11 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       <div className={styles['nav-breadcrumb']}>
         <Icon icon="material-symbols:menu" width={15} color="#eee" />
       </div>
+
       {userWantsToAuth.yes ? (
-        <Auth show authType={userWantsToAuth.authType!} close={closeAuthModal} />
+        <AuthContextProvider>
+          <Auth show authType={userWantsToAuth.authType!} close={closeAuthModal} />
+        </AuthContextProvider>
       ) : null}
     </nav>
   );

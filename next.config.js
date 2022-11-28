@@ -7,7 +7,7 @@ const nextConfig = {
     additionalData: `@import "src/styles/sass/abstracts/variables.scss";`,
   },
   images: {
-    domains: ['plus.unsplash.com', 'images.unsplash.com'],
+    domains: ['plus.unsplash.com', 'images.unsplash.com', 'lh3.googleusercontent.com', 'platform-lookaside.fbsbx.com'],
   },
 };
 

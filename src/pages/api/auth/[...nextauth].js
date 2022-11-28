@@ -27,9 +27,7 @@ const loginProvider = CredentialsProvider({
 const signupProvider = CredentialsProvider({
   id: 'register',
   authorize: async function (credentials, req) {
-    const { code, ...signupCredentials } = credentials;
-    const res = await API.register(signupCredentials, code);
-
+    const res = await API.register(credentials);
     console.log('Sign up response: ', res);
 
     switch (res.status) {

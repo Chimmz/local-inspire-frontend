@@ -9,11 +9,8 @@ interface UseInputParams {
 
 const useInput = function ({ init: initValue, validators }: UseInputParams) {
   const [inputValue, setInputValue] = useState(initValue);
-  const { runValidators, validationErrors, setValidationErrors, pushError } =
+  const { runValidators, validationErrors, setValidationErrors, pushValidationError } =
     useValidator({ inputValue, validators });
-
-  const clearInput = () => setInputValue('');
-  const clearValidationErrors = () => setValidationErrors([]);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = ev => {
     setInputValue(ev.target.value);
@@ -22,14 +19,14 @@ const useInput = function ({ init: initValue, validators }: UseInputParams) {
 
   return {
     inputValue,
+    setInputValue,
     handleChange,
     runValidators,
     validationErrors,
     setValidationErrors,
-    pushError,
-    setInputValue,
-    clearInput,
-    clearValidationErrors,
+    pushValidationError,
+    clearInput: setInputValue.bind(null, ''),
+    clearValidationErrors: setValidationErrors.bind(null, []),
   };
 };
 

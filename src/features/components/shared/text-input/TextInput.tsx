@@ -10,15 +10,23 @@ interface TextInputProps {
   readonly?: true;
   validationErrors?: ValidationFeedback[];
   label?: string;
+  autoFocus?: boolean;
   [key: string]: any;
 }
 
-function TextInput({ validationErrors, type = 'text', ...nativeProps }: TextInputProps) {
+function TextInput(props: TextInputProps) {
+  const { validationErrors, type = 'text', autoFocus, ...nativeProps } = props;
   const hasError = !!validationErrors?.length;
+
   return (
     <Fragment>
       {nativeProps.label ? <Form.Label>{nativeProps.label}</Form.Label> : null}
-      <Form.Control type={type} {...nativeProps} isInvalid={hasError} />
+      <Form.Control
+        type={type}
+        {...nativeProps}
+        isInvalid={hasError}
+        autoFocus={autoFocus}
+      />
 
       {validationErrors ? (
         <Form.Control.Feedback type="invalid">

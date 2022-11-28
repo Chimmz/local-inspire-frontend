@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
 interface Params {
+  startLoadingInitially?: boolean;
   autoStopLoading?: boolean;
 }
 
-function useRequest({ autoStopLoading = true }: Params) {
-  const [loading, setLoading] = useState(false);
+function useRequest({ autoStopLoading = true, startLoadingInitially = false }: Params) {
+  const [loading, setLoading] = useState(startLoadingInitially);
   const [startLoading, stopLoading] = [() => setLoading(true), () => setLoading(false)];
 
   const send = (req: Promise<any>) => {
