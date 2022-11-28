@@ -155,7 +155,7 @@ const LoginForm: React.FC<Props> = function (props) {
 
         <div className={cls(styles.linkSuggestions, 'd-flex justify-content-between')}>
           <small className={cls(styles.forgotPassLink, 'w-max-content')}>
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a
               href="#"
               className={styles.link}
