@@ -20,6 +20,8 @@ const SignupForm: React.FC<Props> = props => {
   const authData = useAuthContext();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (ev): void => {
+    ev.preventDefault()
+    
     const allErrors = [
       authData!.newRegistration.runFirstNameValidators(),
       authData!.newRegistration.runLastNameValidators(),
