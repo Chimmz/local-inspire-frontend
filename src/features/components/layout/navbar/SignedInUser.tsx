@@ -42,7 +42,7 @@ const SignedInUser: React.FC<Props> = function ({}) {
           <>
             {/* @ts-ignore */}
             <Image
-              src={session.user.imgUrl || '/img/default-profile-pic.jpeg'}
+              src={session?.user.imgUrl || '/img/default-profile-pic.jpeg'}
               width={40}
               height={40}
               objectFit="cover"
