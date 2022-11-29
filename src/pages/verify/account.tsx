@@ -10,27 +10,34 @@ import PageSuccess from '../../features/components/shared/success/PageSuccess';
 import useRequest from '../../features/hooks/useRequest';
 
 const AccountConfirmation: NextPage = () => {
-  const [confirmed, setConfirmed] = useState({ msg: '' });
+  const [response, setResponse] = useState<null | {
+    status: 'SUCCESS' | 'FAIL';
+    msg: string;
+  }>(null);
+
   const router = useRouter();
   console.log('Query: ', router.query);
   const { send, loading } = useRequest({ autoStopLoading: true });
 
+  const confirm = async () => {
+    const res = await send(API.confirmMyAccount(router.query.email as string));
+    console.log(res);
+    setResponse(res);
+  };
+
   useEffect(() => {
-    setTimeout(async () => {
-      const res = await send(API.confirmAccount(router.query.code as string));
-      if (res.status === 'SUCCESS') setConfirmed({ msg: res.msg });
-      console.log(res);
-    }, 2000);
-  }, []);
+    if (!router.query.email?.length) return;
+    confirm();
+  }, [router.query.email]);
 
   return (
     <main className={styles.main}>
-      {confirmed.msg.length ? (
-        <PageSuccess title={'Confirmed!'} description={confirmed.msg} />
-      ) : loading ? (
+      {!response || loading ? (
         <Spinner />
+      ) : response?.status === 'SUCCESS' ? (
+        <PageSuccess title="Confirmed!" description={response?.msg} />
       ) : (
-        'Something went wrong'
+        <h3>{response?.msg || 'Something went wrong'}</h3>
       )}
     </main>
   );

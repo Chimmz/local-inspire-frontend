@@ -115,14 +115,9 @@ const PasswordReset: NextPage = function () {
         'Invalid URL'
       ) : (
         <form noValidate onSubmit={handleSubmit} className={styles.form}>
-          <Image
-            src="/img/localinspire-logo.jpeg"
-            alt=""
-            width={150}
-            height={30}
-            className=""
-          />
+          <Image src="/img/localinspire-logo.jpeg" alt="" width={150} height={30} />
           <Spinner show={isVerifying} />
+          {/* <h2 className="mt-5 fs-1">Hi, Chima.</h2> */}
           <p
             style={{ fontSize: '14px', color: '#777', maxWidth: '40ch' }}
             className="mt-4 mb-5 mx-auto"

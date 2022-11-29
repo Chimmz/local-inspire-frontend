@@ -79,6 +79,20 @@
       }
     }
 
+    &:is(.btn-outline-sec-light) {
+      & {
+        background-color: rgba($color-sec, 0.1);
+        border: 1px solid $color-sec !important;
+        &:hover {
+          color: $color-sec-dark !important;
+          background-color: rgba($color-sec, 0.15);
+        }
+      }
+      & * {
+        color: $color-sec-dark !important;
+      }
+    }
+
     &:is(.btn-outline-white) {
       border-color: #838383;
       color: #d1d1d1;

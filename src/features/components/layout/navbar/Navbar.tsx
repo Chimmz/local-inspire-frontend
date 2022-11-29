@@ -88,8 +88,8 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       {children}
 
       <div
-        className={cls(styles.iconTrigger, styles.searchIcon, 'd-flex gap-2')}
-        style={{ marginLeft: 'auto' }}
+        className={cls(styles.searchIcon, 'd-flex gap-2')}
+        // style={{ marginLeft: 'auto' }}
         onClick={setSearchOpen.bind(null, !searchModalOpen)}
       >
         <Icon icon="akar-icons:search" color="#e87525" width={20} />
@@ -99,7 +99,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
         <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
       ) : null}
 
-      {/* <div className={cls(styles.iconTrigger, styles.userIcon)}>
+      {/* <div className={styles.userIcon}>
         <Icon icon="mdi:user" color="white" width={25} />
       </div> */}
 

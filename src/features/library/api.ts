@@ -78,9 +78,9 @@ class API {
     });
   }
 
-  async confirmAccount(code: string) {
+  async confirmMyAccount(email: string) {
     return this._makeRequest({
-      path: `/users/confirm-account?code=${code}`,
+      path: `/users/confirm-account?email=${email}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

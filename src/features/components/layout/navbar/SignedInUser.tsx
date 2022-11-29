@@ -40,26 +40,23 @@ const SignedInUser: React.FC<Props> = function ({}) {
         color="white"
         title={
           <>
-            {/* @ts-ignore */}
             <Image
               src={session?.user.imgUrl || '/img/default-profile-pic.jpeg'}
-              width={40}
-              height={40}
+              width={30}
+              height={30}
               objectFit="cover"
             />
-            <span className={styles.userName}>
-              {userUtils.getFullName((session as any).user)}
-            </span>
+            <span className={styles.userName}>{session?.user?.firstName || ''}</span>
           </>
         }
         align="end"
       >
         <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-          <PersonRoundedIcon fontSize="large" />
+          <PersonRoundedIcon fontSize="large" style={{ width: '20px', height: '20px' }} />
           View profile
         </NavDropdown.Item>
         <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-          <SettingsIcon fontSize="large" />
+          <SettingsIcon fontSize="large" style={{ width: '20px', height: '20px' }} />
           Account information
         </NavDropdown.Item>
         <NavDropdown.Divider />
@@ -67,7 +64,10 @@ const SignedInUser: React.FC<Props> = function ({}) {
           className="fs-5 d-flex align-items-center gap-3"
           onClick={handleSignOut}
         >
-          <LogoutIcon fontSize="large" style={{ color: 'red' }} />
+          <LogoutIcon
+            fontSize="large"
+            style={{ color: 'red', width: '20px', height: '20px' }}
+          />
           {isSigningOut && <Spinner animation="border" size="sm" />}
           {isSigningOut ? 'Logging out...' : 'Log out'}
         </NavDropdown.Item>

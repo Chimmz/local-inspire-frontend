@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import ReactPaginate from 'react-paginate';
 
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import Head from 'next/head';
-
-import Image from 'next/image';
+import { BusinessProps } from '../../features/components/business-results/Business';
 
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
@@ -24,7 +24,6 @@ import AllBusinesses from '../../features/components/business-results/AllBusines
 import MapView from '../../features/components/business-results/MapView';
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
-import { BusinessProps } from '../../features/components/business-results/Business';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
 import { Icon } from '@iconify/react';
 import * as urlUtils from '../../features/utils/url-utils';

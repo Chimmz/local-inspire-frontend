@@ -233,5 +233,21 @@
   width: 100%;
   left: 0;
   top: 0;
+  justify-content: center !important;
+  // padding-inline: 7vw;
+  border-top: 3px solid #333;
+  // gap: 0;
   z-index: 5;
+
+  @media screen and (max-width: 56.25em) {
+    justify-content: space-between !important;
+    // gap: 3rem !important;
+  }
+
+  & > form[class*='BusinessSearchForm'] {
+    margin-inline: 0;
+  }
+  & > [class*='Navbar_nav-auth'] {
+    margin-left: 0 !important;
+  }
 }

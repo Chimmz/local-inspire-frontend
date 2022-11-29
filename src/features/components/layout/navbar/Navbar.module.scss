@@ -10,9 +10,9 @@
   font-size: 1rem !important;
   z-index: 5;
 
-  @media screen and (max-width: 37.5em) {
-    justify-content: space-between;
-    padding-inline: 6vw;
+  @media screen and (max-width: 56.25em) {
+    justify-content: space-between !important;
+    padding-inline: 0;
 
     &-logo {
       margin-left: 0 !important;
@@ -24,14 +24,17 @@
     cursor: pointer;
     // margin-left: auto;
     transform: scale(0.7);
-    transform-origin: left;
+    // transform-origin: left;
+
+    & ~ * {
+      transform: translateX(-2rem);
+    }
   }
 
   &-breadcrumb {
     cursor: pointer;
     transform: scale(2);
     display: none;
-    visibility: hidden;
     // margin-left: auto;
 
     &:hover svg {
@@ -40,22 +43,26 @@
   }
 
   .searchIcon {
-    display: none;
-    visibility: hidden;
     font-size: 1.5rem;
     color: #fff;
+    display: none !important;
+    transition: color 0.2s;
+
+    @media screen and (max-width: 31.25em) {
+      display: flex !important;
+    }
 
     &:hover {
       color: $color-sec !important;
+      cursor: pointer;
 
       & svg {
-        color: #fff !important;
+        // color: #fff !important;
       }
     }
 
     @media screen and (max-width: 50em) {
       display: flex !important;
-      visibility: visible;
     }
   }
 
@@ -69,18 +76,16 @@
     font-size: 1.4rem;
     display: flex;
     align-items: center;
-    margin-left: auto;
+    // margin-left: auto;
 
     & > button {
-      min-width: 10rem;
+      min-width: 7rem;
     }
     & > .userIcon {
       // display: none;
-      // visibility: hidden;
 
       @media screen and (max-width: 56.25em) {
         // display: inline-block !important;
-        // visibility: visible;
       }
     }
     @media screen and (max-width: 56.25em) {
@@ -88,7 +93,6 @@
 
       & + .nav-breadcrumb {
         // display: inline-block !important;
-        visibility: visible;
       }
     }
   }
@@ -97,25 +101,11 @@
       display: none;
     }
   }
-
-  & .iconTrigger {
-    cursor: pointer;
-    // transition: color 0.2s;
-
-    & > svg {
-      // color: $color-sec !important;
-    }
-
-    &:hover svg {
-      color: $color-sec !important;
-    }
-  }
 }
 
-.currentUser {
+.signedInUser {
   width: max-content;
   color: #cecece;
-  // margin-right: 2rem;
 }
 
 // .dropdownToggler > button {
@@ -149,5 +139,10 @@
 
   & .userName {
     margin-left: 7px;
+    font-size: 16px;
+
+    @media screen and (max-width: 37.5em) {
+      display: none;
+    }
   }
 }

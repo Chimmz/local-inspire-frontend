@@ -122,13 +122,14 @@ const MoreSignupDetails: React.FC<Props> = props => {
         <div className={styles.photo}>
           <Image
             src={uploadedPhoto || '/img/default-profile-pic.jpeg'}
-            width={100}
-            height={100}
+            width={150}
+            height={150}
             objectFit="cover"
           />
+        </div>
 
-          <div className={cls(styles.photoUploadStrategies, 'mt-3')}>
-            {/* <button
+        <div className={cls(styles.photoUploadStrategies, 'mt-3')}>
+          {/* <button
               type="button"
               className={cls(
                 'btn btn-pry btn--sm w-100 mb-2 d-flex align-items-center',
@@ -142,20 +143,24 @@ const MoreSignupDetails: React.FC<Props> = props => {
               <span className="text">Use Facebook photo</span>
             </button> */}
 
-            <div className={cls('btn btn-outline-sec p-1 py-0', styles.btnFileOpener)}>
-              <input
-                type="file"
-                id="new-photo"
-                accept="image/jpeg, image/png, image/jpg"
-                onChange={handleUploadPhoto}
-              />
-              <label
-                className="btn d-flex gap-3 align-items-center font-inherit"
-                htmlFor="new-photo"
-              >
-                <ComputerIcon fontSize="large" /> Upload from device
-              </label>
-            </div>
+          <div
+            className={cls(
+              'btn btn-outline btn-outline-sec-light p-1 py-0',
+              styles.btnFileOpener,
+            )}
+          >
+            <input
+              type="file"
+              id="new-photo"
+              accept="image/jpeg, image/png, image/jpg"
+              onChange={handleUploadPhoto}
+            />
+            <label
+              className="btn d-flex gap-3 align-items-center font-inherit"
+              htmlFor="new-photo"
+            >
+              <ComputerIcon fontSize="large" /> Upload from device
+            </label>
           </div>
         </div>
 
@@ -266,8 +271,9 @@ const MoreSignupDetails: React.FC<Props> = props => {
             <span className="text">Skip</span>
           </button>
         </div>
+
+        <AuthNav goBack={props.goBack} />
       </div>
-      <AuthNav goBack={props.goBack} />
     </AuthContentWrapper>
   );
 };

@@ -2,9 +2,15 @@
   // max-height: 100%;
   padding: 6rem 4rem;
   // border: 1px solid #ccc !important;
+  transform: translateY(-3rem);
 
-  h3 {
+  h1 {
     font-size: 3rem;
+    color: #383838;
+  }
+  small {
+    display: block;
+    max-width: 35ch;
   }
 }
 
