@@ -64,13 +64,8 @@ const MoreSignupDetails: React.FC<Props> = props => {
       const { ok, error, status, url } = result;
       if (ok) return props.closeModal();
 
-      const response = JSON.parse(error);
-      switch (response.reason) {
-        case 'EMAIL_IN_USE':
-          authData?.newRegistration.pushEmailValidationError(response.msg);
-          props.goBack();
-          break;
-      }
+      const res = JSON.parse(error);
+      console.log('Main response: ', res);
     } catch (err) {
       console.log('Credential signin Error: ', err);
     }
@@ -122,8 +117,8 @@ const MoreSignupDetails: React.FC<Props> = props => {
         <div className={styles.photo}>
           <Image
             src={uploadedPhoto || '/img/default-profile-pic.jpeg'}
-            width={150}
-            height={150}
+            width={120}
+            height={120}
             objectFit="cover"
           />
         </div>
@@ -145,7 +140,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
 
           <div
             className={cls(
-              'btn btn-outline btn-outline-sec-light p-1 py-0',
+              'btn btn-outline btn--sm btn-outline-sec-light p-1 py-0',
               styles.btnFileOpener,
             )}
           >
@@ -167,9 +162,9 @@ const MoreSignupDetails: React.FC<Props> = props => {
         <div className={styles.birthday}>
           <Spinner show={isAuthenticating} />
 
-          <h5 className="mb-0 fs-4 mb-2">Birthday</h5>
-          <small className="parag mb-4 d-block" style={{ color: 'gray' }}>
-            Receive specials on your birthday
+          <h5 className="mb-0 fs-5 mb-2">Birthday</h5>
+          <small className="parag mb-4 d-block fs-6" style={{ color: 'gray' }}>
+            (Receive specials on your birthday)
           </small>
 
           <div className={cls(styles.birthdayFields, 'd-flex gap-2')}>
@@ -226,7 +221,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
         </div>
 
         <div className={styles.gender}>
-          <h5 className="fs-4 mb-4">Gender</h5>
+          <h5 className="fs-5 mb-4">Gender</h5>
           <div className={cls(styles.genderOptions, 'd-flex gap-4')}>
             <label htmlFor="male">
               <input
@@ -236,7 +231,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
                 value="male"
                 onChange={setGender.bind(null, 'male')}
               />
-              <span>Male</span>
+              <span className="fs-5">Male</span>
             </label>
             <label htmlFor="female">
               <input
@@ -246,7 +241,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
                 value="female"
                 onChange={setGender.bind(null, 'female')}
               />
-              <span>Female</span>
+              <span className="fs-5">Female</span>
             </label>
           </div>
         </div>
@@ -272,7 +267,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
           </button>
         </div>
 
-        <AuthNav goBack={props.goBack} />
+        {/* <AuthNav goBack={props.goBack} /> */}
       </div>
     </AuthContentWrapper>
   );

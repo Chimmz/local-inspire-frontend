@@ -23,6 +23,7 @@ import styles from './Navbar.module.scss';
 import SignedInUser from './SignedInUser';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import MobileBusinessSearchForm from '../../shared/businesses-search/MobileBusinessSearchForm';
+import { NavDropdown } from 'react-bootstrap';
 
 interface NavbarProps {
   bg?: string;
@@ -102,6 +103,32 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       {/* <div className={styles.userIcon}>
         <Icon icon="mdi:user" color="white" width={25} />
       </div> */}
+
+      {authSession ? (
+        <div className={styles.icons}>
+          <NavDropdown
+            className={styles.notifToggler}
+            color="white"
+            title={
+              <span>
+                <Icon icon="ic:baseline-notifications" color="#eee" width={22} />
+              </span>
+            }
+            // align="end"
+          >
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Divider />
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+          </NavDropdown>
+        </div>
+      ) : null}
 
       <div className={styles['nav-auth']}>
         {!authSession ? (

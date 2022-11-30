@@ -29,6 +29,14 @@ class API {
     }
   }
 
+  async isEmailAreadyInUse(email: string) {
+    return this._makeRequest({
+      path: `/users/is-email-in-use?email=${email}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async register(credentials: object) {
     return this._makeRequest({
       path: `/users/signup`,

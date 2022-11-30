@@ -40,7 +40,7 @@ const PasswordReset: NextPage = function () {
     validators: [
       { isRequired: ['This field is required'] },
       { minLength: [6] },
-      { isStrongPassword: ['Enter a strong password'] },
+      // { isStrongPassword: ['Enter a strong password'] },
     ],
   });
 
@@ -108,67 +108,73 @@ const PasswordReset: NextPage = function () {
   }, []);
 
   return (
-    <main className={styles.main}>
-      {response.status === 'SUCCESS' ? (
-        <PageSuccess title="Password Changed!" description="You can now exit this page" />
-      ) : response.status === 'INVALID_CODE' ? (
-        'Invalid URL'
-      ) : (
-        <form noValidate onSubmit={handleSubmit} className={styles.form}>
-          <Image src="/img/localinspire-logo.jpeg" alt="" width={150} height={30} />
-          <Spinner show={isVerifying} />
-          {/* <h2 className="mt-5 fs-1">Hi, Chima.</h2> */}
-          <p
-            style={{ fontSize: '14px', color: '#777', maxWidth: '40ch' }}
-            className="mt-4 mb-5 mx-auto"
-          >
-            Create a new password.{' '}
-            <span className="d-block">We recommend using a strong password.</span>
-          </p>
-          <div className={cls(styles.authField, 'mb-4')}>
-            <TextInput
-              type="password"
-              value={password}
-              onChange={handleChangePassword}
-              label="New password"
-              className="textfield"
-              placeholder="Enter a new password"
-              validationErrors={passwordErrors}
-              id="password"
-            />
-          </div>
-          <div className={cls(styles.authField, 'mb-4')}>
-            <TextInput
-              type="password"
-              value={passwordConfirm}
-              label="Password confirm"
-              onChange={handleChangePasswordConfirm}
-              className="textfield"
-              placeholder="Confirm your new password"
-              validationErrors={passwordConfirmErrors}
-              id="passwordConfirm"
-            />
-          </div>
-          <button
-            className="btn btn-pry mt-5 px-5 py-3 mx-auto d-block w-100 mt-3"
-            type="submit"
-            disabled={
-              !!passwordErrors.length || !!passwordConfirmErrors.length || isVerifying
-            }
-          >
-            Continue
-          </button>
-        </form>
-      )}
-      {/* <Spinner show={isVerifying} /> */}
+    <Layout>
+      <Navbar bg="#003366" lightLogo />
+      <main className={styles.main}>
+        {response.status === 'SUCCESS' ? (
+          <PageSuccess
+            title="Password Changed!"
+            description="You can now exit this page"
+          />
+        ) : response.status === 'INVALID_CODE' ? (
+          'Invalid URL'
+        ) : (
+          <form noValidate onSubmit={handleSubmit} className={styles.form}>
+            <Image src="/img/localinspire-logo.jpeg" alt="" width={150} height={30} />
+            <Spinner show={isVerifying} />
+            {/* <h2 className="mt-5 fs-1">Hi, Chima.</h2> */}
+            <p
+              style={{ fontSize: '14px', color: '#777', maxWidth: '40ch' }}
+              className="mt-4 mb-5 mx-auto"
+            >
+              Create a new password.{' '}
+              <span className="d-block">We recommend using a strong password.</span>
+            </p>
+            <div className={cls(styles.authField, 'mb-4')}>
+              <TextInput
+                type="password"
+                value={password}
+                onChange={handleChangePassword}
+                label="New password"
+                className="textfield"
+                placeholder="Enter a new password"
+                validationErrors={passwordErrors}
+                id="password"
+              />
+            </div>
+            <div className={cls(styles.authField, 'mb-4')}>
+              <TextInput
+                type="password"
+                value={passwordConfirm}
+                label="Password confirm"
+                onChange={handleChangePasswordConfirm}
+                className="textfield"
+                placeholder="Confirm your new password"
+                validationErrors={passwordConfirmErrors}
+                id="passwordConfirm"
+              />
+            </div>
+            <button
+              className="btn btn-pry mt-5 px-5 py-3 mx-auto d-block w-100 mt-3"
+              type="submit"
+              disabled={
+                !!passwordErrors.length || !!passwordConfirmErrors.length || isVerifying
+              }
+            >
+              Continue
+            </button>
+          </form>
+        )}
+        {/* <Spinner show={isVerifying} /> */}
 
-      {/* <div className={styles.verifyInfo}>
+        {/* <div className={styles.verifyInfo}>
         <h1>Something went wrong</h1>
         <a href="" className="btn btn-outline-pry d-block mt-5 w-max-content">
           Try again
         </a>
       </div> */}
-    </main>
+      </main>
+    </Layout>
   );
 };
 

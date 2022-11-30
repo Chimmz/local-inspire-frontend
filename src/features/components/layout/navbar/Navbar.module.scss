@@ -72,6 +72,29 @@
     }
   }
 
+  & > .icons {
+    & > * {
+      cursor: pointer;
+
+      &:hover {
+        color: $color-sec !important;
+      }
+    }
+    & > .notifToggler {
+      color: $color-sec !important;
+
+      & > a[class*='dropdown-toggle nav-link'] {
+        &::after {
+          display: none;
+        }
+      }
+      & > [class*='dropdown-menu'] {
+        max-width: 40vw;
+        padding-right: 3rem !important;
+      }
+    }
+  }
+
   &-auth {
     font-size: 1.4rem;
     display: flex;

@@ -229,11 +229,12 @@
 
 .navbar {
   // border-bottom: 1px solid #ccc;
+  // padding-inline: 6rem !important; // Same as the page content x-padding
   position: sticky;
   width: 100%;
   left: 0;
   top: 0;
-  justify-content: center !important;
+  // justify-content: center !important;
   // padding-inline: 7vw;
   border-top: 3px solid #333;
   // gap: 0;

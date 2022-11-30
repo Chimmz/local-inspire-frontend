@@ -96,6 +96,7 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
           }}
         />
       </LoadingButton>
+      <small>Or</small>
       {/* Email & Password auth trigger button */}
       <button
         type="button"

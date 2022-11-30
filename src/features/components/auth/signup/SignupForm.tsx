@@ -5,10 +5,14 @@ import useInput from '../../../hooks/useInput';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
 import cls from 'classnames';
-import { Spinner } from 'react-bootstrap';
+// import { Spinner } from 'react-bootstrap';
+
 import AuthNav from '../AuthNav';
 import TextInput from '../../shared/text-input/TextInput';
 import styles from '../Auth.module.scss';
+import API from '../../../library/api';
+import useRequest from '../../../hooks/useRequest';
+import Spinner from '../../shared/spinner/Spinner';
 
 interface Props {
   goBack: () => void;
@@ -18,10 +22,12 @@ interface Props {
 
 const SignupForm: React.FC<Props> = props => {
   const authData = useAuthContext();
+  const { send: sendEmailRequest, loading: isCheckingEmail } = useRequest({
+    autoStopLoading: true,
+  });
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (ev): void => {
-    ev.preventDefault()
-    
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
+    ev.preventDefault();
     const allErrors = [
       authData!.newRegistration.runFirstNameValidators(),
       authData!.newRegistration.runLastNameValidators(),
@@ -29,15 +35,26 @@ const SignupForm: React.FC<Props> = props => {
       authData!.newRegistration.runPasswordValidators(),
     ];
 
-    if (!allErrors.flat().length) return props.goNext();
+    if (allErrors.flat().length) {
+      return [
+        authData!.newRegistration.setFirstNameValidationErrors,
+        authData!.newRegistration.setLastNameValidationErrors,
+        authData!.newRegistration.setEmailValidationErrors,
+        authData!.newRegistration.setPasswordValidationErrors,
+      ].forEach((set, i) => set(allErrors[i]));
+    }
 
-    const errorSetters = [
-      authData!.newRegistration.setFirstNameValidationErrors,
-      authData!.newRegistration.setLastNameValidationErrors,
-      authData!.newRegistration.setEmailValidationErrors,
-      authData!.newRegistration.setPasswordValidationErrors,
-    ];
-    errorSetters.forEach((set, i) => set(allErrors[i]));
+    const res = await sendEmailRequest(
+      API.isEmailAreadyInUse(authData!.newRegistration.email),
+    );
+    console.log('Email response: ', res);
+    if (res.status && res.isEmailInUse) {
+      return authData!.newRegistration.pushEmailValidationError(
+        'A user with this email already exists',
+      );
+    }
+
+    props.goNext();
   };
 
   return (
@@ -74,7 +91,7 @@ const SignupForm: React.FC<Props> = props => {
           />
         </div>
 
-        {/* <Spinner show={isAuthenticating} /> */}
+        <Spinner show={isCheckingEmail} />
 
         <div className={styles.authField}>
           <div className={styles.inputGroup}>

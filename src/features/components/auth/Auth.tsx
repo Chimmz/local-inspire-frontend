@@ -97,7 +97,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
       onHide={closeModal}
       aria-labelledby="contained-modal-title-vcenter"
       centered
-      scrollable
+      // scrollable
     >
       <Modal.Header
         closeButton
