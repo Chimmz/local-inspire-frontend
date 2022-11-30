@@ -145,6 +145,17 @@ const LoginForm: React.FC<Props> = function (props) {
           </div>
         </div>
 
+        <small className={cls(styles.forgotPassLink, '')}>
+          <a
+            href="#"
+            className={styles.link}
+            style={{ fontSize: '13px' }}
+            onClick={isAuthenticating ? () => {} : props.goToForgotPassword}
+          >
+            Forgot Password?
+          </a>
+        </small>
+
         <button
           type="submit"
           className="btn btn-pry d-flex align-items-center justify-content-center gap-4"
@@ -153,8 +164,40 @@ const LoginForm: React.FC<Props> = function (props) {
           <span className="text">Log in</span>
         </button>
 
+        <small
+          // onClick={isAuthenticating ? () => {} : props.goToForgotPassword}
+          className="d-flex gap-2 mx-auto"
+          style={{ gridColumn: '1 / -1' }}
+        >
+          Don&apos;t have an account?
+          <a
+            href="#"
+            className={styles.link}
+            style={{ fontSize: '13px' }}
+            onClick={props.goToSignup}
+          >
+            Signup
+          </a>
+        </small>
+
+        <small
+          // onClick={isAuthenticating ? () => {} : props.goToForgotPassword}
+          className="d-flex gap-2 mx-auto"
+          style={{ gridColumn: '1 / -1' }}
+        >
+          Want to use Facebook or Google instead?
+          <a
+            href="#"
+            className={styles.link}
+            style={{ fontSize: '13px' }}
+            onClick={props.goBack}
+          >
+            Go back
+          </a>
+        </small>
+
         <div className={cls(styles.linkSuggestions, 'd-flex justify-content-between')}>
-          <small className={cls(styles.forgotPassLink, 'w-max-content')}>
+          {/* <small className={cls(styles.forgotPassLink, 'w-max-content')}>
             Don&apos;t have an account?{' '}
             <a
               href="#"
@@ -164,9 +207,9 @@ const LoginForm: React.FC<Props> = function (props) {
             >
               Register
             </a>
-          </small>
+          </small> */}
 
-          <small className={cls(styles.forgotPassLink)}>
+          {/* <small className={cls(styles.forgotPassLink)}>
             <a
               href="#"
               className={styles.link}
@@ -175,7 +218,7 @@ const LoginForm: React.FC<Props> = function (props) {
             >
               Forgot Password?
             </a>
-          </small>
+          </small> */}
         </div>
       </form>
       <AuthNav goBack={props.goBack} loading={isAuthenticating} />

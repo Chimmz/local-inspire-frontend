@@ -141,6 +141,21 @@ const SignupForm: React.FC<Props> = props => {
             Login
           </a>
         </small>
+
+        <small
+          // onClick={isAuthenticating ? () => {} : props.goToForgotPassword}
+          className="d-flex gap-2 mx-auto"
+        >
+          Want to use Facebook or Google instead?
+          <a
+            href="#"
+            className={styles.link}
+            style={{ fontSize: '13px' }}
+            onClick={props.goBack}
+          >
+            Go back
+          </a>
+        </small>
       </form>
       <AuthNav
         goBack={props.goBack}
