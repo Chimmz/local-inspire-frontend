@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
+// import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useRequest from '../../../hooks/useRequest';
@@ -42,6 +44,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
     month: '',
     day: null,
   });
+
   const { send: sendSignupRequest, loading: isAuthenticating } = useRequest({
     autoStopLoading: true,
   });
@@ -82,27 +85,22 @@ const MoreSignupDetails: React.FC<Props> = props => {
       email: authData!.newRegistration.email,
       password: authData!.newRegistration.password,
     };
-    if (actionTaken === 'skip') return authenticate(credentials);
 
+    if (actionTaken === 'skip') return authenticate(credentials);
     if (uploadedPhoto) credentials.imgUrl = uploadedPhoto;
     if (gender) credentials.gender = gender;
-
     if (Object.values(birthInfo).every(field => !!field))
       credentials.birthInfo = birthInfo;
     authenticate(credentials);
-    // props.closeModal();
   };
 
-  const handleUploadPhoto: React.ChangeEventHandler<HTMLInputElement> = ev => {
+  // const handleUploadFacebookProfilePhoto = () => {
+
+  // };
+  const handleFacebookResponse = (response: object) => {};
+
+  const handleUploadPhotoFromDevice: React.ChangeEventHandler<HTMLInputElement> = ev => {
     const file = ev.target.files![0];
-    // const reader = new FileReader();
-
-    // reader.onloadend = function () {
-    //   console.log('RESULT: ', reader.result);
-    //   setUploadedPhoto(reader.result as string);
-    // };
-    // reader.readAsDataURL(file);
-
     const src = URL.createObjectURL(file);
     setUploadedPhoto(src);
     console.log({ src });
@@ -114,29 +112,52 @@ const MoreSignupDetails: React.FC<Props> = props => {
       subtitle="Let others see who you are by completing the following"
     >
       <div className={styles.moreSignupDetails}>
-        <div className={styles.photo}>
+        <figure className={styles.photo}>
           <Image
             src={uploadedPhoto || '/img/default-profile-pic.jpeg'}
+            alt="Photo upload for registration"
             width={120}
             height={120}
             objectFit="cover"
           />
-        </div>
+        </figure>
 
         <div className={cls(styles.photoUploadStrategies, 'mt-3')}>
+          <FacebookLogin
+            appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
+            fields="name,email,picture"
+            callback={handleFacebookResponse}
+            onClick={() => console.log('Clicked')}
+            render={renderProps => (
+              <button
+                type="button"
+                className={cls(
+                  'btn btn-pry btn--sm w-100 mb-2 d-flex align-items-center',
+                  styles.btnSocial,
+                )}
+                onClick={renderProps.onClick}
+                // onClick={handleUploadFacebookProfilePhoto}
+                // isLoading={false}
+                disabled={false}
+              >
+                <FacebookIcon fontSize="large" />
+                <span className="text">Use Facebook photo</span>
+              </button>
+            )}
+          />
           {/* <button
-              type="button"
-              className={cls(
-                'btn btn-pry btn--sm w-100 mb-2 d-flex align-items-center',
-                styles.btnSocial,
-              )}
-              onClick={() => {}}
-              // isLoading={false}
-              disabled={false}
-            >
-              <FacebookIcon fontSize="large" />
-              <span className="text">Use Facebook photo</span>
-            </button> */}
+            type="button"
+            className={cls(
+              'btn btn-pry-outline btn--sm w-100 mb-2 d-flex align-items-center',
+              styles.btnSocial,
+            )}
+            onClick={handleUploadFacebookProfilePhoto}
+            // isLoading={false}
+            disabled={false}
+          >
+            <FacebookIcon fontSize="large" />
+            <span className="text">Use Facebook photo</span>
+          </button> */}
 
           <div
             className={cls(
@@ -148,7 +169,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
               type="file"
               id="new-photo"
               accept="image/jpeg, image/png, image/jpg"
-              onChange={handleUploadPhoto}
+              onChange={handleUploadPhotoFromDevice}
             />
             <label
               className="btn d-flex gap-3 align-items-center font-inherit"
@@ -168,7 +189,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
           </small>
 
           <div className={cls(styles.birthdayFields, 'd-flex gap-2')}>
-            <Dropdown>
+            <Dropdown drop="down">
               <Dropdown.Toggle>{birthInfo.year || 'Year'}</Dropdown.Toggle>
               <Dropdown.Menu>
                 {yearsSince1940.map(yr => (

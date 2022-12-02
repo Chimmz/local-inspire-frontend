@@ -165,29 +165,9 @@ const PasswordReset: NextPage = function () {
             </button>
           </form>
         )}
-        {/* <Spinner show={isVerifying} /> */}
-
-        {/* <div className={styles.verifyInfo}>
-        <h1>Something went wrong</h1>
-        <a href="" className="btn btn-outline-pry d-block mt-5 w-max-content">
-          Try again
-        </a>
-      </div> */}
       </main>
     </Layout>
   );
 };
 
 export default PasswordReset;
-// const res = await sendVerificationRequest(
-//   API.emailVerify(router.query.email as string, router.query.code as string),
-// );
-
-// if (res.status === 'SUCCESS') {
-//   setIsVerified(true);
-//   return setFeedback(res.msg);
-// }
-// if (res.status === 'FAIL' && res.reason === 'NON_MATCHING_EMAIL_OR_CODE') {
-//   setIsVerified(false);
-//   return setFeedback(res.msg);
-// }
