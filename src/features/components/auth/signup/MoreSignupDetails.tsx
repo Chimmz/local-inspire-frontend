@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
-// import FacebookLogin from 'react-facebook-login';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useRequest from '../../../hooks/useRequest';
@@ -123,7 +121,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
         </figure>
 
         <div className={cls(styles.photoUploadStrategies, 'mt-3')}>
-          <FacebookLogin
+          {/* <FacebookLogin
             appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
             fields="name,email,picture"
             callback={handleFacebookResponse}
@@ -144,7 +142,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
                 <span className="text">Use Facebook photo</span>
               </button>
             )}
-          />
+          /> */}
           {/* <button
             type="button"
             className={cls(
