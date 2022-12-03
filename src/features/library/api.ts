@@ -13,8 +13,9 @@ class API {
     const isAPICall = path.startsWith('/');
     const api =
       process.env.NODE_ENV === 'development'
-        ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-        : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
+        ? 'http://192.168.177.12:5000'
+        : // ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
+          process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
 
     try {
       // const fullUrl = isAPICall ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;

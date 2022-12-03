@@ -85,7 +85,7 @@ a {
   margin-top: 1rem;
   border: none;
   box-shadow: 0 1px 5px rgba(#000, 0.15), 0 5px 18px rgba(#000, 0.17);
-  position: relative;
+  // position: relative;
   z-index: 2;
   @include thin-scrollbar;
 
@@ -105,7 +105,7 @@ a {
   & > .dropdown-item {
     padding: 0.6em 1.4em;
     padding-right: 1.7em !important;
-    font-size: 1.1em !important;
+    font-size: 13px !important;
     // font-weight: 500;
 
     &:not(:last-child) {

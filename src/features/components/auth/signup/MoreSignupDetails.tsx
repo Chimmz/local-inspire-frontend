@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
+import FacebookLogin from '@greatsumini/react-facebook-login';
 
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useRequest from '../../../hooks/useRequest';
@@ -21,6 +22,7 @@ import Spinner from '../../shared/spinner/Spinner';
 import cls from 'classnames';
 import styles from '../Auth.module.scss';
 import AuthNav from '../AuthNav';
+import useDeviceFileUpload from '../../../hooks/useDeviceFileUpload';
 
 interface Props {
   goBack: () => void;
@@ -35,13 +37,19 @@ interface BirthInfo {
 
 const MoreSignupDetails: React.FC<Props> = props => {
   const authData = useAuthContext();
-  const [uploadedPhoto, setUploadedPhoto] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
+  const [facebookEmail, setFacebookEmail] = useState<string | null>(null);
   const [birthInfo, setBirthInfo] = useState<BirthInfo>({
     year: null,
     month: '',
     day: null,
   });
+  const {
+    uploadedFile: uploadedPhoto,
+    setUploadedFile: setUploadedPhoto,
+    handleChangeInput: handleChangeFileInput,
+  } = useDeviceFileUpload({ toUrl: true });
+
   const { send: sendSignupRequest, loading: isAuthenticating } = useRequest({
     autoStopLoading: true,
   });
@@ -53,15 +61,14 @@ const MoreSignupDetails: React.FC<Props> = props => {
     setBirthInfo(info => ({ ...info, [field]: newValue }));
   };
 
-  async function authenticate(credentials: object) {
+  const authenticate = async function (credentials: object) {
     const options: SignInOptions = { ...credentials, redirect: false };
-    console.log(credentials);
     // const spin5s = () => new Promise((resolve, reject) => setTimeout(resolve, 5000));
     // const result = await sendSignupRequest(spin5s());
     try {
       const result = await sendSignupRequest(signIn('register', options));
       console.table(result);
-      const { ok, error, status, url } = result;
+      const { ok, error } = result;
       if (ok) return props.closeModal();
 
       const res = JSON.parse(error);
@@ -69,9 +76,9 @@ const MoreSignupDetails: React.FC<Props> = props => {
     } catch (err) {
       console.log('Credential signin Error: ', err);
     }
-  }
+  };
 
-  const handleSubmitCredentials: React.MouseEventHandler = ev => {
+  const handleSubmitCredentials: React.MouseEventHandler = function (ev) {
     const actionTaken = (ev.target as Element).closest('button')!.dataset.action as
       | 'save'
       | 'skip';
@@ -84,28 +91,23 @@ const MoreSignupDetails: React.FC<Props> = props => {
     };
     if (actionTaken === 'skip') return authenticate(credentials);
 
-    if (uploadedPhoto) credentials.imgUrl = uploadedPhoto;
-    if (gender) credentials.gender = gender;
+    // Populate the credentials object if user clicked the 'save and continue' button
+    if (facebookEmail) credentials.facebookEmail = facebookEmail; // If FB photo uploaded (we got also his email)
+    if (uploadedPhoto) credentials.imgUrl = uploadedPhoto; // If user uploaded FB photo
+    if (gender) credentials.gender = gender; // If user selected gender
 
+    // If the birthday fields were all selected
     if (Object.values(birthInfo).every(field => !!field))
       credentials.birthInfo = birthInfo;
+
+    console.log('Credentials: ', credentials);
     authenticate(credentials);
-    // props.closeModal();
   };
 
-  const handleUploadPhoto: React.ChangeEventHandler<HTMLInputElement> = ev => {
-    const file = ev.target.files![0];
-    // const reader = new FileReader();
-
-    // reader.onloadend = function () {
-    //   console.log('RESULT: ', reader.result);
-    //   setUploadedPhoto(reader.result as string);
-    // };
-    // reader.readAsDataURL(file);
-
-    const src = URL.createObjectURL(file);
-    setUploadedPhoto(src);
-    console.log({ src });
+  const handleFacebookProfileSuccess = function (profile: any) {
+    console.log('Profile success', profile);
+    if (profile?.picture?.data?.url) setUploadedPhoto(profile.picture.data.url);
+    if (profile?.email) setFacebookEmail(profile.email);
   };
 
   return (
@@ -124,19 +126,18 @@ const MoreSignupDetails: React.FC<Props> = props => {
         </div>
 
         <div className={cls(styles.photoUploadStrategies, 'mt-3')}>
-          {/* <button
-              type="button"
-              className={cls(
-                'btn btn-pry btn--sm w-100 mb-2 d-flex align-items-center',
-                styles.btnSocial,
-              )}
-              onClick={() => {}}
-              // isLoading={false}
-              disabled={false}
-            >
-              <FacebookIcon fontSize="large" />
-              <span className="text">Use Facebook photo</span>
-            </button> */}
+          <FacebookLogin
+            appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
+            onSuccess={resp => console.log('See response: ', resp)}
+            onFail={err => console.log('Failed: ', err)}
+            onProfileSuccess={handleFacebookProfileSuccess}
+            className={cls(
+              'btn btn-outline btn--sm w-100 mb-2 d-flex align-items-center',
+              styles.btnSocial,
+            )}
+          >
+            Use Facebook profile photo
+          </FacebookLogin>
 
           <div
             className={cls(
@@ -148,7 +149,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
               type="file"
               id="new-photo"
               accept="image/jpeg, image/png, image/jpg"
-              onChange={handleUploadPhoto}
+              onChange={handleChangeFileInput}
             />
             <label
               className="btn d-flex gap-3 align-items-center font-inherit"

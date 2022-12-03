@@ -35,15 +35,6 @@ interface NewRegistration {
   setPasswordValidationErrors: React.Dispatch<React.SetStateAction<never[]>>;
   pushPasswordValidationError(msg: string): void;
   clearPasswordErrors: () => void;
-
-  // photo: string;
-  // setPhoto: React.Dispatch<React.SetStateAction<string>>;
-
-  // birthInfo: BirthInfo;
-  // changeBirthInfo(field: 'day' | 'month' | 'year', newValue: string): void;
-
-  // gender: 'male' | 'female' | null;
-  // setGender: React.Dispatch<React.SetStateAction<'male' | 'female' | null>>;
 }
 
 interface AuthData {
@@ -53,15 +44,6 @@ interface AuthData {
 const AuthContext = createContext<AuthData | null>(null);
 
 export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = props => {
-  // const [photo, setPhoto] = useState('');
-  // const [gender, setGender] = useState<'male' | 'female' | null>(null);
-
-  // const [birthInfo, setBirthInfo] = useState<{
-  //   year: string;
-  //   month: string;
-  //   day: string;
-  // }>({ year: '', month: '', day: '' });
-
   const {
     inputValue: firstName,
     handleChange: handleChangeFirstName,
@@ -153,17 +135,6 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = prop
       pushPasswordValidationError,
       clearPassword,
       clearPasswordErrors,
-      // Photo
-      // photo,
-      // setPhoto,
-      // birthInfo,
-      // // Birthinfo
-      // changeBirthInfo: (field: 'day' | 'month' | 'year', newValue: string) => {
-      //   setBirthInfo(info => ({ ...info, [field]: newValue }));
-      // },
-      // // Gender,
-      // gender,
-      // setGender,
     },
   };
 
