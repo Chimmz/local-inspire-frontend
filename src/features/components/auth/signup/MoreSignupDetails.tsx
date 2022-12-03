@@ -39,7 +39,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
   const authData = useAuthContext();
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [facebookEmail, setFacebookEmail] = useState<string | null>(null);
-  const [uploadedPhoto, setUploadedPhoto] = useState<string>(null);
+  const [uploadedPhoto, setUploadedPhoto] = useState<string>('');
   const [birthInfo, setBirthInfo] = useState<BirthInfo>({
     year: null,
     month: '',
