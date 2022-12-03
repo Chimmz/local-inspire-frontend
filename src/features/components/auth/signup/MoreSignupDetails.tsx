@@ -136,6 +136,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
               styles.btnSocial,
             )}
           >
+            <FacebookIcon fontSize="large" />
             Use Facebook profile photo
           </FacebookLogin>
 
