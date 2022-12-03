@@ -46,12 +46,12 @@ const SignupForm: React.FC<Props> = props => {
     const res = await sendEmailRequest(
       API.isEmailAreadyInUse(authData!.newRegistration.email),
     );
-
     console.log('Email response: ', res);
-    if (res?.status && res.isEmailInUse)
+    if (res.status && res.isEmailInUse) {
       return authData!.newRegistration.pushEmailValidationError(
         'A user with this email already exists',
       );
+    }
 
     props.goNext();
   };
@@ -138,21 +138,6 @@ const SignupForm: React.FC<Props> = props => {
             onClick={props.goToLogin}
           >
             Login
-          </a>
-        </small>
-
-        <small
-          // onClick={isAuthenticating ? () => {} : props.goToForgotPassword}
-          className="d-flex gap-2 mx-auto"
-        >
-          Want to use Facebook or Google instead?
-          <a
-            href="#"
-            className={styles.link}
-            style={{ fontSize: '13px' }}
-            onClick={props.goBack}
-          >
-            Go back
           </a>
         </small>
       </form>
