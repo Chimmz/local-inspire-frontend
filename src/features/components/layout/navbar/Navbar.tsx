@@ -89,7 +89,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
       {children}
 
       <div
-        className={cls(styles.searchIcon, 'd-flex gap-2')}
+        className={cls(styles.search, 'd-flex gap-2')}
         // style={{ marginLeft: 'auto' }}
         onClick={setSearchOpen.bind(null, !searchModalOpen)}
       >
@@ -109,11 +109,25 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
           <NavDropdown
             className={styles.notifToggler}
             color="white"
-            title={
-              <span>
-                <Icon icon="ic:baseline-notifications" color="#eee" width={22} />
-              </span>
-            }
+            title={<Icon icon="ic:baseline-notifications" color="#fff" width={22} />}
+            // align="end"
+          >
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Divider />
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+          </NavDropdown>
+
+          <NavDropdown
+            className={styles.notifToggler}
+            color="white"
+            title={<Icon icon="ic:round-message" color="#fff" width={22} />}
             // align="end"
           >
             <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
@@ -149,7 +163,7 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
             </button>
           </>
         ) : null}
-        {authSession ? <SignedInUser session={authSession} /> : null}
+        {authSession ? <SignedInUser /> : null}
       </div>
 
       <div className={styles['nav-breadcrumb']}>

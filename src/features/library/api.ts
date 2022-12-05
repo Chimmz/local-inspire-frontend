@@ -13,13 +13,11 @@ class API {
     const isAPICall = path.startsWith('/');
     const api =
       process.env.NODE_ENV === 'development'
-        ? 'http://192.168.177.12:5000'
-        : // ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-          process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
+        ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
+        : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
 
     try {
-      // const fullUrl = isAPICall ? process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL + path : path;
-      const fullUrl = isAPICall ? `${api}${path}` : path;
+      const fullUrl = isAPICall ? api!.concat(path) : path;
       const res = await fetch(fullUrl, { ...config } as RequestInit);
       const data = await res.json();
       console.log('Main data: ', data);
@@ -70,7 +68,6 @@ class API {
   }
 
   async forgotPassword(email: string) {
-    console.log('In forgotPassword API: ', email);
     return this._makeRequest({
       path: `/users/forgot-password?email=${email}`,
       method: 'GET',

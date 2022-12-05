@@ -42,14 +42,19 @@
     }
   }
 
-  .searchIcon {
+  .search {
     font-size: 1.5rem;
     color: #fff;
+    margin-inline: auto;
     display: none !important;
     transition: color 0.2s;
 
     @media screen and (max-width: 31.25em) {
       display: flex !important;
+
+      & > span {
+        display: none;
+      }
     }
 
     &:hover {
@@ -73,10 +78,16 @@
   }
 
   & > .icons {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
+    margin-right: 1vw;
+
     & > * {
       cursor: pointer;
 
-      &:hover {
+      &:hover svg {
         color: $color-sec !important;
       }
     }
@@ -92,6 +103,9 @@
         max-width: 40vw;
         padding-right: 3rem !important;
       }
+    }
+    @media screen and (max-width: 50em) {
+      margin-inline: auto;
     }
   }
 
@@ -129,6 +143,10 @@
 .signedInUser {
   width: max-content;
   color: #cecece;
+
+  &:hover {
+    color: $color-sec;
+  }
 }
 
 // .dropdownToggler > button {

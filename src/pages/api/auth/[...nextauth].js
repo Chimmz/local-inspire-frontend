@@ -77,9 +77,9 @@ callbacks.jwt = async ({ user, token, account, isNewUser }) => {
       try {
         const res = await API.oauthSignIn(user, account);
         if (res.status === 'SUCCESS') token = res.data;
-        console.log('API Response: ', res);
+        console.log('API OAuth Response: ', res);
       } catch (err) {
-        // console.log('Error: ' + err.message);
+        console.log('API OAuth Error: ' + err.message);
       }
     }
   }

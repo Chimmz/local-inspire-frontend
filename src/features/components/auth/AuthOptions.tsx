@@ -14,13 +14,12 @@ import AuthContentWrapper from './AuthContentWrapper';
 
 export interface AuthOptionsProps {
   authType: AuthType;
-  authRequestLoading: boolean;
-  goToLogin: () => void;
-  goToSignup: () => void;
+  goToLogin(): void;
+  goToSignup(): void;
 }
 
 const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
-  const { authType, authRequestLoading } = props;
+  const { authType } = props;
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const isLoginAuthType = authType === 'login';
 
@@ -35,6 +34,7 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
     spinner.style.display = 'inline-block';
 
     const provider = btn.dataset.provider;
+    console.log({ provider });
     try {
       setIsAuthenticating(true);
       const options: SignInOptions = { callbackUrl: window.location.href };
@@ -55,21 +55,16 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
         data-provider="facebook"
         onClick={oAuthenticate}
         // isLoading={authRequestLoading}
-        data-action-text={`Continue with Facebook`}
+        data-action-text="Continue with Facebook"
         isLoading={false}
-        disabled={authRequestLoading}
+        disabled={isAuthenticating}
       >
         <FacebookIcon fontSize="large" />
-        <span className="text">{`Continue with Facebook`}</span>
+        <span className="text">Continue with Facebook</span>
         <Spinner
           animation="border"
           size="sm"
-          style={{
-            width: '20px',
-            height: '20px',
-            display: 'none',
-            color: '#0955a1',
-          }}
+          style={{ width: '20px', height: '20px', display: 'none', color: '#0955a1' }}
         />
       </LoadingButton>
 
@@ -81,22 +76,19 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
         onClick={oAuthenticate}
         // isLoading={authRequestLoading}
         isLoading={false}
-        disabled={authRequestLoading}
+        disabled={isAuthenticating}
       >
         <GoogleIcon fontSize="large" />
-        <span className="text">{`Continue with Google`}</span>
+        <span className="text">Continue with Google</span>
         <Spinner
           animation="border"
           size="sm"
-          style={{
-            width: '20px',
-            height: '20px',
-            display: 'none',
-            color: '#0955a1',
-          }}
+          style={{ width: '20px', height: '20px', display: 'none', color: '#0955a1' }}
         />
       </LoadingButton>
+
       <small>Or</small>
+
       {/* Email & Password auth trigger button */}
       <button
         type="button"
@@ -117,7 +109,7 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
         // isLoading={authRequestLoading}
         data-action-text="Continue with Twitter"
         isLoading={false}
-        disabled={authRequestLoading}
+        disabled={isAuthenticating}
       >
         <TwitterIcon fontSize="large" />
         <span className="text">Continue with Twitter</span>

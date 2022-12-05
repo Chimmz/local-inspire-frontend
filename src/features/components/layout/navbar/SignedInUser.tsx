@@ -11,13 +11,8 @@ import styles from './Navbar.module.scss';
 import { signOut, useSession } from 'next-auth/react';
 import { Spinner } from 'react-bootstrap';
 import useRequest from '../../../hooks/useRequest';
-import * as userUtils from '../../../utils/user-utils';
 
-interface Props {
-  session: { [key: string]: any };
-}
-
-const SignedInUser: React.FC<Props> = function ({}) {
+const SignedInUser: React.FC = function ({}) {
   const { data: session, status } = useSession();
   const { send: sendSignOutRequest, loading: isSigningOut } = useRequest({});
 

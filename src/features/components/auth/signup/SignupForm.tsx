@@ -1,18 +1,16 @@
 import React from 'react';
-import AuthContentWrapper from '../AuthContentWrapper';
-
-import useInput from '../../../hooks/useInput';
-import { useAuthContext } from '../../../contexts/AuthContext';
-
-import cls from 'classnames';
-// import { Spinner } from 'react-bootstrap';
-
-import AuthNav from '../AuthNav';
-import TextInput from '../../shared/text-input/TextInput';
-import styles from '../Auth.module.scss';
-import API from '../../../library/api';
+// Hooks
 import useRequest from '../../../hooks/useRequest';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import API from '../../../library/api';
+
+// External components
+import cls from 'classnames';
+import AuthContentWrapper from '../AuthContentWrapper';
+import TextInput from '../../shared/text-input/TextInput';
 import Spinner from '../../shared/spinner/Spinner';
+import AuthNav from '../AuthNav';
+import styles from '../Auth.module.scss';
 
 interface Props {
   goBack: () => void;

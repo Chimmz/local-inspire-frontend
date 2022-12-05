@@ -16,8 +16,6 @@ import AuthContentWrapper from '../AuthContentWrapper';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import ComputerIcon from '@mui/icons-material/Computer';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Form from 'react-bootstrap/Form';
-// import { Spinner } from 'react-bootstrap';
 import Spinner from '../../shared/spinner/Spinner';
 import cls from 'classnames';
 import styles from '../Auth.module.scss';

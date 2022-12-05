@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState } from 'react';
 import useRequest from '../../hooks/useRequest';
 
-import cls from 'classnames';
-import Modal from 'react-bootstrap/Modal';
 import { Icon } from '@iconify/react';
-import AuthOptions, { AuthOptionsProps } from './AuthOptions';
-import ForgotPassword from './ForgotPassword';
+import Modal from 'react-bootstrap/Modal';
+import AuthOptions from './AuthOptions';
 import LoginForm from './LoginForm';
-import styles from './Auth.module.scss';
 import SignupForm from './signup/SignupForm';
 import MoreSignupDetails from './signup/MoreSignupDetails';
+import ForgotPassword from './ForgotPassword';
+import styles from './Auth.module.scss';
 
 interface AuthProps {
   show: boolean;
@@ -37,34 +36,23 @@ type Content =
 const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal }) {
   const [content, setContent] = useState<Content>(PossibleContent.authOptions);
 
-  const {
-    send: sendAuthRequest,
-    loading: authRequestLoading,
-    startLoading: showLoader,
-    stopLoading: stopAuthRequestLoading,
-  } = useRequest({
-    autoStopLoading: false,
-  });
-
   const switchToAuthOptions = () => setContent(PossibleContent.authOptions);
   const switchToLogin = () => setContent(PossibleContent.loginForm);
   const switchToSignup = () => setContent(PossibleContent.signupForm);
   const switchToMoreSignupDetails = () => setContent(PossibleContent.moreSignupDetails);
   const switchToForgotPassword = () => setContent(PossibleContent.forgotPassword);
 
-  const getContent = () => {
+  const getContent = function () {
     switch (content) {
       case PossibleContent.authOptions:
-        console.log('Current page: ', PossibleContent.authOptions);
         return (
           <AuthOptions
             authType={authType}
-            authRequestLoading={authRequestLoading}
-            // goToCredentialsForm={switchToCredentialsForm}
             goToSignup={switchToSignup}
             goToLogin={switchToLogin}
           />
         );
+
       case PossibleContent.loginForm:
         return (
           <LoginForm
@@ -75,6 +63,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
             closeModal={closeModal}
           />
         );
+
       case PossibleContent.forgotPassword:
         return <ForgotPassword goBack={switchToLogin} />;
 
@@ -86,6 +75,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
             goToLogin={switchToLogin}
           />
         );
+
       case PossibleContent.moreSignupDetails:
         return <MoreSignupDetails closeModal={closeModal} goBack={switchToSignup} />;
     }
@@ -108,7 +98,9 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
           <Icon icon="mdi:user-circle" color="#024180" width={50} />
         </div>
       </Modal.Header>
+
       <Modal.Body className="modal-body p-5 text-center">{getContent()}</Modal.Body>
+
       <Modal.Footer className="text-center" style={{ fontSize: '13px' }}>
         <small style={{ margin: '0 auto', maxWidth: '60ch' }}>
           By proceeding, you agree to our Terms of Use and confirm you have read our
@@ -120,12 +112,3 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
 };
 
 export default Auth;
-
-// const btn = (ev.target as HTMLElement).closest('button')!;
-// const span = btn.querySelector('span.text')!;
-// const spinner = btn.querySelector('.spinner-border') as HTMLElement;
-
-// span && (span.textContent = 'Loading...');
-// spinner.style.display = 'inline-block';
-
-// const provider = btn.dataset.provider;

@@ -9,19 +9,13 @@ function useDeviceFileUpload({ toUrl }: UploadProps) {
 
   const handleChangeInput: React.ChangeEventHandler<HTMLInputElement> = ev => {
     const file = ev.target.files![0];
-
     if (toUrl) {
       const src = URL.createObjectURL(file);
       console.log({ src });
       return setUploadedFile(src);
     }
   };
-
-  return {
-    uploadedFile,
-    setUploadedFile,
-    handleChangeInput,
-  };
+  return { uploadedFile, setUploadedFile, handleChangeInput };
 }
 
 export default useDeviceFileUpload;

@@ -33,17 +33,12 @@ const MapView = function (props: Props) {
 
   useEffect(() => {
     setTimeout(() => {
-      const modal = document.querySelector('.modal-dialog.modal-fullscreen')!;
-      // (Array.from(modal.children) as HTMLElement[]).forEach((child: HTMLElement) => {
-      //   child.style.padding = '0';
-      // });
-      // console.log(modal);
-      // const modalBody = modal?.querySelector('.modal-body') as HTMLElement;
-
       const mapBoxText = document.querySelector(
         '.mapboxgl-ctrl.mapboxgl-ctrl-attrib',
       ) as HTMLElement;
+
       console.log({ mapBoxText });
+
       if (mapBoxText) {
         mapBoxText.style.display = 'none';
         mapBoxText.style.visibility = 'hidden';

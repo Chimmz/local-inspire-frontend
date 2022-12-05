@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
-
-import { Spinner as BSpinner } from 'react-bootstrap';
+// Hooks
 import useInput from '../../hooks/useInput';
-import { AuthType } from '../layout/navbar/Navbar';
-import TextInput from '../shared/text-input/TextInput';
-import styles from './Auth.module.scss';
-import AuthContentWrapper from './AuthContentWrapper';
-import AuthNav from './AuthNav';
-import EmailVerification from './EmailVerification';
 import useRequest from '../../hooks/useRequest';
+
+import AuthContentWrapper from './AuthContentWrapper';
+import TextInput from '../shared/text-input/TextInput';
+import AuthNav from './AuthNav';
 import Spinner from '../shared/spinner/Spinner';
-import LoadingButton from '../shared/button/Button';
 import cls from 'classnames';
+import styles from './Auth.module.scss';
 
 interface Props {
   show: boolean;
@@ -45,9 +42,7 @@ const LoginForm: React.FC<Props> = function (props) {
     runValidators: runEmailValidators,
     validationErrors: emailValidationErrors,
     setValidationErrors: setEmailValidationErrors,
-    pushValidationError: pushEmailValidationErrors,
     clearInput: clearEmail,
-    clearValidationErrors: clearEmailErrors,
   } = useInput({
     init: '',
     validators: [
@@ -64,17 +59,15 @@ const LoginForm: React.FC<Props> = function (props) {
     setValidationErrors: setPasswordValidationErrors,
     pushValidationError: pushPasswordValidationErrors,
     clearInput: clearPassword,
-    clearValidationErrors: clearPasswordErrors,
   } = useInput({
     init: '',
     validators: [{ isRequired: ['This field is required'] }],
   });
 
   useEffect(() => {
-    if (show) {
-      clearEmail();
-      clearPassword();
-    }
+    if (!show) return;
+    clearEmail();
+    clearPassword();
   }, [show]);
 
   if (!show) return <></>;
