@@ -9,6 +9,7 @@ import SignupForm from './signup/SignupForm';
 import MoreSignupDetails from './signup/MoreSignupDetails';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 interface AuthProps {
   show: boolean;
@@ -46,11 +47,16 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
     switch (content) {
       case PossibleContent.authOptions:
         return (
-          <AuthOptions
-            authType={authType}
-            goToSignup={switchToSignup}
-            goToLogin={switchToLogin}
-          />
+          <GoogleOAuthProvider
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}
+          >
+            <AuthOptions
+              authType={authType}
+              goToSignup={switchToSignup}
+              goToLogin={switchToLogin}
+              closeModal={closeModal}
+            />
+          </GoogleOAuthProvider>
         );
 
       case PossibleContent.loginForm:

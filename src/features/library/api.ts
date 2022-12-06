@@ -56,13 +56,22 @@ class API {
     });
   }
 
-  async oauthSignIn(user: object, account: { provider: object }) {
-    const { provider, ...accountInfo } = account;
+  // async oauthSignIn(user: object, account: { provider: object }) {
+  //   const { provider, ...accountInfo } = account;
 
+  //   return this._makeRequest({
+  //     path: `/users/oauth/${provider}`,
+  //     method: 'POST',
+  //     body: JSON.stringify({ user, account: accountInfo }),
+  //     headers: { 'Content-Type': 'application/json' },
+  //   });
+  // }
+  async oauthSignIn(provider: string, accessToken?: string, profile?: string) {
+    console.log('The profile object: ', profile);
     return this._makeRequest({
-      path: `/users/oauth/${provider}`,
+      path: `/users/oauth/${provider}?access_token=${accessToken}`,
       method: 'POST',
-      body: JSON.stringify({ user, account: accountInfo }),
+      body: profile,
       headers: { 'Content-Type': 'application/json' },
     });
   }

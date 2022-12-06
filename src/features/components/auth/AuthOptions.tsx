@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
+import { useGoogleLogin } from '@react-oauth/google';
+import FacebookLogin from '@greatsumini/react-facebook-login';
 
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -11,72 +13,110 @@ import styles from './Auth.module.scss';
 import { AuthType } from '../layout/navbar/Navbar';
 import { Spinner } from 'react-bootstrap';
 import AuthContentWrapper from './AuthContentWrapper';
+import useRequest from '../../hooks/useRequest';
 
 export interface AuthOptionsProps {
   authType: AuthType;
   goToLogin(): void;
   goToSignup(): void;
+  closeModal(): void;
 }
 
 const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
-  const { authType } = props;
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const isLoginAuthType = authType === 'login';
+  const isLoginAuthType = props.authType === 'login';
+  const [fbAccessToken, setFbAccessToken] = useState<string | null>(null);
+  const [fbProfile, setFbProfile] = useState<null | object>(null);
 
-  const oAuthenticate: React.MouseEventHandler<HTMLButtonElement> = async ev => {
-    if (isAuthenticating) return;
+  const {
+    send: sendGoogleSignInRequest,
+    loading: googleSignInRequestLoading,
+    startLoading: startGoogleAuthLoader,
+    stopLoading: stopGoogleAuthLoader,
+  } = useRequest({ autoStopLoading: true });
 
-    const btn = (ev.target as HTMLElement).closest('button')!;
-    const span = btn.querySelector('span.text')!;
-    const spinner = btn.querySelector('.spinner-border') as HTMLElement;
+  const {
+    send: sendFacebookSignInRequest,
+    loading: facebookSignInRequestLoading,
+    startLoading: startFacebookAuthLoader,
+    stopLoading: stopFacebookAuthLoader,
+  } = useRequest({ autoStopLoading: true });
 
-    span && (span.textContent = 'Loading...');
-    spinner.style.display = 'inline-block';
+  const googleSignIn = useGoogleLogin({
+    onSuccess: async response => {
+      console.log(response);
+      const { access_token } = response;
 
-    const provider = btn.dataset.provider;
-    console.log({ provider });
-    try {
-      setIsAuthenticating(true);
-      const options: SignInOptions = { callbackUrl: window.location.href };
-      const result = await signIn(provider, options);
+      const options: SignInOptions = { access_token, redirect: false };
+      const result = await sendGoogleSignInRequest(signIn('google-custom', options));
       console.table(result);
-    } catch (err) {
-      console.log(`${provider} signin error: `, err);
-    } finally {
-      // btn.textContent = btn.dataset.actionText!;
-    }
+
+      if (result.ok) return props.closeModal();
+      if (result.error) return stopGoogleAuthLoader();
+    },
+    onError: errorResponse => console.log(errorResponse),
+  });
+
+  const facebookSignIn = async function () {
+    console.log('Profile success', fbProfile);
+
+    const options: SignInOptions = {
+      access_token: fbAccessToken,
+      profile: JSON.stringify(fbProfile),
+      redirect: false,
+    };
+    const result: SignInResponse = await sendFacebookSignInRequest(
+      signIn('facebook-custom', options),
+    );
+    console.log('FB Result: ', result);
+
+    if (result.ok) return props.closeModal();
+    if (result.error) return stopFacebookAuthLoader();
   };
+
+  useEffect(() => {
+    if (!fbAccessToken || !fbProfile) return;
+    facebookSignIn();
+  }, [fbAccessToken, fbProfile]);
 
   return (
     <AuthContentWrapper contentTitle="Welcome!">
-      <LoadingButton
-        type="button"
-        className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-        data-provider="facebook"
-        onClick={oAuthenticate}
-        // isLoading={authRequestLoading}
-        data-action-text="Continue with Facebook"
-        isLoading={false}
-        disabled={isAuthenticating}
-      >
-        <FacebookIcon fontSize="large" />
-        <span className="text">Continue with Facebook</span>
-        <Spinner
-          animation="border"
-          size="sm"
-          style={{ width: '20px', height: '20px', display: 'none', color: '#0955a1' }}
-        />
-      </LoadingButton>
+      <FacebookLogin
+        appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
+        onSuccess={resp => setFbAccessToken(resp!.accessToken)}
+        onFail={err => console.log('Failed: ', err)}
+        onProfileSuccess={setFbProfile as (res: any) => void}
+        render={({ onClick: initFacebookOAuth }) => (
+          <LoadingButton
+            type="button"
+            className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
+            data-provider="facebook"
+            onClick={() => {
+              startFacebookAuthLoader();
+              initFacebookOAuth!();
+            }}
+            isLoading={facebookSignInRequestLoading}
+            disabled={googleSignInRequestLoading || facebookSignInRequestLoading}
+          >
+            <FacebookIcon fontSize="large" />
+            <span className="text">Continue with Facebook</span>
+            <Spinner
+              animation="border"
+              size="sm"
+              style={{ width: '20px', height: '20px', display: 'none', color: '#0955a1' }}
+            />
+          </LoadingButton>
+        )}
+      />
 
       <LoadingButton
         type="button"
         className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-        data-provider="google"
-        data-action-text={`Sign ${isLoginAuthType ? 'in' : 'up'} with Google`}
-        onClick={oAuthenticate}
-        // isLoading={authRequestLoading}
-        isLoading={false}
-        disabled={isAuthenticating}
+        onClick={() => {
+          startGoogleAuthLoader();
+          googleSignIn();
+        }}
+        isLoading={googleSignInRequestLoading}
+        disabled={googleSignInRequestLoading || facebookSignInRequestLoading}
       >
         <GoogleIcon fontSize="large" />
         <span className="text">Continue with Google</span>
@@ -92,11 +132,12 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
       {/* Email & Password auth trigger button */}
       <button
         type="button"
-        onClick={props.authType === 'register' ? props.goToSignup : props.goToLogin}
+        onClick={isLoginAuthType ? props.goToLogin : props.goToSignup}
         className={cls(
           styles.btnSocial,
           'btn btn-outline btn-outline-gray d-flex align-items-center',
         )}
+        disabled={googleSignInRequestLoading || facebookSignInRequestLoading}
       >
         <MailLockIcon fontSize="large" />
         <span className="text">Continue with email and password</span>
