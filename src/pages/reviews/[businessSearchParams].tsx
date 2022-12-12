@@ -36,6 +36,7 @@ interface Props {
   results?: number;
   allResults?: number;
   status: 'SUCCESS' | 'ERROR';
+  error?: string;
   defaultCategorySuggestions: string[];
   sponsored?: BusinessProps[];
   specials: Array<{ title: string; items: Array<BusinessProps> }>;
@@ -90,7 +91,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     anchors?.forEach(a => {
       a.onclick = () => window.scrollTo(0, 2000);
     });
-    console.log({ anchors });
+    // console.log({ anchors });
   }, [currentPage]);
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const paginators = document.querySelector("[class*='paginators']");
 
     const previousActivePaginator = paginators?.querySelector('li.selected');
-    console.log({ previousActivePaginator });
+    // console.log({ previousActivePaginator });
     // // previousActivePaginator?.classList.remove('selected');
     // const previousActiveLink = previousActivePaginator?.firstElementChild;
 
@@ -282,7 +283,9 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
 export const getStaticPaths: GetStaticPaths = async function () {
   return {
-    paths: [{ params: { businessSearchParams: 'restaurants,anchorage,AK' } }],
+    paths: [
+      { params: { businessSearchParams: 'find=restaurants&location=anchorage-AK' } },
+    ],
     fallback: 'blocking',
   };
 };
@@ -334,7 +337,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
       },
     };
   } catch (err) {
-    console.error('Error: ', err);
+    console.log('GSProps Error log: ', err);
     return { props: { error: 'Sorry, something wrong happened', pageId } };
   }
 };
