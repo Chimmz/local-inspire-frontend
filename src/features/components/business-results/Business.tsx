@@ -15,18 +15,16 @@ export interface BusinessProps {
   address: string;
   rating: number;
   featured?: boolean;
-  SIC8Category?: string;
-  SIC4Category: string;
-  SIC2Category: string;
+  SIC8?: string;
+  SIC4: string;
+  SIC2: string;
   [key: string]: any;
 }
 
 const Business: FC<BusinessProps> = function (props) {
   const rand = Math.floor(Math.random() * 9);
   const { businessName, address, rating, featured = false, index } = props;
-  const businessCategs = Array.from(
-    new Set([props.SIC8Category, props.SIC4Category, props.SIC2Category]),
-  );
+  const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
   // console.log({ businessCategs });
 
@@ -35,7 +33,7 @@ const Business: FC<BusinessProps> = function (props) {
       <figure>
         <Image
           src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
-          alt={`${props.SIC8Category || ''} photo of ${businessName}`}
+          alt={`${props.SIC8 || ''} photo of ${businessName}`}
           layout="fill"
           objectFit="cover"
         />
@@ -75,7 +73,7 @@ const Business: FC<BusinessProps> = function (props) {
 
         {!featured ? (
           <div className={styles.userComment}>
-            {`"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus beatae
+            {`"Lorem, ipsum dolor sit amet consectetur adipisici elit. Voluptatibus beatae
             at architecto possimus quas ullam! Accusantium, facilis! Magni, vitae
             voluptatum."`}
           </div>

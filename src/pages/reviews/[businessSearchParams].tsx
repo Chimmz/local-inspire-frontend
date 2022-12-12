@@ -50,7 +50,6 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [showGoogleMap, setShowGoogleMap] = useState(false);
 
   const router = useRouter();
-  console.log('PATHNAME: ', router.route);
 
   const {
     category: currentCategory,
@@ -289,8 +288,6 @@ export const getStaticPaths: GetStaticPaths = async function () {
 };
 
 export const getStaticProps: GetStaticProps = async function (context) {
-  console.log('getStaticProps Context: ', context);
-
   const parsedResult = urlUtils.parseBusinessSearchUrlParams(
     (context.params as SearchParams).businessSearchParams,
   );
@@ -312,21 +309,17 @@ export const getStaticProps: GetStaticProps = async function (context) {
 
   const pageId = uuid.v4();
 
-  const api =
-    process.env.NODE_ENV === 'development'
-      ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-      : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
-
   try {
-    const data = await API._makeRequest({
-      path: `${api}/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=1&limit=20`,
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const data = await API.findBusinesses(category, city, stateCode, 1, 20);
+    // API._makeRequest({
+    //   path: `${api}/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=1&limit=20`,
+    //   method: 'GET',
+    //   headers: { 'Content-Type': 'application/json' },
+    // });
     if (!data) throw Error('');
 
     const { businesses, ...others } = data;
-    console.log(others);
+    console.log({ others, businesses: businesses.slice(0, 2) });
 
     return {
       props: {

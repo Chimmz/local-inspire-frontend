@@ -19,9 +19,7 @@ class API {
     try {
       const fullUrl = isAPICall ? api!.concat(path) : path;
       const res = await fetch(fullUrl, { ...config } as RequestInit);
-      const data = await res.json();
-      console.log('Main data: ', data);
-      return data;
+      return await res.json();
     } catch (err) {
       console.log('ERR: ', err);
       return err;
