@@ -14,7 +14,7 @@ class API {
     const api =
       process.env.NODE_ENV === 'development'
         ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-        : process.env.NEXT_PUBLIC_API_BASE_URL_VERCEL;
+        : process.env.NEXT_PUBLIC_API_BASE_URL_RENDER;
 
     try {
       const fullUrl = isAPICall ? api!.concat(path) : path;
