@@ -10,14 +10,14 @@ interface RequestConfig {
 
 class API {
   async _makeRequest({ path, ...config }: RequestConfig) {
-    const isAPICall = path.startsWith('/');
+    const isApiCall = path.startsWith('/');
     const api =
       process.env.NODE_ENV === 'development'
         ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
         : process.env.NEXT_PUBLIC_API_BASE_URL_RENDER;
 
     try {
-      const fullUrl = isAPICall ? api!.concat(path) : path;
+      const fullUrl = isApiCall ? api!.concat(path) : path;
       const res = await fetch(fullUrl, { ...config } as RequestInit);
       return await res.json();
     } catch (err) {
