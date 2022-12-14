@@ -21,7 +21,7 @@ class API {
       const res = await fetch(fullUrl, { ...config } as RequestInit);
       return await res.json();
     } catch (err) {
-      console.log('_makeRequest Error log: ', err);
+      console.log('Error log in _makeRequest: ', err);
       return err;
     }
   }
