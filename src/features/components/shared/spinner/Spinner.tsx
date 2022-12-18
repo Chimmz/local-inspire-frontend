@@ -9,8 +9,6 @@ interface Props {
 }
 
 function Spinner({ show = true, colors = ['#0084ff', '#e87525'], pageWide }: Props) {
-  if (!show) return <></>;
-
   useEffect(() => {
     if (!pageWide) return; // There'll not be a dialog if pageWide is false
     const dialog = document.querySelector('.spinner-modal');
@@ -22,6 +20,8 @@ function Spinner({ show = true, colors = ['#0084ff', '#e87525'], pageWide }: Pro
       elem => ((elem as HTMLElement).style.backgroundColor = 'rgba(255, 255, 255, 0.3)'),
     );
   }, []);
+
+  if (!show) return <></>;
 
   if (pageWide) {
     return (
