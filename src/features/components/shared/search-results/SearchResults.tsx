@@ -9,10 +9,13 @@ interface Props {
   resultItems: Item[];
   renderItem?: (item: Item) => JSX.Element;
   onSelectItem?: () => any;
+  searchTerm: string;
 }
 
 function SearchResults(props: Props) {
   const { show, resultItems, renderItem, onSelectItem } = props;
+
+  const boldenMatchesWithSearchTerm = (result: string) => {};
 
   if (!show) return <></>;
   return (

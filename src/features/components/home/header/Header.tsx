@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { useRouter } from 'next/router';
 import useRequest from '../../../hooks/useRequest';
 
-import { toLowerSnakeCase } from '../../../utils/string-utils';
-
-// import HeaderSearch from './HeaderSearch';
 import HeaderServices from './HeaderServices';
 import BusinessSearchForm from '../../shared/businesses-search/BusinessSearchForm';
 import styles from './Header.module.scss';
@@ -16,6 +13,7 @@ interface HeaderProps {
 
 function Header({ defaultCategorySuggestions }: HeaderProps) {
   const router = useRouter();
+  console.log('Header Evaluation');
 
   const {
     startLoading: startSearchLoader,
@@ -46,7 +44,6 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
             Discover your next great adventure & inspire local businesses to be great.
           </span>
         </h1>
-        {/* <HeaderSearch fontSize="1.4rem" /> */}
         <BusinessSearchForm
           promptUserInput={false}
           fontSize="1.4rem"
@@ -60,4 +57,4 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
   );
 }
 
-export default Header;
+export default memo(Header);

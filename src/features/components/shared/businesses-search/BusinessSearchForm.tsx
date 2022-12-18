@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
@@ -32,12 +32,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
-  const [categorySelected, setCategorySelected] = useState(false);
-  const [citySelected, setCitySelected] = useState(false);
+
+  const [hasSelectedCategory, setHasSelectedCategory] = useState(false);
+  const [hasSelectedCity, setHasSelectedCity] = useState(false);
 
   const currentLocation = useCurrentLocation();
-  // console.log(currentLocation);
-  const router = useRouter();
 
   const {
     inputValue: categoryValue,
@@ -90,41 +89,43 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   useEffect(() => {
     if (!categoryValue.length) resetCategoryResults();
-    setCategorySelected(false);
-    if (categorySelected) return hideCategoryResults();
+    setHasSelectedCategory(false);
+    if (hasSelectedCategory) return hideCategoryResults();
 
     categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
   }, [categoryValue]);
 
   useEffect(() => {
     if (!cityValue.length) resetCityResults();
-    setCitySelected(false);
-    if (citySelected) return hideCityResults();
+    setHasSelectedCity(false);
+    if (hasSelectedCity) return hideCityResults();
 
-    cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH && searchCities();
+    if (cityValue.length < MIN_CHARS_FOR_CITY_SEARCH) return;
+    if (cityValue === currentLocation.state) return;
+    searchCities();
   }, [cityValue]);
 
   useEffect(() => stopFindBusinessLoader, []);
 
   const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
     ev.preventDefault();
+
     const { field, value } = (ev.target as Element).closest('a')?.dataset as {
       field: string;
       value: string;
     };
+
     switch (field) {
       case 'category':
         setCategoryValue(value);
-        // setTimeout(hideCategoryResults, 20);
         hideCityResults();
-        setCategorySelected(true);
+        setHasSelectedCategory(true);
         break;
 
       case 'city':
         setCityValue(value);
-        // setTimeout(hideCityResults, 20);
         hideCategoryResults();
-        setCitySelected(true);
+        setHasSelectedCity(true);
         break;
     }
   };
@@ -150,13 +151,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     props.onSearch(categoryValue.trim(), cityValue.trim());
   };
 
-  const getCategoriesToShow = () => {
-    const toShow = !categoryResults.length ? defaultCategorySuggestions : categoryResults;
-    return toShow.map(text => ({
-      label: text,
-      value: text,
-    }));
-  };
+  const getCategoriesToShow = useCallback(() => {
+    const toShow = categoryResults.length ? categoryResults : defaultCategorySuggestions;
+
+    return toShow.map(text => ({ label: text, value: text }));
+  }, [categoryResults, defaultCategorySuggestions]);
 
   const locationSuggestions: Array<{ label: React.ReactNode; value: string }> =
     cityResults.map(city => ({ label: city, value: city }));
@@ -177,10 +176,6 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       value: currentLocation.state,
     });
   }
-
-  // console.log({ locationSuggestions });
-
-  // console.log({ categoriesToShow: getCategoriesToShow() }); // Check this re-evaluation later
 
   return (
     <form className={styles.search} onSubmit={handleSubmit} style={{}}>
@@ -209,6 +204,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         <SearchResults
           show={categoryResultsShown}
           resultItems={getCategoriesToShow()}
+          searchTerm={categoryValue}
           renderItem={categ => (
             <li key={uuid.v4()}>
               <a
@@ -240,7 +236,9 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             showCityResults();
             if (!cityValue) return resetCityResults();
             if (cityResults.length) return;
-            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH) searchCities();
+            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH) return;
+            if (ev.target.value === currentLocation.state) return;
+            searchCities();
           }}
         />
         <label htmlFor="city">Near:</label>
@@ -248,6 +246,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         <SearchResults
           show={cityResultsShown}
           resultItems={locationSuggestions}
+          searchTerm={cityValue}
           renderItem={city => (
             <li key={uuid.v4()}>
               <a
@@ -262,6 +261,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           )}
         />
       </div>
+
       <Button
         className={cls(styles.btn, 'btn btn-pry')}
         type="submit"

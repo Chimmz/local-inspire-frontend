@@ -30,11 +30,12 @@ const useCurrentLocation: () => CurrentLocation = function () {
 
       // const stateName = data.features[0].context[1].text as string;
       // const countryName = data.features[0].context[3].text as string;
-      const [stateName, countryName] = (data.features[0]?.place_name as string)
-        .split(', ')
-        .slice(-2);
+      const [stateName, countryName] = [
+        data.features[0].context[0].text as string,
+        data.features[3].place_name,
+      ];
       const [countryCode, stateCode] = (
-        data.features[2].properties.short_code as string
+        data.features[0].context[1].short_code as string
       )?.split('-');
 
       const state = stateName.concat(', ').concat(stateCode);

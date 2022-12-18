@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import useRequest from './useRequest';
 
 interface Params {
@@ -11,18 +11,20 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
   const [searchResults, setSearchResults] = useState([]);
   const [resultsShown, setResultsShown] = useState(false);
 
-  const resetResults = () => setSearchResults([]);
-  const showResults = () => setResultsShown(true);
+  const resetResults = useCallback(setSearchResults.bind(null, []), [setSearchResults]);
+  const showResults = useCallback(setResultsShown.bind(null, true), [setResultsShown]);
+  const hideResults = useCallback(setResultsShown.bind(null, false), [setResultsShown]);
 
-  const search = () => {
+  const search = useCallback(() => {
     const req = sendRequest(makeRequest());
+
     req.then(res => {
       if (res?.status !== 'SUCCESS') return;
       setSearchResults(res[responseDataField]);
       showResults();
     });
     req.catch(resetResults);
-  };
+  }, [sendRequest, makeRequest, setSearchResults, showResults]);
 
   return {
     search,
@@ -30,7 +32,7 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
     resultsShown,
     loading,
     showResults,
-    hideResults: () => setResultsShown(false),
+    hideResults,
     resetResults,
   };
 }

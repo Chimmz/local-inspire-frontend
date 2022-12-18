@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { Dispatch, FC, SetStateAction } from 'react';
 import Link from 'next/link';
 
 import * as urlUtils from '../../utils/url-utils';
@@ -8,6 +8,7 @@ import styles from './CategoriesNav.module.scss';
 interface CategoriesNavProps {
   popularCategories: string[];
   searchParams: { category: string; city: string; stateCode: string };
+  setPageLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
@@ -27,7 +28,9 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
           });
           return (
             <li key={categ}>
-              <Link href={href}>{categ}</Link>
+              <Link href={href} passHref>
+                <a onClick={props.setPageLoading.bind(null, true)}>{categ}</a>
+              </Link>
             </li>
           );
         })}

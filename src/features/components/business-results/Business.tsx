@@ -2,12 +2,11 @@ import { FC } from 'react';
 import Image from 'next/image';
 
 import dummyImgs from './dummy-imgs';
-import { v4 as uuid } from 'uuid';
 
+import StarRating from '../shared/star-rating/StarRating';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import styles from './Business.module.scss';
-import StarRating from '../shared/star-rating/StarRating';
 
 export interface BusinessProps {
   index?: number;
@@ -26,8 +25,6 @@ const Business: FC<BusinessProps> = function (props) {
   const { businessName, address, rating, featured = false, index } = props;
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
-  // console.log({ businessCategs });
-
   return (
     <li className={cls(styles.business, featured ? styles.featured : '')} key={rand}>
       <figure>
@@ -38,6 +35,7 @@ const Business: FC<BusinessProps> = function (props) {
           objectFit="cover"
         />
       </figure>
+
       <div className={styles.details}>
         <div className={styles.info}>
           <div className="d-flex justify-content-between">

@@ -27,26 +27,29 @@ import BusinessesGroup from '../../features/components/business-results/Business
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
 import { Icon } from '@iconify/react';
 import * as urlUtils from '../../features/utils/url-utils';
+import Spinner from '../../features/components/shared/spinner/Spinner';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
 }
 interface Props {
+  status: 'SUCCESS' | 'ERROR';
+  error?: string;
   businesses?: { [key: string]: any }[];
   results?: number;
   allResults?: number;
-  status: 'SUCCESS' | 'ERROR';
-  error?: string;
   defaultCategorySuggestions: string[];
   sponsored?: BusinessProps[];
   specials: Array<{ title: string; items: Array<BusinessProps> }>;
-  searchParams: { category: string; city: string; stateCode: string };
+  pageSearchParams: { category: string; city: string; stateCode: string };
   pageId: string;
+  pageLoading: boolean;
 }
 
 const PER_PAGE = 20;
 
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
+  const [pageLoading, setPageLoading] = useState(props.pageLoading);
   const [propsData, setPropsData] = useState<Props>(props);
   const [showGoogleMap, setShowGoogleMap] = useState(false);
 
@@ -56,7 +59,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     category: currentCategory,
     city: currentCity,
     stateCode: currentStateCode,
-  } = props.searchParams;
+  } = props.pageSearchParams;
 
   const [categoryTitle, cityTitle] = [
     stringUtils.toTitleCase(currentCategory),
@@ -138,6 +141,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       return console.log('Same as current page query');
 
     startNewSearchLoader();
+    setPageLoading(true);
+
     const url = urlUtils.getBusinessSearchResultsUrl({
       category: categoryValue,
       city: cityValue,
@@ -169,10 +174,13 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
   useEffect(() => {
     stopNewSearchLoader();
+    setPageLoading(false);
   }, [propsData.pageId]);
 
   return (
     <>
+      {pageLoading && <Spinner pageWide />}
+      {/* <Spinner pageWide /> */}
       <Head>
         <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
@@ -188,14 +196,15 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       </Navbar>
       <CategoriesNav
         popularCategories={props.defaultCategorySuggestions}
-        searchParams={props.searchParams}
+        searchParams={props.pageSearchParams}
+        setPageLoading={setPageLoading}
       />
       <Layout>
         <div className={styles.businessesResultsPage}>
           <h2 className={styles.heading}>
-            {!propsData.results || error ? `"${categoryTitle}"` : categoryTitle}
-            {' in '}
-            {propsData.results ? cityTitle : `"${cityTitle}"`}
+            {categoryTitle}
+            <span style={{ color: '#bbb' }}>{' in '}</span>
+            {cityTitle + ', ' + props.pageSearchParams.stateCode.toUpperCase()}
           </h2>
           <aside className={styles.aside}>
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
@@ -314,11 +323,6 @@ export const getStaticProps: GetStaticProps = async function (context) {
 
   try {
     const data = await API.findBusinesses(category, city, stateCode, 1, 20);
-    // API._makeRequest({
-    //   path: `${api}/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=1&limit=20`,
-    //   method: 'GET',
-    //   headers: { 'Content-Type': 'application/json' },
-    // });
     if (!data) throw Error('');
 
     const { businesses, ...others } = data;
@@ -333,7 +337,8 @@ export const getStaticProps: GetStaticProps = async function (context) {
           { title: 'Sponsored', items: data?.businesses?.slice(0, 10) || [] },
           { title: 'Top 10 businesses', items: data?.businesses?.slice(0, 10) || [] },
         ],
-        searchParams: parsedResult,
+        pageSearchParams: parsedResult,
+        pageLoading: true,
       },
     };
   } catch (err) {
