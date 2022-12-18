@@ -9,7 +9,7 @@ interface Props {
   resultItems: Item[];
   renderItem?: (item: Item) => JSX.Element;
   onSelectItem?: () => any;
-  searchTerm: string;
+  searchTerm?: string;
 }
 
 function SearchResults(props: Props) {
