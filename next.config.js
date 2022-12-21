@@ -23,7 +23,10 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'https://localinspire.vercel.app',
+            value:
+              process.env.NODE_ENV === 'production'
+                ? 'https://localinspire.vercel.app'
+                : 'http://192.168.93.12:3000',
           },
           {
             key: 'Access-Control-Allow-Methods',

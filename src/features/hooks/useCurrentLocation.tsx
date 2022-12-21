@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import useRequest from './useRequest';
 
 type CurrentLocation = {
   city: string;
@@ -7,7 +8,12 @@ type CurrentLocation = {
   coords: { longitude: number; latitude: number } | undefined;
 };
 
-const useCurrentLocation: () => CurrentLocation = function () {
+const useCurrentLocation = function (): CurrentLocation {
+  const { send: sendMapboxRequest } = useRequest({
+    autoStopLoading: true,
+    checkPositiveResponse: (res: Promise<any>) => res && 'features' in res,
+  });
+
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation>({
     city: '',
     state: '',
@@ -16,13 +22,11 @@ const useCurrentLocation: () => CurrentLocation = function () {
   });
 
   const getPositionSuccessCallback: PositionCallback = async function (position) {
-    // console.log({ position });
     const { longitude, latitude } = position.coords;
     setCurrentLocation(obj => ({ ...obj, coords: { longitude, latitude } }));
 
-    const req = fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`,
-    );
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`;
+    const req = sendMapboxRequest(fetch(url));
 
     const handleResponse = (data: any) => {
       console.log('Mapbox response: ', data);

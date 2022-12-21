@@ -15,6 +15,7 @@ import SearchResults from '../search-results/SearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import styles from './BusinessSearchForm.module.scss';
+import useApiTextSearch from '../../../hooks/useApiTextSearch';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -53,82 +54,42 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const {
     search: searchCategories,
     searchResults: categoryResults,
-    loading: categoryResultsLoading,
+    loading: isSearchingCategories,
     resultsShown: categoryResultsShown,
     showResults: showCategoryResults,
     hideResults: hideCategoryResults,
     resetResults: resetCategoryResults,
   } = useAPISearchResults({
-    makeRequest: () => API.searchBusinessCategories(categoryValue),
+    makeRequest: () => API.searchBusinessCategories(categoryValue.trim()),
     responseDataField: 'categories',
   });
 
   const {
     search: searchCities,
     searchResults: cityResults,
-    loading: cityResultsLoading,
+    loading: isSearchingCities,
     resultsShown: cityResultsShown,
     showResults: showCityResults,
     hideResults: hideCityResults,
     resetResults: resetCityResults,
   } = useAPISearchResults({
-    makeRequest: () => API.searchCities(cityValue),
+    makeRequest: () => API.searchCities(cityValue.trim()),
     responseDataField: 'cities',
   });
 
-  const {
-    startLoading: startFindBusinessLoader,
-    stopLoading: stopFindBusinessLoader,
-    loading: findBusinessesLoading,
-  } = useRequest({ autoStopLoading: false });
+  const { handleInputKeyUp: categoryInputKeyUpHandler } = useApiTextSearch({
+    apiSearch: searchCategories,
+  });
+  const { handleInputKeyUp: cityInputKeyUpHandler } = useApiTextSearch({
+    apiSearch: searchCities,
+  });
+
+  const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
   useEffect(() => {
     setCityValue(currentLocation.state);
     hideCityResults();
   }, [currentLocation.state, setCityValue]);
-
-  useEffect(() => {
-    if (!categoryValue.length) resetCategoryResults();
-    setHasSelectedCategory(false);
-    if (hasSelectedCategory) return hideCategoryResults();
-
-    categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH && searchCategories();
-  }, [categoryValue]);
-
-  useEffect(() => {
-    if (!cityValue.length) resetCityResults();
-    setHasSelectedCity(false);
-    if (hasSelectedCity) return hideCityResults();
-
-    if (cityValue.length < MIN_CHARS_FOR_CITY_SEARCH) return;
-    if (cityValue === currentLocation.state) return;
-    searchCities();
-  }, [cityValue]);
-
-  useEffect(() => stopFindBusinessLoader, []);
-
-  const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
-    ev.preventDefault();
-
-    const { field, value } = (ev.target as Element).closest('a')?.dataset as {
-      field: string;
-      value: string;
-    };
-
-    switch (field) {
-      case 'category':
-        setCategoryValue(value);
-        hideCityResults();
-        setHasSelectedCategory(true);
-        break;
-
-      case 'city':
-        setCityValue(value);
-        hideCategoryResults();
-        setHasSelectedCity(true);
-        break;
-    }
-  };
 
   useEffect(() => {
     if (props.promptUserInput) categoryInput.current?.focus();
@@ -145,6 +106,54 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   }, []);
+
+  useEffect(() => stopFindBusinessLoader, []);
+
+  const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
+    ev.preventDefault();
+
+    const { field, value } = (ev.target as Element).closest('a')?.dataset as {
+      field: string;
+      value: string;
+    };
+
+    switch (field) {
+      case 'category':
+        setCategoryValue(value);
+        setHasSelectedCategory(true);
+        hideCityResults();
+        break;
+
+      case 'city':
+        setCityValue(value);
+        hideCategoryResults();
+        setHasSelectedCity(true);
+        break;
+    }
+  };
+
+  const handleCategInputFocus: React.FocusEventHandler<HTMLInputElement> = function (ev) {
+    ev.target.select();
+    hideCityResults();
+    showCategoryResults();
+    if (!categoryValue) return resetCategoryResults();
+    if (categoryResults.length) return;
+    if (isSearchingCategories) return;
+    if (categoryValue.length < MIN_CHARS_FOR_CATEGORY_SEARCH) return;
+    searchCategories();
+  };
+
+  const handleCityInputFocus: React.FocusEventHandler<HTMLInputElement> = function (ev) {
+    ev.target.select();
+    hideCategoryResults();
+    showCityResults();
+    if (!cityValue) return resetCityResults();
+    if (cityResults.length) return;
+    if (isSearchingCities) return;
+    if (cityValue.length < MIN_CHARS_FOR_CITY_SEARCH) return;
+    if (ev.target.value === currentLocation.state) return; // Dont search when user selects current location
+    searchCities();
+  };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
@@ -178,7 +187,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   }
 
   return (
-    <form className={styles.search} onSubmit={handleSubmit} style={{}}>
+    <form className={styles.search} onSubmit={handleSubmit}>
       <div className={styles['search-field']} style={{ fontSize }}>
         <input
           ref={categoryInput}
@@ -189,15 +198,18 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           id="category"
           placeholder="Ex: hotel, restaurant..."
           autoComplete="off"
-          onFocus={function (ev) {
-            ev.target.select();
-            hideCityResults();
-            showCategoryResults();
-            if (!categoryValue) return resetCategoryResults();
-            if (categoryResults.length) return;
-            if (categoryValue.length >= MIN_CHARS_FOR_CATEGORY_SEARCH) searchCategories();
-          }}
+          onFocus={handleCategInputFocus}
           style={{ width: '20px', maxWidth: '20px' }}
+          onKeyUp={ev => {
+            const thisInput = categoryInput.current!;
+
+            if (!thisInput.value.length) resetCategoryResults();
+            setHasSelectedCategory(false);
+            if (hasSelectedCategory) return hideCategoryResults();
+
+            if (thisInput.value.length <= MIN_CHARS_FOR_CATEGORY_SEARCH) return;
+            categoryInputKeyUpHandler(ev);
+          }}
         />
         <label htmlFor="category">Find:</label>
 
@@ -230,15 +242,16 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           placeholder="Your city"
           id="city"
           autoComplete="off"
-          onFocus={function (ev) {
-            ev.target.select();
-            hideCategoryResults();
-            showCityResults();
-            if (!cityValue) return resetCityResults();
-            if (cityResults.length) return;
-            if (cityValue.length >= MIN_CHARS_FOR_CITY_SEARCH) return;
-            if (ev.target.value === currentLocation.state) return;
-            searchCities();
+          onFocus={handleCityInputFocus}
+          onKeyUp={ev => {
+            const thisInput = cityInput.current!;
+            if (!thisInput.value.length) resetCityResults();
+            setHasSelectedCity(false);
+            if (hasSelectedCity) return hideCityResults();
+
+            if (thisInput.value.length < MIN_CHARS_FOR_CITY_SEARCH) return;
+            if (thisInput.value === currentLocation.state) return;
+            cityInputKeyUpHandler(ev);
           }}
         />
         <label htmlFor="city">Near:</label>
