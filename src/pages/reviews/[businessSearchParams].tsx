@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import ReactPaginate from 'react-paginate';
 
@@ -10,10 +9,11 @@ import { BusinessProps } from '../../features/components/business-results/Busine
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
 
-import { ParsedUrlQuery } from 'querystring';
 import * as uuid from 'uuid';
-import API from '../../features/library/api';
+import * as urlUtils from '../../features/utils/url-utils';
 import * as stringUtils from '../../features/utils/string-utils';
+import { ParsedUrlQuery } from 'querystring';
+import API from '../../features/library/api';
 
 import cls from 'classnames';
 import Layout from '../../features/components/layout';
@@ -25,9 +25,9 @@ import MapView from '../../features/components/business-results/MapView';
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
-import { Icon } from '@iconify/react';
-import * as urlUtils from '../../features/utils/url-utils';
 import Spinner from '../../features/components/shared/spinner/Spinner';
+import Paginators from '../../features/components/shared/pagination/Paginators';
+import { Icon } from '@iconify/react';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
@@ -247,33 +247,12 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
           <div className={styles.pagination}>
             {propsData.allResults ? (
-              <ReactPaginate
-                breakLabel="..."
-                onPageChange={handlePageChange}
-                // pageRangeDisplayed={10}
+              <Paginators
                 pageCount={
                   propsData.allResults ? Math.ceil(propsData.allResults / PER_PAGE) : 0
                 }
-                previousLabel={
-                  <Icon
-                    icon="material-symbols:chevron-left-rounded"
-                    width={22}
-                    color="gray"
-                  />
-                }
-                nextLabel={
-                  <Icon
-                    icon="material-symbols:chevron-right-rounded"
-                    color="gray"
-                    width={22}
-                  />
-                }
-                renderOnZeroPageCount={() => {}}
-                className={styles.paginators}
-                pageLinkClassName={styles.pageLink}
-                activeLinkClassName={styles.activePagelink}
-                nextLinkClassName={styles.pageLink}
-                previousLinkClassName={styles.pageLink}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
               />
             ) : null}
           </div>

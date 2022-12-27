@@ -26,7 +26,7 @@ const Business: FC<BusinessProps> = function (props) {
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
   return (
-    <li className={cls(styles.business, featured ? styles.featured : '')} key={rand}>
+    <li className={cls(styles.business, featured && styles.featured)} key={rand}>
       <figure>
         <Image
           src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
@@ -43,7 +43,7 @@ const Business: FC<BusinessProps> = function (props) {
               {(index && index + '.') || null} {businessName}
             </h4>
             {!featured ? (
-              <address className="d-flex  gap-1">
+              <address className="d-flex align-items-center gap-1">
                 <Icon
                   icon="material-symbols:location-on"
                   width="17"
@@ -59,7 +59,7 @@ const Business: FC<BusinessProps> = function (props) {
             starSize={featured ? 'sm' : 'md'}
             ratingOver5={4}
             reviewsCount={53}
-            printReviews={!featured ? n => `${n} reviews` : undefined}
+            renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
           />
 
           {businessCategs.length ? (
@@ -71,9 +71,9 @@ const Business: FC<BusinessProps> = function (props) {
 
         {!featured ? (
           <div className={styles.userComment}>
-            {`"Lorem, ipsum dolor sit amet consectetur adipisici elit. Voluptatibus beatae
+            {`Lorem, ipsum dolor sit amet consectetur adipisici elit. Voluptatibus beatae
             at architecto possimus quas ullam! Accusantium, facilis! Magni, vitae
-            voluptatum."`}
+            voluptatum...`}
           </div>
         ) : null}
 

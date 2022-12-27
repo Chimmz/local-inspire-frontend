@@ -30,9 +30,9 @@ function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
       }
 
       setIsRetrying(true);
-      const isToKeepTryingUntilPositiveResponse = maxRetries === '~';
+      const keepRetryingUntilPositiveResponse = maxRetries === '~';
 
-      return send(req, isToKeepTryingUntilPositiveResponse ? '~' : maxRetries - 1); // Retry
+      return send(req, keepRetryingUntilPositiveResponse ? '~' : maxRetries - 1); // Retry
     } catch (err) {
       console.log('Error in useRequest: ', err);
     } finally {
