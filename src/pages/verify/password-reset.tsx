@@ -13,6 +13,11 @@ import TextInput from '../../features/components/shared/text-input/TextInput';
 import useInput from '../../features/hooks/useInput';
 import useRequest from '../../features/hooks/useRequest';
 import API from '../../features/library/api';
+import {
+  isRequired,
+  minLength,
+  mustBeSameAs,
+} from '../../features/utils/validators/inputValidators';
 import styles from '../../styles/sass/pages/PasswordReset.module.scss';
 
 const PasswordReset: NextPage = function () {
@@ -38,8 +43,8 @@ const PasswordReset: NextPage = function () {
   } = useInput({
     init: '',
     validators: [
-      { isRequired: ['This field is required'] },
-      { minLength: [6] },
+      { fn: isRequired, params: ['This field is required'] },
+      { fn: minLength, params: [6] },
       // { isStrongPassword: ['Enter a strong password'] },
     ],
   });
@@ -55,8 +60,8 @@ const PasswordReset: NextPage = function () {
   } = useInput({
     init: '',
     validators: [
-      { isRequired: ['This field is required'] },
-      { isSameAs: [password, 'Passwords do not match'] },
+      { fn: isRequired, params: ['This field is required'] },
+      { fn: mustBeSameAs, params: [password, 'Passwords do not match'] },
     ],
   });
 
@@ -81,12 +86,9 @@ const PasswordReset: NextPage = function () {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
-    const errors = [runPasswordValidators(), runConfirmPasswordValidators()];
-    if (!errors.flat().length) return resetPassword();
-
-    [setPasswordValidationErrors, setConfirmPasswordValidationErrors].forEach((set, i) =>
-      set(errors[i]),
-    );
+    const outcomes = [runPasswordValidators(), runConfirmPasswordValidators()];
+    if (outcomes.some(result => result.errorExists)) return;
+    resetPassword();
   };
 
   useEffect(() => {
@@ -109,7 +111,18 @@ const PasswordReset: NextPage = function () {
 
   return (
     <Layout>
-      <Navbar bg="#003366" lightLogo />
+      <Navbar
+        bg="#003366"
+        lightLogo
+        defaultCategorySuggestions={[
+          'Hotels and motels',
+          'Restaurants',
+          'Cabins Rentals',
+          'Vacation Rentals',
+          'Things to do',
+          'Cruises',
+        ]}
+      />
       <main className={styles.main}>
         {response.status === 'SUCCESS' ? (
           <PageSuccess
