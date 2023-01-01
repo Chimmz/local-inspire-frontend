@@ -4,6 +4,12 @@ import styles from './Auth.module.scss';
 import TextInput from '../shared/text-input/TextInput';
 import useInput from '../../hooks/useInput';
 import cls from 'classnames';
+import {
+  isRequired,
+  isStrongPassword,
+  minLength,
+  mustBeSameAs,
+} from '../../utils/validators/inputValidators';
 
 const CreatePassword: React.FC = function () {
   const {
@@ -17,9 +23,9 @@ const CreatePassword: React.FC = function () {
   } = useInput({
     init: '',
     validators: [
-      { isRequired: ['This field is required'] },
-      { minLength: [6] },
-      { isStrongPassword: ['Enter a strong password'] },
+      { fn: isRequired, params: ['This field is required'] },
+      { fn: minLength, params: [6] },
+      { fn: isStrongPassword, params: ['Enter a strong password'] },
     ],
   });
 
@@ -34,8 +40,8 @@ const CreatePassword: React.FC = function () {
   } = useInput({
     init: '',
     validators: [
-      { isRequired: ['This field is required'] },
-      { isSameAs: [password, 'Passwords do not match'] },
+      { fn: isRequired, params: ['This field is required'] },
+      { fn: mustBeSameAs, params: [password, 'Passwords do not match'] },
     ],
   });
 
@@ -66,12 +72,9 @@ const CreatePassword: React.FC = function () {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
-    const errors = [runPasswordValidators(), runConfirmPasswordValidators2()];
-    if (!errors.flat().length) return console.log('Proceeding to change password!');
-
-    [setPasswordValidationErrors, setConfirmPasswordValidationErrors].forEach((set, i) =>
-      set(errors[i]),
-    );
+    const results = [runPasswordValidators(), runConfirmPasswordValidators2()];
+    if (results.some(r => r.errorExists)) return;
+    console.log('Proceeding to change password!');
   };
 
   return (
