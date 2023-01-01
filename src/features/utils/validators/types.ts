@@ -1,8 +1,4 @@
-export enum Feedback {
-  passed = 'passed',
-  failed = 'failed',
-}
-export type FeedbackType = Feedback.passed | Feedback.failed;
+export type FeedbackType = 'passed' | 'failed';
 
 export interface ValidationFeedback {
   type: FeedbackType;

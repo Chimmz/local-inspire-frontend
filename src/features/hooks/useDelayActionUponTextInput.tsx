@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 
 interface Props {
-  apiSearch: () => void;
+  action(): any;
+  delay?: number;
 }
 
-const useApiTextSearch = function (props: Props) {
+const useDelayActionUponTextInput = function ({ action, delay = 500 }: Props) {
   const [timer, setTimer] = useState(setTimeout(() => {}, 1));
 
-  const handleInputKeyUp: React.KeyboardEventHandler<HTMLInputElement> = () => {
+  const onInputKeyUp: React.KeyboardEventHandler<HTMLInputElement> = ev => {
     clearTimeout(timer);
     // Causes a delay before searching upon user input. This prevents API calls on every keystroke
-    setTimer(setTimeout(props.apiSearch, 500));
+    setTimer(setTimeout(action, delay));
   };
 
   useEffect(() => clearTimeout.bind(null, timer), []);
 
-  return { handleInputKeyUp };
+  return onInputKeyUp;
 };
 
-export default useApiTextSearch;
+export default useDelayActionUponTextInput;

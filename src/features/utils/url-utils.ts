@@ -1,3 +1,9 @@
+import { NextRouter } from 'next/router';
+
+const navigateTo = function (path: string, router: NextRouter) {
+  router.push(path);
+};
+
 export const getBusinessSearchResultsUrl = ({
   category,
   city,
@@ -29,3 +35,19 @@ export const parseBusinessSearchUrlParams = (
 
   return { category, city, stateCode };
 };
+
+export const genRecommendBusinessPageUrl = (
+  businessId: string,
+  businessName: string,
+  city: string,
+  stateCode: string,
+  recommends: boolean,
+) => {
+  return `/write-a-review/${businessName.split(' ').join('-')}_${city
+    .split(' ')
+    .join('-')}-${stateCode}_${businessId}`.concat(
+    recommends !== null ? `?recommend=${recommends ? 'yes' : 'no'}` : '',
+  );
+};
+
+export default navigateTo;

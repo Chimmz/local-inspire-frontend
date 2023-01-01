@@ -28,6 +28,7 @@ import CategoriesNav from '../../features/components/business-results/Categories
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import Paginators from '../../features/components/shared/pagination/Paginators';
 import { Icon } from '@iconify/react';
+import AuthContextProvider from '../../features/contexts/AuthContext';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
@@ -180,32 +181,45 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   return (
     <>
       {pageLoading && <Spinner pageWide />}
-      {/* <Spinner pageWide /> */}
       <Head>
         <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
-      <Navbar bg="#003366" position="sticky" styleName={styles.navbar} lightLogo>
-        <BusinessSearchForm
-          promptUserInput={false}
-          fontSize="13px"
-          defaultCategorySuggestions={props.defaultCategorySuggestions}
-          onSearch={onSearchHandler}
-          loading={newSearchLoading}
-        />
-      </Navbar>
-      <CategoriesNav
-        popularCategories={props.defaultCategorySuggestions}
-        searchParams={props.pageSearchParams}
-        setPageLoading={setPageLoading}
-      />
       <Layout>
+        <Layout.Nav
+          bg="#003366"
+          lightLogo
+          // styleName={styles.navbar}
+          defaultCategorySuggestions={props.defaultCategorySuggestions}
+          sticky
+        >
+          {/* <Navbar
+            bg="#003366"
+            position="sticky"
+            styleName={styles.navbar}
+            lightLogo
+            defaultCategorySuggestions={props.defaultCategorySuggestions}
+          >
+            <BusinessSearchForm
+              promptUserInput={false}
+              fontSize="13px"
+              defaultCategorySuggestions={props.defaultCategorySuggestions}
+              onSearch={onSearchHandler}
+              loading={newSearchLoading}
+            />
+          </Navbar> */}
+          <CategoriesNav
+            popularCategories={props.defaultCategorySuggestions}
+            searchParams={props.pageSearchParams}
+            setPageLoading={setPageLoading}
+          />
+        </Layout.Nav>
         <div className={styles.businessesResultsPage}>
-          <h2 className={styles.heading}>
+          <h1 className={cls(styles.heading, 'text-dark')}>
             {categoryTitle}
             <span style={{ color: '#bbb' }}>{' in '}</span>
             {cityTitle + ', ' + props.pageSearchParams.stateCode.toUpperCase()}
-          </h2>
+          </h1>
           <aside className={styles.aside}>
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
               {/* <Image src="/img/map-img.jpg" layout="fill" /> */}

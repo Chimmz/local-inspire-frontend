@@ -15,7 +15,7 @@ import SearchResults from '../search-results/SearchResults';
 import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import styles from './BusinessSearchForm.module.scss';
-import useApiTextSearch from '../../../hooks/useApiTextSearch';
+import useDelayActionUponTextInput from '../../../hooks/useDelayActionUponTextInput';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -77,12 +77,10 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     responseDataField: 'cities',
   });
 
-  const { handleInputKeyUp: categoryInputKeyUpHandler } = useApiTextSearch({
-    apiSearch: searchCategories,
+  const categoryInputKeyUpHandler = useDelayActionUponTextInput({
+    action: searchCategories,
   });
-  const { handleInputKeyUp: cityInputKeyUpHandler } = useApiTextSearch({
-    apiSearch: searchCities,
-  });
+  const cityInputKeyUpHandler = useDelayActionUponTextInput({ action: searchCities });
 
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
@@ -163,7 +161,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const getCategoriesToShow = useCallback(() => {
     const toShow = categoryResults.length ? categoryResults : defaultCategorySuggestions;
 
-    return toShow.map(text => ({ label: text, value: text }));
+    return toShow?.map(text => ({ label: text, value: text })) || [];
   }, [categoryResults, defaultCategorySuggestions]);
 
   const locationSuggestions: Array<{ label: React.ReactNode; value: string }> =

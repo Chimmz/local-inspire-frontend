@@ -12,6 +12,7 @@ const nextConfig = {
       'images.unsplash.com',
       'lh3.googleusercontent.com',
       'platform-lookaside.fbsbx.com',
+      'encrypted-tbn0.gstatic.com'
     ],
   },
   async headers() {

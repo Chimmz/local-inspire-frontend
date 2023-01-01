@@ -1,0 +1,27 @@
+.form {
+  // border: 1px solid black;
+
+  & > *:not(label) {
+    // margin-bottom: 4rem;
+  }
+
+  & > [class*='que-group'] {
+    margin-bottom: 4rem;
+  }
+
+  & > [class*='que-group'] > label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  & > label,
+  & > [class*='que-group'] > label:not([for='i-accept']) {
+    font-weight: bold;
+  }
+
+  & > label {
+    &:has(+ input:focus, + textarea:focus) {
+      color: $color-pry-light;
+    }
+  }
+}

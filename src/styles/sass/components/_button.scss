@@ -55,7 +55,7 @@
 
   &[class*='btn-outline'] {
     background-color: transparent;
-    border: 1px solid #949494;
+    border: 1px solid #a8a8a8;
     color: #2e2e2e;
 
     &:hover {
@@ -123,6 +123,7 @@
         color: $text-dark;
       }
     }
+
     &:is(.btn-outline-red) {
       color: #c2c2c2 !important;
       // border: 1px solid #863131;
@@ -138,5 +139,8 @@
     transform: scale(0.9);
     border-radius: 4px;
     padding: 7px 1.6em;
+  }
+  &--lg {
+    font-size: 1.5rem;
   }
 }

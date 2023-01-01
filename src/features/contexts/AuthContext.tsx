@@ -1,145 +1,39 @@
-import React, { createContext, useContext, useState } from 'react';
-import useInput from '../hooks/useInput';
-
-interface NewRegistration {
-  firstName: string;
-  handleChangeFirstName: React.ChangeEventHandler<HTMLInputElement>;
-  runFirstNameValidators: () => any;
-  setFirstNameValidationErrors: React.Dispatch<React.SetStateAction<never[]>>;
-  pushFirstNameValidationError(msg: string): void;
-  firstNameErrors: any[];
-  clearfirstName: () => void;
-  clearFirstnameErrors: () => void;
-
-  lastName: string;
-  handleChangeLastName: React.ChangeEventHandler<HTMLInputElement>;
-  runLastNameValidators: () => any;
-  lastNameErrors: any[];
-  setLastNameValidationErrors: React.Dispatch<React.SetStateAction<never[]>>;
-  pushLastNameValidationError(msg: string): void;
-  clearLastName: () => void;
-
-  email: string;
-  handleChangeEmail: React.ChangeEventHandler<HTMLInputElement>;
-  runEmailValidators: () => any;
-  emailErrors: any[];
-  setEmailValidationErrors: React.Dispatch<React.SetStateAction<never[]>>;
-  pushEmailValidationError(msg: string): void;
-  clearEmail: () => void;
-
-  password: string;
-  handleChangePassword: React.ChangeEventHandler<HTMLInputElement>;
-  runPasswordValidators: () => any;
-  clearPassword: () => void;
-  passwordErrors: any[];
-  setPasswordValidationErrors: React.Dispatch<React.SetStateAction<never[]>>;
-  pushPasswordValidationError(msg: string): void;
-  clearPasswordErrors: () => void;
-}
+import React, { useState, createContext, ReactNode, useContext } from 'react';
+import { AuthType } from '../components/layout/navbar/Navbar';
 
 interface AuthData {
-  newRegistration: NewRegistration;
+  isAuthModalOpen: boolean;
+  authType?: AuthType;
+  showAuthModal?(authType: AuthType): void;
+  closeAuthModal?(): void;
 }
 
-const AuthContext = createContext<AuthData | null>(null);
+const AuthContext = createContext<AuthData>({ isAuthModalOpen: false });
 
-export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = props => {
-  const {
-    inputValue: firstName,
-    handleChange: handleChangeFirstName,
-    runValidators: runFirstNameValidators,
-    validationErrors: firstNameErrors,
-    setValidationErrors: setFirstNameValidationErrors,
-    pushValidationError: pushFirstNameValidationError,
-    clearInput: clearfirstName,
-    clearValidationErrors: clearFirstnameErrors,
-  } = useInput({ init: '', validators: [{ isRequired: ['This field is required'] }] });
+const AuthContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [userWantsToAuth, setUserWantsToAuth] = useState<{
+    yes: boolean;
+    authType: AuthType | undefined;
+  }>({ yes: false, authType: undefined });
 
-  const {
-    inputValue: lastName,
-    handleChange: handleChangeLastName,
-    runValidators: runLastNameValidators,
-    validationErrors: lastNameErrors,
-    setValidationErrors: setLastNameValidationErrors,
-    pushValidationError: pushLastNameValidationError,
-    clearInput: clearLastName,
-    clearValidationErrors: clearLastnameErrors,
-  } = useInput({ init: '', validators: [{ isRequired: ['This field is required'] }] });
-
-  const {
-    inputValue: email,
-    handleChange: handleChangeEmail,
-    runValidators: runEmailValidators,
-    validationErrors: emailErrors,
-    setValidationErrors: setEmailValidationErrors,
-    pushValidationError: pushEmailValidationError,
-    clearInput: clearEmail,
-    clearValidationErrors: clearEmailErrors,
-  } = useInput({
-    init: '',
-    validators: [{ isRequired: ['This field is required'] }, { isEmail: [] }],
-  });
-
-  const {
-    inputValue: password,
-    handleChange: handleChangePassword,
-    runValidators: runPasswordValidators,
-    validationErrors: passwordErrors,
-    setValidationErrors: setPasswordValidationErrors,
-    pushValidationError: pushPasswordValidationError,
-    clearInput: clearPassword,
-    clearValidationErrors: clearPasswordErrors,
-  } = useInput({
-    init: '',
-    validators: [
-      { isRequired: ['This field is required'] },
-      { minLength: [6, 'Password must be at least 6 characters'] },
-    ],
-  });
-
-  const state: AuthData = {
-    newRegistration: {
-      firstName,
-      handleChangeFirstName,
-      runFirstNameValidators,
-      setFirstNameValidationErrors,
-      pushFirstNameValidationError,
-      firstNameErrors,
-
-      clearfirstName,
-      clearFirstnameErrors,
-      // Last name
-      lastName,
-      handleChangeLastName,
-      runLastNameValidators,
-      setLastNameValidationErrors,
-      pushLastNameValidationError,
-      lastNameErrors,
-
-      clearLastName,
-      // Email
-      email,
-      handleChangeEmail,
-      runEmailValidators,
-      setEmailValidationErrors,
-      pushEmailValidationError,
-      emailErrors,
-
-      clearEmail,
-      // Password
-      password,
-      handleChangePassword,
-      runPasswordValidators,
-      passwordErrors,
-      setPasswordValidationErrors,
-      pushPasswordValidationError,
-      clearPassword,
-      clearPasswordErrors,
-    },
+  const showAuthModal = (authType: AuthType) => {
+    setUserWantsToAuth({ yes: true, authType });
   };
+  const closeAuthModal = () => setUserWantsToAuth({ yes: false, authType: undefined });
 
-  return <AuthContext.Provider value={state}>{props.children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthModalOpen: userWantsToAuth.yes,
+        authType: userWantsToAuth.authType,
+        showAuthModal,
+        closeAuthModal,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuthContext = () => useContext(AuthContext);
-export default AuthContext;
+export default AuthContextProvider;

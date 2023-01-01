@@ -1,45 +1,71 @@
 import { Icon } from '@iconify/react';
-import styles from './StarRating.module.scss';
+import css from './StarRating.module.scss';
 import { v4 as uuid } from 'uuid';
+import cls from 'classnames';
+import { Rating } from 'react-simple-star-rating';
+import React from 'react';
 
 interface StarRatingProps {
-  ratingOver5: number;
-  reviewsCount?: number;
-  starSize: 'sm' | 'md' | 'lg';
+  initialValue?: number;
+  ratingValue?: number;
+  onRate?(r: number): void;
+
+  starSize: 'sm' | 'md' | 'lg' | 'xlg';
+  tooltip?: boolean;
   renderReviewsCount?: (count: number) => string;
+
+  style?: { [style: string]: string };
+  className?: string;
+  readonly?: boolean;
+  showRatingCaption?: boolean;
 }
 
 const StarRating = (props: StarRatingProps) => {
-  const { ratingOver5, reviewsCount, renderReviewsCount, starSize } = props;
-
-  const sizeMap = { sm: 17, md: 20, lg: 23 };
-  const nonColoredStarsCount = 5 - ratingOver5;
+  const { ratingValue, renderReviewsCount, starSize, className } = props;
+  const sizeMap = { sm: 17, md: 20, lg: 23, xlg: 35 };
 
   return (
-    <div className={styles.rating}>
-      {Array.from({ length: ratingOver5 }).map(_ => (
-        <Icon
-          icon="mdi:star-circle"
-          color="#0955a1"
-          inline
-          width={sizeMap[starSize]}
-          key={uuid()}
-        />
-      ))}
-
-      {Array.from({ length: nonColoredStarsCount }).map(_ => (
-        <Icon
-          icon="mdi:star-circle"
-          color="#9e9e9e"
-          inline
-          width={sizeMap[starSize]}
-          key={uuid()}
-        />
-      ))}
-
-      {reviewsCount ? (
+    <div
+      className={cls(css.rating, className, 'd-flex', 'align-items-center')}
+      // title={`${ratingValue}/5 rating`}
+    >
+      <Rating
+        onClick={rating => props.onRate?.(rating)}
+        initialValue={props.initialValue || 0}
+        readonly={props.readonly}
+        // onPointerEnter={console.log}
+        // onPointerLeave={console.log}
+        // onPointerMove={console.log}
+        // allowHover={true}
+        disableFillHover={true}
+        showTooltip={props.tooltip}
+        iconsCount={5}
+        // transition
+        tooltipArray={['Terrible', 'Poor', 'Average', 'Good', 'Excellent']}
+        tooltipClassName="position-absolute "
+        tooltipStyle={{ backgroundColor: 'transparent', color: '#000' }}
+        emptyIcon={
+          <Icon
+            icon="mdi:star-circle"
+            color="#ccc"
+            inline
+            width={sizeMap[starSize]}
+            key={uuid()}
+          />
+        }
+        fillIcon={
+          <Icon
+            icon="mdi:star-circle"
+            color="#0955a1"
+            inline
+            width={sizeMap[starSize]}
+            key={uuid()}
+          />
+        }
+      />
+      {props.showRatingCaption && ratingValue ? (
         <small style={{ marginLeft: '5px' }}>
-          {renderReviewsCount?.(reviewsCount) || `${reviewsCount}`}
+          {renderReviewsCount?.(ratingValue) || `${ratingValue}`}
         </small>
       ) : null}
     </div>

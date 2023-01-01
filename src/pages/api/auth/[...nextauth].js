@@ -14,7 +14,6 @@ callbacks.signIn = async ({ user, account, credentials }) => {
 };
 
 callbacks.jwt = async ({ user, token, account, isNewUser }) => {
-  console.log('In JWT: ', { user, token, account, isNewUser });
   // If token is not being created
   if (!user) return token;
 
@@ -84,11 +83,6 @@ const signupProvider = CredentialsProvider({
   },
 });
 
-const googleProvider = GoogleProvider({
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-});
-
 const customGoogleProvider = CredentialsProvider({
   id: 'google-custom',
   authorize: async (credentials, req) => {
@@ -127,11 +121,15 @@ const customFacebookProvider = CredentialsProvider({
   },
 });
 
-const facebookProvider = FacebookProvider({
-  clientId: process.env.FACEBOOK_CLIENT_ID,
-  clientSecret: process.env.FACEBOOK_SECRET,
-  authorization: { params: { scope: 'email' } },
-});
+// const googleProvider = GoogleProvider({
+//   clientId: process.env.GOOGLE_CLIENT_ID,
+//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+// });
+// const facebookProvider = FacebookProvider({
+//   clientId: process.env.FACEBOOK_CLIENT_ID,
+//   clientSecret: process.env.FACEBOOK_SECRET,
+//   authorization: { params: { scope: 'email' } },
+// });
 
 export const authOptions = {
   providers: [

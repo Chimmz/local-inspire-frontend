@@ -7,7 +7,7 @@ interface ButtonProps {
   contentWhileLoading?: React.ReactNode;
   children?: React.ReactNode;
   isLoading: boolean;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 function LoadingButton({ isLoading, disabled, ...otherProps }: ButtonProps) {
@@ -20,7 +20,7 @@ function LoadingButton({ isLoading, disabled, ...otherProps }: ButtonProps) {
         gap: '1rem',
         justifyContent: 'center',
       }}
-      disabled={disabled}
+      disabled={disabled || isLoading}
     >
       {isLoading ? (
         <>

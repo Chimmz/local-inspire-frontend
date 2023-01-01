@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-// import * as inputValidators from '../validators/inputValidator';
-import useValidator from './useValidator';
+import { useState, ChangeEventHandler } from 'react';
+import * as inputValidators from '../utils/validators/inputValidators';
+import useValidator, { ValidatorConfig } from './useValidator';
 
 interface UseInputParams {
   init: string;
-  validators?: { [key: string]: object }[];
+  validators?: ValidatorConfig<string>[];
 }
 
-const useInput = function ({ init: initValue, validators }: UseInputParams) {
+const useInput = function ({ init: initValue, validators = [] }: UseInputParams) {
   const [inputValue, setInputValue] = useState(initValue);
-  const { runValidators, validationErrors, setValidationErrors, pushValidationError } =
-    useValidator({ inputValue, validators });
 
-  const handleChange: React.ChangeEventHandler<HTMLInputElement> = ev => {
+  const { runValidators, validationErrors, setValidationErrors, pushValidationError } =
+    useValidator<string>({ inputValue, validators });
+
+  const handleChange: ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  > = ev => {
     setInputValue(ev.target.value);
     setValidationErrors([]); // Clear validation errors when user continues to input
   };

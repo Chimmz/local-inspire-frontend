@@ -7,6 +7,7 @@ import Gallery from '../features/components/home/Gallery';
 import BestPlaces from '../features/components/home/BestPlaces';
 import Layout from '../features/components/layout/index';
 import Navbar from '../features/components/layout/navbar/Navbar';
+import AuthContextProvider from '../features/contexts/AuthContext';
 
 interface HomePageProps {
   popularCategorySuggestions: string[];
@@ -14,14 +15,22 @@ interface HomePageProps {
 
 function HomePage({ popularCategorySuggestions }: HomePageProps) {
   return (
-    <Layout>
-      <Navbar bg="transparent" position="absolute" lightLogo />
-      <Header
-        defaultCategorySuggestions={useMemo(() => popularCategorySuggestions, [])}
-      />
-      <Gallery />
-      <BestPlaces />
-    </Layout>
+    <AuthContextProvider>
+      <Layout>
+        <Navbar
+          bg="transparent"
+          position="absolute"
+          lightLogo
+          defaultCategorySuggestions={popularCategorySuggestions}
+          withSearchForm={false}
+        />
+        <Header
+          defaultCategorySuggestions={useMemo(() => popularCategorySuggestions, [])}
+        />
+        <Gallery />
+        <BestPlaces />
+      </Layout>
+    </AuthContextProvider>
   );
 }
 

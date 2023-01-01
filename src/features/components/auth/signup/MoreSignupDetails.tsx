@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { signIn, SignInOptions, SignInResponse } from 'next-auth/react';
+import { signIn, SignInOptions } from 'next-auth/react';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useNewRegistrationContext } from '../../../contexts/NewRegistrationContext';
 import useRequest from '../../../hooks/useRequest';
 import {
   datesOfTheMonth,
@@ -11,7 +11,6 @@ import {
   yearsSince1940,
 } from '../../../data/constants';
 
-import LoadingButton from '../../shared/button/Button';
 import AuthContentWrapper from '../AuthContentWrapper';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import ComputerIcon from '@mui/icons-material/Computer';
@@ -34,7 +33,7 @@ interface BirthInfo {
 }
 
 const MoreSignupDetails: React.FC<Props> = props => {
-  const authData = useAuthContext();
+  const authData = useNewRegistrationContext();
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [facebookEmail, setFacebookEmail] = useState<string | null>(null);
   const [birthInfo, setBirthInfo] = useState<BirthInfo>({

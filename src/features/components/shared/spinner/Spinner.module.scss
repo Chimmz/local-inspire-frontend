@@ -1,3 +1,7 @@
+.spinnerModal *:not([class*='Spinner']) {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .spinner {
   margin: 100px auto;
   width: 40px;

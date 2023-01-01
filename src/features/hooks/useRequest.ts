@@ -42,10 +42,10 @@ function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
     // req
     //   .then(data => data)
     //   .finally(autoStopLoading ? stopLoading : () => {});
-    return req;
+    // return req;
   };
 
-  return { send, loading, startLoading, stopLoading };
+  return { send, loading, startLoading, stopLoading, isRetrying };
 }
 
 export default useRequest;

@@ -1,7 +1,7 @@
 import React from 'react';
 // Hooks
 import useRequest from '../../../hooks/useRequest';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useNewRegistrationContext } from '../../../contexts/NewRegistrationContext';
 import API from '../../../library/api';
 
 // External components
@@ -19,27 +19,21 @@ interface Props {
 }
 
 const SignupForm: React.FC<Props> = props => {
-  const authData = useAuthContext();
+  const authData = useNewRegistrationContext();
   const { send: sendEmailRequest, loading: isCheckingEmail } = useRequest({
     autoStopLoading: true,
   });
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
-    const allErrors = [
+    const results = [
       authData!.newRegistration.runFirstNameValidators(),
       authData!.newRegistration.runLastNameValidators(),
       authData!.newRegistration.runEmailValidators(),
       authData!.newRegistration.runPasswordValidators(),
     ];
-    if (allErrors.flat().length) {
-      return [
-        authData!.newRegistration.setFirstNameValidationErrors,
-        authData!.newRegistration.setLastNameValidationErrors,
-        authData!.newRegistration.setEmailValidationErrors,
-        authData!.newRegistration.setPasswordValidationErrors,
-      ].forEach((set, i) => set(allErrors[i]));
-    }
+
+    if (results.some(r => r.errorExists)) return;
 
     const res = await sendEmailRequest(
       API.isEmailAreadyInUse(authData!.newRegistration.email),

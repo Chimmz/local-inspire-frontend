@@ -1,75 +1,99 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
-import {
-  getSession,
-  useSession,
-  UseSessionOptions,
-  signOut,
-  SignOutResponse,
-} from 'next-auth/react';
-import { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
+
+import { NewRegistrationContextProvider } from '../../../contexts/NewRegistrationContext';
 
 import { useRouter } from 'next/router';
 import useRequest from '../../../hooks/useRequest';
+import { useAuthContext } from '../../../contexts/AuthContext';
+
+import { toTitleCase } from '../../../utils/string-utils';
+import * as urlUtils from '../../../utils/url-utils';
+
 import cls from 'classnames';
-
 import Auth from '../../auth/Auth';
-import Modal from '../../shared/modal/Modal';
-import LoadingButton from '../../shared/button/Button';
-import { Icon } from '@iconify/react';
-import styles from './Navbar.module.scss';
 import SignedInUser from './SignedInUser';
-import { AuthContextProvider } from '../../../contexts/AuthContext';
 import MobileBusinessSearchForm from '../../shared/businesses-search/MobileBusinessSearchForm';
+import BusinessSearchForm from '../../shared/businesses-search/BusinessSearchForm';
+import { Icon } from '@iconify/react';
 import { NavDropdown } from 'react-bootstrap';
+import styles from './Navbar.module.scss';
 
-interface NavbarProps {
+export interface NavbarProps {
   bg?: string;
   styleName?: string;
   position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed';
   children?: React.ReactNode;
   lightLogo?: boolean;
+  withSearchForm?: boolean;
+  defaultCategorySuggestions: string[];
+  sticky?: boolean;
 }
 export type AuthType = 'login' | 'register';
 
-function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
-  const [userWantsToAuth, setUserWantsToAuth] = useState<{
-    yes: boolean;
-    authType: AuthType | null;
-  }>({ yes: false, authType: null });
+function Navbar(props: NavbarProps) {
+  // prettier-ignore
+  const { bg = '#003366', position, lightLogo = true, withSearchForm = true, sticky } = props;
 
+  const authData = useAuthContext();
   const [searchModalOpen, setSearchOpen] = useState(false);
-
   const router = useRouter();
-  const { data: authSession, status: authStatus } = useSession({
+
+  const { data: authSession } = useSession({
     required: false,
     onUnauthenticated() {
-      setUserWantsToAuth({ yes: false, authType: 'login' });
+      authData?.showAuthModal?.('login');
     },
   });
-  const { send: sendLogoutRequest, loading: isLoggingOut } = useRequest({
-    autoStopLoading: true,
-  });
 
-  const triggerAuthModal: React.MouseEventHandler<HTMLElement> = ev => {
-    // if (!(ev.target instanceof HTMLButtonElement)) return;
-    const btn = (ev.target as HTMLElement).closest('button')!;
-    console.log(btn.dataset);
-    setUserWantsToAuth({
-      yes: true,
-      authType: btn.dataset.authType as AuthType,
+  const {
+    startLoading: startNewSearchLoader,
+    stopLoading: stopNewSearchLoader,
+    loading: newSearchLoading,
+  } = useRequest({ autoStopLoading: false });
+
+  console.log({ 'router.query': router.query });
+  const {
+    category: currentCategory,
+    city: currentCity,
+    stateCode: currentStateCode,
+  } = router.query;
+
+  const onSearchHandler = (categoryValue: string, locationValue: string) => {
+    if (!categoryValue || !locationValue) return;
+
+    let [cityValue, stateValue] = locationValue.split(',');
+    [cityValue, stateValue] = [cityValue.trim(), stateValue.trim()];
+
+    console.log({ cityValue: cityValue.trim(), stateValue: stateValue.trim() });
+    if (
+      currentCategory === categoryValue.toLowerCase() &&
+      currentCity === cityValue.trim().toLowerCase() &&
+      currentStateCode === stateValue.trim()
+    )
+      return console.log('Same as current page query');
+
+    startNewSearchLoader();
+
+    const url = urlUtils.getBusinessSearchResultsUrl({
+      category: categoryValue,
+      city: cityValue,
+      stateCode: stateValue,
     });
+    console.log('To push: ', url);
+    router.push(url);
   };
 
-  const closeAuthModal = useCallback(() => {
-    setUserWantsToAuth({ yes: false, authType: null });
-  }, [setUserWantsToAuth]);
+  useEffect(() => {
+    stopNewSearchLoader();
+  }, [router.asPath]);
 
   return (
     <nav
-      className={cls(styles.nav, styleName || '')}
+      className={cls(styles.nav, props.styleName || '', sticky && styles.sticky)}
       style={{ backgroundColor: bg, position: position || 'relative' }}
     >
       <Link href="/">
@@ -86,7 +110,16 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
         </div>
       </Link>
 
-      {children}
+      {/* {children} */}
+      {withSearchForm ? (
+        <BusinessSearchForm
+          promptUserInput={false}
+          fontSize="13px"
+          defaultCategorySuggestions={props.defaultCategorySuggestions}
+          onSearch={onSearchHandler}
+          loading={newSearchLoading}
+        />
+      ) : null}
 
       <div
         className={cls(styles.search, 'd-flex gap-2')}
@@ -149,15 +182,13 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
           <>
             <button
               className="btn btn-outline-transp btn--sm"
-              data-auth-type="login"
-              onClick={triggerAuthModal}
+              onClick={authData?.showAuthModal?.bind(null, 'login')}
             >
               Login
             </button>
             <button
               className="btn btn-sec btn--sm"
-              data-auth-type="register"
-              onClick={triggerAuthModal}
+              onClick={authData?.showAuthModal?.bind(null, 'register')}
             >
               Join
             </button>
@@ -170,10 +201,10 @@ function Navbar({ bg, styleName, position, lightLogo, children }: NavbarProps) {
         <Icon icon="material-symbols:menu" width={15} color="#eee" />
       </div>
 
-      {userWantsToAuth.yes ? (
-        <AuthContextProvider>
-          <Auth show authType={userWantsToAuth.authType!} close={closeAuthModal} />
-        </AuthContextProvider>
+      {authData?.isAuthModalOpen ? (
+        <NewRegistrationContextProvider>
+          <Auth show authType={authData?.authType!} />
+        </NewRegistrationContextProvider>
       ) : null}
     </nav>
   );

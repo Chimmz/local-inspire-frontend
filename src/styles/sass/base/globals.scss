@@ -23,7 +23,7 @@ html {
 
 body {
   min-height: 100vh;
-  font-size: $default-fsize;
+  font-size: max($default-fsize, 14px);
   color: $text-color;
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   // font-weight: 500;
@@ -121,4 +121,13 @@ a {
 
 .invalid-feedback {
   text-align: left;
+}
+
+textarea {
+  height: 100px;
+}
+
+*:has(> label > :where(input:hover, input:focus)) > label {
+  // font-weight: bold;
+  // color: orange;
 }

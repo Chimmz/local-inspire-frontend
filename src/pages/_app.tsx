@@ -4,6 +4,7 @@ import { Session } from 'next-auth';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import '../styles/sass/main.scss';
+import AuthContextProvider from '../features/contexts/AuthContext';
 // import Script from 'next/script';
 
 interface PageProps {
@@ -16,8 +17,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SessionProvider session={session}>
-      {/* <Script src="https://code.iconify.design/iconify-icon/1.0.1/iconify-icon.min.js"></Script> */}
-      <Component {...restPageProps} />
+      <AuthContextProvider>
+        <Component {...restPageProps} />
+      </AuthContextProvider>
     </SessionProvider>
   );
 }

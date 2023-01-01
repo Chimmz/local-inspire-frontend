@@ -10,6 +10,7 @@ import AuthNav from './AuthNav';
 import Spinner from '../shared/spinner/Spinner';
 import cls from 'classnames';
 import styles from './Auth.module.scss';
+import { isEmail, isRequired } from '../../utils/validators/inputValidators';
 
 interface Props {
   show: boolean;
@@ -46,8 +47,8 @@ const LoginForm: React.FC<Props> = function (props) {
   } = useInput({
     init: '',
     validators: [
-      { isRequired: ['This field is required'], isEmail: [] },
-      { isEmail: ['You entered an invalid email'] },
+      { fn: isRequired, params: ['This field is required'] },
+      { fn: isEmail, params: ['You entered an invalid email'] },
     ],
   });
 
@@ -61,7 +62,7 @@ const LoginForm: React.FC<Props> = function (props) {
     clearInput: clearPassword,
   } = useInput({
     init: '',
-    validators: [{ isRequired: ['This field is required'] }],
+    validators: [{ fn: isRequired, params: ['This field is required'] }],
   });
 
   useEffect(() => {
@@ -93,11 +94,10 @@ const LoginForm: React.FC<Props> = function (props) {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (ev): any => {
     ev.preventDefault();
-    const allErrors = [runEmailValidators(), runPasswordValidators()];
-    const errorSetters = [setEmailValidationErrors, setPasswordValidationErrors];
+    const results = [runEmailValidators(), runPasswordValidators()];
+    if (results.some(r => r.errorExists)) return;
 
-    if (!allErrors.flat().length) return authenticate();
-    errorSetters.forEach((set, i) => set(allErrors[i]));
+    authenticate();
   };
 
   return (

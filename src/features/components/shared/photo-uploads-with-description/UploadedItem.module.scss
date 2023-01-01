@@ -1,0 +1,39 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 7px;
+  border-radius: 7px;
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+
+  @media screen and (max-width: 450px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    & textarea {
+      width: 100% !important;
+    }
+  }
+  & span:last-child {
+    visibility: hidden;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 5px rgba(#000, 0.2);
+
+    & span:last-child {
+      visibility: visible;
+    }
+  }
+
+  & :where(texarea, [type='text']) {
+    font-size: 1.3rem;
+  }
+  & :where(textarea) {
+    // width: 250px !important;
+  }
+  & label {
+    font-size: 13px !important;
+  }
+}

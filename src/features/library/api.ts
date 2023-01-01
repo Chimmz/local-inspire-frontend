@@ -128,6 +128,30 @@ class API {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+
+  async reviewBusiness({
+    businessId,
+    token,
+    ...body
+  }: {
+    businessId: string;
+    token: string;
+  }) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/reviews`,
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getBusinessReviews(businessId: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/reviews`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

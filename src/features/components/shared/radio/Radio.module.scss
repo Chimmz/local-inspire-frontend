@@ -1,0 +1,32 @@
+input[type='radio'].radioInput {
+  display: none;
+  font-weight: 500;
+
+  & + [class*='btn'] {
+    backface-visibility: hidden;
+  }
+
+  &:checked + [class*='btn'] {
+    // background-color: rgba($color-pry-light, 0.2);
+    color: #000;
+    border-color: #000;
+    background-color: #f4f4f4;
+  }
+}
+
+.btnRadioOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+
+  & > * {
+    flex: 1;
+    & [class*='btn'] {
+      width: 100%;
+    }
+  }
+}
+
+.circleRadioOptions {
+  display: block;
+}

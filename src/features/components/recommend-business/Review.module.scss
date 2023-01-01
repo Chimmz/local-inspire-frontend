@@ -1,0 +1,39 @@
+.review {
+  font-size: 1.5rem !important;
+  display: grid;
+  grid-template-columns: 5rem 1fr auto;
+  grid-template-rows: repeat(3, min-content);
+  grid-template-areas:
+    'img name date'
+    'img rating .'
+    'descr descr descr';
+
+  column-gap: 5px;
+  padding-block: 2rem;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #d3d3d3;
+  }
+
+  & > figure {
+    grid-area: img;
+  }
+
+  & > [class*='StarRating'] {
+    grid-area: rating;
+    grid-row: 1;
+    transform: translateY(100%);
+  }
+
+  & > .reviewedBy {
+    grid-area: name;
+  }
+  & > .reviewDate {
+    grid-area: date;
+    font-size: 1.2rem;
+  }
+  & > [class*='parag'] {
+    grid-area: descr;
+    font-size: 1.2rem;
+  }
+}

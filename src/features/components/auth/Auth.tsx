@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useRequest from '../../hooks/useRequest';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { Icon } from '@iconify/react';
 import Modal from 'react-bootstrap/Modal';
@@ -9,12 +9,12 @@ import SignupForm from './signup/SignupForm';
 import MoreSignupDetails from './signup/MoreSignupDetails';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface AuthProps {
   show: boolean;
   authType: 'login' | 'register';
-  close: () => void;
+  onExit?: () => any;
 }
 
 const enum PossibleContent {
@@ -23,7 +23,6 @@ const enum PossibleContent {
   signupForm = 'Signup content',
   forgotPassword = 'Forgot password content',
   moreSignupDetails = 'More signup details content',
-  // emailVerification = 'Email verification content',
 }
 
 type Content =
@@ -32,9 +31,9 @@ type Content =
   | PossibleContent.forgotPassword
   | PossibleContent.signupForm
   | PossibleContent.moreSignupDetails;
-// | PossibleContent.emailVerification;
 
-const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal }) {
+const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
+  const authData = useAuthContext();
   const [content, setContent] = useState<Content>(PossibleContent.authOptions);
 
   const switchToAuthOptions = () => setContent(PossibleContent.authOptions);
@@ -54,7 +53,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
               authType={authType}
               goToSignup={switchToSignup}
               goToLogin={switchToLogin}
-              closeModal={closeModal}
+              closeModal={authData?.closeAuthModal!}
             />
           </GoogleOAuthProvider>
         );
@@ -66,7 +65,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
             goBack={switchToAuthOptions}
             goToSignup={switchToSignup}
             goToForgotPassword={switchToForgotPassword}
-            closeModal={closeModal}
+            closeModal={authData?.closeAuthModal!}
           />
         );
 
@@ -83,17 +82,23 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, close: closeModal 
         );
 
       case PossibleContent.moreSignupDetails:
-        return <MoreSignupDetails closeModal={closeModal} goBack={switchToSignup} />;
+        return (
+          <MoreSignupDetails
+            closeModal={authData?.closeAuthModal!}
+            goBack={switchToSignup}
+          />
+        );
     }
   };
 
   return (
     <Modal
       show={show}
-      onHide={closeModal}
+      onHide={authData?.closeAuthModal}
+      onExit={onExit}
       aria-labelledby="contained-modal-title-vcenter"
       centered
-      // scrollable
+      backdrop="static"
     >
       <Modal.Header
         closeButton

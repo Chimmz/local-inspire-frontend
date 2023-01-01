@@ -3,7 +3,7 @@ export const toTitleCase = (str: string, divider = ' ') => {
     .toLowerCase()
     .split(divider)
     .map(word => word[0].toUpperCase() + word.slice(1))
-    .join(divider);
+    .join(' ');
 };
 
 export const toCamelCase = (str: string, divider = ' ') => {

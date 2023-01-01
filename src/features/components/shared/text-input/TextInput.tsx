@@ -11,6 +11,9 @@ interface TextInputProps {
   validationErrors?: ValidationFeedback[];
   label?: string;
   autoFocus?: boolean;
+  as?: 'input' | 'textarea';
+  onInput?: React.ChangeEventHandler<HTMLInputElement> | (() => void);
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | (() => void);
   [key: string]: any;
 }
 
@@ -26,6 +29,8 @@ function TextInput(props: TextInputProps) {
         {...nativeProps}
         isInvalid={hasError}
         autoFocus={autoFocus}
+        onInput={props.onInput || (() => {})}
+        onKeyUp={props.onKeyUp || (() => {})}
       />
 
       {validationErrors ? (

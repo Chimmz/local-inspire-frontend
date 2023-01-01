@@ -13,6 +13,7 @@ import EmailVerification from './EmailVerification';
 import styles from './Auth.module.scss';
 import AuthSuccess from './AuthSuccess';
 import CreatePassword from './CreatePassword';
+import { isEmail, isRequired } from '../../utils/validators/inputValidators';
 
 interface Props {
   goBack: () => void;
@@ -68,7 +69,10 @@ const ForgotPassword: React.FC<Props> = props => {
     clearValidationErrors: clearEmailErrors,
   } = useInput({
     init: '',
-    validators: [{ isRequired: ['Your email is required'] }, { isEmail: [] }],
+    validators: [
+      { fn: isRequired, params: ['Your email is required'] },
+      { fn: isEmail, params: [] },
+    ],
   });
 
   const sendEmail = async () => {
@@ -79,8 +83,8 @@ const ForgotPassword: React.FC<Props> = props => {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
-    const emailErrs = runEmailValidators();
-    if (emailErrs.length) return setEmailValidationErrors(emailErrs);
+    const { errorExists } = runEmailValidators();
+    if (errorExists) return;
 
     // const spin5s = () => new Promise((resolve, reject) => setTimeout(resolve, 5000));
     // const result = await sendChangePasswordRequest(spin5s());

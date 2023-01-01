@@ -10,15 +10,14 @@ interface Props {
 
 function Spinner({ show = true, colors = ['#0084ff', '#e87525'], pageWide }: Props) {
   useEffect(() => {
-    if (!pageWide) return; // There'll not be a dialog if pageWide is false
-    const dialog = document.querySelector('.spinner-modal');
-    const descendantsExceptSpinner = dialog!.querySelectorAll(
-      "*:not([class*='Spinner'])",
-    );
-
-    descendantsExceptSpinner?.forEach(
-      elem => ((elem as HTMLElement).style.backgroundColor = 'rgba(255, 255, 255, 0.3)'),
-    );
+    // if (!pageWide) return; // There'll not be a dialog if pageWide is false
+    // const dialog = document.querySelector('.spinner-modal');
+    // const descendantsExceptSpinner = dialog!.querySelectorAll(
+    //   "*:not([class*='Spinner'])",
+    // );
+    // descendantsExceptSpinner?.forEach(
+    //   elem => ((elem as HTMLElement).style.backgroundColor = 'rgba(0, 0, 0, 0.1)'),
+    // );
   }, []);
 
   if (!show) return <></>;
@@ -29,12 +28,10 @@ function Spinner({ show = true, colors = ['#0084ff', '#e87525'], pageWide }: Pro
         show
         fullscreen
         backdrop={false}
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)' }}
-        className="spinner-modal"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
+        className={styles.spinnerModal}
       >
-        <Modal.Body className="xy-center">
-          <Spinner />
-        </Modal.Body>
+        <Modal.Body className="xy-center">{/* <Spinner /> */}</Modal.Body>
       </Modal>
     );
   }
