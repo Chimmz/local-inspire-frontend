@@ -319,7 +319,7 @@ function NewReviewForm(props: Props) {
             </small> */}
             <div className={cls(styles.uploadsPreview, 'd-flex', 'gap-2')}>
               {uploads.map(upl => (
-                <div className={cls(styles.imgPreview, 'position-relative')}>
+                <div className={cls(styles.imgPreview, 'position-relative')} key={upl.id}>
                   <Image
                     src={upl.photo}
                     width={80}

@@ -35,7 +35,7 @@ function Aside() {
   const handleSubmitQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (runQuestionValidators().errorExists) return;
-    const getNotified = getNotifiedCheckboxRef.current!.checked;
+    // const getNotified = getNotifiedCheckboxRef.current!.checked;
   };
 
   return (
@@ -100,7 +100,6 @@ function Aside() {
           label={<small>Get notified about new answers to your questions.</small>}
           onChange={handleCheckGetNotified}
           className="my-4"
-          ref={getNotifiedCheckboxRef}
         />
         <button
           className={`btn btn${!question.length ? '-outline' : ''}-pry d-block w-100`}
