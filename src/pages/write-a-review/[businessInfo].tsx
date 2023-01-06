@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
@@ -38,17 +38,22 @@ interface Props {
 }
 
 const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
-  const [reviews, setReviews] = useState(props.reviews);
+  console.log({ props: props });
+  const [reviews, setReviews] = useState<ReviewProps[]>([]);
 
   const currentUser = useSignedInUser();
-  const hasCurrentUserReviewedBefore = props.reviews?.some(
-    r => r.reviewedBy._id === currentUser._id,
+  const hasCurrentUserReviewedBefore = reviews?.some(
+    r => r.reviewedBy?._id === currentUser._id,
   );
   const [showAlert, setShowAlert] = useState(hasCurrentUserReviewedBefore as boolean);
 
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
     autoStopLoading: true,
   });
+
+  useEffect(() => {
+    if (props.reviews?.length) setReviews(props.reviews);
+  }, [props?.reviews]);
 
   if (props.error) signOut({ redirect: false });
 
@@ -179,14 +184,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
   console.log({ businessId });
 
   const data = await api.getBusinessReviews(businessId, session.user.accessToken);
-  console.log(data);
+  console.log({ reviews: data.reviews });
 
   if (data.msg === 'AUTH_ERROR' && !data.reviews)
     // return { props: { error: 'AUTH_ERROR' } };
     return { redirect: { destination: '/?authError=true', permanent: false } };
 
   return {
-    props: { reviews: data.reviews, session },
+    props: { reviews: data.reviews || [], session },
   };
 };
 
