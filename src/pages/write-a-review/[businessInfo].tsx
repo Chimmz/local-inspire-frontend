@@ -40,19 +40,22 @@ interface Props {
 const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   console.log({ props: props });
   const [reviews, setReviews] = useState<ReviewProps[]>([]);
+  const [hasCurrentUserReviewedBefore, setHasCurrentUserReviewedBefore] = useState(false);
 
   const currentUser = useSignedInUser();
-  const hasCurrentUserReviewedBefore = reviews?.some(
-    r => r.reviewedBy?._id === currentUser._id,
-  );
-  const [showAlert, setShowAlert] = useState(hasCurrentUserReviewedBefore as boolean);
+  const [showAlert, setShowAlert] = useState(false);
 
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
     autoStopLoading: true,
   });
 
   useEffect(() => {
-    if (props.reviews?.length) setReviews(props.reviews);
+    if (!props.reviews?.length) return;
+    setReviews(props.reviews);
+
+    const bool = props.reviews?.some(r => r.reviewedBy?._id === currentUser._id);
+    setHasCurrentUserReviewedBefore(bool);
+    setShowAlert(bool);
   }, [props?.reviews]);
 
   if (props.error) signOut({ redirect: false });
