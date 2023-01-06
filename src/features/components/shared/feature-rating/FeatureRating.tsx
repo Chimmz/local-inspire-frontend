@@ -7,6 +7,7 @@ interface Props {
   features: RateableFeature[];
   ratings: number[];
   onRate(f: string, r: number): void;
+  readonly: boolean;
 }
 
 const FeatureRating = function (props: Props) {
@@ -24,6 +25,7 @@ const FeatureRating = function (props: Props) {
             ratingValue={ratings[i]}
             starSize="lg"
             onRate={rating => props.onRate(f.label, rating)}
+            readonly={props.readonly}
           />
         </React.Fragment>
       ))}

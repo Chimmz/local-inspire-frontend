@@ -10,6 +10,7 @@ import useRequest from '../../hooks/useRequest';
 
 import { featuresToRate } from './config';
 import api from '../../library/api';
+import * as jsUtils from '../../utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
@@ -25,28 +26,32 @@ import {
   mustBeSameAs,
   mustNotBeSameAs,
 } from '../../utils/validators/inputValidators';
-import navigateTo from '../../utils/url-utils';
+import navigateTo, * as urlUtils from '../../utils/url-utils';
 import Spinner from '../shared/spinner/Spinner';
+import Image from 'next/image';
 
 interface Props {
+  businessName: string;
+  location: string;
+  businessId: string;
+  readonly: boolean;
   sendReviewRequest: (req: any) => Promise<any>;
   refreshReviews(): void;
 }
 
 function NewReviewForm(props: Props) {
   const router = useRouter();
-  const [, , businessId] = (router.query.businessInfo as string).split('_');
-  console.log({ businessId });
 
-  const { isSignedIn, accessToken } = useSignedInUser({
-    onSigngOut: navigateTo.bind(null, '/', router),
-  });
+  const { businessId } = props;
+
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
-
   const [mainRating, setMainRating] = useState(0);
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
     featuresToRate.map(f => f.label),
   );
+  const { isSignedIn, accessToken } = useSignedInUser({
+    onSigngOut: navigateTo.bind(null, '/', router),
+  });
 
   const {
     inputValue: reviewTitle,
@@ -125,7 +130,7 @@ function NewReviewForm(props: Props) {
   });
 
   const {
-    uploadsData,
+    uploads,
     pushNewUpload,
     editUploadedItem,
     deleteUpload,
@@ -136,6 +141,7 @@ function NewReviewForm(props: Props) {
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
+    if (props.readonly) return;
 
     const validationResults = [
       runReviewTitleValidators(),
@@ -147,8 +153,10 @@ function NewReviewForm(props: Props) {
     ];
     console.log(validationResults);
 
-    if (validationResults.some(result => result.errorExists))
+    if (validationResults.some(result => result.errorExists)) {
+      jsUtils.scrollToElement('.invalid-feedback');
       return console.log('Cannot submit review because of v-errors');
+    }
 
     const body = {
       businessRating: mainRating,
@@ -158,25 +166,43 @@ function NewReviewForm(props: Props) {
       visitedWhen,
       featuresRating: ratingMap,
       adviceToFutureVisitors: advice,
-      photosWithDescription: uploadsData,
+      photosWithDescription: uploads,
     };
     console.log(body);
+
     const res = await props.sendReviewRequest(
       api.reviewBusiness({ businessId, token: accessToken!, ...body }),
     );
     console.log(res);
-    if (res.status === 'SUCCESS') props.refreshReviews();
+    if (res.status !== 'SUCCESS') return;
+
+    const [city, stateCode] = props.location.split('-');
+
+    const url = urlUtils
+      .genRecommendBusinessPageUrl(
+        props.businessId,
+        props.businessName.toLowerCase(),
+        city.toLowerCase(),
+        stateCode.toUpperCase(),
+        true,
+      )
+      .replace('write-a-review', 'v')
+      .replace('?recommend=yes', '');
+
+    console.log(url);
+    navigateTo(url, router);
+    // props.refreshReviews();
   };
 
-  const validUploadsCount = uploadsData.reduce((accum, upload) => {
+  const validUploadsCount = uploads.reduce((accum, upload) => {
     return !!upload.description!.length ? accum + 1 : accum;
   }, 0);
 
   return (
     <>
       <form className={styles.form} onSubmit={handleFormSubmit}>
-        <div className="que-group d-flex align-items-center mb-0">
-          <label htmlFor="" className="flex-grow-1">
+        <div className="que-group d-flex align-items-center gap-5 mb-0">
+          <label htmlFor="" className="">
             Leave a rating
           </label>
           <StarRating
@@ -185,6 +211,7 @@ function NewReviewForm(props: Props) {
             className="d-flex xy-center my-5"
             tooltip={false}
             onRate={setMainRating}
+            readonly={props.readonly}
           />
         </div>
 
@@ -197,6 +224,7 @@ function NewReviewForm(props: Props) {
             onChange={handleChangeReviewTitle}
             className="textfield"
             validationErrors={reviewTitleValidationErrors}
+            readonly={props.readonly}
           />
         </div>
 
@@ -210,6 +238,7 @@ function NewReviewForm(props: Props) {
             onChange={handleChangeMainReview}
             className="textfield w-100"
             validationErrors={mainReviewValidationErrors}
+            readonly={props.readonly}
           />
         </div>
 
@@ -221,6 +250,7 @@ function NewReviewForm(props: Props) {
             name="sortOfVisit"
             value={sortOfVisit}
             onChange={handleChangeSortOfVisit}
+            readonly={props.readonly}
           />
           <Form.Control.Feedback type="invalid" className="d-block">
             {sortOfVisitValidationErrors[0]?.msg}
@@ -234,6 +264,7 @@ function NewReviewForm(props: Props) {
             isInvalid={!!visitedWhenValidationErrors.length}
             value={visitedWhen}
             onChange={handleChangeVisitedWhen}
+            style={{ pointerEvents: props.readonly ? 'none' : 'all' }}
           >
             <option value="">Please select</option>
             {monthsOfTheYear.map(m => (
@@ -251,6 +282,7 @@ function NewReviewForm(props: Props) {
             features={featuresToRate}
             ratings={Object.values(ratingMap)}
             onRate={changeFeatureRating}
+            readonly={props.readonly}
           />
         </div>
 
@@ -263,6 +295,7 @@ function NewReviewForm(props: Props) {
             onChange={handleChangeAdvice}
             className="textfield"
             validationErrors={adviceValidationErrors}
+            readonly={props.readonly}
           />
         </div>
 
@@ -271,24 +304,43 @@ function NewReviewForm(props: Props) {
             Have photos of this business? Want to share? (optional)
           </label>
 
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flx gap-2 align-items-center flex-wrap">
             <button
-              className="btn btn-outline-sec btn-sm"
+              className="btn btn-outline-sec btn-sm d-block mb-3"
               type="button"
-              onClick={setShowPhotoUploadModal.bind(null, true)}
+              onClick={setShowPhotoUploadModal.bind(null, !props.readonly)}
             >
               <Icon icon="fluent-mdl2:photo-2-add" width={20} /> Add photo
             </button>
-            <small
+            {/* <small
               style={{ color: '#039903', display: validUploadsCount ? 'block' : 'none' }}
             >
               ({validUploadsCount} photos uploaded)
-            </small>
+            </small> */}
+            <div className={cls(styles.uploadsPreview, 'd-flex', 'gap-2')}>
+              {uploads.map(upl => (
+                <div className={cls(styles.imgPreview, 'position-relative')}>
+                  <Image
+                    src={upl.photo}
+                    width={80}
+                    height={80}
+                    objectFit="cover"
+                    style={{ borderRadius: '2px' }}
+                  />
+                  <button
+                    className={cls(styles.imgPreviewCancel, 'fs-1', 'xy-center')}
+                    onClick={deleteUpload.bind(null, upl.id)}
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         <PhotoUploadsWithDescription
-          uploadsData={uploadsData}
+          uploads={uploads}
           pushNewUpload={pushNewUpload}
           editUploadedItem={editUploadedItem}
           deleteUpload={deleteUpload}
@@ -308,6 +360,7 @@ function NewReviewForm(props: Props) {
                 ev.target.value = ev.target.checked ? 'yes' : 'no';
                 handleChangeUserAcceptedTerms(ev);
               }}
+              readOnly={props.readonly}
             />
             <small>
               I certify that this review is based on my own experience and is my genuine

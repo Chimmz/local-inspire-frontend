@@ -23,3 +23,8 @@
     background-color: #666666;
   }
 }
+
+@mixin circle {
+  border-radius: 50%;
+  aspect-ratio: 1 /1;
+}

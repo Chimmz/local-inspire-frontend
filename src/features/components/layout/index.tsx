@@ -1,37 +1,28 @@
 import React, { Component, Fragment, ReactNode } from 'react';
 import Navbar, { NavbarProps } from './navbar/Navbar';
 import Footer from './Footer';
-
-type Props = {
-  navBg?: string;
-  navbar?: boolean;
-  children: React.ReactNode;
-};
+import cls from 'classnames';
 
 const Nav: React.FC<NavbarProps> = props => (
-  <>
-    <Navbar
-      bg={props.bg}
-      defaultCategorySuggestions={[
-        'Hotels and motels',
-        'Restaurants',
-        'Cabins Rentals',
-        'Vacation Rentals',
-        'Things to do',
-        'Cruises',
-      ]}
-      lightLogo={props.lightLogo}
-    />
+  <div className="position-relative">
+    <Navbar bg={props.bg} lightLogo={props.lightLogo} />
     {props.children} {/* For rendering secondary navs*/}
-  </>
+  </div>
 );
 
 const Main = (props: { children: ReactNode; className?: string }) => (
-  <main className={props.className}>{props.children}</main>
+  <main className={cls(props.className, 'flex-grow-1')}>{props.children}</main>
 );
 
-class Layout extends Component<Props> {
-  constructor(props: Props) {
+type LayoutProps = {
+  navBg?: string;
+  navbar?: boolean;
+  children: React.ReactNode;
+  // className?: string;
+};
+
+class Layout extends Component<LayoutProps> {
+  constructor(props: LayoutProps) {
     super(props);
   }
 

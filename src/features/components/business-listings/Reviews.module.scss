@@ -1,0 +1,60 @@
+.filters {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.review {
+  & > ul.featureRatings {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    & > * {
+      flex: 1;
+    }
+  }
+
+  & > .reviewFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.reviewHeader {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  column-gap: 10px;
+
+  & > button.flag {
+    all: unset;
+    align-self: start;
+    grid-column: 3;
+    grid-row: 1;
+
+    &:hover {
+      color: $color-sec-dark;
+      cursor: pointer;
+    }
+  }
+
+  & > .location {
+    grid-column: 2 / -1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    transform: translateY(-100%);
+  }
+
+  & > .reviewText {
+    color: $color-pry;
+    text-decoration: underline;
+
+    & > a {
+      color: inherit !important;
+      text-decoration: inherit !important;
+    }
+  }
+}

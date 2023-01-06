@@ -12,7 +12,7 @@ export interface ItemUpload {
 }
 
 const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
-  const [uploadsData, setUploadsData] = useState<ItemUpload[]>(init);
+  const [uploads, setUploads] = useState<ItemUpload[]>(init);
 
   const {
     uploadedFile: newFile,
@@ -22,7 +22,7 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
 
   const pushNewUpload = (photo: string) => {
     const newData: ItemUpload = { photo, id: uuidv4(), description: '' };
-    setUploadsData(prevData => [...prevData, newData]);
+    setUploads(prevData => [...prevData, newData]);
   };
 
   const editUploadedItem = function <F extends 'description' | 'validatorRunner'>(
@@ -31,7 +31,7 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
     value: any,
     // value: F extends 'description' ? string : ValidationFeedback,
   ) {
-    setUploadsData(data =>
+    setUploads(data =>
       data.map(upload => {
         if (upload.id !== id) return upload;
         return { ...upload, [field]: value };
@@ -40,12 +40,12 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
   };
 
   const deleteUpload = (id: string) => {
-    const filtered = uploadsData.filter(upload => upload.id !== id);
-    setUploadsData(filtered);
+    const filtered = uploads.filter(upload => upload.id !== id);
+    setUploads(filtered);
   };
 
   return {
-    uploadsData,
+    uploads,
     pushNewUpload,
     editUploadedItem,
     deleteUpload,

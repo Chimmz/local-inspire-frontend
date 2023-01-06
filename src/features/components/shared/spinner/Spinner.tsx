@@ -23,17 +23,7 @@ function Spinner({ show = true, colors = ['#0084ff', '#e87525'], pageWide }: Pro
   if (!show) return <></>;
 
   if (pageWide) {
-    return (
-      <Modal
-        show
-        fullscreen
-        backdrop={false}
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
-        className={styles.spinnerModal}
-      >
-        <Modal.Body className="xy-center">{/* <Spinner /> */}</Modal.Body>
-      </Modal>
-    );
+    return <div className={styles.loadingModal}></div>;
   }
   return (
     <div className={styles.spinner}>

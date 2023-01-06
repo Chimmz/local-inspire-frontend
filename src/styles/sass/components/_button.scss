@@ -11,6 +11,9 @@
   transition: 0.2s;
   transform-origin: left;
   border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 
   &-pry {
     background-color: $color-pry;
@@ -63,10 +66,12 @@
       border-color: #242424;
     }
     &:is(.btn-outline-pry) {
-      background-color: rgba($color-pry, 0.1);
+      // background-color: rgba($color-pry, 0.1);
+      color: $color-pry;
+      border-color: currentColor;
 
       &:hover {
-        // background-color: rgba($color-sec, 0.2);
+        background-color: rgba($color-pry, 0.05);
       }
     }
 
@@ -142,5 +147,10 @@
   }
   &--lg {
     font-size: 1.5rem;
+  }
+
+  &-bg-none {
+    padding: 0;
+    background-color: none;
   }
 }

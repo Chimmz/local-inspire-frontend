@@ -1,10 +1,10 @@
 .rating {
-  display: flex;
+  display: flex !important;
   align-items: center;
   // margin-bottom: 20px;
 
   & > small {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     margin-top: 1.7px;
     color: $text-dark;
   }

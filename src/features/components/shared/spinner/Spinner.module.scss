@@ -1,3 +1,10 @@
+.loadingModal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(#fff, 0.8);
+  z-index: 100;
+}
+
 .spinnerModal *:not([class*='Spinner']) {
   background-color: rgba(0, 0, 0, 0.1);
 }

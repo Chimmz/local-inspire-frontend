@@ -7,7 +7,7 @@ interface TextInputProps {
   value: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
-  readonly?: true;
+  readonly?: boolean;
   validationErrors?: ValidationFeedback[];
   label?: string;
   autoFocus?: boolean;
@@ -18,7 +18,7 @@ interface TextInputProps {
 }
 
 function TextInput(props: TextInputProps) {
-  const { validationErrors, type = 'text', autoFocus, ...nativeProps } = props;
+  const { validationErrors, type = 'text', autoFocus, readonly, ...nativeProps } = props;
   const hasError = !!validationErrors?.length;
 
   return (
@@ -31,6 +31,7 @@ function TextInput(props: TextInputProps) {
         autoFocus={autoFocus}
         onInput={props.onInput || (() => {})}
         onKeyUp={props.onKeyUp || (() => {})}
+        readOnly={props.readonly}
       />
 
       {validationErrors ? (

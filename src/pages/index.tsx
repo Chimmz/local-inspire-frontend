@@ -1,19 +1,25 @@
 import { useMemo } from 'react';
 import { GetServerSideProps, GetStaticProps, NextPage } from 'next';
-import { getProviders } from 'next-auth/react';
+import { getProviders, signOut } from 'next-auth/react';
+
+import AuthContextProvider, { useAuthContext } from '../features/contexts/AuthContext';
 
 import Header from '../features/components/home/header/Header';
 import Gallery from '../features/components/home/Gallery';
 import BestPlaces from '../features/components/home/BestPlaces';
 import Layout from '../features/components/layout/index';
 import Navbar from '../features/components/layout/navbar/Navbar';
-import AuthContextProvider from '../features/contexts/AuthContext';
+import { useRouter } from 'next/router';
 
 interface HomePageProps {
   popularCategorySuggestions: string[];
 }
 
 function HomePage({ popularCategorySuggestions }: HomePageProps) {
+  // const router = useRouter();
+  // if (!!router.query.authError) signOut({ redirect: false });
+  // const {showAuthModal} = useAuthContext()
+
   return (
     <AuthContextProvider>
       <Layout>

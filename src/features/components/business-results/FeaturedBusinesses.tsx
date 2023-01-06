@@ -5,17 +5,18 @@ import { v4 as uuid } from 'uuid';
 import cls from 'classnames';
 import Business, { BusinessProps } from './Business';
 import otherStyles from './AllBusinesses.module.scss';
-import styles from './BusinessesGroup.module.scss';
+import styles from './FeaturedBusinesses.module.scss';
 
 interface Props {
   groupName: string;
   businesses: BusinessProps[];
+  className?: string;
 }
 
-const BusinessesGroup: FC<Props> = props => {
+const FeaturedBusinesses: FC<Props> = props => {
   if (!props.businesses?.length) return <></>;
   return (
-    <ul className={cls(styles.businessGroup, 'no-bullets')}>
+    <section className={cls(styles.businessGroup, 'no-bullets', props.className)}>
       <h3 className={cls(styles.groupName, 'mb-4')}>
         {stringUtils.toTitleCase(props.groupName)}
       </h3>
@@ -27,8 +28,8 @@ const BusinessesGroup: FC<Props> = props => {
           <Business {...b} key={uuid()} featured />
         ))}
       </div>
-    </ul>
+    </section>
   );
 };
 
-export default BusinessesGroup;
+export default FeaturedBusinesses;

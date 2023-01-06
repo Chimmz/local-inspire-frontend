@@ -22,7 +22,7 @@ export interface BusinessProps {
   _id: string;
   index?: number;
   businessName: string;
-  address: string;
+  address?: string;
   rating: number;
   featured?: boolean;
   SIC8?: string;

@@ -34,6 +34,15 @@ export const minLength: Validator<string> = function (
   return createFeedback(hasError ? 'failed' : 'passed', (hasError && errMsg) || '');
 };
 
+export const maxLength: Validator<string> = function (
+  maxLength: number,
+  errMsg: string = `Must be at least ${maxLength}`,
+) {
+  let hasError = this.userInput?.length > maxLength;
+  //   if (!this.userInput) hasError = true;
+  return createFeedback(hasError ? 'failed' : 'passed', (hasError && errMsg) || '');
+};
+
 export const containsUpperCase: Validator<string> = function (
   errMsg = 'Please include an uppercase letter',
 ) {

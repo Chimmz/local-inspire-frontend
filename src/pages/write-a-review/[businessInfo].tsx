@@ -1,43 +1,57 @@
+import { useCallback, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import { unstable_getServerSession, NextAuthOptions, Session } from 'next-auth';
-import Link from 'next/link';
-
+import { signOut } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
+
+import { useRouter } from 'next/router';
+import useInput from '../../features/hooks/useInput';
+import useSignedInUser from '../../features/hooks/useSignedInUser';
+import useRequest from '../../features/hooks/useRequest';
+import { useAuthContext } from '../../features/contexts/AuthContext';
+
+import { toTitleCase } from '../../features/utils/string-utils';
+
+import { isRequired } from '../../features/utils/validators/inputValidators';
 import Layout from '../../features/components/layout';
-import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
-import cls from 'classnames';
 import Review, {
   ReviewProps,
 } from '../../features/components/recommend-business/UserReview';
+import cls from 'classnames';
 import StarRating from '../../features/components/shared/star-rating/StarRating';
 import TextInput from '../../features/components/shared/text-input/TextInput';
 import NewReviewForm from '../../features/components/recommend-business/NewReviewForm';
-import useInput from '../../features/hooks/useInput';
 import Radio from '../../features/components/shared/radio/Radio';
-import { isRequired } from '../../features/utils/validators/inputValidators';
 import { Icon } from '@iconify/react';
-import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { toTitleCase } from '../../features/utils/string-utils';
-import useSignedInUser from '../../features/hooks/useSignedInUser';
 import api from '../../features/library/api';
-import useRequest from '../../features/hooks/useRequest';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import { useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
+import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
 
 interface Props {
   // status: 'SUCCESS' | 'FAIL' | 'ERROR';
   session: Session;
-  reviews: ReviewProps[];
+  reviews?: ReviewProps[];
+  error?: string;
 }
 
 const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   const [reviews, setReviews] = useState(props.reviews);
+
   const currentUser = useSignedInUser();
+  const hasCurrentUserReviewedBefore = props.reviews?.some(
+    r => r.reviewedBy._id === currentUser._id,
+  );
+  const [showAlert, setShowAlert] = useState(hasCurrentUserReviewedBefore as boolean);
 
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
     autoStopLoading: true,
   });
+
+  if (props.error) signOut({ redirect: false });
+
   const router = useRouter();
 
   const userRecommendYes = router.query.recommend === 'yes';
@@ -48,24 +62,26 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
 
   console.log({ businessName, location, businessId });
 
-  const refreshReviews = async () => {
+  const refreshReviews = useCallback(async () => {
     const data = await api.getBusinessReviews(businessId, currentUser.accessToken!);
     if (data.status === 'SUCCESS') setReviews(data.reviews);
-  };
+  }, [setReviews, api.getBusinessReviews]);
 
   return (
     <Layout>
       <Spinner pageWide show={isSubmittingReview} />
-      <Layout.Nav
-        defaultCategorySuggestions={[
-          'Hotels and motels',
-          'Restaurants',
-          'Cabins Rentals',
-          'Vacation Rentals',
-          'Things to do',
-          'Cruises',
-        ]}
-      />
+      <Layout.Nav>
+        {hasCurrentUserReviewedBefore && showAlert ? (
+          <Alert
+            variant="info"
+            className="text-center fs-3 position-absolute w-100"
+            dismissible
+            onClose={setShowAlert.bind(null, false)}
+          >
+            You have previously reviewed {toTitleCase(businessName, '-')}
+          </Alert>
+        ) : null}
+      </Layout.Nav>
       <Layout.Main className={styles.main}>
         <div className={styles.newReview}>
           <h1 className={cls('u-page-main-heading mb-5')}>
@@ -123,14 +139,17 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
           )}
 
           <NewReviewForm
+            {...{ businessName, location, businessId }}
+            readonly={hasCurrentUserReviewedBefore as boolean}
             sendReviewRequest={sendReviewRequest}
             refreshReviews={refreshReviews}
           />
         </div>
 
+        {/* Recent reviews */}
         <aside className={styles.recentReviews}>
           <h3 className="mb-4">Recent Reviews</h3>
-          {!!reviews.length ? (
+          {!!reviews?.length ? (
             reviews?.map(review => <Review {...review} key={review._id} />)
           ) : (
             <small style={{ color: '#ccc', fontSize: '16px' }}>
@@ -149,21 +168,23 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     res,
     authOptions as NextAuthOptions,
   );
-  console.log({ session });
+  console.log({ url: req.url });
+  // console.log({ session });
 
   if (!session)
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
+    // return { props: { error: 'AUTH_ERROR' } };
+    return { redirect: { destination: '/?authError=true', permanent: false } };
 
   const businessId = (params!.businessInfo as string).split('_').slice(-1).pop()!;
   console.log({ businessId });
 
   const data = await api.getBusinessReviews(businessId, session.user.accessToken);
   console.log(data);
+
+  if (data.msg === 'AUTH_ERROR' && !data.reviews)
+    // return { props: { error: 'AUTH_ERROR' } };
+    return { redirect: { destination: '/?authError=true', permanent: false } };
+
   return {
     props: { reviews: data.reviews, session },
   };

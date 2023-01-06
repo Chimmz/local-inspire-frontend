@@ -29,7 +29,6 @@ export interface NavbarProps {
   children?: React.ReactNode;
   lightLogo?: boolean;
   withSearchForm?: boolean;
-  defaultCategorySuggestions: string[];
   sticky?: boolean;
 }
 export type AuthType = 'login' | 'register';
@@ -55,7 +54,6 @@ function Navbar(props: NavbarProps) {
     loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  console.log({ 'router.query': router.query });
   const {
     category: currentCategory,
     city: currentCity,
@@ -68,7 +66,6 @@ function Navbar(props: NavbarProps) {
     let [cityValue, stateValue] = locationValue.split(',');
     [cityValue, stateValue] = [cityValue.trim(), stateValue.trim()];
 
-    console.log({ cityValue: cityValue.trim(), stateValue: stateValue.trim() });
     if (
       currentCategory === categoryValue.toLowerCase() &&
       currentCity === cityValue.trim().toLowerCase() &&
@@ -115,7 +112,14 @@ function Navbar(props: NavbarProps) {
         <BusinessSearchForm
           promptUserInput={false}
           fontSize="13px"
-          defaultCategorySuggestions={props.defaultCategorySuggestions}
+          defaultCategorySuggestions={[
+            'Hotels and motels',
+            'Restaurants',
+            'Cabins Rentals',
+            'Vacation Rentals',
+            'Things to do',
+            'Cruises',
+          ]}
           onSearch={onSearchHandler}
           loading={newSearchLoading}
         />

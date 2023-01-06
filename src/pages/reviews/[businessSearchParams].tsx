@@ -23,7 +23,7 @@ import Filters from '../../features/components/business-results/Filters';
 import AllBusinesses from '../../features/components/business-results/AllBusinesses';
 import MapView from '../../features/components/business-results/MapView';
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
-import BusinessesGroup from '../../features/components/business-results/BusinessesGroup';
+import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import Paginators from '../../features/components/shared/pagination/Paginators';
@@ -186,30 +186,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
       <Layout>
-        <Layout.Nav
-          bg="#003366"
-          lightLogo
-          // styleName={styles.navbar}
-          defaultCategorySuggestions={props.defaultCategorySuggestions}
-          sticky
-        >
-          {/* <Navbar
-            bg="#003366"
-            position="sticky"
-            styleName={styles.navbar}
-            lightLogo
-            defaultCategorySuggestions={props.defaultCategorySuggestions}
-          >
-            <BusinessSearchForm
-              promptUserInput={false}
-              fontSize="13px"
-              defaultCategorySuggestions={props.defaultCategorySuggestions}
-              onSearch={onSearchHandler}
-              loading={newSearchLoading}
-            />
-          </Navbar> */}
+        <Layout.Nav bg="#003366" lightLogo sticky>
           <CategoriesNav
-            popularCategories={props.defaultCategorySuggestions}
             searchParams={props.pageSearchParams}
             setPageLoading={setPageLoading}
           />
@@ -246,7 +224,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
           <div className={styles.searchResults}>
             {propsData.specials.map(group => (
-              <BusinessesGroup
+              <FeaturedBusinesses
                 groupName={group.title}
                 businesses={group.items}
                 key={group.title}

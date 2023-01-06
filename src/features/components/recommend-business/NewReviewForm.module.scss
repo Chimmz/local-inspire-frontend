@@ -25,3 +25,41 @@
     }
   }
 }
+
+.imgPreview {
+  overflow: hidden;
+
+  &:hover button {
+    opacity: 1;
+    bottom: 50%;
+    transform: translateX(-50%) translateY(50%);
+  }
+}
+
+button.imgPreviewCancel {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  outline: none;
+  border: none;
+  bottom: 0;
+  transform: translateX(-50%) translateY(50%);
+  width: 30px;
+  height: 30px;
+  background-color: rgba(#fff, 0.8);
+  border-radius: 50%;
+  color: black;
+  opacity: 0;
+  cursor: pointer;
+  transition: transform 0.2s, bottom 0.2s;
+
+  @media screen and (max-width: 56.25em) {
+    opacity: 1;
+    bottom: 50%;
+    transform: translateX(-50%) translateY(50%);
+  }
+
+  &:hover {
+    background-color: #fff;
+  }
+}

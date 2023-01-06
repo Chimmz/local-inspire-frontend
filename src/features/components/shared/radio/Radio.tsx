@@ -9,6 +9,7 @@ interface RadioProps {
   name: string;
   value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
+  readonly?: boolean;
 }
 
 function Radio(props: RadioProps) {
@@ -24,12 +25,17 @@ function Radio(props: RadioProps) {
           type="radio"
           id={value}
           className={styles.radioInput}
-          checked={props.value?.toLowerCase() === value.toLowerCase()}
+          checked={!props.readonly && props.value?.toLowerCase() === value.toLowerCase()}
           name={props.name}
           value={value}
           onChange={props.onChange}
         />
-        <span className={classMap[props.as]}>{label}</span>
+        <span
+          className={classMap[props.as]}
+          style={{ pointerEvents: props.readonly ? 'none' : 'all' }}
+        >
+          {label}
+        </span>
       </label>
     );
   };

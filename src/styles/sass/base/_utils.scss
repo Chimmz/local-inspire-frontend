@@ -41,3 +41,12 @@
 .modal-body {
   @include thin-scrollbar;
 }
+
+.w-max-content {
+  min-width: max-content;
+}
+
+.text-black {
+  color: #000;
+  font-weight: 500;
+}

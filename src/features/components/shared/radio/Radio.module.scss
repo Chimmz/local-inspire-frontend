@@ -8,9 +8,10 @@ input[type='radio'].radioInput {
 
   &:checked + [class*='btn'] {
     // background-color: rgba($color-pry-light, 0.2);
-    color: #000;
+    color: #fff;
     border-color: #000;
-    background-color: #f4f4f4;
+    background-color: $color-pry-light;
+    border-color: transparent;
   }
 }
 
@@ -23,6 +24,13 @@ input[type='radio'].radioInput {
     flex: 1;
     & [class*='btn'] {
       width: 100%;
+
+      &:hover {
+        background-color: $color-pry-light;
+        color: #fff;
+        // font-weight: 600;
+        border-color: transparent;
+      }
     }
   }
 }

@@ -1,0 +1,13 @@
+aside.right {
+  & > * {
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #e6e6e6;
+    padding: 2rem;
+    border-radius: 4px;
+
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
+  }
+}

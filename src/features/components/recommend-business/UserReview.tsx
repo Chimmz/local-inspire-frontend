@@ -1,6 +1,7 @@
 import cls from 'classnames';
 import Image from 'next/image';
 import React from 'react';
+import * as userUtils from '../../utils/user-utils';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Review.module.scss';
 
@@ -20,6 +21,7 @@ export interface ReviewProps {
 
 const UserReview: React.FC<ReviewProps> = function (props) {
   const { firstName, lastName } = props.reviewedBy;
+  const reviewDate = [props.visitedWhen.month, '' + props.visitedWhen.year].join(' ');
 
   return (
     <article className={styles.review}>
@@ -28,9 +30,10 @@ const UserReview: React.FC<ReviewProps> = function (props) {
           src={props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg'}
           width={50}
           height={50}
-          alt={`Avatar of Dennis Cheesman`}
+          alt={`Avatar of ${userUtils.getFullName({ firstName, lastName })}`}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
+          onError={err => console.log('Image error: ', err)}
         />
       </figure>
       <strong className={styles.reviewedBy}>
@@ -43,7 +46,7 @@ const UserReview: React.FC<ReviewProps> = function (props) {
         readonly
         showRatingCaption={false}
       />
-      <small className={styles.reviewDate}>January, 2023</small>
+      <small className={styles.reviewDate}>{reviewDate}</small>
 
       <p className={cls('parag')}>{props.review}.</p>
     </article>

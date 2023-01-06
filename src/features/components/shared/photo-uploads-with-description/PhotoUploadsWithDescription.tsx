@@ -14,7 +14,7 @@ type Props = ReturnType<typeof useFileUploadsWithDescription> & {
 
 function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
   const {
-    uploadsData,
+    uploads,
     pushNewUpload,
     editUploadedItem,
     deleteUpload,
@@ -32,7 +32,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
   const handleContinue: React.MouseEventHandler<HTMLButtonElement> = async ev => {
     new Promise<boolean>((resolve, reject) => {
       setTimeout(() => {
-        const anyErrorsExists = uploadsData
+        const anyErrorsExists = uploads
           .map(upload => upload.validatorRunner?.())
           .some(result => result?.errorExists);
         (anyErrorsExists ? reject : resolve)(anyErrorsExists);
@@ -50,7 +50,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
       show={show}
       onHide={close}
       centered
-      scrollable={!!uploadsData.length}
+      scrollable={!!uploads.length}
       backdrop="static"
     >
       <Modal.Header
@@ -64,9 +64,9 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
         className=""
         style={{ backgroundColor: '#f8f9fa', fontSize: '1.3rem', padding: '2vw' }}
       >
-        {uploadsData.length ? (
+        {uploads.length ? (
           <ul className={styles.items}>
-            {uploadsData.map(item => (
+            {uploads.map(item => (
               <UploadedItem
                 id={item.id}
                 photo={item.photo}
@@ -90,7 +90,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
         )}
       </Modal.Body>
 
-      {uploadsData.length ? (
+      {uploads.length ? (
         <Modal.Footer className="justify-content-between">
           <FileUploadPrompt
             className="btn btn-sec"
