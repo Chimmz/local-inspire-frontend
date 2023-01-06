@@ -111,18 +111,7 @@ const PasswordReset: NextPage = function () {
 
   return (
     <Layout>
-      <Navbar
-        bg="#003366"
-        lightLogo
-        defaultCategorySuggestions={[
-          'Hotels and motels',
-          'Restaurants',
-          'Cabins Rentals',
-          'Vacation Rentals',
-          'Things to do',
-          'Cruises',
-        ]}
-      />
+      <Navbar bg="#003366" lightLogo />
       <main className={styles.main}>
         {response.status === 'SUCCESS' ? (
           <PageSuccess
