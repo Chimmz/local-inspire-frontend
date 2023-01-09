@@ -47,7 +47,10 @@ function NewReviewForm(props: Props) {
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
   const [mainRating, setMainRating] = useState(0);
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
-    featuresToRate.map(f => f.label),
+    featuresToRate.map(f => {
+      if (typeof f === 'string') return f;
+      return f.label;
+    }),
   );
   // const { send: sendReviewReq, loading: isSendingReviewReq } = useRequest({
   //   autoStopLoading: false,
