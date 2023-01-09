@@ -35,13 +35,13 @@ interface Props {
   location: string;
   businessId: string;
   readonly: boolean;
+  userRecommends: boolean;
   sendReviewRequest: (req: any) => Promise<any>;
+  submitting: boolean;
   refreshReviews(): void;
 }
 
 function NewReviewForm(props: Props) {
-  const router = useRouter();
-
   const { businessId } = props;
 
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
@@ -49,6 +49,12 @@ function NewReviewForm(props: Props) {
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
     featuresToRate.map(f => f.label),
   );
+  // const { send: sendReviewReq, loading: isSendingReviewReq } = useRequest({
+  //   autoStopLoading: false,
+  // });
+
+  const router = useRouter();
+
   const { isSignedIn, accessToken } = useSignedInUser({
     onSigngOut: navigateTo.bind(null, '/', router),
   });
@@ -167,6 +173,7 @@ function NewReviewForm(props: Props) {
       featuresRating: ratingMap,
       adviceToFutureVisitors: advice,
       photosWithDescription: uploads,
+      recommends: props.userRecommends,
     };
     console.log(body);
 

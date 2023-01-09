@@ -4,13 +4,14 @@ import { v4 as uuid } from 'uuid';
 import cls from 'classnames';
 import { Rating } from 'react-simple-star-rating';
 import React from 'react';
+import { Size } from '../../../types';
 
 interface StarRatingProps {
   initialValue?: number;
   ratingValue?: number;
   onRate?(r: number): void;
 
-  starSize: 'sm' | 'md' | 'lg' | 'xlg';
+  starSize: Size;
   tooltip?: boolean;
   renderReviewsCount?: (count: number) => string;
 

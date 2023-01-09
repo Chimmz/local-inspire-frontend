@@ -1,3 +1,3 @@
 import { ReactNode } from 'react';
 
-export type RateableFeature = { icon?: ReactNode; label: string };
+export type RateableFeatures = { icon?: ReactNode; label: string }[] | string[];

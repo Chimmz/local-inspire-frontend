@@ -1,6 +1,7 @@
 import cls from 'classnames';
 import Image from 'next/image';
 import React from 'react';
+import { UserPublicProfile } from '../../types';
 import * as userUtils from '../../utils/user-utils';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Review.module.scss';
@@ -9,7 +10,8 @@ export interface ReviewProps {
   _id: string;
   visitedWhen: { month: string; year: 2022 };
   business: string;
-  reviewedBy: { _id: string; firstName: string; lastName: string; imgUrl: string };
+  reviewedBy: UserPublicProfile;
+  recommends: boolean;
   businessRating: number;
   reviewTitle: string;
   review: string;
@@ -17,6 +19,9 @@ export interface ReviewProps {
   featuresRating: { feature: string; rating: number; _id: string }[];
   adviceToFutureVisitors: string;
   photosWithDescription: [{ photo: string; description: string; _id: string }];
+  likedBy: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 const UserReview: React.FC<ReviewProps> = function (props) {

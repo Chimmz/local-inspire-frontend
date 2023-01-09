@@ -1,3 +1,9 @@
+.reviews {
+  & > *:not(:last-child) {
+    margin-bottom: 2rem;
+  }
+}
+
 .filters {
   display: flex;
   gap: 2rem;

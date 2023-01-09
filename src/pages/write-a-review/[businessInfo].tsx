@@ -1,31 +1,30 @@
 import { useCallback, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { unstable_getServerSession, NextAuthOptions, Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
 
-import { useRouter } from 'next/router';
-import useInput from '../../features/hooks/useInput';
-import useSignedInUser from '../../features/hooks/useSignedInUser';
-import useRequest from '../../features/hooks/useRequest';
-import { useAuthContext } from '../../features/contexts/AuthContext';
-
-import { toTitleCase } from '../../features/utils/string-utils';
-
-import { isRequired } from '../../features/utils/validators/inputValidators';
-import Layout from '../../features/components/layout';
+// Types
 import Review, {
   ReviewProps,
 } from '../../features/components/recommend-business/UserReview';
-import cls from 'classnames';
-import StarRating from '../../features/components/shared/star-rating/StarRating';
-import TextInput from '../../features/components/shared/text-input/TextInput';
-import NewReviewForm from '../../features/components/recommend-business/NewReviewForm';
-import Radio from '../../features/components/shared/radio/Radio';
-import { Icon } from '@iconify/react';
+
+// Hooks
+import { useRouter } from 'next/router';
+import useSignedInUser from '../../features/hooks/useSignedInUser';
+import useRequest from '../../features/hooks/useRequest';
+
+// Utils and helpers
+import { toTitleCase } from '../../features/utils/string-utils';
 import api from '../../features/library/api';
+
+// Classes, styles, and external components
+import cls from 'classnames';
+import { Icon } from '@iconify/react';
+import Layout from '../../features/components/layout';
+import NewReviewForm from '../../features/components/recommend-business/NewReviewForm';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import Alert from 'react-bootstrap/Alert';
 import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
@@ -33,7 +32,7 @@ import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
 interface Props {
   // status: 'SUCCESS' | 'FAIL' | 'ERROR';
   session: Session;
-  reviews?: ReviewProps[];
+  reviews?: { data: ReviewProps[] };
   error?: string;
 }
 
@@ -41,19 +40,17 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   console.log({ props: props });
   const [reviews, setReviews] = useState<ReviewProps[]>([]);
   const [hasCurrentUserReviewedBefore, setHasCurrentUserReviewedBefore] = useState(false);
-
-  const currentUser = useSignedInUser();
   const [showAlert, setShowAlert] = useState(false);
-
+  const currentUser = useSignedInUser();
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
-    autoStopLoading: true,
+    autoStopLoading: false,
   });
 
   useEffect(() => {
-    if (!props.reviews?.length) return;
-    setReviews(props.reviews);
+    if (!props.reviews?.data.length) return;
+    setReviews(props.reviews.data);
 
-    const bool = props.reviews?.some(r => r.reviewedBy?._id === currentUser._id);
+    const bool = props.reviews?.data.some(r => r.reviewedBy?._id === currentUser._id);
     setHasCurrentUserReviewedBefore(bool);
     setShowAlert(bool);
   }, [props?.reviews]);
@@ -148,8 +145,10 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
 
           <NewReviewForm
             {...{ businessName, location, businessId }}
+            userRecommends={userRecommendYes}
             readonly={hasCurrentUserReviewedBefore as boolean}
             sendReviewRequest={sendReviewRequest}
+            submitting={isSubmittingReview}
             refreshReviews={refreshReviews}
           />
         </div>
@@ -177,24 +176,22 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     authOptions as NextAuthOptions,
   );
   console.log({ url: req.url });
-  // console.log({ session });
-
   if (!session)
     // return { props: { error: 'AUTH_ERROR' } };
     return { redirect: { destination: '/?authError=true', permanent: false } };
 
-  const businessId = (params!.businessInfo as string).split('_').slice(-1).pop()!;
-  console.log({ businessId });
+  const slug = params!.businessInfo as string;
+  const businessId = slug.split('_').slice(-1).pop()!;
 
-  const data = await api.getBusinessReviews(businessId, session.user.accessToken);
-  console.log({ reviews: data.reviews });
+  const response = await api.getBusinessReviews(businessId, session.user.accessToken);
+  console.log({ reviews: response.reviews });
 
-  if (data.msg === 'AUTH_ERROR' && !data.reviews)
+  if (response.msg === 'AUTH_ERROR' && !response.data)
     // return { props: { error: 'AUTH_ERROR' } };
     return { redirect: { destination: '/?authError=true', permanent: false } };
 
   return {
-    props: { reviews: data.reviews || [], session },
+    props: { reviews: response || [], session },
   };
 };
 

@@ -1,34 +1,46 @@
 import React, { ReactNode, useState } from 'react';
+import { Changable, Readonly, Size } from '../../../types';
 import StarRating from '../star-rating/StarRating';
 import styles from './FeatureRating.module.scss';
-import { RateableFeature } from './types';
+import { RateableFeatures } from './types';
 
 interface Props {
-  features: RateableFeature[];
+  features: RateableFeatures;
   ratings: number[];
-  onRate(f: string, r: number): void;
-  readonly: boolean;
+  starSize?: Size;
+  onRate?(feat: string, rat: number): void;
+  readonly?: boolean;
 }
 
 const FeatureRating = function (props: Props) {
-  const { features, ratings } = props;
+  const { features, ratings, starSize = 'md' } = props;
 
   return (
     <div className={styles.featureRating}>
-      {features.map((f, i) => (
-        <React.Fragment key={f.label}>
-          <span className="d-flex align-items-center gap-3">
-            {f.icon}
-            {f.label}
-          </span>
-          <StarRating
-            ratingValue={ratings[i]}
-            starSize="lg"
-            onRate={rating => props.onRate(f.label, rating)}
-            readonly={props.readonly}
-          />
-        </React.Fragment>
-      ))}
+      {features.map((f, i) => {
+        const isWithIcon = typeof f === 'object';
+
+        return (
+          <React.Fragment key={isWithIcon ? f.label : f}>
+            <span className="d-flex align-items-center gap-3">
+              {isWithIcon ? (
+                <>
+                  {f.icon} {f.label}
+                </>
+              ) : (
+                f
+              )}
+            </span>
+            <StarRating
+              initialValue={props.readonly ? ratings[i] : 0}
+              ratingValue={ratings[i]}
+              starSize={starSize}
+              onRate={rating => props.onRate?.(isWithIcon ? f.label : f, rating)}
+              readonly={props.readonly}
+            />
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };

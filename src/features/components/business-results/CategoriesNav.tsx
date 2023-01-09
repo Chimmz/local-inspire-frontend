@@ -26,14 +26,12 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
     'Vacation Rentals',
     'Things to do',
     'Cruises',
-  ];
-
-  const uniqueItems = Array.from(new Set(popularCategories));
+  ]
 
   return (
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
       <ul className={styles.categories}>
-        {uniqueItems.map(categ => {
+        {popularCategories.map(categ => {
           const href = urlUtils.getBusinessSearchResultsUrl({
             category: categ,
             city: currentCity,

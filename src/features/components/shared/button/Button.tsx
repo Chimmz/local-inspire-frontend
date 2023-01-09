@@ -4,13 +4,16 @@ import Spinner from 'react-bootstrap/Spinner';
 
 interface ButtonProps {
   [key: string]: any;
-  contentWhileLoading?: React.ReactNode;
+  textWhileLoading?: React.ReactNode;
   children?: React.ReactNode;
   isLoading: boolean;
   disabled?: boolean;
+  withSpinner?: boolean;
 }
 
-function LoadingButton({ isLoading, disabled, ...otherProps }: ButtonProps) {
+function LoadingButton(props: ButtonProps) {
+  const { isLoading, disabled, withSpinner, textWhileLoading, ...otherProps } = props;
+
   return (
     <Button
       {...otherProps}
@@ -24,10 +27,8 @@ function LoadingButton({ isLoading, disabled, ...otherProps }: ButtonProps) {
     >
       {isLoading ? (
         <>
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <span>Loading...</span>
+          {withSpinner ? <Spinner animation="border" role="status" /> : null}
+          <span>{textWhileLoading || 'Loading...'}</span>
         </>
       ) : (
         otherProps.children

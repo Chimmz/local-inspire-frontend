@@ -145,9 +145,75 @@ class API {
     });
   }
 
-  async getBusinessReviews(businessId: string, token: string) {
+  async getBusinessReviews(businessId: string, token: string, queryStr?: string) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/reviews`,
+      path: `/businesses/${businessId}/reviews`.concat(queryStr || ''),
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async toggleBusinessReviewHelpful(businessId: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/reviews/${businessId}/like`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async askQuestionAboutBusiness(question: string, businessId: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/ask`,
+      method: 'POST',
+      body: JSON.stringify({ question }),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async addAnswerToBusinessQuestion(questionId: string, answer: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/questions/${questionId}/answer`,
+      method: 'POST',
+      body: JSON.stringify({ answer }),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async toggleLikeAnswerToBusinessQuestion(
+    questionId: string,
+    answerId: string,
+    token: string,
+  ) {
+    return this._makeRequest({
+      path: `/businesses/questions/${questionId}/answers/${answerId}/like`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async toggleDislikeAnswerToBusinessQuestion(
+    questionId: string,
+    answerId: string,
+    token: string,
+  ) {
+    return this._makeRequest({
+      path: `/businesses/questions/${questionId}/answers/${answerId}/dislike`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getQuestionsAskedAboutBusiness(businessId: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/questions`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getTipsAboutBusiness(businessId: string, token: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/tips`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });

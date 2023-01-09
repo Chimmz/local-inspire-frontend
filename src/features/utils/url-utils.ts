@@ -41,7 +41,7 @@ export const genRecommendBusinessPageUrl = (
   businessName: string,
   city: string,
   stateCode: string,
-  recommends: boolean,
+  recommends?: boolean,
 ) => {
   return `/write-a-review/${businessName.split(' ').join('-')}_${city
     .split(' ')

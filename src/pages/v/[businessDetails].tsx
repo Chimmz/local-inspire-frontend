@@ -1,35 +1,59 @@
 import React, { useState } from 'react';
+import { GetServerSideProps, NextPage } from 'next';
+
+import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
+
+import { ReviewProps } from '../../features/components/recommend-business/UserReview';
+import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
+import { TipProps } from '../../features/components/business-listings/tips/Tip';
+
+import AdvicesSection from '../../features/components/business-listings/tips/AdvicesSection';
+
+import { toTitleCase } from '../../features/utils/string-utils';
+import api from '../../features/library/api';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
 import Layout from '../../features/components/layout';
-import StarRating from '../../features/components/shared/star-rating/StarRating';
-import styles from '../../styles/sass/pages/BusinessListing.module.scss';
-import Image from 'next/image';
 import CategoriesNav from '../../features/components/business-results/CategoriesNav';
-import Link from 'next/link';
-import TextInput from '../../features/components/shared/text-input/TextInput';
-import { Form } from 'react-bootstrap';
 import Aside from '../../features/components/business-listings/Aside';
 import Header from '../../features/components/business-listings/Header';
 import Announcement from '../../features/components/business-listings/Announcement';
-import LabelledCheckbox from '../../features/components/shared/LabelledCheckbox';
-import BusinessReviews from '../../features/components/business-listings/Reviews';
-import QuestionsSection from '../../features/components/business-listings/Questions';
-import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
-import AdvicesSection from '../../features/components/business-listings/AdvicesSection';
+import ReviewsSection from '../../features/components/business-listings/review/ReviewsSection';
+import QuestionsSection from '../../features/components/business-listings/questions/QuestionsSection';
 
-function BusinessListings() {
+import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
+import styles from '../../styles/sass/pages/BusinessListing.module.scss';
+import { useRouter } from 'next/router';
+import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/url-utils';
+
+interface Props {
+  questions: {
+    results: number;
+    status: 'SUCCESS' | 'FAIL';
+    data: QuestionItemProps[];
+  };
+  reviews?: { results: number; status: 'SUCCESS' | 'FAIL'; data: ReviewProps[] };
+  tips?: { results: number; status: 'SUCCESS' | 'FAIL'; data: TipProps[] };
+  params: { businessName: string; city: string; stateCode: string; businessId: string };
+}
+
+const BusinessListings: NextPage<Props> = function (props) {
+  const router = useRouter();
   const [whatsActive, setWhatsActive] = useState<'reviews' | 'q&a' | 'advices'>(
     'reviews',
   );
 
+  const linkToReviewPage = router.asPath.replace('/v/', '/write-a-review/');
+  // const genUrlParams = [
+  //   props.params.businessId, props.params.businessName,  props.params.city, props.params.stateCode
+  // ]
+
   return (
     <Layout>
       <Layout.Nav>
-        <CategoriesNav
-          searchParams={{ category: 'Rest', city: 'Anchor', stateCode: 'AK' }}
-        />
+        <CategoriesNav searchParams={{ category: 'Rest', ...props.params }} />
       </Layout.Nav>
       <Layout.Main className={styles.main}>
         <Header />
@@ -70,10 +94,24 @@ function BusinessListings() {
             )}
           >
             <h2 className="flex-grow-1">Do you recommend Fannies BBQ?</h2>
-            <button className="btn btn-outline-pry btn--sm flex-grow-1 text-center d-flex justify-content-center">
+            <button
+              className="btn btn-outline-pry btn--sm flex-grow-1 text-center d-flex justify-content-center"
+              onClick={navigateTo.bind(
+                null,
+                linkToReviewPage.concat('?recommend=yes'),
+                router,
+              )}
+            >
               Yes
             </button>
-            <button className="btn btn-outline-pry btn--sm flex-grow-1 text-center d-flex justify-content-center">
+            <button
+              className="btn btn-outline-pry btn--sm flex-grow-1 text-center d-flex justify-content-center"
+              onClick={navigateTo.bind(
+                null,
+                linkToReviewPage.concat('?recommend=no'),
+                router,
+              )}
+            >
               No
             </button>
           </section>
@@ -115,16 +153,25 @@ function BusinessListings() {
             </button>
           </nav>
 
-          <BusinessReviews show={whatsActive === 'reviews'} />
-          <QuestionsSection show={whatsActive === 'q&a'} />
-          <AdvicesSection show={whatsActive === 'advices'} />
+          <ReviewsSection
+            show={whatsActive === 'reviews'}
+            reviews={props.reviews?.data}
+            businessName={props.params.businessName}
+            businessId={props.params.businessId}
+          />
+          <QuestionsSection
+            show={whatsActive === 'q&a'}
+            questions={props.questions.data}
+            businessId={props.params.businessId}
+          />
+          <AdvicesSection show={whatsActive === 'advices'} tips={props.tips?.data} />
         </div>
 
         <Aside />
 
         <FeaturedBusinesses
           className={styles.similarBusinesses}
-          groupName="Similar Businesses"
+          groupName="Similar Businesses you may like"
           businesses={[
             {
               _id: (Math.random() + Math.random()).toString(),
@@ -163,6 +210,48 @@ function BusinessListings() {
       </Layout.Main>
     </Layout>
   );
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async function (context) {
+  const { req, res, params } = context;
+  const session = await unstable_getServerSession(
+    req,
+    res,
+    authOptions as NextAuthOptions,
+  );
+
+  if (!session)
+    return { redirect: { destination: '/?authError=true', permanent: false } };
+
+  const slug = params!.businessDetails as string;
+  const [businessName, location, businessId] = slug.split('_');
+
+  console.log({ businessName, location, businessId });
+
+  const responses = await Promise.allSettled([
+    api.getBusinessReviews(businessId, session.user.accessToken),
+    api.getQuestionsAskedAboutBusiness(businessId, session.user.accessToken),
+    api.getTipsAboutBusiness(businessId, session.user.accessToken),
+  ]);
+
+  const [reviews, questions, tips] = responses
+    .filter(res => res.status === 'fulfilled' && res.value)
+    .map(res => res.status === 'fulfilled' && res.value);
+
+  const loc = location.split('-');
+  return {
+    props: {
+      reviews,
+      questions,
+      tips,
+      params: {
+        businessName: toTitleCase(businessName.replace('-', ' ')),
+        stateCode: loc.pop(),
+        city: toTitleCase(loc.join(' ')),
+        businessId,
+      },
+    },
+  };
+};
 
 export default BusinessListings;
