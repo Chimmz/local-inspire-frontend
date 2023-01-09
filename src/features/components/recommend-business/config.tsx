@@ -1,7 +1,7 @@
-import { RateableFeature } from '../shared/feature-rating/types';
+import { RateableFeatures } from '../shared/feature-rating/types';
 import { Icon } from '@iconify/react';
 
-export const featuresToRate: RateableFeature[] = [
+export const featuresToRate: RateableFeatures = [
   {
     label: 'Food',
     icon: <Icon icon="zondicons:location-food" color="#2e2e2e" width={17} />,
