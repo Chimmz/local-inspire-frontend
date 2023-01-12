@@ -34,6 +34,7 @@ export interface BusinessProps {
   locationType: string;
   marketVariable: string;
   annualRevenue: string;
+  coordinates: string;
   SIC: string;
   NAICS: string;
   industry: string;
