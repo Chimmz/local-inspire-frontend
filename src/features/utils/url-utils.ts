@@ -36,17 +36,44 @@ export const parseBusinessSearchUrlParams = (
   return { category, city, stateCode };
 };
 
+interface BusinessPageUrlParams {
+  businessId: string;
+  businessName: string;
+  city: string;
+  stateCode: string;
+}
+
+const transformBusinessUrlParams = (args: BusinessPageUrlParams) => {
+  return {
+    ...args,
+    businessName: args.businessName.toLowerCase().split(' ').join('-'),
+    city: args.city.toLowerCase().split(' ').join('-'),
+    stateCode: args.stateCode.toUpperCase(),
+  };
+};
+
+export const genBusinessPageUrl = (args: BusinessPageUrlParams) => {
+  const {
+    businessName: name,
+    city,
+    stateCode,
+    businessId: id,
+  } = transformBusinessUrlParams(args);
+
+  return `/v/${name}_${city.split(' ').join('-')}-${stateCode}_${id}`;
+};
+
 export const genRecommendBusinessPageUrl = (
-  businessId: string,
-  businessName: string,
-  city: string,
-  stateCode: string,
-  recommends?: boolean,
+  args: BusinessPageUrlParams & { recommends: boolean },
 ) => {
-  return `/write-a-review/${businessName.split(' ').join('-')}_${city
-    .split(' ')
-    .join('-')}-${stateCode}_${businessId}`.concat(
-    recommends !== null ? `?recommend=${recommends ? 'yes' : 'no'}` : '',
+  const {
+    businessName: name,
+    city,
+    stateCode,
+    businessId: id,
+  } = transformBusinessUrlParams(args);
+  return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(
+    args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '',
   );
 };
 

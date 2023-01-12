@@ -1,4 +1,5 @@
-import React, { ReactNode, useState } from 'react';
+import cls from 'classnames';
+import React, { Fragment, useState } from 'react';
 import { Changable, Readonly, Size } from '../../../types';
 import StarRating from '../star-rating/StarRating';
 import styles from './FeatureRating.module.scss';
@@ -10,20 +11,21 @@ interface Props {
   starSize?: Size;
   onRate?(feat: string, rat: number): void;
   readonly?: boolean;
+  grid?: boolean;
 }
 
 const FeatureRating = function (props: Props) {
   const { features, ratings, starSize = 'md' } = props;
 
   return (
-    <div className={styles.featureRating}>
+    <ul className={cls(styles.featureRating, props.grid && styles.grid)}>
       {features.map((f, i) => {
-        const isWithIcon = typeof f === 'object';
+        const hasIcon = typeof f === 'object';
 
-        return (
-          <React.Fragment key={isWithIcon ? f.label : f}>
+        const itemContent = (
+          <Fragment key={hasIcon ? f.label : f}>
             <span className="d-flex align-items-center gap-3">
-              {isWithIcon ? (
+              {hasIcon ? (
                 <>
                   {f.icon} {f.label}
                 </>
@@ -35,13 +37,21 @@ const FeatureRating = function (props: Props) {
               initialValue={props.readonly ? ratings[i] : 0}
               ratingValue={ratings[i]}
               starSize={starSize}
-              onRate={rating => props.onRate?.(isWithIcon ? f.label : f, rating)}
+              onRate={rating => props.onRate?.(hasIcon ? f.label : f, rating)}
               readonly={props.readonly}
             />
-          </React.Fragment>
+          </Fragment>
         );
+
+        if (props.grid)
+          return (
+            <li className="d-flex align-items-center" key={hasIcon ? f.label : f}>
+              {itemContent}
+            </li>
+          );
+        else return itemContent;
       })}
-    </div>
+    </ul>
   );
 };
 

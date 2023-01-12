@@ -12,10 +12,11 @@ interface ButtonProps {
 }
 
 function LoadingButton(props: ButtonProps) {
-  const { isLoading, disabled, withSpinner, textWhileLoading, ...otherProps } = props;
+  const { isLoading, disabled, withSpinner, textWhileLoading, children, ...otherProps } =
+    props;
 
   return (
-    <Button
+    <button
       {...otherProps}
       style={{
         display: 'flex',
@@ -31,9 +32,9 @@ function LoadingButton(props: ButtonProps) {
           <span>{textWhileLoading || 'Loading...'}</span>
         </>
       ) : (
-        otherProps.children
+        children
       )}
-    </Button>
+    </button>
   );
 }
 

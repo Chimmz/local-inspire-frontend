@@ -27,6 +27,7 @@ import FeaturedBusinesses from '../../features/components/business-results/Featu
 import styles from '../../styles/sass/pages/BusinessListing.module.scss';
 import { useRouter } from 'next/router';
 import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/url-utils';
+import { BusinessProps } from '../../features/components/business-results/Business';
 
 interface Props {
   questions: {
@@ -34,6 +35,7 @@ interface Props {
     status: 'SUCCESS' | 'FAIL';
     data: QuestionItemProps[];
   };
+  business: BusinessProps;
   reviews?: { results: number; status: 'SUCCESS' | 'FAIL'; data: ReviewProps[] };
   tips?: { results: number; status: 'SUCCESS' | 'FAIL'; data: TipProps[] };
   params: { businessName: string; city: string; stateCode: string; businessId: string };
@@ -56,7 +58,11 @@ const BusinessListings: NextPage<Props> = function (props) {
         <CategoriesNav searchParams={{ category: 'Rest', ...props.params }} />
       </Layout.Nav>
       <Layout.Main className={styles.main}>
-        <Header />
+        <Header
+          businessName={props.params.businessName}
+          linkToReviewPage={linkToReviewPage}
+          reviewsCount={props.reviews?.results}
+        />
         <div className={styles.left}>
           <Announcement />
           <section
@@ -93,7 +99,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               'justify-content-between',
             )}
           >
-            <h2 className="flex-grow-1">Do you recommend Fannies BBQ?</h2>
+            <h2 className="flex-grow-1">Do you recommend {props.params.businessName}?</h2>
             <button
               className="btn btn-outline-pry btn--sm flex-grow-1 text-center d-flex justify-content-center"
               onClick={navigateTo.bind(
@@ -179,6 +185,8 @@ const BusinessListings: NextPage<Props> = function (props) {
               SIC8: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC2: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
+              city: props.params.city,
+              stateCode: props.params.stateCode,
               rating: 3,
             },
             {
@@ -187,6 +195,8 @@ const BusinessListings: NextPage<Props> = function (props) {
               SIC8: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC2: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
+              city: props.params.city,
+              stateCode: props.params.stateCode,
               rating: 3,
             },
             {
@@ -195,6 +205,8 @@ const BusinessListings: NextPage<Props> = function (props) {
               SIC8: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC2: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
+              city: props.params.city,
+              stateCode: props.params.stateCode,
               rating: 3,
             },
             {
@@ -203,6 +215,8 @@ const BusinessListings: NextPage<Props> = function (props) {
               SIC8: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC2: 'Chicken Restaurants Restaurants Restaurants & Bars',
               SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
+              city: props.params.city,
+              stateCode: props.params.stateCode,
               rating: 3,
             },
           ]}
@@ -229,18 +243,22 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   console.log({ businessName, location, businessId });
 
   const responses = await Promise.allSettled([
+    api.getBusinessById(businessId),
     api.getBusinessReviews(businessId, session.user.accessToken),
     api.getQuestionsAskedAboutBusiness(businessId, session.user.accessToken),
     api.getTipsAboutBusiness(businessId, session.user.accessToken),
   ]);
 
-  const [reviews, questions, tips] = responses
+  console.log(responses);
+
+  const [business, reviews, questions, tips] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
 
   const loc = location.split('-');
   return {
     props: {
+      business,
       reviews,
       questions,
       tips,

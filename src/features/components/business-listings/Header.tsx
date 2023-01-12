@@ -9,11 +9,17 @@ import { Form } from 'react-bootstrap';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 
-function Header() {
+interface Props {
+  businessName: string;
+  reviewsCount: number | undefined;
+  linkToReviewPage: string;
+}
+
+function Header(props: Props) {
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-        <h1>Fannies BBQ</h1>
+        <h1>{props.businessName}</h1>
         <StarRating
           readonly
           ratingValue={3}
@@ -29,11 +35,18 @@ function Header() {
           <li>• Cabin</li>
         </ul>
         <div className="d-flex gap-3">
-          <button className="btn btn-pry">Write a review</button>
-          <button className="btn btn-outline-pry">Message owner</button>
-          <button className="btn btn-gray">Ask a question</button>
+          <button
+            className="btn btn--lg"
+            style={{ backgroundColor: '#e20e0e', color: '#fff' }}
+          >
+            <Icon icon="ic:round-star-outline" width={22} />
+            Write a review
+          </button>
+          <button className="btn btn-outline btn--lg">Ask a question</button>
+          <button className="btn btn-outline btn--lg">Message owner</button>
         </div>
       </div>
+
       <div className={cls(styles.headerRight, 'd-flex', 'flex-column')}>
         <div className="d-flex justify-content-between mb-4">
           <button className="btn btn-bg-none">

@@ -29,9 +29,10 @@ function useValidator<T extends string | number | Date>({
   const runValidators: ValidatorRunner = function () {
     console.log('Input in running validator: ', inputValue);
 
-    const getFeedback = (vConfig: ValidatorConfig<T>): ValidationFeedback => {
-      const validator = vConfig.fn.bind({ userInput: inputValue });
-      return validator(...vConfig.params);
+    const getFeedback = ({ fn, params }: ValidatorConfig<T>): ValidationFeedback => {
+      const validate = fn.bind({ userInput: inputValue });
+      const result = validate(...params);
+      return result;
     };
 
     // For each validator, get a corresponding feedback and filter error-based feedbacks

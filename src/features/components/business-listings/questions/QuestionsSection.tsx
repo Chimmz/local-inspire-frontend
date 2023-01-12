@@ -112,9 +112,9 @@ const QuestionsSection = function (props: Props) {
         <h2 className="" style={{ flexBasis: '50%' }}>
           Questions & Answers
         </h2>
-        <small>
+        {/* <small>
           <Link href={'/'}>See all 14 questions</Link>
-        </small>
+        </small> */}
         <button className="btn btn-gray" onClick={toggleShowNewForm}>
           <Icon
             icon={`material-symbols:${showNewForm ? 'close-rounded' : 'add'}`}

@@ -25,10 +25,10 @@ function Radio(props: RadioProps) {
           type="radio"
           id={value}
           className={styles.radioInput}
-          checked={!props.readonly && props.value?.toLowerCase() === value.toLowerCase()}
+          checked={props.value?.toLowerCase() === value.toLowerCase()}
           name={props.name}
           value={value}
-          onChange={props.onChange}
+          onChange={!props.readonly ? props.onChange : () => {}}
         />
         <span
           className={classMap[props.as]}

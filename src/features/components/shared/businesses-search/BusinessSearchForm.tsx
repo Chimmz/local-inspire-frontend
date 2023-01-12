@@ -2,23 +2,22 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
-import cls from 'classnames';
-import { useRouter } from 'next/router';
 
+import { useRouter } from 'next/router';
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
 import useCurrentLocation from '../../../hooks/useCurrentLocation';
 import useAPISearchResults from '../../../hooks/useAPISearchResults';
-import * as stringUtils from '../../../utils/string-utils';
-
-import SearchResults from '../search-results/SearchResults';
-import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
-import { Icon } from '@iconify/react';
-import styles from './BusinessSearchForm.module.scss';
 import useDelayActionUponTextInput from '../../../hooks/useDelayActionUponTextInput';
 
-const MIN_CHARS_FOR_CATEGORY_SEARCH = 3;
-const MIN_CHARS_FOR_CITY_SEARCH = 2;
+import cls from 'classnames';
+import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
+import { Icon } from '@iconify/react';
+import SearchResults from '../search-results/SearchResults';
+import styles from './BusinessSearchForm.module.scss';
+
+const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
+const MIN_CHARS_FOR_CITY_SEARCH = 1;
 
 interface BusinessSearchFormProps {
   promptUserInput: boolean;
@@ -30,13 +29,11 @@ interface BusinessSearchFormProps {
 
 function BusinessSearchForm(props: BusinessSearchFormProps) {
   const { fontSize, defaultCategorySuggestions } = props;
-
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
 
   const [hasSelectedCategory, setHasSelectedCategory] = useState(false);
   const [hasSelectedCity, setHasSelectedCity] = useState(false);
-
   const currentLocation = useCurrentLocation();
 
   const {
@@ -60,7 +57,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     hideResults: hideCategoryResults,
     resetResults: resetCategoryResults,
   } = useAPISearchResults({
-    makeRequest: () => API.searchBusinessCategories(categoryValue.trim()),
+    makeRequest: API.searchBusinessCategories.bind(API, categoryValue.trim()),
     responseDataField: 'categories',
   });
 
@@ -73,14 +70,18 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     hideResults: hideCityResults,
     resetResults: resetCityResults,
   } = useAPISearchResults({
-    makeRequest: () => API.searchCities(cityValue.trim()),
+    makeRequest: API.searchCities.bind(API, cityValue.trim()),
     responseDataField: 'cities',
   });
 
   const categoryInputKeyUpHandler = useDelayActionUponTextInput({
     action: searchCategories,
+    delay: 100,
   });
-  const cityInputKeyUpHandler = useDelayActionUponTextInput({ action: searchCities });
+  const cityInputKeyUpHandler = useDelayActionUponTextInput({
+    action: searchCities,
+    delay: 100,
+  });
 
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
@@ -200,12 +201,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           style={{ width: '20px', maxWidth: '20px' }}
           onKeyUp={ev => {
             const thisInput = categoryInput.current!;
-
             if (!thisInput.value.length) resetCategoryResults();
+
             setHasSelectedCategory(false);
             if (hasSelectedCategory) return hideCategoryResults();
-
-            if (thisInput.value.length <= MIN_CHARS_FOR_CATEGORY_SEARCH) return;
+            if (thisInput.value.length < MIN_CHARS_FOR_CATEGORY_SEARCH) return;
             categoryInputKeyUpHandler(ev);
           }}
         />

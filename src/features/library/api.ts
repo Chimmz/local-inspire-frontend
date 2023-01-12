@@ -129,6 +129,13 @@ class API {
     });
   }
 
+  async getBusinessById(businessId: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}`,
+      method: 'GET',
+    });
+  }
+
   async reviewBusiness({
     businessId,
     token,
@@ -150,6 +157,13 @@ class API {
       path: `/businesses/${businessId}/reviews`.concat(queryStr || ''),
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getUserReviewOnBusiness(businessId: string, uid: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/user-review?uid=${uid}`,
+      method: 'GET',
     });
   }
 

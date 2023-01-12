@@ -52,7 +52,7 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
 
     newFile,
     setNewFile,
-    handleChangeFile,
+    onChange: handleChangeFile,
   };
 };
 

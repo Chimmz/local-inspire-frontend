@@ -14,7 +14,7 @@ function PageSuccess(props: Props) {
       <div className={cls(styles.successIcon, 'mb-5')}>
         <Icon icon="mdi:success" color="#008500" width="50" height="50" />
       </div>
-      <h1 className="mb-3">{props.title || 'Successful!'}</h1>
+      <h1 className="mb-4">{props.title || 'Successful!'}</h1>
       <small className="text-center mx-auto fs-4">{props.description}</small>
     </div>
   );

@@ -3,4 +3,20 @@
   grid-template-columns: max-content auto;
   column-gap: 3rem;
   row-gap: 1.5rem;
+
+  &.grid {
+    grid-template-columns: 1fr auto;
+    justify-items: start;
+    justify-content: space-between;
+    column-gap: 0;
+
+    & > li {
+      flex-direction: row-reverse;
+      gap: 1rem;
+    }
+
+    @media screen and (max-width: 450px) {
+      grid-template-columns: 1fr;
+    }
+  }
 }

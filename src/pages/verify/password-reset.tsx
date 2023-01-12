@@ -91,33 +91,12 @@ const PasswordReset: NextPage = function () {
     resetPassword();
   };
 
-  useEffect(() => {
-    (async () => {
-      // const spin5s = () => new Promise((resolve, reject) => setTimeout(resolve, 5000));
-      // const result = await sendPasswordResetRequest(spin5s());
-      // const res = await sendVerificationRequest(
-      //   API.emailVerify(router.query.email as string, router.query.code as string),
-      // );
-      // if (res.status === 'SUCCESS') {
-      //   setIsVerified(true);
-      //   return setFeedback(res.msg);
-      // }
-      // if (res.status === 'FAIL' && res.reason === 'NON_MATCHING_EMAIL_OR_CODE') {
-      //   setIsVerified(false);
-      //   return setFeedback(res.msg);
-      // }
-    })();
-  }, []);
-
   return (
     <Layout>
       <Navbar bg="#003366" lightLogo />
       <main className={styles.main}>
         {response.status === 'SUCCESS' ? (
-          <PageSuccess
-            title="Password Changed!"
-            description="You can now exit this page"
-          />
+          <PageSuccess title="Password Changed!" description="You can now exit this page" />
         ) : response.status === 'INVALID_CODE' ? (
           'Invalid URL'
         ) : (

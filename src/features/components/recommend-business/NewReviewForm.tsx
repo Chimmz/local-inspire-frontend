@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Form } from 'react-bootstrap';
+import { useState, useMemo } from 'react';
+import { Form, Modal } from 'react-bootstrap';
 import { monthsOfTheYear } from '../../data/constants';
 
 import useInput from '../../hooks/useInput';
@@ -29,6 +29,12 @@ import {
 import navigateTo, * as urlUtils from '../../utils/url-utils';
 import Spinner from '../shared/spinner/Spinner';
 import Image from 'next/image';
+import { ReviewProps } from './UserReview';
+import PageSuccess from '../shared/success/PageSuccess';
+import { toTitleCase } from '../../utils/string-utils';
+import Link from 'next/link';
+import useDate from '../../hooks/useDate';
+import { getPast12MonthsWithYear } from '../../utils/date-utils';
 
 interface Props {
   businessName: string;
@@ -36,14 +42,16 @@ interface Props {
   businessId: string;
   readonly: boolean;
   userRecommends: boolean;
-  sendReviewRequest: (req: any) => Promise<any>;
   submitting: boolean;
+  userReview: ReviewProps | null;
+  sendReviewRequest(req: any): Promise<any>;
   refreshReviews(): void;
 }
 
 function NewReviewForm(props: Props) {
   const { businessId } = props;
 
+  const [submitted, setSubmitted] = useState(false);
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
   const [mainRating, setMainRating] = useState(0);
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
@@ -52,6 +60,9 @@ function NewReviewForm(props: Props) {
       return f.label;
     }),
   );
+  const businessNameTitle = toTitleCase(props.businessName.split('-').join(' '));
+  const past12Months = useMemo(() => getPast12MonthsWithYear(), []);
+
   // const { send: sendReviewReq, loading: isSendingReviewReq } = useRequest({
   //   autoStopLoading: false,
   // });
@@ -59,7 +70,7 @@ function NewReviewForm(props: Props) {
   const router = useRouter();
 
   const { isSignedIn, accessToken } = useSignedInUser({
-    onSigngOut: navigateTo.bind(null, '/', router),
+    onSignOut: navigateTo.bind(null, '/', router),
   });
 
   const {
@@ -67,9 +78,8 @@ function NewReviewForm(props: Props) {
     handleChange: handleChangeReviewTitle,
     runValidators: runReviewTitleValidators,
     validationErrors: reviewTitleValidationErrors,
-    setValidationErrors: setReviewTitleValidationErrors,
   } = useInput({
-    init: '',
+    init: props.userReview?.reviewTitle || '',
     validators: [{ fn: isRequired, params: ['Please enter a brief title'] }],
   });
 
@@ -78,25 +88,19 @@ function NewReviewForm(props: Props) {
     handleChange: handleChangeMainReview,
     runValidators: runMainReviewValidators,
     validationErrors: mainReviewValidationErrors,
-    setValidationErrors: setMainReviewValidationErrors,
   } = useInput({
-    init: '',
-    validators: [
-      { fn: isRequired, params: ['Please enter your review of this business'] },
-    ],
+    init: props.userReview?.review || '',
+    validators: [{ fn: isRequired, params: ['Please enter your review for this business'] }],
   });
 
   const {
-    inputValue: sortOfVisit,
-    handleChange: handleChangeSortOfVisit,
-    runValidators: runSortOfVisitValidators,
-    validationErrors: sortOfVisitValidationErrors,
-    setValidationErrors: setSortOfVisitValidationErrors,
+    inputValue: visitType,
+    handleChange: handleChangeVisitType,
+    runValidators: runVisitTypeValidators,
+    validationErrors: visitTypeValidationErrors,
   } = useInput({
-    init: 'Solo',
-    validators: [
-      { fn: isRequired, params: ['Please enter your review of this business'] },
-    ],
+    init: props.userReview?.visitType || 'Solo',
+    validators: [{ fn: isRequired, params: ['Please enter your visit type'] }],
   });
 
   const {
@@ -104,14 +108,15 @@ function NewReviewForm(props: Props) {
     handleChange: handleChangeVisitedWhen,
     runValidators: runVisitedWhenValidators,
     validationErrors: visitedWhenValidationErrors,
-    setValidationErrors: setVisitedWhenValidationErrors,
   } = useInput({
-    init: 'Please select',
+    init: props.readonly
+      ? [props.userReview?.visitedWhen.month, props.userReview?.visitedWhen.year].join(' ')
+      : 'Please select',
     validators: [
-      { fn: isRequired, params: ['Please enter your review of this business'] },
+      // { fn: isRequired, params: [`Please specify when you visited ${businessNameTitle}`] },
       {
         fn: mustNotBeSameAs,
-        params: ['Please select', 'Please enter your review of this business'],
+        params: ['Please select', `Please specify when you visited ${businessNameTitle}`],
       },
     ],
   });
@@ -122,7 +127,7 @@ function NewReviewForm(props: Props) {
     runValidators: runAdviceValidators,
     validationErrors: adviceValidationErrors,
   } = useInput({
-    init: '',
+    init: props.userReview?.adviceToFutureVisitors || '',
     validators: [{ fn: isRequired, params: ['Please enter a brief title'] }],
   });
 
@@ -145,8 +150,10 @@ function NewReviewForm(props: Props) {
     deleteUpload,
     newFile,
     setNewFile,
-    handleChangeFile,
-  } = useFileUploadsWithDescription();
+    onChange: handleChangeFile,
+  } = useFileUploadsWithDescription(
+    props.userReview?.photosWithDescription.map(upl => ({ ...upl, id: upl._id })),
+  );
 
   const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
@@ -155,7 +162,7 @@ function NewReviewForm(props: Props) {
     const validationResults = [
       runReviewTitleValidators(),
       runMainReviewValidators(),
-      runSortOfVisitValidators(),
+      runVisitTypeValidators(),
       runVisitedWhenValidators(),
       runAdviceValidators(),
       runUserAcceptedTermsValidators(),
@@ -171,7 +178,7 @@ function NewReviewForm(props: Props) {
       businessRating: mainRating,
       reviewTitle,
       review: mainReview,
-      visitType: sortOfVisit,
+      visitType: visitType,
       visitedWhen,
       featuresRating: ratingMap,
       adviceToFutureVisitors: advice,
@@ -184,39 +191,58 @@ function NewReviewForm(props: Props) {
       api.reviewBusiness({ businessId, token: accessToken!, ...body }),
     );
     console.log(res);
+
     if (res.status !== 'SUCCESS') return;
+    setSubmitted(true);
+    // const [city, stateCode] = props.location.split('-');
 
-    const [city, stateCode] = props.location.split('-');
-
-    const url = urlUtils
-      .genRecommendBusinessPageUrl(
-        props.businessId,
-        props.businessName.toLowerCase(),
-        city.toLowerCase(),
-        stateCode.toUpperCase(),
-        true,
-      )
-      .replace('write-a-review', 'v')
-      .replace('?recommend=yes', '');
-
-    console.log(url);
-    navigateTo(url, router);
-    // props.refreshReviews();
+    // const url = urlUtils.genBusinessPageUrl({
+    //   businessId: props.businessId,
+    //   businessName: props.businessName,
+    //   city,
+    //   stateCode,
+    // });
+    // navigateTo(url, router);
   };
 
-  const validUploadsCount = uploads.reduce((accum, upload) => {
-    return !!upload.description!.length ? accum + 1 : accum;
-  }, 0);
+  const validUploadsCount = useMemo(() => {
+    return uploads.reduce((accum, upl) => (!!upl.description!.length ? accum + 1 : accum), 0);
+  }, [uploads]);
 
   return (
     <>
+      <Modal show={submitted} centered>
+        <Modal.Body>
+          <PageSuccess
+            title="Thank you."
+            description={`Your review on ${businessNameTitle} has been added successfully.`}
+          />
+          <div className="success-actions d-flex align-items-center justify-content-center mx-auto gap-3">
+            <button className="btn btn--lg btn-gray">Share on Facebook</button>
+            <button className="btn btn--lg btn-gray">Share on Twitter</button>
+            <button className="btn btn--lg btn-pry ms-auto">
+              <Link
+                href={urlUtils.genBusinessPageUrl({
+                  businessId: props.businessId,
+                  businessName: props.businessName,
+                  city: props.location.split('-')[0],
+                  stateCode: props.location.split('-')[1],
+                })}
+              >
+                Continue
+              </Link>
+            </button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
       <form className={styles.form} onSubmit={handleFormSubmit}>
         <div className="que-group d-flex align-items-center gap-5 mb-0">
           <label htmlFor="" className="">
             Leave a rating
           </label>
           <StarRating
-            ratingValue={4}
+            initialValue={props.userReview?.businessRating || 0}
             starSize="xlg"
             className="d-flex xy-center my-5"
             tooltip={false}
@@ -257,28 +283,30 @@ function NewReviewForm(props: Props) {
           <Radio
             options={['Solo', 'Couples', 'Family', 'Friends', 'Business']}
             as="btn"
-            name="sortOfVisit"
-            value={sortOfVisit}
-            onChange={handleChangeSortOfVisit}
+            name="visitType"
+            value={visitType}
+            onChange={handleChangeVisitType}
             readonly={props.readonly}
           />
           <Form.Control.Feedback type="invalid" className="d-block">
-            {sortOfVisitValidationErrors[0]?.msg}
+            {visitTypeValidationErrors[0]?.msg}
           </Form.Control.Feedback>
         </div>
 
         <div className="que-group">
           <Form.Label>When did you visit?</Form.Label>
           <Form.Select
-            className="textfield"
+            className="textfield w-max-content"
             isInvalid={!!visitedWhenValidationErrors.length}
             value={visitedWhen}
             onChange={handleChangeVisitedWhen}
             style={{ pointerEvents: props.readonly ? 'none' : 'all' }}
           >
             <option value="">Please select</option>
-            {monthsOfTheYear.map(m => (
-              <option value={`${m} 2022`} key={m}>{`${m} 2022`}</option>
+            {past12Months.map(m => (
+              <option value={m} key={m}>
+                {m}
+              </option>
             ))}
           </Form.Select>
           <Form.Control.Feedback type="invalid" className="d-block">
@@ -290,7 +318,10 @@ function NewReviewForm(props: Props) {
           <label className="mb-5">Click to select a rating</label>
           <FeatureRating
             features={featuresToRate}
-            ratings={Object.values(ratingMap)}
+            ratings={
+              props.userReview?.featuresRating.map(obj => obj.rating) ||
+              Object.values(ratingMap)
+            }
             onRate={changeFeatureRating}
             readonly={props.readonly}
           />
@@ -310,10 +341,7 @@ function NewReviewForm(props: Props) {
         </div>
 
         <div className="que-group">
-          <label className="">
-            Have photos of this business? Want to share? (optional)
-          </label>
-
+          <label className="">Have photos of this business? Want to share? (optional)</label>
           <div className="d-flx gap-2 align-items-center flex-wrap">
             <button
               className="btn btn-outline-sec btn-sm d-block mb-3"
@@ -356,12 +384,12 @@ function NewReviewForm(props: Props) {
           deleteUpload={deleteUpload}
           newFile={newFile}
           setNewFile={setNewFile}
-          handleChangeFile={handleChangeFile}
+          onChange={handleChangeFile}
           show={showPhotoUploadModal}
           close={setShowPhotoUploadModal.bind(null, false)}
         />
 
-        <div className="que-group">
+        <div className={cls('que-group', props.readonly && 'd-none')}>
           <label htmlFor="i-accept" className="d-flex gap-3">
             <Form.Check
               id="i-accept"
@@ -374,18 +402,21 @@ function NewReviewForm(props: Props) {
             />
             <small>
               I certify that this review is based on my own experience and is my genuine
-              opinion of this business, and that I have no personal or business
-              relationship with this establishment, and have not been offered any
-              incentive or payment originating from the establishment to write this
-              review. I understand that localinspire has a zero-tolerance policy on fake
-              reviews. Terms and Conditions
+              opinion of this business, and that I have no personal or business relationship
+              with this establishment, and have not been offered any incentive or payment
+              originating from the establishment to write this review. I understand that
+              localinspire has a zero-tolerance policy on fake reviews. Terms and Conditions
             </small>
           </label>
           <Form.Control.Feedback type="invalid" className="d-block">
             {userAcceptedTermsValidationErrors[0]?.msg}
           </Form.Control.Feedback>
         </div>
-        <button className="btn btn-pry btn--lg" type="submit">
+
+        <button
+          className={cls(props.readonly && 'd-none', 'btn btn-pry btn--lg')}
+          type="submit"
+        >
           Submit review
         </button>
       </form>

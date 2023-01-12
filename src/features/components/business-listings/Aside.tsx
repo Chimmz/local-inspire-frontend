@@ -68,15 +68,15 @@ function Aside() {
         <h2 className="mb-4">We as a family owned business</h2>
         <ul className="no-bullets d-flex flex-column gap-3">
           <li className="d-flex gap-4">
-            <Icon icon="material-symbols:done-rounded" color="#e87525" width={35} />
+            <Icon icon="material-symbols:done-rounded" color="#e87525" width={25} />
             Seek to grow trust and growth in our community and businesses.
           </li>
           <li className="d-flex gap-4">
-            <Icon icon="material-symbols:done-rounded" color="#e87525" width={35} />
+            <Icon icon="material-symbols:done-rounded" color="#e87525" width={25} />
             Seek to grow trust and growth in our community and businesses.
           </li>
           <li className="d-flex gap-4">
-            <Icon icon="material-symbols:done-rounded" color="#e87525" width={35} />
+            <Icon icon="material-symbols:done-rounded" color="#e87525" width={25} />
             Seek to grow trust and growth in our community and businesses.
           </li>
         </ul>

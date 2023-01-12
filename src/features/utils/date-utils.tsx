@@ -1,12 +1,14 @@
-// export interface DateFormatOptions {
-//   month?: true,
-//   year: true
-// }
+import { monthsOfTheYear } from '../data/constants';
 
-export const formatDate = (str: string, options: Intl.DateTimeFormatOptions) => {
-  if (typeof window === 'undefined') return '';
-  const dateStr = new Intl.DateTimeFormat(window.navigator?.language, options).format(
-    new Date(str),
-  );
-  return dateStr;
+export const getPast12MonthsWithYear = (): string[] => {
+  const pastMonths = [];
+  const now = new Date();
+
+  for (var i = 0; i > -12; i--) {
+    var future = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    var month = monthsOfTheYear[future.getMonth()];
+    var year = future.getFullYear();
+    pastMonths.push([month, year].join(' '));
+  }
+  return pastMonths;
 };

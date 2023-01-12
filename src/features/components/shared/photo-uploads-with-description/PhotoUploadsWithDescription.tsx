@@ -20,29 +20,30 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
     deleteUpload,
     newFile,
     setNewFile,
-    handleChangeFile,
+    onChange: handleChangeFile,
   } = mainProps;
 
   useEffect(() => {
     if (!newFile?.length) return;
     pushNewUpload(newFile);
-    setNewFile('');
-  }, [newFile]);
+    setNewFile(''); // Reset the file str
+  }, [newFile]); // Watch for when user uploads a new file
 
   const handleContinue: React.MouseEventHandler<HTMLButtonElement> = async ev => {
+    // Run validators
     new Promise<boolean>((resolve, reject) => {
       setTimeout(() => {
-        const anyErrorsExists = uploads
-          .map(upload => upload.validatorRunner?.())
+        const errorsExists = uploads
+          .map(upl => upl.validatorRunner?.())
           .some(result => result?.errorExists);
-        (anyErrorsExists ? reject : resolve)(anyErrorsExists);
+        (errorsExists ? reject : resolve)(errorsExists);
       }, 500);
     }).then(close);
   };
 
   useEffect(() => {
     const dialog = document.querySelector('.modal-dialog') as HTMLElement;
-    if (dialog) dialog.style.maxWidth = '700px';
+    if (dialog) dialog.style.maxWidth = '700px'; // Expand the modal a little
   }, []);
 
   return (
@@ -53,10 +54,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
       scrollable={!!uploads.length}
       backdrop="static"
     >
-      <Modal.Header
-        closeButton
-        style={{ backgroundColor: '#f8f9fa', fontSize: '1.3rem' }}
-      >
+      <Modal.Header closeButton style={{ backgroundColor: '#f8f9fa', fontSize: '1.3rem' }}>
         <Modal.Title>Add photos of Fannies BBQ</Modal.Title>
       </Modal.Header>
 

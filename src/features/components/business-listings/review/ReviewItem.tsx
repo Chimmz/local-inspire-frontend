@@ -1,55 +1,54 @@
-import React, {
-  ChangeEventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
+import { ReviewProps } from '../../recommend-business/UserReview';
+
+import useDate from '../../../hooks/useDate';
+import useSignedInUser from '../../../hooks/useSignedInUser';
+import useRequest from '../../../hooks/useRequest';
+
+import * as dateUtils from '../../../utils/date-utils';
+import api from '../../../library/api';
+
+import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import { Form, Spinner } from 'react-bootstrap';
-import LabelledCheckbox from '../../shared/LabelledCheckbox';
-import styles from './Reviews.module.scss';
-import Image from 'next/image';
-import cls from 'classnames';
-import Link from 'next/link';
-import StarRating from '../../shared/star-rating/StarRating';
-import { ReviewProps } from '../../recommend-business/UserReview';
-import useSignedInUser from '../../../hooks/useSignedInUser';
-import api from '../../../library/api';
-import useRequest from '../../../hooks/useRequest';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
-import * as dateUtils from '../../../utils/date-utils';
-import useDate from '../../../hooks/useDate';
+import styles from './Reviews.module.scss';
+import StarRating from '../../shared/star-rating/StarRating';
 
 type Props = ReviewProps & { show: boolean; businessName: string };
 
 const ReviewItem = function (props: Props) {
-  console.log('BusinessReview is evaluated');
+  // console.log('BusinessReview is evaluated');
   const [likes, setLikes] = useState(props.likedBy);
-  const { date: reviewDate } = useDate(props.createdAt, {
-    month: 'short',
-    year: 'numeric',
-  });
-  const currentUser = useSignedInUser();
+  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
+
+  const [likeBtnText, setLikeBtnText] = useState('This was helpful');
+  const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
+
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
+  const currentUser = useSignedInUser();
 
-  const handleLikeReview: React.MouseEventHandler<HTMLButtonElement> =
-    useCallback(async () => {
-      const data = await sendLikeReq(
-        api.toggleBusinessReviewHelpful(props._id, currentUser.accessToken!),
-      );
-      console.log({ data });
-      if (data.status === 'SUCCESS') setLikes(data?.likes?.users as string[]);
-    }, [
-      sendLikeReq,
-      api.toggleBusinessReviewHelpful,
-      props._id,
-      currentUser.accessToken,
-    ]);
+  const handleLikeReview = useCallback(async () => {
+    const data = await sendLikeReq(
+      api.toggleBusinessReviewHelpful(props._id, currentUser.accessToken!),
+    );
+    console.log({ data });
+
+    if (data.status !== 'SUCCESS') return;
+
+    console.log({ isLikedByCurrentUser });
+
+    if (data?.likes?.users?.includes(currentUser._id))
+      setLikeBtnText('Thank you for your vote');
+    else setLikeBtnText('This was helpful');
+
+    setLikes(data?.likes?.users as string[]);
+  }, [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken]);
 
   const isLikedByCurrentUser = useMemo(
     () => likes.includes(currentUser?._id!),
@@ -76,11 +75,7 @@ const ReviewItem = function (props: Props) {
         disabled={isLiking}
       >
         <Icon icon={`mdi:like${!isLikedByCurrentUser ? '-outline' : ''}`} width={20} />
-        This was helpful{' '}
-        {/* {isLiking ? (
-        <Spinner animation="border" size="sm" style={{ borderWidth: '1px' }} />
-      ) : null} */}
-        {likes.length ? `(${likes.length})` : ''}
+        {likeBtnText} {likes.length ? `(${likes.length})` : ''}
       </button>
     ),
     [handleLikeReview, isLiking, isLikedByCurrentUser, likes, likes.length],
@@ -93,14 +88,12 @@ const ReviewItem = function (props: Props) {
     >
       <div className={styles.reviewHeader}>
         <Image
-          src={props.reviewedBy.imgUrl || '/img/los-angeles-photo.jpg'}
+          src={src}
           width={50}
           height={50}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
-          onError={ev => {
-            (ev.target as HTMLImageElement).src = '/img/los-angeles-photo.jpg';
-          }}
+          onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
         <small className="fs-4">
           <span className="text-black">
@@ -153,14 +146,17 @@ const ReviewItem = function (props: Props) {
         <small className="text-black"> {props.businessName}</small>
       </span>
 
-      <ul className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
+      <div className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
         <FeatureRating
           features={props.featuresRating.map(f => f.feature)}
           ratings={props.featuresRating.map(f => f.rating)}
           readonly
+          grid
         />
-      </ul>
+      </div>
+
       <hr />
+
       <div className={styles.reviewFooter}>
         {btnLike}
         <button className="btn btn-transp d-flex align-items-center gap-2">

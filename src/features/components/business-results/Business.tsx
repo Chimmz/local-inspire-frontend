@@ -20,18 +20,29 @@ import LoadingButton from '../shared/button/Button';
 
 export interface BusinessProps {
   _id: string;
-  index?: number;
   businessName: string;
-  address?: string;
-  rating: number;
-  featured?: boolean;
-  SIC8?: string;
-  SIC4: string;
   SIC2: string;
-  [key: string]: any;
+  SIC4: string;
+  SIC8: string;
+  contactName: string;
+  stateCode: string;
+  city: string;
+  zipCode: string;
+  address: string;
+  phone: string;
+  yearFounded: string;
+  locationType: string;
+  marketVariable: string;
+  annualRevenue: string;
+  SIC: string;
+  NAICS: string;
+  industry: string;
+  rating?: number;
 }
 
-const Business: FC<BusinessProps> = function (props) {
+type Props = Partial<BusinessProps> & { featured?: boolean; index?: number };
+
+const Business: FC<Props> = function (props) {
   const router = useRouter();
   const rand = Math.floor(Math.random() * 9);
   const { businessName, address, rating, featured = false, index } = props;
@@ -41,21 +52,39 @@ const Business: FC<BusinessProps> = function (props) {
   const { isSignedIn, ...user } = useSignedInUser({});
   const { showAuthModal } = useAuthContext();
 
-  useEffect(() => {
-    if (userRecommends === null) return;
-    if (!isSignedIn) return showAuthModal!('register');
+  const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 
-    // Go to review page once user signs in
-    const url = urlUtils.genRecommendBusinessPageUrl(
-      props._id,
-      businessName.toLowerCase(),
-      props.city.toLowerCase(),
-      props.stateCode.toUpperCase(),
-      !!userRecommends,
-    );
+  const goToReviewsPage = () => {
+    const url = urlUtils.genRecommendBusinessPageUrl({
+      businessId,
+      businessName: businessName!,
+      city,
+      stateCode,
+      recommends: !!userRecommends,
+    });
     console.log({ url });
     navigateTo(url, router);
-  }, [userRecommends, isSignedIn]); // When user clicks either the Yes or No button
+  };
+
+  const handleClickYesOrNo = (val: 'yes' | 'no') => {
+    if (!isSignedIn) return showAuthModal!('register');
+    setUserRecommends(val === 'yes');
+  };
+
+  useEffect(() => {
+    if (!isSignedIn || userRecommends === null) return;
+
+    // Go to review page once user signs in
+    const url = urlUtils.genRecommendBusinessPageUrl({
+      businessId,
+      businessName: businessName!,
+      city,
+      stateCode,
+      recommends: !!userRecommends,
+    });
+    console.log({ url });
+    navigateTo(url, router);
+  }, [isSignedIn, userRecommends]); // Watch for anytime user signs in
 
   return (
     <li className={cls(styles.business, featured && styles.featured)} key={rand}>
@@ -72,7 +101,16 @@ const Business: FC<BusinessProps> = function (props) {
         <div className={styles.info}>
           <div className="d-flex justify-content-between">
             <h4 className={styles.businessName}>
-              {(index && index + '.') || null} {businessName}
+              <Link
+                href={urlUtils.genBusinessPageUrl({
+                  businessId,
+                  businessName: businessName!,
+                  city,
+                  stateCode,
+                })}
+              >
+                {(index ? index + '.' : '').concat(' ').concat(businessName!)}
+              </Link>
             </h4>
 
             {!featured ? (
@@ -115,19 +153,19 @@ const Business: FC<BusinessProps> = function (props) {
           <div className={styles.question}>
             <p className="me-3">Been here before? Would you recommend?</p>
             <LoadingButton
-              isLoading={userRecommends!}
+              isLoading={userRecommends! && isSignedIn}
               className="btn btn-gray btn--sm"
-              onClick={setUserRecommends.bind(null, true)}
-              // disabled={userRecommends !== null}
+              onClick={handleClickYesOrNo.bind(null, 'yes')}
+              withSpinner
             >
               Yes
             </LoadingButton>
 
             <LoadingButton
-              isLoading={userRecommends! === false}
+              isLoading={userRecommends === false && isSignedIn}
               className="btn btn-gray btn--sm"
-              onClick={setUserRecommends.bind(null, false)}
-              // disabled={userRecommends !== null}
+              onClick={handleClickYesOrNo.bind(null, 'no')}
+              withSpinner
             >
               No
             </LoadingButton>
@@ -135,13 +173,16 @@ const Business: FC<BusinessProps> = function (props) {
               className="btn btn-gray btn--sm"
               onClick={setUserRecommends.bind(null, true)}
               data-choice="yes"
+              disabled={userRecommends!}
             >
               Yes
-            </button> */}
-            {/* <button
+              <Spinner />
+            </button>
+            <button
               className="btn btn-gray btn--sm"
               onClick={setUserRecommends.bind(null, false)}
               data-choice="no"
+              disabled={userRecommends === false}
             >
               No
             </button> */}

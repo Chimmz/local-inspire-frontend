@@ -144,19 +144,12 @@ function ReviewsSection(props: Props) {
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>
-
         {filtersUI}
-
         <Spinner show={isFilteringReviews} pageWide />
       </section>
 
       {reviews?.map(r => (
-        <ReviewItem
-          {...r}
-          show={props.show}
-          businessName={props.businessName}
-          key={r._id}
-        />
+        <ReviewItem {...r} show={props.show} businessName={props.businessName} key={r._id} />
       ))}
     </>
   );
