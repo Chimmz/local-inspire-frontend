@@ -64,11 +64,6 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
     [],
   );
 
-  const refreshReviews = useCallback(async () => {
-    const data = await api.getBusinessReviews(businessId, currentUser.accessToken!);
-    if (data.status === 'SUCCESS') setReviews(data.reviews);
-  }, [setReviews, api.getBusinessReviews]);
-
   return (
     <SSRProvider>
       <Layout>
@@ -148,7 +143,6 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
               userReview={props.currentUserReview}
               sendReviewRequest={sendReviewRequest}
               submitting={isSubmittingReview}
-              refreshReviews={refreshReviews}
             />
           </div>
 
@@ -195,10 +189,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
 
   const responses = await Promise.allSettled([
     api.getUserReviewOnBusiness(businessId, session.user._id),
-    api.getBusinessReviews(businessId, session.user.accessToken),
+    api.getBusinessReviews(businessId),
   ]);
 
-  console.log(responses);
+  console.log({ responses });
 
   const [userReviewResponse, reviewsResponse] = responses
     .filter(res => res.status === 'fulfilled' && res.value)

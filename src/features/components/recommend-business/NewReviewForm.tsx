@@ -45,7 +45,6 @@ interface Props {
   submitting: boolean;
   userReview: ReviewProps | null;
   sendReviewRequest(req: any): Promise<any>;
-  refreshReviews(): void;
 }
 
 function NewReviewForm(props: Props) {
