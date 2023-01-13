@@ -5,6 +5,7 @@ import { UserPublicProfile } from '../../../types';
 
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useRequest from '../../../hooks/useRequest';
+import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
 
 import api from '../../../library/api';
 import { getFullName } from '../../../utils/user-utils';
@@ -31,6 +32,8 @@ type Props = AnswerProps & {
 
 const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
+  const withAuthMiddleware = useClientAuthMiddleware();
+
   const { send: sendReactionReq, loading: isReacting } = useRequest({
     autoStopLoading: true,
   });
@@ -41,7 +44,6 @@ const Answer: React.FC<Props> = function (props) {
 
   // const allowReaction = currentUserId !== props.answeredBy._id;
   const allowReaction = true;
-
   const userLikes = reactions.likes.includes(currentUserId!);
   const userDislikes = reactions.dislikes.includes(currentUserId!);
 
@@ -72,59 +74,74 @@ const Answer: React.FC<Props> = function (props) {
         <small className={cls(styles.authorAndDate, 'd-block')}>
           <small>
             Answer from
-            <small className="text-black">
+            <span className="text-black">
               {' '}
               {getFullName(props.answeredBy, { lastNameInitial: true })}
-            </small>{' '}
+            </span>{' '}
             on Jan 07, 2020
           </small>
         </small>
 
         <small
-          className={cls(
-            styles.responderInfo,
-            'd-flex gap-3 align-items-center flex-wrap',
-          )}
+          className={cls(styles.responderInfo, 'd-flex gap-4 align-items-center flex-wrap')}
         >
           {props.answeredBy.role === 'BUSINESS_OWNER' ? (
-            <small>Business Representative</small>
+            <>
+              <small>Business Representative</small>•
+            </>
           ) : null}
-          {/* <small>• 4 people found this helpful</small> */}
+
+          <small>
+            {props.likes.length}{' '}
+            {props.likes.length < 1
+              ? 'persons'
+              : props.likes.length === 1
+              ? 'person'
+              : 'people'}{' '}
+            found this helpful
+          </small>
+
           {props.mostHelpful ? (
             <span className="d-flex align-items-center gap-2">
-              <Icon icon="mdi:like" width={15} />
+              <Icon icon="ant-design:like-filled" width={15} />
               <small className="t-2 d-block"> Most helpful answer</small>
             </span>
           ) : null}
         </small>
       </div>
-      <small className="parag mb-5 d-block">{props.answerText}</small>
+
+      <small className="parag mb-4 d-block ">{props.answerText}</small>
 
       <div
         className={`d-${
           allowReaction ? 'flex' : 'none'
-        } align-items-center justify-content-start gap-5 mb-4`}
+        } align-items-center justify-content-start gap-4`}
       >
         <button
-          className="btn btn-bg-none"
+          className="btn btn-bg-none no-bg-hover"
           disabled={isReacting}
-          onClick={reactToAnswer.bind(null, 'like')}
+          onClick={withAuthMiddleware.bind(null, () => reactToAnswer('like'))}
         >
-          <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '}
+          {/* <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '} */}
+          <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={20} />
           Helpful ({reactions.likes.length})
         </button>
 
         <button
-          className="btn btn-bg-none gap-2"
+          className="btn btn-bg-none no-bg-hover gap-2"
           style={{ alignItems: 'flex-start' }}
           disabled={isReacting}
-          onClick={reactToAnswer.bind(null, 'dislike')}
+          onClick={withAuthMiddleware.bind(null, () => reactToAnswer('dislike'))}
         >
           <Icon
+            icon={`ant-design:dislike-${userDislikes ? 'filled' : 'outlined'}`}
+            width={20}
+          />
+          {/* <Icon
             icon={`mdi:dislike${userDislikes ? '' : '-outline'}`}
             width={20}
             color="gray"
-          />
+          /> */}
           Not helpful ({reactions.dislikes.length})
         </button>
       </div>

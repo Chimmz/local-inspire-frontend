@@ -62,9 +62,7 @@ function ReviewsSection(props: Props) {
   const filterReviews = async () => {
     console.log('In filterReviews');
     // await simulateRequest(5, sendFilterReq);
-    const res = await sendFilterReq(
-      api.getBusinessReviews(props.businessId, accessToken!, queryStr),
-    );
+    const res = await sendFilterReq(api.getBusinessReviews(props.businessId, queryStr));
     res?.status === 'SUCCESS' && setReviews(res.data);
   };
 

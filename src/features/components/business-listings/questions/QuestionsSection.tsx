@@ -1,24 +1,32 @@
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
+
+import api from '../../../library/api';
+import { maxLength, minLength } from '../../../utils/validators/inputValidators';
+
+import useInput from '../../../hooks/useInput';
+import useRequest from '../../../hooks/useRequest';
+import useSignedInUser from '../../../hooks/useSignedInUser';
+import useToggle from '../../../hooks/useToggle';
+import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import Link from 'next/link';
-import styles from './QuestionsSection.module.scss';
 import TextInput from '../../shared/text-input/TextInput';
-import useInput from '../../../hooks/useInput';
-import { maxLength, minLength } from '../../../utils/validators/inputValidators';
 import LoadingButton from '../../shared/button/Button';
-import api from '../../../library/api';
-import useRequest from '../../../hooks/useRequest';
-import useSignedInUser from '../../../hooks/useSignedInUser';
-import { simulateRequest } from '../../../utils/async-utils';
-import useToggle from '../../../hooks/useToggle';
+import Accordion from 'react-bootstrap/Accordion';
+import styles from './QuestionsSection.module.scss';
+import LabelledCheckbox from '../../shared/LabelledCheckbox';
+import Image from 'next/image';
+import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
+import * as config from './config';
 
 interface Props {
   readonly show: boolean;
   questions: QuestionItemProps[] | undefined;
   readonly businessId: string;
+  readonly businessName: string | undefined;
 }
 
 const MAX_CHARS_FOR_NEW_QUESTION = 150;
@@ -40,22 +48,7 @@ const QuestionsSection = function (props: Props) {
     validationErrors: newQuestionValidators,
     runValidators: runNewQuestionValidators,
     clearInput: clearNewQuestion,
-  } = useInput({
-    init: '',
-    validators: [
-      {
-        fn: maxLength,
-        params: [
-          MAX_CHARS_FOR_NEW_QUESTION,
-          `You have entered more than ${MAX_CHARS_FOR_NEW_QUESTION} characters}`,
-        ],
-      },
-      {
-        fn: minLength,
-        params: [5, `Enter at least ${MIN_CHARS_FOR_NEW_QUESTION} characters}`],
-      },
-    ],
-  });
+  } = useInput({ init: '', validators: [...config.newQuestionValidators] });
 
   const postNewQuestion: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
@@ -69,61 +62,77 @@ const QuestionsSection = function (props: Props) {
     if (data?.status) {
       setQuestions(items => [data.question, ...(items || [])]);
       clearNewQuestion();
-      toggleShowNewForm();
       // window.scrollBy(0, window.pageYOffset + 1);
     }
   };
 
-  const newQuestionForm = useMemo(
-    () =>
-      showNewForm && (
-        <form
-          className={cls(styles.newQuestionForm, 'flex-grow-1')}
-          // style={{ flexBasis: '50%', justifySelf: 'center' }}
-          onSubmit={postNewQuestion}
-        >
-          <TextInput
-            as="textarea"
-            value={newQuestion}
-            onChange={handleChangeNewQuestion}
-            validationErrors={newQuestionValidators}
-            className="textfield w-100 d-block flex-grow-1"
-          />
-          <LoadingButton
-            className="btn btn-pry mt-3 w-100"
-            type="submit"
-            isLoading={isPostingQuestion}
-            textWhileLoading="Posting..."
-          >
-            Post question
-          </LoadingButton>
-        </form>
-      ),
-    [newQuestion, handleChangeNewQuestion, postNewQuestion],
-  );
   return (
     <>
-      <section
-        className={cls(
-          show ? 'd-flex' : 'd-none',
-          'align-items-center justify-content-between gap-3 flex-wrap',
-        )}
+      <Accordion
+        defaultActiveKey="0"
+        className={cls(styles.queSectionHeading, props.show ? 'd-grid' : 'd-none')}
       >
-        <h2 className="" style={{ flexBasis: '50%' }}>
-          Questions & Answers
-        </h2>
-        {/* <small>
+        <h2 className="">Questions & Answers</h2>
+        <small className={styles.allQuestionsLink}>
           <Link href={'/'}>See all 14 questions</Link>
-        </small> */}
-        <button className="btn btn-gray" onClick={toggleShowNewForm}>
+        </small>
+
+        <CustomAccordionToggle
+          eventKey="1"
+          className={cls(styles.btnNewQuestion, 'btn btn-bg-none no-bg-hover')}
+        >
           <Icon
             icon={`material-symbols:${showNewForm ? 'close-rounded' : 'add'}`}
             width={20}
           />
-          {showNewForm ? 'Close' : 'Ask new question'}
-        </button>
-        {newQuestionForm}
-      </section>
+          Ask new question
+        </CustomAccordionToggle>
+        <Accordion.Collapse eventKey="1" className={cls('mt-5', styles.collapsedContent)}>
+          <form
+            className={cls(styles.newQuestionForm)}
+            // style={{ flexBasis: '50%', justifySelf: 'center' }}
+            onSubmit={postNewQuestion}
+          >
+            <small className="fs-4">
+              <strong className="mb-3 d-inline-block"> Got Questions?</strong> Get answers
+              from <strong>{props.businessName}</strong> staff and past visitors.
+            </small>
+
+            <div className={styles.defaultImg}>
+              <Image
+                src="/img/default-profile-pic.jpeg"
+                width={35}
+                height={35}
+                style={{ borderRadius: '50%' }}
+              />
+            </div>
+
+            <TextInput
+              as="textarea"
+              value={newQuestion}
+              onChange={handleChangeNewQuestion}
+              validationErrors={newQuestionValidators}
+              className="textfield w-100 d-block"
+            />
+            <small className="mb-3 d-block">
+              Note: your question will be posted publicly here and on the Questions & Answers
+              page
+            </small>
+            <LabelledCheckbox
+              label={<small>Get notified about new answers to your questions</small>}
+              onChange={() => {}}
+            />
+            <LoadingButton
+              className="btn btn-pry mt-3 w-100"
+              type="submit"
+              isLoading={isPostingQuestion}
+              textWhileLoading="Posting..."
+            >
+              Post question
+            </LoadingButton>
+          </form>
+        </Accordion.Collapse>
+      </Accordion>
 
       {questions?.map(que => (
         <QuestionItem {...que} show={props.show} key={que._id} />

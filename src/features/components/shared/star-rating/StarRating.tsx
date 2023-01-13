@@ -23,7 +23,8 @@ interface StarRatingProps {
 
 const StarRating = (props: StarRatingProps) => {
   const { ratingValue, renderReviewsCount, starSize, className } = props;
-  const sizeMap = { sm: 17, md: 20, lg: 30, xlg: 45 };
+  // const sizeMap = { sm: 17, md: 20, lg: 30, xlg: 45 };
+  const sizeMap = { sm: 11, md: 14, lg: 24, xlg: 39 };
 
   return (
     <div
@@ -47,25 +48,29 @@ const StarRating = (props: StarRatingProps) => {
         tooltipStyle={{ backgroundColor: 'transparent', color: '#000' }}
         emptyIcon={
           <Icon
-            icon="mdi:star-circle"
+            // icon="mdi:star-circle"
+            icon="octicon:feed-star-16"
             color="#ccc"
             inline
             width={sizeMap[starSize]}
             key={uuid()}
+            style={{ marginRight: '3px' }}
           />
         }
         fillIcon={
           <Icon
-            icon="mdi:star-circle"
-            color="#0955a1"
+            // icon="mdi:star-circle"
+            icon="octicon:feed-star-16"
+            color="#024180"
             inline
             width={sizeMap[starSize]}
             key={uuid()}
+            style={{ marginRight: '3px' }}
           />
         }
       />
       {props.showRatingCaption && ratingValue ? (
-        <small style={{ marginLeft: '5px' }}>
+        <small className="ms-3">
           {renderReviewsCount?.(ratingValue) || `${ratingValue}`}
         </small>
       ) : null}

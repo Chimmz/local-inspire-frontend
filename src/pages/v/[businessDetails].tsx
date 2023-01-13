@@ -30,22 +30,16 @@ import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/ur
 import { BusinessProps } from '../../features/components/business-results/Business';
 
 interface Props {
-  questions: {
-    results: number;
-    status: 'SUCCESS' | 'FAIL';
-    data: QuestionItemProps[];
-  };
-  business: BusinessProps;
-  reviews?: { results: number; status: 'SUCCESS' | 'FAIL'; data: ReviewProps[] };
-  tips?: { results: number; status: 'SUCCESS' | 'FAIL'; data: TipProps[] };
+  questions: { results: number; status: 'SUCCESS' | 'FAIL'; data?: QuestionItemProps[] };
+  reviews: { results: number; status: 'SUCCESS' | 'FAIL'; data?: ReviewProps[] };
+  tips: { results: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
   params: { businessName: string; city: string; stateCode: string; businessId: string };
+  business: { data: BusinessProps | undefined };
 }
 
 const BusinessListings: NextPage<Props> = function (props) {
   const router = useRouter();
-  const [whatsActive, setWhatsActive] = useState<'reviews' | 'q&a' | 'advices'>(
-    'reviews',
-  );
+  const [whatsActive, setWhatsActive] = useState<'reviews' | 'q&a' | 'advices'>('reviews');
 
   const linkToReviewPage = router.asPath.replace('/v/', '/write-a-review/');
   // const genUrlParams = [
@@ -59,15 +53,14 @@ const BusinessListings: NextPage<Props> = function (props) {
       </Layout.Nav>
       <Layout.Main className={styles.main}>
         <Header
+          business={props.business.data}
           businessName={props.params.businessName}
           linkToReviewPage={linkToReviewPage}
           reviewsCount={props.reviews?.results}
         />
         <div className={styles.left}>
           <Announcement />
-          <section
-            className={cls(styles.bookNow, 'd-flex', 'align-items-center', 'gap-4')}
-          >
+          <section className={cls(styles.bookNow, 'd-flex', 'align-items-center', 'gap-4')}>
             <Icon icon="mdi:loudspeaker" width={30} color="#024180" />
             <h2 className="flex-grow-1 mt-2">Book with us now and save!</h2>
             <button className="btn btn-sec">Book now</button>
@@ -139,7 +132,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               data-active={whatsActive === 'reviews'}
             >
               <Icon icon="material-symbols:rate-review" width={30} />
-              <strong>Reviews</strong>
+              <strong>{props.reviews.data?.length} Reviews</strong>
             </button>
             <button
               className="d-flex flex-column gap-3 align-items-center"
@@ -147,7 +140,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               data-active={whatsActive === 'q&a'}
             >
               <Icon icon="jam:messages-f" width={30} />
-              <strong>Q&A</strong>
+              <strong>{props.questions.data?.length} Q&A</strong>
             </button>
             <button
               className="d-flex flex-column gap-3 align-items-center"
@@ -155,7 +148,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               data-active={whatsActive === 'advices'}
             >
               <Icon icon="material-symbols:tips-and-updates" width={30} />
-              <strong>Tips</strong>
+              <strong>{props.tips.data?.length} Tips</strong>
             </button>
           </nav>
 
@@ -169,6 +162,7 @@ const BusinessListings: NextPage<Props> = function (props) {
             show={whatsActive === 'q&a'}
             questions={props.questions.data}
             businessId={props.params.businessId}
+            businessName={props.business.data?.businessName}
           />
           <AdvicesSection show={whatsActive === 'advices'} tips={props.tips?.data} />
         </div>
@@ -228,15 +222,6 @@ const BusinessListings: NextPage<Props> = function (props) {
 
 export const getServerSideProps: GetServerSideProps = async function (context) {
   const { req, res, params } = context;
-  const session = await unstable_getServerSession(
-    req,
-    res,
-    authOptions as NextAuthOptions,
-  );
-
-  if (!session)
-    return { redirect: { destination: '/?authError=true', permanent: false } };
-
   const slug = params!.businessDetails as string;
   const [businessName, location, businessId] = slug.split('_');
 
@@ -244,9 +229,9 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
 
   const responses = await Promise.allSettled([
     api.getBusinessById(businessId),
-    api.getBusinessReviews(businessId, session.user.accessToken),
-    api.getQuestionsAskedAboutBusiness(businessId, session.user.accessToken),
-    api.getTipsAboutBusiness(businessId, session.user.accessToken),
+    api.getBusinessReviews(businessId),
+    api.getQuestionsAskedAboutBusiness(businessId),
+    api.getTipsAboutBusiness(businessId),
   ]);
 
   console.log(responses);

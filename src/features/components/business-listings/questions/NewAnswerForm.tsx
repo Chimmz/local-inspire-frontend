@@ -10,6 +10,7 @@ import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import api from '../../../library/api';
 import { QuestionItemProps } from './QuestionItem';
+import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
 
 interface NewAnswerFormProps {
   show: boolean;
@@ -19,12 +20,13 @@ interface NewAnswerFormProps {
 
 const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
   const [inputType, setInputType] = useState<'input' | 'textarea'>('input');
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const { send: sendAnswerReq, loading: isSendingAnswer } = useRequest({
     autoStopLoading: true,
   });
   const { accessToken } = useSignedInUser();
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const withAuthMiddleware = useClientAuthMiddleware();
 
   const {
     inputValue: newAnswer,
@@ -35,13 +37,8 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
 
   const handleSubmit = useCallback(async () => {
     const textarea = formRef.current!.querySelector('textarea')!;
-
     const data = await sendAnswerReq(
-      api.addAnswerToBusinessQuestion(
-        props.questionId,
-        textarea.value.trim(),
-        accessToken!,
-      ),
+      api.addAnswerToBusinessQuestion(props.questionId, textarea.value.trim(), accessToken!),
     );
     console.log({ data });
 
@@ -75,12 +72,11 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
       </small>
       <TextInput
         value={newAnswer}
-        onChange={handleChangeAnswer}
+        onChange={withAuthMiddleware.bind(null, handleChangeAnswer)}
         className="textfield"
         placeholder="Write your answer here..."
         as={inputType}
         onFocus={setInputType.bind(null, 'textarea')}
-        // onBlur={setTimeout.bind(null, setInputType.bind(null, 'input'), 50)}
       />
 
       {newAnswer.length ? (

@@ -13,25 +13,27 @@ import api from '../../../library/api';
 
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import { Form, Spinner } from 'react-bootstrap';
+import { Accordion, Form, Spinner } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import styles from './Reviews.module.scss';
 import StarRating from '../../shared/star-rating/StarRating';
+import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
+import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
 
 type Props = ReviewProps & { show: boolean; businessName: string };
 
 const ReviewItem = function (props: Props) {
   // console.log('BusinessReview is evaluated');
   const [likes, setLikes] = useState(props.likedBy);
-  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
-
-  const [likeBtnText, setLikeBtnText] = useState('This was helpful');
   const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
 
+  const currentUser = useSignedInUser();
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
-  const currentUser = useSignedInUser();
+  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
+  const [likeBtnText, setLikeBtnText] = useState('This was helpful');
+  const withAuthMiddleware = useClientAuthMiddleware();
 
   const handleLikeReview = useCallback(async () => {
     const data = await sendLikeReq(
@@ -71,10 +73,14 @@ const ReviewItem = function (props: Props) {
     () => (
       <button
         className="btn btn-transp d-flex align-items-center gap-2"
-        onClick={handleLikeReview}
+        onClick={withAuthMiddleware.bind(null, handleLikeReview)}
         disabled={isLiking}
       >
-        <Icon icon={`mdi:like${!isLikedByCurrentUser ? '-outline' : ''}`} width={20} />
+        {/* <Icon icon={`mdi:like${!isLikedByCurrentUser ? '-outline' : ''}`} width={20} /> */}
+        <Icon
+          icon={`ant-design:like-${isLikedByCurrentUser ? 'filled' : 'outlined'}`}
+          width={20}
+        />
         {likeBtnText} {likes.length ? `(${likes.length})` : ''}
       </button>
     ),
@@ -95,7 +101,7 @@ const ReviewItem = function (props: Props) {
           style={{ borderRadius: '50%' }}
           onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
-        <small className="fs-4">
+        <small className="">
           <span className="text-black">
             {props.reviewedBy.firstName + ' ' + props.reviewedBy.lastName[0] + '.'}
           </span>{' '}
@@ -107,61 +113,91 @@ const ReviewItem = function (props: Props) {
           Terrell, TX • 5 contributions
         </small>
 
-        <button className={styles.flag}>
-          <Icon icon="ic:round-flag" width={25} />
+        <button
+          className={cls(styles.flag, 'btn btn-circle')}
+          onClick={withAuthMiddleware.bind(null, () => {})}
+        >
+          <Icon icon="ic:round-flag" width={20} />
         </button>
       </div>
 
       <div className={styles.reviewText}>
-        <Link href={'/'} className="link">
-          {props.review}
-        </Link>
-      </div>
-      <StarRating
-        initialValue={props.businessRating}
-        starSize="lg"
-        readonly
-        className="mt-2"
-      />
+        <h4 className="fs-3 mb-3 text-dark text-hover-dark text-hover-underline">
+          <Link href={'/'} className="link">
+            {props.reviewTitle}
+          </Link>
+        </h4>
 
-      <div className="d-flex align-items-start flex-wrap  mt-4 fs-4 gap-2">
-        <small className="w-max-content text-black">Tips for visitors: </small>
-        <small className="parag mb-2 d-block">{props.adviceToFutureVisitors}</small>
-      </div>
-
-      <div className="d-flex align-items-center fs-4 gap-2">
-        <small className="w-max-content text-black">Date of visit: </small>
-        <small className="parag">
-          {props.visitedWhen.month + ' ' + props.visitedWhen.year}
-        </small>
-      </div>
-
-      <div className="d-flex align-items-center fs-4 gap-2">
-        <small className="w-max-content text-black">Visit type: </small>
-        <small className="parag">{props.visitType}</small>
-      </div>
-      <span>
-        <small className="text-black">{props.reviewedBy.firstName} </small>
-        {recommendStatusText}
-        <small className="text-black"> {props.businessName}</small>
-      </span>
-
-      <div className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
-        <FeatureRating
-          features={props.featuresRating.map(f => f.feature)}
-          ratings={props.featuresRating.map(f => f.rating)}
+        <StarRating
+          initialValue={props.businessRating}
+          starSize="lg"
           readonly
-          grid
+          className="mb-5"
         />
+        <p className="parag">{props.review}</p>
       </div>
+
+      <Accordion>
+        <CustomAccordionToggle
+          eventKey="1"
+          className="btn btn-bg-none no-bg-hover"
+          contentOnExpand={
+            <>
+              <Icon icon="material-symbols:expand-less-rounded" height={20} /> See less
+            </>
+          }
+        >
+          <Icon icon="material-symbols:expand-more-rounded" height={20} /> See more
+        </CustomAccordionToggle>
+        <Accordion.Collapse eventKey="1">
+          <div className={styles.hiddenContent}>
+            <div className="d-flex align-items-start flex-wrap  mt-4 fs-4 gap-2">
+              <small className="w-max-content text-black">Tips for visitors: </small>
+              <small className="parag mb-2 d-block">{props.adviceToFutureVisitors}</small>
+            </div>
+
+            <div className="d-flex align-items-center fs-4 gap-2">
+              <small className="w-max-content text-black">Date of visit: </small>
+              <small className="parag">
+                {props.visitedWhen.month + ' ' + props.visitedWhen.year}
+              </small>
+            </div>
+
+            <div className="d-flex align-items-center fs-4 gap-2">
+              <small className="w-max-content text-black">Visit type: </small>
+              <small className="parag">{props.visitType}</small>
+            </div>
+            <span>
+              <small className="text-black">{props.reviewedBy.firstName} </small>
+              {recommendStatusText}
+              <small className="text-black"> {props.businessName}</small>
+            </span>
+
+            <div className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
+              <FeatureRating
+                features={props.featuresRating.map(f => f.feature)}
+                ratings={props.featuresRating.map(f => f.rating)}
+                readonly
+                grid
+              />
+            </div>
+          </div>
+        </Accordion.Collapse>
+      </Accordion>
 
       <hr />
 
       <div className={styles.reviewFooter}>
         {btnLike}
-        <button className="btn btn-transp d-flex align-items-center gap-2">
-          <Icon icon="material-symbols:forward-rounded" width={20} />
+        <button
+          className="btn btn-transp d-flex align-items-center gap-2"
+          onClick={withAuthMiddleware.bind(null, () => {})}
+        >
+          <Icon icon="fluent:share-48-regular" width={20} />
           Share
+        </button>
+        <button className="btn bg-none">
+          {likes.length} people found this review helpful
         </button>
       </div>
     </section>

@@ -150,8 +150,36 @@
     font-size: 1.5rem;
   }
 
-  &-bg-none {
-    padding: 0;
+  &-bg-none,
+  &:active {
     background-color: none;
+
+    &:hover {
+      background-color: rgba(#000, 0.02);
+      color: #000;
+    }
+
+    &.no-bg-hover {
+      padding: 0;
+      background-color: transparent !important;
+
+      &:hover {
+        color: $color-pry-light !important;
+      }
+    }
+  }
+
+  &-circle {
+    all: unset;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid #ccc !important;
+    display: grid;
+    place-items: center;
+
+    &:hover {
+      background-color: #f8f8f8 !important;
+    }
   }
 }

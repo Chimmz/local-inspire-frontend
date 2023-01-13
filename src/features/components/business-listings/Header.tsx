@@ -8,33 +8,37 @@ import cls from 'classnames';
 import { Form } from 'react-bootstrap';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
+import { BusinessProps } from '../business-results/Business';
 
 interface Props {
   businessName: string;
   reviewsCount: number | undefined;
   linkToReviewPage: string;
+  business: Partial<BusinessProps> | undefined;
 }
 
 function Header(props: Props) {
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-        <h1>{props.businessName}</h1>
+        <h1>{props.business?.businessName}</h1>
         <StarRating
           readonly
-          ratingValue={3}
+          ratingValue={props.reviewsCount}
           initialValue={3}
           showRatingCaption
           starSize="lg"
           renderReviewsCount={n => `${n} reviews`}
           className="mb-4"
         />
-        <span>341 Tanger Dr, Terrell, TX 75160</span>
+        <span>{props.business?.address}</span>
+
         <ul className="d-flex align-items-center gap-2 no-bullets">
-          <li>Vacation Rentals</li>
-          <li>• Cabin</li>
+          <li>{props.business?.SIC4}</li>
+          <li>• {props.business?.SIC8}</li>
         </ul>
-        <div className="d-flex gap-3">
+
+        <div className="d-flex gap-3 mt-5">
           <button
             className="btn btn--lg"
             style={{ backgroundColor: '#e20e0e', color: '#fff' }}
@@ -49,16 +53,16 @@ function Header(props: Props) {
 
       <div className={cls(styles.headerRight, 'd-flex', 'flex-column')}>
         <div className="d-flex justify-content-between mb-4">
-          <button className="btn btn-bg-none">
-            <Icon icon="ic:outline-save" width={22} />
+          <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+            <Icon icon="material-symbols:bookmark" width={18} />
             Save
           </button>
-          <button className="btn btn-bg-none">
-            <Icon icon="material-symbols:forward" width={22} />
+          <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+            <Icon icon="mdi:share" width={21} />
             Share
           </button>
-          <button className="btn btn-bg-none">
-            <Icon icon="material-symbols:add-photo-alternate-outline" width={23} />
+          <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+            <Icon icon="material-symbols:photo-camera" width={19} />
             Add photo
           </button>
         </div>

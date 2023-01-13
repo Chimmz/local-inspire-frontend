@@ -17,6 +17,8 @@ import NewAnswerForm from './NewAnswerForm';
 import { simulateRequest } from '../../../utils/async-utils';
 import useRequest from '../../../hooks/useRequest';
 import useDate from '../../../hooks/useDate';
+import { Accordion } from 'react-bootstrap';
+import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 
 export interface QuestionItemProps {
   _id: string;
@@ -39,13 +41,19 @@ const QuestionItem = (props: Props) => {
     day: '2-digit',
     year: 'numeric',
   });
-  const [imgSrc, setImgSrc] = useState(question.askedBy.imgUrl);
+  const [imgSrc, setImgSrc] = useState(
+    question.askedBy.imgUrl || '/img/default-profile-pic.jpeg',
+  );
 
-  let mostHelpfulAnswer: AnswerProps = useMemo(() => {
+  const mostHelpfulAnswer = useMemo(() => {
     return question.answers.reduce((accum, ans) => {
       if (ans.likes.length > accum.likes.length) return ans;
       return accum;
     }, question.answers[0]);
+  }, [question.answers]);
+
+  const lessHelpfulAnswers = useMemo(() => {
+    return question.answers.filter(a => a._id !== mostHelpfulAnswer._id);
   }, [question.answers]);
 
   return (
@@ -59,7 +67,7 @@ const QuestionItem = (props: Props) => {
           style={{ borderRadius: '50%' }}
           onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
-        <small className="fs-4">
+        <small className="">
           <span className="text-black">
             {getFullName(question.askedBy, { lastNameInitial: true })}
           </span>{' '}
@@ -71,29 +79,50 @@ const QuestionItem = (props: Props) => {
           Terrell, TX • 5 contributions
         </small>
 
-        <button className={styles.flag}>
-          <Icon icon="mi:options-vertical" width={25} />
+        <button className={cls(styles.flag, 'btn btn-circle')}>
+          <Icon icon="mi:options-horizontal" width={22} />
         </button>
       </div>
 
-      <div className={cls(styles.questionText, 'text-dark')}>
+      <div className={cls(styles.questionText, 'text-dark text-hover-dark fs-3')}>
         <Link href={'/'} className="link">
           {question.questionText}
         </Link>
       </div>
 
-      <ul>
-        {question.answers.map(a => (
-          <Answer
-            {...a}
-            questionId={question._id}
-            key={a._id}
-            mostHelpful={a._id === mostHelpfulAnswer._id}
-          />
-        ))}
-      </ul>
+      {/* Most helpful answer */}
+      <Answer
+        {...mostHelpfulAnswer}
+        questionId={question._id}
+        mostHelpful={!!mostHelpfulAnswer.likes.length}
+      />
 
-      <hr />
+      <Accordion
+        className={cls(styles.lessHelpfulAnswers, !(question.answers.length - 1) && 'd-none')}
+      >
+        <CustomAccordionToggle
+          eventKey="1"
+          className="btn btn-bg-none no-bg-hover mt-4"
+          classNameOnExpand="btn btn-bg-none no-bg-hover"
+          contentOnExpand={<span className="text-pry">Show most helpful answer</span>}
+        >
+          <span className="text-pry">Show {question.answers.length - 1} more answers </span>
+        </CustomAccordionToggle>
+
+        <Accordion.Collapse eventKey="1">
+          <ul>
+            {lessHelpfulAnswers.map(a => (
+              <Answer
+                {...a}
+                questionId={question._id}
+                key={a._id}
+                mostHelpful={a._id === mostHelpfulAnswer._id}
+              />
+            ))}
+          </ul>
+        </Accordion.Collapse>
+      </Accordion>
+
       <NewAnswerForm show questionId={props._id} setQuestion={setQuestion} />
     </section>
   );

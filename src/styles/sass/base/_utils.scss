@@ -50,3 +50,14 @@
   color: #000;
   font-weight: 500;
 }
+
+.text-hover-dark:hover {
+  &,
+  & * {
+    color: #000 !important;
+  }
+}
+
+.text-hover-underline:hover {
+  text-decoration: underline;
+}

@@ -152,11 +152,11 @@ class API {
     });
   }
 
-  async getBusinessReviews(businessId: string, token: string, queryStr?: string) {
+  async getBusinessReviews(businessId: string, queryStr?: string) {
     return this._makeRequest({
       path: `/businesses/${businessId}/reviews`.concat(queryStr || ''),
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -217,19 +217,19 @@ class API {
     });
   }
 
-  async getQuestionsAskedAboutBusiness(businessId: string, token: string) {
+  async getQuestionsAskedAboutBusiness(businessId: string) {
     return this._makeRequest({
       path: `/businesses/${businessId}/questions`,
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  async getTipsAboutBusiness(businessId: string, token: string) {
+  async getTipsAboutBusiness(businessId: string) {
     return this._makeRequest({
       path: `/businesses/${businessId}/tips`,
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
