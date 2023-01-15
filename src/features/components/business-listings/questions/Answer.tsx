@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
 import { UserPublicProfile } from '../../../types';
 
@@ -12,6 +12,7 @@ import { getFullName } from '../../../utils/user-utils';
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import styles from './QuestionsSection.module.scss';
+import { QuestionItemProps } from './QuestionItem';
 
 export interface AnswerProps {
   readonly _id: string;
@@ -26,6 +27,7 @@ export interface AnswerProps {
 
 type Props = AnswerProps & {
   questionId: string;
+  setQuestion: Dispatch<SetStateAction<QuestionItemProps>>;
 };
 
 const Answer: React.FC<Props> = function (props) {
@@ -39,7 +41,8 @@ const Answer: React.FC<Props> = function (props) {
   });
   const { withAuth } = useClientMiddleware();
   const [imgSrc, setImgSrc] = useState(
-    props.answeredBy.imgUrl || '/img/default-profile-pic.jpeg',
+    // props.answeredBy.imgUrl ||
+    '/img/default-profile-pic.jpeg',
   );
 
   // const allowReaction = currentUserId !== props.answeredBy._id;

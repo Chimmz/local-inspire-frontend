@@ -38,7 +38,8 @@ const QuestionItem = (props: Props) => {
     year: 'numeric',
   });
   const [imgSrc, setImgSrc] = useState(
-    question.askedBy.imgUrl || '/img/default-profile-pic.jpeg',
+    // question.askedBy.imgUrl ||
+    '/img/default-profile-pic.jpeg',
   );
 
   const mostHelpfulAnswer = useMemo(() => {
@@ -92,14 +93,25 @@ const QuestionItem = (props: Props) => {
 
       {/* Most helpful answer */}
       {mostHelpfulAnswer ? (
-        <Answer {...mostHelpfulAnswer} questionId={question._id} mostHelpful />
+        <Answer
+          {...mostHelpfulAnswer}
+          questionId={question._id}
+          mostHelpful
+          setQuestion={setQuestion}
+        />
       ) : null}
 
       <>
         {!mostHelpfulAnswer ? (
           <ul className={question.answers.length < 2 ? 'd-none' : 'd-block'}>
             {question.answers.map(a => (
-              <Answer {...a} questionId={question._id} key={a._id} mostHelpful={false} />
+              <Answer
+                {...a}
+                questionId={question._id}
+                key={a._id}
+                mostHelpful={false}
+                setQuestion={setQuestion}
+              />
             ))}
           </ul>
         ) : (
@@ -125,6 +137,7 @@ const QuestionItem = (props: Props) => {
                     questionId={question._id}
                     key={a._id}
                     mostHelpful={a._id === mostHelpfulAnswer._id}
+                    setQuestion={setQuestion}
                   />
                 ))}
               </ul>
