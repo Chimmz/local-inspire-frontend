@@ -39,6 +39,7 @@ export interface BusinessProps {
   NAICS: string;
   industry: string;
   rating?: number;
+  claimed: boolean;
 }
 
 type Props = Partial<BusinessProps> & { featured?: boolean; index?: number };

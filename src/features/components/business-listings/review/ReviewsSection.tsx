@@ -138,7 +138,7 @@ function ReviewsSection(props: Props) {
 
   return (
     <>
-      <section className={cls(props.show ? 'd-block' : 'd-none')}>
+      <section className={cls(props.show && reviews.length ? 'd-block' : 'd-none')}>
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>

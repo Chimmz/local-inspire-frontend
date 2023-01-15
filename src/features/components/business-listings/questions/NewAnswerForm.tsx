@@ -10,7 +10,9 @@ import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import api from '../../../library/api';
 import { QuestionItemProps } from './QuestionItem';
-import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
+import useClientMiddleware, {
+  MiddlewareNextAction,
+} from '../../../hooks/useClientMiddleware';
 
 interface NewAnswerFormProps {
   show: boolean;
@@ -26,7 +28,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
     autoStopLoading: true,
   });
   const { accessToken } = useSignedInUser();
-  const withAuthMiddleware = useClientAuthMiddleware();
+  const { withAuth } = useClientMiddleware();
 
   const {
     inputValue: newAnswer,
@@ -35,18 +37,28 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
     clearInput: clearNewAnswer,
   } = useInput({ init: '' });
 
-  const handleSubmit = useCallback(async () => {
-    const textarea = formRef.current!.querySelector('textarea')!;
-    const data = await sendAnswerReq(
-      api.addAnswerToBusinessQuestion(props.questionId, textarea.value.trim(), accessToken!),
-    );
-    console.log({ data });
+  const postAnswer: MiddlewareNextAction = useCallback(
+    async (token?: string) => {
+      const textarea = formRef.current!.querySelector('textarea')!;
 
-    if (data?.status === 'SUCCESS') {
-      props.setQuestion(data.question);
-      clearNewAnswer();
-    }
-  }, [props.questionId, sendAnswerReq, api.addAnswerToBusinessQuestion, accessToken]);
+      const data = await sendAnswerReq(
+        api.addAnswerToBusinessQuestion(props.questionId, textarea.value.trim(), token!),
+      );
+      console.log({ data });
+
+      if (data?.status === 'SUCCESS') {
+        props.setQuestion(data.question);
+        clearNewAnswer();
+        setInputType('input');
+      }
+    },
+    [props.questionId, sendAnswerReq, api.addAnswerToBusinessQuestion, accessToken],
+  );
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
+    ev.preventDefault();
+    withAuth(postAnswer);
+  };
 
   useEffect(() => {
     if (inputType === 'textarea')
@@ -61,10 +73,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
         `d-flex align-items-center gap-3 mt-5 ${inputType === 'textarea' && 'flex-wrap'}`,
       )}
       ref={formRef}
-      onSubmit={ev => {
-        ev.preventDefault();
-        handleSubmit();
-      }}
+      onSubmit={handleSubmit}
     >
       <small className="d-flex align-items-center gap-2 w-max-content">
         <Icon icon="mdi:user-circle" width={30} color="#aaa" />{' '}
@@ -72,7 +81,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
       </small>
       <TextInput
         value={newAnswer}
-        onChange={withAuthMiddleware.bind(null, handleChangeAnswer)}
+        onChange={handleChangeAnswer}
         className="textfield"
         placeholder="Write your answer here..."
         as={inputType}

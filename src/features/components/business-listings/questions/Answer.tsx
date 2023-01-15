@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { UserPublicProfile } from '../../../types';
 
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useRequest from '../../../hooks/useRequest';
-import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
+import useClientMiddleware from '../../../hooks/useClientMiddleware';
 
 import api from '../../../library/api';
 import { getFullName } from '../../../utils/user-utils';
@@ -13,17 +12,16 @@ import { getFullName } from '../../../utils/user-utils';
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import styles from './QuestionsSection.module.scss';
-import { simulateRequest } from '../../../utils/async-utils';
 
 export interface AnswerProps {
   readonly _id: string;
-  answerText: string;
   readonly answeredBy: UserPublicProfile;
-  answeredDate: string;
-  likes: string[];
-  dislikes: string[];
   readonly createdAt: string;
-  mostHelpful: boolean;
+  readonly answerText: string;
+  readonly answeredDate: string;
+  readonly likes: string[];
+  readonly dislikes: string[];
+  readonly mostHelpful: boolean;
 }
 
 type Props = AnswerProps & {
@@ -32,8 +30,6 @@ type Props = AnswerProps & {
 
 const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
-  const withAuthMiddleware = useClientAuthMiddleware();
-
   const { send: sendReactionReq, loading: isReacting } = useRequest({
     autoStopLoading: true,
   });
@@ -41,20 +37,24 @@ const Answer: React.FC<Props> = function (props) {
     likes: props.likes,
     dislikes: props.dislikes,
   });
+  const { withAuth } = useClientMiddleware();
+  const [imgSrc, setImgSrc] = useState(
+    props.answeredBy.imgUrl || '/img/default-profile-pic.jpeg',
+  );
 
   // const allowReaction = currentUserId !== props.answeredBy._id;
   const allowReaction = true;
   const userLikes = reactions.likes.includes(currentUserId!);
   const userDislikes = reactions.dislikes.includes(currentUserId!);
 
-  const reactToAnswer = async (reaction: 'like' | 'dislike') => {
+  const reactToAnswer = async (reaction: 'like' | 'dislike', token: string) => {
     const handler =
       reaction === 'like'
         ? api.toggleLikeAnswerToBusinessQuestion
         : api.toggleDislikeAnswerToBusinessQuestion;
 
     const data = await sendReactionReq(
-      handler.bind(api)(props.questionId, props._id, accessToken!),
+      handler.bind(api)(props.questionId, props._id, token!),
     );
     console.log({ data });
 
@@ -65,11 +65,12 @@ const Answer: React.FC<Props> = function (props) {
     <div className={styles.answer}>
       <div className={styles.answerHeader}>
         <Image
-          src={'/img/los-angeles-photo.jpg'}
+          src={imgSrc}
           width={30}
           height={30}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
+          onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
         <small className={cls(styles.authorAndDate, 'd-block')}>
           <small>
@@ -120,7 +121,7 @@ const Answer: React.FC<Props> = function (props) {
         <button
           className="btn btn-bg-none no-bg-hover"
           disabled={isReacting}
-          onClick={withAuthMiddleware.bind(null, () => reactToAnswer('like'))}
+          onClick={withAuth.bind(null, (token: string) => reactToAnswer('like', token))}
         >
           {/* <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '} */}
           <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={20} />
@@ -131,7 +132,7 @@ const Answer: React.FC<Props> = function (props) {
           className="btn btn-bg-none no-bg-hover gap-2"
           style={{ alignItems: 'flex-start' }}
           disabled={isReacting}
-          onClick={withAuthMiddleware.bind(null, () => reactToAnswer('dislike'))}
+          onClick={withAuth.bind(null, (token: string) => reactToAnswer('dislike', token))}
         >
           <Icon
             icon={`ant-design:dislike-${userDislikes ? 'filled' : 'outlined'}`}

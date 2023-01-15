@@ -24,7 +24,7 @@ interface StarRatingProps {
 const StarRating = (props: StarRatingProps) => {
   const { ratingValue, renderReviewsCount, starSize, className } = props;
   // const sizeMap = { sm: 17, md: 20, lg: 30, xlg: 45 };
-  const sizeMap = { sm: 11, md: 14, lg: 24, xlg: 39 };
+  const sizeMap = { sm: 14, md: 17, lg: 24, xlg: 39 };
 
   return (
     <div

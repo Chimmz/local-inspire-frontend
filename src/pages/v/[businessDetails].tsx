@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 
-import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 
+import { BusinessProps } from '../../features/components/business-results/Business';
 import { ReviewProps } from '../../features/components/recommend-business/UserReview';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
 import { TipProps } from '../../features/components/business-listings/tips/Tip';
 
-import AdvicesSection from '../../features/components/business-listings/tips/AdvicesSection';
+import { useRouter } from 'next/router';
 
-import { toTitleCase } from '../../features/utils/string-utils';
 import api from '../../features/library/api';
+import { toTitleCase } from '../../features/utils/string-utils';
+import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/url-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
@@ -22,19 +23,23 @@ import Header from '../../features/components/business-listings/Header';
 import Announcement from '../../features/components/business-listings/Announcement';
 import ReviewsSection from '../../features/components/business-listings/review/ReviewsSection';
 import QuestionsSection from '../../features/components/business-listings/questions/QuestionsSection';
+import AdvicesSection from '../../features/components/business-listings/tips/AdvicesSection';
 
 import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
 import styles from '../../styles/sass/pages/BusinessListing.module.scss';
-import { useRouter } from 'next/router';
-import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/url-utils';
-import { BusinessProps } from '../../features/components/business-results/Business';
 
 interface Props {
+  business: { data: BusinessProps | undefined };
   questions: { results: number; status: 'SUCCESS' | 'FAIL'; data?: QuestionItemProps[] };
   reviews: { results: number; status: 'SUCCESS' | 'FAIL'; data?: ReviewProps[] };
   tips: { results: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
-  params: { businessName: string; city: string; stateCode: string; businessId: string };
-  business: { data: BusinessProps | undefined };
+  params: {
+    businessName: string;
+    city: string;
+    stateCode: string;
+    businessId: string;
+    slug: string;
+  };
 }
 
 const BusinessListings: NextPage<Props> = function (props) {
@@ -51,6 +56,7 @@ const BusinessListings: NextPage<Props> = function (props) {
       <Layout.Nav>
         <CategoriesNav searchParams={{ category: 'Rest', ...props.params }} />
       </Layout.Nav>
+
       <Layout.Main className={styles.main}>
         <Header
           business={props.business.data}
@@ -87,9 +93,7 @@ const BusinessListings: NextPage<Props> = function (props) {
           <section
             className={cls(
               styles.doYouRecommend,
-              'd-flex',
-              'align-items-center',
-              'justify-content-between',
+              'd-flex align-items-center justify-content-between gap-3 flex-wrap',
             )}
           >
             <h2 className="flex-grow-1">Do you recommend {props.params.businessName}?</h2>
@@ -164,7 +168,11 @@ const BusinessListings: NextPage<Props> = function (props) {
             businessId={props.params.businessId}
             businessName={props.business.data?.businessName}
           />
-          <AdvicesSection show={whatsActive === 'advices'} tips={props.tips?.data} />
+          <AdvicesSection
+            show={whatsActive === 'advices'}
+            tips={props.tips?.data}
+            slug={props.params.slug}
+          />
         </div>
 
         <Aside />
@@ -221,8 +229,7 @@ const BusinessListings: NextPage<Props> = function (props) {
 };
 
 export const getServerSideProps: GetServerSideProps = async function (context) {
-  const { req, res, params } = context;
-  const slug = params!.businessDetails as string;
+  const slug = context.params!.businessDetails as string;
   const [businessName, location, businessId] = slug.split('_');
 
   console.log({ businessName, location, businessId });
@@ -252,6 +259,7 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
         stateCode: loc.pop(),
         city: toTitleCase(loc.join(' ')),
         businessId,
+        slug,
       },
     },
   };

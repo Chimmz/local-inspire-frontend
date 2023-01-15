@@ -26,6 +26,11 @@
     &:focus {
       background-color: $color-pry-dark !important;
       color: #fff !important;
+
+      & a {
+        color: #fff !important;
+        // text-decoration: underline;
+      }
     }
     &:disabled {
       background-color: $color-pry-light !important;
@@ -142,9 +147,10 @@
     }
   }
   &--sm {
-    transform: scale(0.9);
+    // transform: scale(0.9);
     border-radius: 4px;
-    padding: 7px 1.6em;
+    font-size: 1.1rem;
+    // padding: 7px 1.6em;
   }
   &--lg {
     font-size: 1.5rem;
@@ -155,7 +161,7 @@
     background-color: none;
 
     &:hover {
-      background-color: rgba(#000, 0.02);
+      background-color: rgba(#000, 0.035);
       color: #000;
     }
 

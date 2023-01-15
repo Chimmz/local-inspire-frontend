@@ -18,8 +18,7 @@ export interface TipProps {
 }
 type Props = TipProps & {
   show: boolean;
-  linkToReviewPage: string;
-  goToReviewPage?: () => void;
+  slug: string;
 };
 
 const Tip = function (props: Props) {
@@ -59,7 +58,7 @@ const Tip = function (props: Props) {
       </div>
       <div className={styles.questionText}>
         <p>{props.adviceToFutureVisitors}</p>
-        <Link href={props.linkToReviewPage} className="btn">
+        <Link href={'/'} className="btn">
           Read full review...
         </Link>
       </div>

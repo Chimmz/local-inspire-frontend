@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 
-import useInput from '../../../hooks/useInput';
-
-import cls from 'classnames';
-import { Icon } from '@iconify/react';
-import styles from './QuestionsSection.module.scss';
-import { getFullName } from '../../../utils/user-utils';
-import Link from 'next/link';
-import Answer, { AnswerProps } from './Answer';
-import TextInput from '../../shared/text-input/TextInput';
-import { UserPublicProfile } from '../../../types';
-import api from '../../../library/api';
-import useSignedInUser from '../../../hooks/useSignedInUser';
-import NewAnswerForm from './NewAnswerForm';
-import { simulateRequest } from '../../../utils/async-utils';
 import useRequest from '../../../hooks/useRequest';
 import useDate from '../../../hooks/useDate';
+
+import { getFullName } from '../../../utils/user-utils';
+import cls from 'classnames';
+
+import { Icon } from '@iconify/react';
+import Link from 'next/link';
+import Answer, { AnswerProps } from './Answer';
+import { UserPublicProfile } from '../../../types';
+import NewAnswerForm from './NewAnswerForm';
 import { Accordion } from 'react-bootstrap';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
+import styles from './QuestionsSection.module.scss';
 
 export interface QuestionItemProps {
   _id: string;
@@ -46,15 +42,19 @@ const QuestionItem = (props: Props) => {
   );
 
   const mostHelpfulAnswer = useMemo(() => {
-    return question.answers.reduce((accum, ans) => {
-      if (ans.likes.length > accum.likes.length) return ans;
+    return question.answers.reduce((accum: AnswerProps | null, ans) => {
+      if (accum && ans.likes.length > accum?.likes?.length) return ans;
       return accum;
-    }, question.answers[0]);
-  }, [question.answers]);
+    }, null);
+  }, [question, question.answers]);
 
   const lessHelpfulAnswers = useMemo(() => {
-    return question.answers.filter(a => a._id !== mostHelpfulAnswer._id);
+    return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
   }, [question.answers]);
+
+  if (props._id === '63c3566720476f44f35f6b82') {
+    console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
+  }
 
   return (
     <section className={cls(styles.question, props.show ? 'd-block' : 'd-none')}>
@@ -91,37 +91,47 @@ const QuestionItem = (props: Props) => {
       </div>
 
       {/* Most helpful answer */}
-      <Answer
-        {...mostHelpfulAnswer}
-        questionId={question._id}
-        mostHelpful={!!mostHelpfulAnswer.likes.length}
-      />
+      {mostHelpfulAnswer ? (
+        <Answer {...mostHelpfulAnswer} questionId={question._id} mostHelpful />
+      ) : null}
 
-      <Accordion
-        className={cls(styles.lessHelpfulAnswers, !(question.answers.length - 1) && 'd-none')}
-      >
-        <CustomAccordionToggle
-          eventKey="1"
-          className="btn btn-bg-none no-bg-hover mt-4"
-          classNameOnExpand="btn btn-bg-none no-bg-hover"
-          contentOnExpand={<span className="text-pry">Show most helpful answer</span>}
-        >
-          <span className="text-pry">Show {question.answers.length - 1} more answers </span>
-        </CustomAccordionToggle>
-
-        <Accordion.Collapse eventKey="1">
-          <ul>
-            {lessHelpfulAnswers.map(a => (
-              <Answer
-                {...a}
-                questionId={question._id}
-                key={a._id}
-                mostHelpful={a._id === mostHelpfulAnswer._id}
-              />
+      <>
+        {!mostHelpfulAnswer ? (
+          <ul className={question.answers.length < 2 ? 'd-none' : 'd-block'}>
+            {question.answers.map(a => (
+              <Answer {...a} questionId={question._id} key={a._id} mostHelpful={false} />
             ))}
           </ul>
-        </Accordion.Collapse>
-      </Accordion>
+        ) : (
+          <Accordion
+            className={cls(styles.lessHelpfulAnswers, lessHelpfulAnswers.length && 'd-none')}
+          >
+            <CustomAccordionToggle
+              eventKey="1"
+              className="btn btn-bg-none no-bg-hover mt-4"
+              classNameOnExpand="btn btn-bg-none no-bg-hover"
+              contentOnExpand={<span className="text-pry">Show most helpful answer</span>}
+            >
+              <span className="text-pry">
+                Show {question.answers.length - 1} more answers{' '}
+              </span>
+            </CustomAccordionToggle>
+
+            <Accordion.Collapse eventKey="1">
+              <ul>
+                {lessHelpfulAnswers.map(a => (
+                  <Answer
+                    {...a}
+                    questionId={question._id}
+                    key={a._id}
+                    mostHelpful={a._id === mostHelpfulAnswer._id}
+                  />
+                ))}
+              </ul>
+            </Accordion.Collapse>
+          </Accordion>
+        )}
+      </>
 
       <NewAnswerForm show questionId={props._id} setQuestion={setQuestion} />
     </section>

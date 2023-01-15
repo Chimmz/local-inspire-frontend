@@ -1,69 +1,68 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import QuestionItem, { QuestionItemProps } from './QuestionItem';
 
 import api from '../../../library/api';
-import { maxLength, minLength } from '../../../utils/validators/inputValidators';
+import * as config from './config';
+import cls from 'classnames';
 
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
-import useToggle from '../../../hooks/useToggle';
-import { useAccordionButton } from 'react-bootstrap/AccordionButton';
+import useClientAuthMiddleware, {
+  MiddlewareNextAction,
+} from '../../../hooks/useClientMiddleware';
 
-import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import TextInput from '../../shared/text-input/TextInput';
 import LoadingButton from '../../shared/button/Button';
-import Accordion from 'react-bootstrap/Accordion';
-import styles from './QuestionsSection.module.scss';
+import TextInput from '../../shared/text-input/TextInput';
 import LabelledCheckbox from '../../shared/LabelledCheckbox';
-import Image from 'next/image';
+import Accordion from 'react-bootstrap/Accordion';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
-import * as config from './config';
+import QuestionItem, { QuestionItemProps } from './QuestionItem';
+import styles from './QuestionsSection.module.scss';
 
 interface Props {
   readonly show: boolean;
-  questions: QuestionItemProps[] | undefined;
+  readonly questions: QuestionItemProps[] | undefined;
   readonly businessId: string;
   readonly businessName: string | undefined;
 }
 
-const MAX_CHARS_FOR_NEW_QUESTION = 150;
-const MIN_CHARS_FOR_NEW_QUESTION = 5;
-
 const QuestionsSection = function (props: Props) {
-  const { show } = props;
   const [questions, setQuestions] = useState(props.questions);
+  const btnCloseAccordionRef = useRef<HTMLButtonElement | null>(null);
 
-  const { accessToken } = useSignedInUser();
   const { send: sendSubmitQuestionReq, loading: isPostingQuestion } = useRequest({
     autoStopLoading: true,
   });
-  const { state: showNewForm, toggle: toggleShowNewForm } = useToggle();
+  const { withAuth } = useClientAuthMiddleware();
 
   const {
     inputValue: newQuestion,
     handleChange: handleChangeNewQuestion,
     validationErrors: newQuestionValidators,
     runValidators: runNewQuestionValidators,
-    clearInput: clearNewQuestion,
+    clearInput: clearNewQuestionText,
   } = useInput({ init: '', validators: [...config.newQuestionValidators] });
 
-  const postNewQuestion: React.FormEventHandler<HTMLFormElement> = async ev => {
-    ev.preventDefault();
-    if (runNewQuestionValidators().errorExists) return;
-
+  const postNewQuestion: MiddlewareNextAction = async (token?: string) => {
     const data = await sendSubmitQuestionReq(
-      api.askQuestionAboutBusiness(newQuestion, props.businessId, accessToken!),
+      api.askQuestionAboutBusiness(newQuestion, props.businessId, token!),
     );
     console.log({ data });
 
     if (data?.status) {
       setQuestions(items => [data.question, ...(items || [])]);
-      clearNewQuestion();
-      // window.scrollBy(0, window.pageYOffset + 1);
+      clearNewQuestionText();
+      btnCloseAccordionRef.current!.click();
     }
+  };
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
+    ev.preventDefault();
+    if (runNewQuestionValidators().errorExists) return;
+    withAuth(postNewQuestion);
   };
 
   return (
@@ -73,26 +72,24 @@ const QuestionsSection = function (props: Props) {
         className={cls(styles.queSectionHeading, props.show ? 'd-grid' : 'd-none')}
       >
         <h2 className="">Questions & Answers</h2>
-        <small className={styles.allQuestionsLink}>
+        <small className="text-pry">
           <Link href={'/'}>See all 14 questions</Link>
         </small>
 
         <CustomAccordionToggle
           eventKey="1"
-          className={cls(styles.btnNewQuestion, 'btn btn-bg-none no-bg-hover')}
+          className={cls(styles.btnNewQuestion, 'btn btn-bg-none no-bg-hover text-pry')}
+          contentOnExpand={
+            <button className="btn btn-bg-none text-pry" ref={btnCloseAccordionRef}>
+              Close
+            </button>
+          }
         >
-          <Icon
-            icon={`material-symbols:${showNewForm ? 'close-rounded' : 'add'}`}
-            width={20}
-          />
+          <Icon icon="material-symbols:add" width={20} />
           Ask new question
         </CustomAccordionToggle>
         <Accordion.Collapse eventKey="1" className={cls('mt-5', styles.collapsedContent)}>
-          <form
-            className={cls(styles.newQuestionForm)}
-            // style={{ flexBasis: '50%', justifySelf: 'center' }}
-            onSubmit={postNewQuestion}
-          >
+          <form className={cls(styles.newQuestionForm)} onSubmit={handleSubmit}>
             <small className="fs-4">
               <strong className="mb-3 d-inline-block"> Got Questions?</strong> Get answers
               from <strong>{props.businessName}</strong> staff and past visitors.

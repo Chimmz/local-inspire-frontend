@@ -5,10 +5,8 @@
   row-gap: 1.5rem;
 
   &.grid {
-    grid-template-columns: 1fr auto;
     justify-items: start;
-    justify-content: space-between;
-    column-gap: 0;
+    column-gap: 7rem;
 
     & > li {
       flex-direction: row-reverse;

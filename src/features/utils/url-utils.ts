@@ -36,14 +36,11 @@ export const parseBusinessSearchUrlParams = (
   return { category, city, stateCode };
 };
 
-interface BusinessPageUrlParams {
-  businessId: string;
-  businessName: string;
-  city: string;
-  stateCode: string;
-}
+type BusinessPageUrlParams<T> = T extends string
+  ? { slug: string }
+  : { businessId: string; businessName: string; city: string; stateCode: string };
 
-const transformBusinessUrlParams = (args: BusinessPageUrlParams) => {
+const transformBusinessUrlParams = (args: BusinessPageUrlParams<{}>) => {
   return {
     ...args,
     businessName: args.businessName.toLowerCase().split(' ').join('-'),
@@ -52,7 +49,11 @@ const transformBusinessUrlParams = (args: BusinessPageUrlParams) => {
   };
 };
 
-export const genBusinessPageUrl = (args: BusinessPageUrlParams) => {
+export function genBusinessPageUrl<T>(
+  args: BusinessPageUrlParams<T extends string ? string : {}>,
+) {
+  if ('slug' in args) return `/v/${args.slug}`;
+
   const {
     businessName: name,
     city,
@@ -61,20 +62,23 @@ export const genBusinessPageUrl = (args: BusinessPageUrlParams) => {
   } = transformBusinessUrlParams(args);
 
   return `/v/${name}_${city.split(' ').join('-')}-${stateCode}_${id}`;
-};
+}
 
-export const genRecommendBusinessPageUrl = (
-  args: BusinessPageUrlParams & { recommends: boolean },
-) => {
+export function genRecommendBusinessPageUrl<T>(
+  args: BusinessPageUrlParams<T> & { recommends: boolean },
+) {
+  const queryStr =
+    args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '';
+
+  if ('slug' in args) return `/write-a-review/${args.slug}`.concat(queryStr);
+
   const {
     businessName: name,
     city,
     stateCode,
     businessId: id,
   } = transformBusinessUrlParams(args);
-  return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(
-    args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '',
-  );
-};
+  return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(queryStr);
+}
 
 export default navigateTo;

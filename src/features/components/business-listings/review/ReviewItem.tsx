@@ -18,39 +18,34 @@ import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import styles from './Reviews.module.scss';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
-import useClientAuthMiddleware from '../../../hooks/useClientAuthMiddleware';
+import useClientMiddleware, {
+  MiddlewareNextAction,
+} from '../../../hooks/useClientMiddleware';
 
 type Props = ReviewProps & { show: boolean; businessName: string };
 
 const ReviewItem = function (props: Props) {
   // console.log('BusinessReview is evaluated');
   const [likes, setLikes] = useState(props.likedBy);
-  const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
+  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
 
+  const { withAuth } = useClientMiddleware();
   const currentUser = useSignedInUser();
+  const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
-  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
-  const [likeBtnText, setLikeBtnText] = useState('This was helpful');
-  const withAuthMiddleware = useClientAuthMiddleware();
 
-  const handleLikeReview = useCallback(async () => {
-    const data = await sendLikeReq(
-      api.toggleBusinessReviewHelpful(props._id, currentUser.accessToken!),
-    );
-    console.log({ data });
+  const handleLikeReview: MiddlewareNextAction = useCallback(
+    async (token?: string) => {
+      const data = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
+      console.log({ data });
 
-    if (data.status !== 'SUCCESS') return;
-
-    console.log({ isLikedByCurrentUser });
-
-    if (data?.likes?.users?.includes(currentUser._id))
-      setLikeBtnText('Thank you for your vote');
-    else setLikeBtnText('This was helpful');
-
-    setLikes(data?.likes?.users as string[]);
-  }, [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken]);
+      if (data.status !== 'SUCCESS') return;
+      setLikes(data?.likes?.users as string[]);
+    },
+    [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken],
+  );
 
   const isLikedByCurrentUser = useMemo(
     () => likes.includes(currentUser?._id!),
@@ -73,7 +68,7 @@ const ReviewItem = function (props: Props) {
     () => (
       <button
         className="btn btn-transp d-flex align-items-center gap-2"
-        onClick={withAuthMiddleware.bind(null, handleLikeReview)}
+        onClick={withAuth.bind(null, handleLikeReview)}
         disabled={isLiking}
       >
         {/* <Icon icon={`mdi:like${!isLikedByCurrentUser ? '-outline' : ''}`} width={20} /> */}
@@ -81,7 +76,8 @@ const ReviewItem = function (props: Props) {
           icon={`ant-design:like-${isLikedByCurrentUser ? 'filled' : 'outlined'}`}
           width={20}
         />
-        {likeBtnText} {likes.length ? `(${likes.length})` : ''}
+        {isLikedByCurrentUser ? 'Thank you for your vote' : 'Helpful'}{' '}
+        {likes.length ? `(${likes.length})` : ''}
       </button>
     ),
     [handleLikeReview, isLiking, isLikedByCurrentUser, likes, likes.length],
@@ -115,7 +111,7 @@ const ReviewItem = function (props: Props) {
 
         <button
           className={cls(styles.flag, 'btn btn-circle')}
-          onClick={withAuthMiddleware.bind(null, () => {})}
+          onClick={withAuth.bind(null, () => {})}
         >
           <Icon icon="ic:round-flag" width={20} />
         </button>
@@ -140,7 +136,7 @@ const ReviewItem = function (props: Props) {
       <Accordion>
         <CustomAccordionToggle
           eventKey="1"
-          className="btn btn-bg-none no-bg-hover"
+          className="btn btn-bg-none no-bg-hover text-pry"
           contentOnExpand={
             <>
               <Icon icon="material-symbols:expand-less-rounded" height={20} /> See less
@@ -191,7 +187,7 @@ const ReviewItem = function (props: Props) {
         {btnLike}
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
-          onClick={withAuthMiddleware.bind(null, () => {})}
+          onClick={withAuth.bind(null, () => {})}
         >
           <Icon icon="fluent:share-48-regular" width={20} />
           Share

@@ -9,6 +9,7 @@ import { Form } from 'react-bootstrap';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 import { BusinessProps } from '../business-results/Business';
+import Link from 'next/link';
 
 interface Props {
   businessName: string;
@@ -39,15 +40,18 @@ function Header(props: Props) {
         </ul>
 
         <div className="d-flex gap-3 mt-5">
-          <button
-            className="btn btn--lg"
-            style={{ backgroundColor: '#e20e0e', color: '#fff' }}
-          >
+          <button className="btn btn-pry btn--lg">
             <Icon icon="ic:round-star-outline" width={22} />
-            Write a review
+            <Link href={'/'} legacyBehavior>
+              Write a review
+            </Link>
           </button>
+
           <button className="btn btn-outline btn--lg">Ask a question</button>
-          <button className="btn btn-outline btn--lg">Message owner</button>
+
+          {props.business?.claimed ? (
+            <button className="btn btn-outline btn--lg">Message owner</button>
+          ) : null}
         </div>
       </div>
 
