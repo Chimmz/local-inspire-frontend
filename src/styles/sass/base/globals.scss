@@ -24,7 +24,7 @@ html {
 body {
   min-height: 100vh;
   font-size: max($default-fsize, 14px);
-  color: $text-color;
+  color: $text-color !important;
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   // font-weight: 500;
   position: relative;

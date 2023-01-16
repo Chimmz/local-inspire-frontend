@@ -141,7 +141,7 @@ const Business: FC<Props> = function (props) {
         ) : null}
 
         {!featured ? (
-          <div className={styles.question}>
+          <div className={cls(styles.question, 'd-flex gap-2')}>
             <p className="me-3">Been here before? Would you recommend?</p>
             <LoadingButton
               isLoading={userRecommends! && isSignedIn}

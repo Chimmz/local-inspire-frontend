@@ -71,7 +71,7 @@ const StarRating = (props: StarRatingProps) => {
         }
       />
       {props.renderReviewsCount && ratingValue ? (
-        <small className="ms-3">
+        <small className="ms-2 fs-5">
           {renderReviewsCount?.(ratingValue) || `${ratingValue}`}
         </small>
       ) : null}
