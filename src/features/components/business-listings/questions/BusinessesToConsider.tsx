@@ -75,7 +75,7 @@ const BusinessesToConsider = function (props: Props) {
             <strong>
               <Link href={'/'}>Kris K.</Link>
             </strong>{' '}
-            said {`"It is ok all the time"`}
+            said {'It is ok all the time'}
           </p>
         </li>
 

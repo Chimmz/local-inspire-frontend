@@ -56,18 +56,6 @@ const Business: FC<Props> = function (props) {
 
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 
-  const goToReviewsPage = () => {
-    const url = urlUtils.genRecommendBusinessPageUrl({
-      businessId,
-      businessName: businessName!,
-      city,
-      stateCode,
-      recommends: !!userRecommends,
-    });
-    console.log({ url });
-    navigateTo(url, router);
-  };
-
   const handleClickYesOrNo = (val: 'yes' | 'no') => {
     if (!isSignedIn) return showAuthModal!('register');
     setUserRecommends(val === 'yes');
@@ -131,6 +119,7 @@ const Business: FC<Props> = function (props) {
           <StarRating
             starSize={featured ? 'sm' : 'md'}
             initialValue={4}
+            ratingValue={4}
             renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
             showRatingCaption
             readonly
