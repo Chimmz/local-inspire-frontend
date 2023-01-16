@@ -75,7 +75,7 @@ const BusinessesToConsider = function (props: Props) {
             <strong>
               <Link href={'/'}>Kris K.</Link>
             </strong>{' '}
-            said {'It is ok all the time'}
+            said &ldquo;It is ok all the time&rdquo;
           </p>
         </li>
 
@@ -112,7 +112,7 @@ const BusinessesToConsider = function (props: Props) {
             <strong>
               <Link href={'/'}>Kris K.</Link>
             </strong>{' '}
-            said "It is ok all the time"
+            said &ldquo;It is ok all the time&rdquo;
           </p>
         </li>
       </ul>
