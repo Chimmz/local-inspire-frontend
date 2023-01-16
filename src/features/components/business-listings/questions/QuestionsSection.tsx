@@ -138,7 +138,7 @@ const QuestionsSection = function (props: Props) {
         <QuestionItem {...que} show={props.show && !!questions?.length} key={que._id} />
       ))}
 
-      <BusinessesToConsider show={questions?.length && props.show} />
+      <BusinessesToConsider show={!questions?.length && props.show} />
     </>
   );
 };
