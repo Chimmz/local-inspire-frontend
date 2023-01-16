@@ -15,6 +15,7 @@ import NewAnswerForm from './NewAnswerForm';
 import { Accordion } from 'react-bootstrap';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import styles from './QuestionsSection.module.scss';
+import AppDropdown from '../../shared/dropdown/AppDropdown';
 
 export interface QuestionItemProps {
   _id: string;
@@ -42,6 +43,14 @@ const QuestionItem = (props: Props) => {
     '/img/default-profile-pic.jpeg',
   );
 
+  const handleSelectDropdownItem = (evKey: string) => {
+    switch (evKey as 'report') {
+      case 'report':
+        console.log('Reporting...');
+        break;
+    }
+  };
+
   const mostHelpfulAnswer = useMemo(() => {
     return question.answers.reduce((accum: AnswerProps | null, ans) => {
       if (accum && ans.likes.length > accum?.likes?.length) return ans;
@@ -60,14 +69,16 @@ const QuestionItem = (props: Props) => {
   return (
     <section className={cls(styles.question, props.show ? 'd-block' : 'd-none')}>
       <div className={styles.questionHeader}>
-        <Image
-          src={imgSrc}
-          width={50}
-          height={50}
-          objectFit="cover"
-          style={{ borderRadius: '50%' }}
-          onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
-        />
+        <figure>
+          <Image
+            src={imgSrc}
+            layout="fill"
+            objectFit="cover"
+            onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
+            style={{ borderRadius: '50%' }}
+          />
+        </figure>
+
         <small className="">
           <span className="text-black">
             {getFullName(question.askedBy, { lastNameInitial: true })}
@@ -80,9 +91,16 @@ const QuestionItem = (props: Props) => {
           Terrell, TX • 5 contributions
         </small>
 
-        <button className={cls(styles.flag, 'btn btn-circle')}>
+        {/* <button className={cls(styles.flag, 'btn btn-circle')}>
           <Icon icon="mi:options-horizontal" width={22} />
-        </button>
+        </button> */}
+
+        <AppDropdown
+          items={['Report']}
+          onSelect={handleSelectDropdownItem}
+          toggler={<Icon icon="material-symbols:more-vert" width={20} />}
+          className={styles.options}
+        />
       </div>
 
       <div className={cls(styles.questionText, 'text-dark text-hover-dark fs-3')}>

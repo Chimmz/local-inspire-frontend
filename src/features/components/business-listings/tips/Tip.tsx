@@ -9,6 +9,7 @@ import { getFullName } from '../../../utils/user-utils';
 import useDate from '../../../hooks/useDate';
 import navigateTo, { genRecommendBusinessPageUrl } from '../../../utils/url-utils';
 import { useRouter } from 'next/router';
+import AppDropdown from '../../shared/dropdown/AppDropdown';
 
 export interface TipProps {
   _id: string;
@@ -31,19 +32,28 @@ const Tip = function (props: Props) {
     day: 'numeric',
   });
 
+  const handleSelectDropdownItem = (evKey: string) => {
+    switch (evKey as 'report') {
+      case 'report':
+        console.log('Reporting...');
+        break;
+    }
+  };
+
   const userName = getFullName(props.reviewedBy, { lastNameInitial: true });
   return (
     <section className={cls(styles.advice, props.show ? 'd-block' : 'd-none')}>
       <div className={styles.adviceHeader}>
-        <Image
-          src={src}
-          width={50}
-          height={50}
-          objectFit="cover"
-          onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
-          style={{ borderRadius: '50%' }}
-        />
-        <small className="fs-4">
+        <figure>
+          <Image
+            src={src}
+            layout="fill"
+            objectFit="cover"
+            onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
+            style={{ borderRadius: '50%' }}
+          />
+        </figure>
+        <small className={cls(styles.reviwer, 'fs-4')}>
           <span className="text-black"> {userName}</span> wrote a review on {reviewDate}
         </small>
 
@@ -52,15 +62,25 @@ const Tip = function (props: Props) {
           Terrell, TX • 5 contributions
         </small>
 
-        <button className={styles.flag}>
+        {/* <button className={styles.flag}>
           <Icon icon="ic:round-flag" width={25} />
-        </button>
+        </button> */}
+        <AppDropdown
+          items={['Report']}
+          onSelect={handleSelectDropdownItem}
+          toggler={<Icon icon="material-symbols:more-vert" width={20} />}
+          className={styles.options}
+        />
       </div>
+
       <div className={styles.questionText}>
         <p>{props.adviceToFutureVisitors}</p>
-        <Link href={'/'} className="btn">
-          Read full review...
-        </Link>
+
+        <small className="link text-pry">
+          <Link href={'/'} className="btn">
+            Read full review...
+          </Link>
+        </small>
       </div>
     </section>
   );

@@ -15,7 +15,7 @@ interface StarRatingProps {
   tooltip?: boolean;
   renderReviewsCount?: (count: number) => string;
 
-  style?: { [style: string]: string };
+  style?: React.CSSProperties;
   className?: string;
   readonly?: boolean;
   showRatingCaption?: boolean;
@@ -29,6 +29,7 @@ const StarRating = (props: StarRatingProps) => {
   return (
     <div
       className={cls(css.rating, className, 'd-flex', 'align-items-center')}
+      style={props.style}
       // title={`${ratingValue}/5 rating`}
     >
       <Rating
@@ -69,7 +70,7 @@ const StarRating = (props: StarRatingProps) => {
           />
         }
       />
-      {props.showRatingCaption && ratingValue ? (
+      {props.renderReviewsCount && ratingValue ? (
         <small className="ms-3">
           {renderReviewsCount?.(ratingValue) || `${ratingValue}`}
         </small>

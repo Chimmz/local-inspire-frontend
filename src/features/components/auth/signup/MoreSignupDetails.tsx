@@ -5,11 +5,7 @@ import FacebookLogin from '@greatsumini/react-facebook-login';
 
 import { useNewRegistrationContext } from '../../../contexts/NewRegistrationContext';
 import useRequest from '../../../hooks/useRequest';
-import {
-  datesOfTheMonth,
-  monthsOfTheYear,
-  yearsSince1940,
-} from '../../../data/constants';
+import { datesOfTheMonth, monthsOfTheYear, yearsSince1940 } from '../../../data/constants';
 
 import AuthContentWrapper from '../AuthContentWrapper';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -51,10 +47,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
     autoStopLoading: true,
   });
 
-  const changeBirthInfo = (
-    field: 'day' | 'month' | 'year',
-    newValue: string | number,
-  ) => {
+  const changeBirthInfo = (field: 'day' | 'month' | 'year', newValue: string | number) => {
     setBirthInfo(info => ({ ...info, [field]: newValue }));
   };
 
@@ -94,8 +87,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
     if (gender) credentials.gender = gender; // If user selected gender
 
     // If the birthday fields were all selected
-    if (Object.values(birthInfo).every(field => !!field))
-      credentials.birthInfo = birthInfo;
+    if (Object.values(birthInfo).every(field => !!field)) credentials.birthInfo = birthInfo;
 
     console.log('Credentials: ', credentials);
     authenticate(credentials);
@@ -203,7 +195,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
               <Dropdown.Toggle>
                 {birthInfo?.day ? (birthInfo.day + '').padStart(2, '0') : 'Day'}
               </Dropdown.Toggle>
-              <Dropdown.Menu>
+              <Dropdown.Menu style={{ overflowY: 'scroll' }}>
                 {datesOfTheMonth.map(date => (
                   <Dropdown.Item
                     className="fs-4"

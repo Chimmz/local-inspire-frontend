@@ -1,7 +1,7 @@
 @mixin thin-scrollbar {
   &::-webkit-scrollbar {
     height: 5px; // for horizontal scrollbars
-    width: 7px; // for vertical scrollbars
+    width: 5px; // for vertical scrollbars
   }
 
   /* Track */

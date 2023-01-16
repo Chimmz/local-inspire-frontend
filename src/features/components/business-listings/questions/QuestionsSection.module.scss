@@ -46,12 +46,28 @@
 
 .questionHeader {
   display: grid;
-  grid-template-columns: 50px 1fr;
+  grid-template-columns: 50px 1fr auto;
+  grid-template-rows: 25px 25px;
+  // row-gap: 5px;
   column-gap: 10px;
-  margin-bottom: 1rem;
   font-size: 16px;
+  margin-bottom: 2.5rem;
 
-  & > button.flag {
+  & > figure {
+    position: relative;
+    grid-column: 1 / 2;
+    grid-row: 1 / -1;
+    height: 100%;
+    width: 100%;
+  }
+
+  & > .location {
+    grid-column: 2 / 3;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  & > .options {
     align-self: start;
     grid-column: 3;
     grid-row: 1;
@@ -60,14 +76,6 @@
       color: $color-sec-dark;
       cursor: pointer;
     }
-  }
-
-  & > .location {
-    grid-column: 2 / -1;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    transform: translateY(-130%);
   }
 }
 
@@ -104,7 +112,6 @@
   & > *:first-child > *:first-child {
     display: block;
     margin-top: 4px;
-    transform: translateY(10%);
   }
   .answerHeader {
     display: grid;
@@ -120,7 +127,6 @@
   .responderInfo {
     grid-row: 2;
     grid-column: 2 / -1;
-    transform: translateY(-45%);
   }
 }
 
@@ -128,4 +134,28 @@
   display: flex;
   flex-direction: column-reverse;
   align-items: flex-start;
+}
+
+.businessesToConsider {
+  & .business {
+    display: grid;
+    grid-template-columns: 80px max-content;
+    grid-template-rows: 2.5rem 2.5rem 2.5rem;
+    column-gap: 15px;
+    align-items: center;
+
+    &:not(:last-of-type) {
+      margin-bottom: 1.5rem;
+    }
+
+    & > figure {
+      grid-column: 1 / 2;
+      grid-row: 1 / 4;
+      width: 100%;
+      // height: 80px;
+      height: 100%;
+      position: relative;
+      align-self: start;
+    }
+  }
 }

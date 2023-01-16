@@ -143,32 +143,21 @@ form.signupForm {
     flex-direction: column;
     align-self: center;
 
-    & > *:has([type='file']) {
-      // background-color: #e875251a;
-      // color: ;
-    }
-
     & > * {
-      // width: max-content;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      // transform: translateX(2px);
 
       &:is(.btnFileOpener) [type='file'] {
         display: none;
       }
-    }
-    & > .btnFileOpener {
-      // grid-column: 1 / -1;
     }
   }
 
   & > .birthday {
     grid-column: 2 / 3;
     grid-row: 2;
-    // margin-top: -3rem;
 
     & > .birthdayFields {
       & button {
@@ -192,10 +181,6 @@ form.signupForm {
   & > .gender {
     grid-column: 1 / 2;
     grid-row: 2;
-    // margin-left: 5rem;
-    // justify-self: right;
-    // align-self: end;
-    // text-align: right;
 
     & > .genderOptions {
       & > label {

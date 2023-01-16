@@ -1,25 +1,39 @@
 .adviceHeader {
   display: grid;
-  grid-template-columns: 50px 1fr;
+  grid-template-columns: 50px 1fr auto;
+  grid-template-rows: 25px 25px;
+  // row-gap: 5px;
   column-gap: 10px;
+  margin-bottom: 2rem;
 
-  & > button.flag {
+  & > figure {
+    position: relative;
+    grid-column: 1 / 2;
+    grid-row: 1 / -1;
+    height: 100%;
+    width: 100%;
+  }
+
+  & > .reviwer {
+    grid-column: 2 / 3;
+  }
+
+  & > .location {
+    grid-column: 2 / 3;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    // transform: translateY(-100%);
+  }
+  & > .options {
     all: unset;
-    align-self: start;
     grid-column: 3;
-    grid-row: 1;
+    grid-row: 1 / 2;
+    align-self: start;
 
     &:hover {
       color: $color-sec-dark;
       cursor: pointer;
     }
-  }
-
-  & > .location {
-    grid-column: 2 / -1;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    transform: translateY(-100%);
   }
 }

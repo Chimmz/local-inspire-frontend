@@ -2,4 +2,18 @@
   & > div {
     font: inherit;
   }
+  & > button[class*='dropdown-toggle'] {
+    padding: 0;
+    border: none;
+    &,
+    &:active {
+      background-color: transparent;
+    }
+  }
+  &.noDefaultIcon > button[class*='dropdown-toggle']::after {
+    display: none;
+  }
+  & [class*='dropdown-menu'] {
+    overflow-y: auto;
+  }
 }

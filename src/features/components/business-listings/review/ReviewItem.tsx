@@ -13,14 +13,14 @@ import api from '../../../library/api';
 
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import { Accordion, Form, Spinner } from 'react-bootstrap';
+import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
-import styles from './Reviews.module.scss';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import useClientMiddleware, {
   MiddlewareNextAction,
 } from '../../../hooks/useClientMiddleware';
+import styles from './Reviews.module.scss';
 
 type Props = ReviewProps & { show: boolean; businessName: string };
 
@@ -109,12 +109,14 @@ const ReviewItem = function (props: Props) {
           Terrell, TX • 5 contributions
         </small>
 
-        <button
-          className={cls(styles.flag, 'btn btn-circle')}
-          onClick={withAuth.bind(null, () => {})}
-        >
-          <Icon icon="ic:round-flag" width={20} />
-        </button>
+        <Dropdown className={cls(styles.options)}>
+          <Dropdown.Toggle className={'p-0'} style={{ backgroundColor: 'none' }}>
+            <Icon icon="material-symbols:more-vert" width={20} />
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="fs-5" style={{ overflowY: 'auto' }}>
+            <Dropdown.Item>Report</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
 
       <div className={styles.reviewText}>

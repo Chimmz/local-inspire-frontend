@@ -156,10 +156,11 @@
     font-size: 1.5rem;
   }
 
-  &-bg-none,
-  &:active {
-    background-color: none;
-
+  &-bg-none {
+    &,
+    &:active {
+      background-color: none;
+    }
     &:hover {
       background-color: rgba(#000, 0.035);
       color: #000;

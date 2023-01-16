@@ -86,7 +86,7 @@ a {
   padding: 1.2rem 0;
   margin-top: 1rem;
   border: none;
-  box-shadow: 0 1px 5px rgba(#000, 0.15), 0 5px 18px rgba(#000, 0.17);
+  box-shadow: 0 1px 5px rgba(#000, 0.15), 0 5px 22px rgba(#000, 0.17);
   // position: relative;
   z-index: 2;
   @include thin-scrollbar;
@@ -108,14 +108,13 @@ a {
     padding: 0.6em 1.4em;
     padding-right: 1.7em !important;
     font-size: 1.1em !important;
-    // font-weight: 500;
 
     &:not(:last-child) {
       margin-bottom: 5px;
     }
 
     &:hover {
-      background-color: #e6e6e6;
+      background-color: #ececec;
       color: #000;
     }
   }
@@ -126,10 +125,34 @@ a {
 }
 
 textarea {
-  height: 100px;
+  height: 120px;
 }
 
-*:has(> label > :where(input:hover, input:focus)) > label {
-  // font-weight: bold;
-  // color: orange;
+.tooltip {
+  & > .tooltip-inner {
+    font-size: 12.5px;
+    border-radius: 3px;
+    color: #000;
+    background-color: #fff !important;
+    line-height: 1.2;
+  }
+
+  &-light-border > .tooltip-inner {
+    &,
+    & * {
+      background-color: #fff !important;
+    }
+    opacity: 1;
+    border: 1px solid #ccc;
+  }
+
+  &-arrow {
+    // background-color: transparent !important;
+    border-top-color: #ccc !important;
+
+    &::before {
+      // background-color: transparent !important;
+      border-top-color: #ccc !important;
+    }
+  }
 }

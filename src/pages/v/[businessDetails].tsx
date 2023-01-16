@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 
-import { authOptions } from '../api/auth/[...nextauth]';
-
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { ReviewProps } from '../../features/components/recommend-business/UserReview';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
@@ -27,6 +25,7 @@ import AdvicesSection from '../../features/components/business-listings/tips/Adv
 
 import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
 import styles from '../../styles/sass/pages/BusinessListing.module.scss';
+import useSignedInUser from '../../features/hooks/useSignedInUser';
 
 interface Props {
   business: { data: BusinessProps | undefined };
@@ -44,6 +43,7 @@ interface Props {
 
 const BusinessListings: NextPage<Props> = function (props) {
   const router = useRouter();
+  const currentUser = useSignedInUser();
   const [whatsActive, setWhatsActive] = useState<'reviews' | 'q&a' | 'advices'>('reviews');
 
   const linkToReviewPage = router.asPath.replace('/v/', '/write-a-review/');
@@ -63,6 +63,9 @@ const BusinessListings: NextPage<Props> = function (props) {
           businessName={props.params.businessName}
           linkToReviewPage={linkToReviewPage}
           reviewsCount={props.reviews?.results}
+          // reviewImages={props.reviews?.data?.find(r => {
+          //   if (r.reviewedBy._id === currentUser._id) return
+          // })}
         />
         <div className={styles.left}>
           <Announcement />
@@ -172,6 +175,7 @@ const BusinessListings: NextPage<Props> = function (props) {
             show={whatsActive === 'advices'}
             tips={props.tips?.data}
             slug={props.params.slug}
+            businessName={props.business.data?.businessName}
           />
         </div>
 
@@ -239,6 +243,7 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     api.getBusinessReviews(businessId),
     api.getQuestionsAskedAboutBusiness(businessId),
     api.getTipsAboutBusiness(businessId),
+    // api.getUserReviewOnBusiness()
   ]);
 
   console.log(responses);

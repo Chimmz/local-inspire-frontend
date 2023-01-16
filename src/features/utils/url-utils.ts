@@ -65,7 +65,7 @@ export function genBusinessPageUrl<T>(
 }
 
 export function genRecommendBusinessPageUrl<T>(
-  args: BusinessPageUrlParams<T> & { recommends: boolean },
+  args: BusinessPageUrlParams<T> & { recommends: boolean | null },
 ) {
   const queryStr =
     args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '';

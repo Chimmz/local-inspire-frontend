@@ -17,6 +17,7 @@ import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import ReviewItem from './ReviewItem';
 import { simulateRequest } from '../../../utils/async-utils';
 import Spinner from '../../shared/spinner/Spinner';
+import NoReviewsYet from './NoReviewsYet';
 
 type ReviewFilter =
   | 'Excellent'
@@ -46,7 +47,6 @@ interface Props {
 
 function ReviewsSection(props: Props) {
   const [reviews, setReviews] = useState<ReviewProps[]>(props.reviews || []);
-  const { accessToken } = useSignedInUser();
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
   });
@@ -117,7 +117,6 @@ function ReviewsSection(props: Props) {
       case false:
         setFilters(filters => filters.filter(f => f !== filter));
         break;
-      case undefined:
     }
   };
 
@@ -142,13 +141,25 @@ function ReviewsSection(props: Props) {
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>
+
         {filtersUI}
+
         <Spinner show={isFilteringReviews} pageWide />
       </section>
 
       {reviews?.map(r => (
-        <ReviewItem {...r} show={props.show} businessName={props.businessName} key={r._id} />
+        <ReviewItem
+          {...r}
+          show={!!props.reviews?.length && props.show}
+          businessName={props.businessName}
+          key={r._id}
+        />
       ))}
+
+      <NoReviewsYet
+        businessName={props.businessName}
+        show={!props.reviews?.length && props.show}
+      />
     </>
   );
 }

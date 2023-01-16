@@ -18,10 +18,19 @@
   margin-bottom: 2rem;
   font-size: 16px;
 
-  & > button.flag {
+  & > .options {
     align-self: start;
     grid-column: 3;
     grid-row: 1;
+
+    & > button[class*='dropdown-toggle'] {
+      background-color: transparent;
+      color: gray;
+
+      &::after {
+        display: none;
+      }
+    }
 
     &:hover {
       color: $color-sec-dark;
@@ -52,6 +61,10 @@
 .review {
   overflow: hidden;
 
+  & [class*='dropdown-toggle'] {
+    background-color: none !important;
+  }
+
   & > ul.featureRatings {
     display: flex;
     gap: 2rem;
@@ -70,3 +83,9 @@
     z-index: 2;
   }
 }
+
+// .noReviewsYet {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+// }

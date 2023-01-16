@@ -1,24 +1,28 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Dropdown, DropdownButton } from 'react-bootstrap';
+import cls from 'classnames';
 import styles from './AppDropdown.module.scss';
 
-type Item = string | number | { label: string; value: string | number };
+type Item = string | number | { label: ReactNode; value: string | number };
 
-interface DropdownProps<I extends Item> {
-  items: I[];
+interface DropdownProps {
+  items: Item[];
+  toggler: React.ReactNode;
+  className: string;
   onSelect(evKey: string): void;
+  noDefaultIcon?: boolean;
 }
 
-const AppDropdown: React.FC<DropdownProps<Item>> = props => {
-  const { items } = props;
+const AppDropdown: React.FC<DropdownProps> = props => {
+  const { items, noDefaultIcon = true } = props;
 
   const renderItems = () => {
     return items.map((item, i) => {
       const label = typeof item === 'object' ? item.label : item;
-      const value = typeof item === 'object' ? item.value : item;
+      const value = String(typeof item === 'object' ? item.value : item).toLowerCase();
 
       return (
-        <Dropdown.Item eventKey={value} active={i === 1} key={i} className="d-itemd">
+        <Dropdown.Item eventKey={value} key={i}>
           {label}
         </Dropdown.Item>
       );
@@ -27,10 +31,16 @@ const AppDropdown: React.FC<DropdownProps<Item>> = props => {
 
   return (
     <DropdownButton
-      className={styles.appDropdown}
+      className={cls(
+        styles.appDropdown,
+        props.className,
+        noDefaultIcon && styles.noDefaultIcon,
+        'fs-5',
+      )}
+      // align="end"
       variant="outline-secondary"
       size="lg"
-      title={'Location'}
+      title={props.toggler}
       onSelect={evKey => props.onSelect(evKey!)}
       // className="overflow-y-scroll thin-scrollbar"
     >

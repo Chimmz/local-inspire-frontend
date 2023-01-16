@@ -21,6 +21,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
 import styles from './QuestionsSection.module.scss';
+import BusinessesToConsider from './BusinessesToConsider';
 
 interface Props {
   readonly show: boolean;
@@ -72,9 +73,11 @@ const QuestionsSection = function (props: Props) {
         className={cls(styles.queSectionHeading, props.show ? 'd-grid' : 'd-none')}
       >
         <h2 className="">Questions & Answers</h2>
-        <small className="text-pry">
-          <Link href={'/'}>See all 14 questions</Link>
-        </small>
+        {questions?.length ? (
+          <Link href={'/'} passHref>
+            <a className="text-pry">See all {questions?.length} questions</a>
+          </Link>
+        ) : null}
 
         <CustomAccordionToggle
           eventKey="1"
@@ -132,8 +135,10 @@ const QuestionsSection = function (props: Props) {
       </Accordion>
 
       {questions?.map(que => (
-        <QuestionItem {...que} show={props.show} key={que._id} />
+        <QuestionItem {...que} show={props.show && !!questions?.length} key={que._id} />
       ))}
+
+      <BusinessesToConsider show={!questions?.length && props.show} />
     </>
   );
 };

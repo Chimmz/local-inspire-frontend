@@ -10,15 +10,22 @@ import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 import { BusinessProps } from '../business-results/Business';
 import Link from 'next/link';
+import { genRecommendBusinessPageUrl } from '../../utils/url-utils';
+import { useRouter } from 'next/router';
+import { ReviewProps } from '../recommend-business/UserReview';
 
 interface Props {
   businessName: string;
   reviewsCount: number | undefined;
   linkToReviewPage: string;
   business: Partial<BusinessProps> | undefined;
+  // reviewImages: string[];
 }
 
 function Header(props: Props) {
+  const slug = useRouter().query.businessDetails as string;
+  const reviewPageUrl = genRecommendBusinessPageUrl<string>({ slug, recommends: null });
+
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
@@ -42,7 +49,7 @@ function Header(props: Props) {
         <div className="d-flex gap-3 mt-5">
           <button className="btn btn-pry btn--lg">
             <Icon icon="ic:round-star-outline" width={22} />
-            <Link href={'/'} legacyBehavior>
+            <Link href={reviewPageUrl} legacyBehavior>
               Write a review
             </Link>
           </button>
@@ -70,6 +77,7 @@ function Header(props: Props) {
             Add photo
           </button>
         </div>
+
         <div className={cls(styles.headerImages, 'flex-grow-1')}>
           <figure className="position-relative d-block m-0">
             <Image
