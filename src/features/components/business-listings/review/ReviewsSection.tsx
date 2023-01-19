@@ -179,7 +179,7 @@ function ReviewsSection(props: Props) {
           <h2>
             {reviewLikers && (
               <>
-                <Link href="/">{reviewLikers?.reviewerName}</Link>'s review
+                <Link href="/">{reviewLikers?.reviewerName}</Link>&apos;s review
               </>
             )}
           </h2>

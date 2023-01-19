@@ -26,8 +26,8 @@ export interface ReviewProps {
 }
 
 const UserReview: React.FC<ReviewProps> = function (props) {
-  if (!props?._id) return null;
   const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
+  if (!props?._id) return null;
   console.log({ props: userUtils.getFullName(props?.reviewedBy) });
 
   return (
