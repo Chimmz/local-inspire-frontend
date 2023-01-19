@@ -200,7 +200,7 @@ function NewReviewForm(props: Props) {
     );
     console.log(res);
 
-    // if (res.status !== 'SUCCESS') return;
+    if (res.status !== 'SUCCESS') return;
     setSubmitted(true);
 
     // const body = {
