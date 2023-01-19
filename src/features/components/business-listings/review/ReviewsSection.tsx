@@ -205,7 +205,7 @@ function ReviewsSection(props: Props) {
                 </figure>
                 <div className="flex-grow-1">
                   <h4>
-                    <strong>{UserRoles[user.role]}</strong>
+                    <strong>{userUtils.getFullName(user, { lastNameInitial: true })}</strong>
                   </h4>
                   <small>0 contributions • 0 Followers</small>
                 </div>
