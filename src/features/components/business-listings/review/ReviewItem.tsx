@@ -205,12 +205,14 @@ const ReviewItem = function (props: Props) {
 
         <button
           className="btn bg-none"
-          onClick={() =>
+          onClick={() => {
+            if (!likes.length) return;
+
             props.showReviewLikers(
               likes.map(like => ({ ...like.user })),
               reviewerName!,
-            )
-          }
+            );
+          }}
         >
           {likes.length} people found this review helpful
         </button>

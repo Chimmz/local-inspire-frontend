@@ -106,7 +106,7 @@ function NewReviewForm(props: Props) {
       ? [props.userReview?.visitedWhen.month, props.userReview?.visitedWhen.year].join(' ')
       : 'Please select',
     validators: [
-      // { fn: isRequired, params: [`Please specify when you visited ${businessNameTitle}`] },
+      { fn: isRequired, params: [`Please specify when you visited ${businessNameTitle}`] },
       {
         fn: mustNotBeSameAs,
         params: ['Please select', `Please specify when you visited ${businessNameTitle}`],
@@ -257,7 +257,7 @@ function NewReviewForm(props: Props) {
       </Modal>
 
       <form className={styles.form} onSubmit={handleFormSubmit}>
-        <div className="que-group d-flex align-items-center gap-5 mb-0">
+        <div className="que-group d-flex align-items-center gap-5 mb-0 position-relative">
           <label htmlFor="" className="">
             Leave a rating
           </label>
