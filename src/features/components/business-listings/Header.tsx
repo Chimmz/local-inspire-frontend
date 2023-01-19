@@ -19,12 +19,17 @@ interface Props {
   reviewsCount: number | undefined;
   linkToReviewPage: string;
   business: Partial<BusinessProps> | undefined;
-  // reviewImages: string[];
+  reviewImages: Array<{ photoUrl: string; description: string; _id: string }> | undefined;
 }
+
+let a: Pick<ReviewProps, 'images'>;
 
 function Header(props: Props) {
   const slug = useRouter().query.businessDetails as string;
   const reviewPageUrl = genRecommendBusinessPageUrl<string>({ slug, recommends: null });
+
+  const undisplayedPhotos = props.reviewImages?.slice(3);
+  console.log({ undisplayedPhotos });
 
   return (
     <header className={styles.header}>
@@ -79,30 +84,48 @@ function Header(props: Props) {
         </div>
 
         <div className={cls(styles.headerImages, 'flex-grow-1')}>
-          <figure className="position-relative d-block m-0">
-            <Image
-              src={'/img/pexels-abdullah-ghatasheh-3069345.jpg'}
-              layout="fill"
-              objectFit="cover"
-              style={{ borderRadius: '3px' }}
-            />
-          </figure>
-          <figure className="position-relative d-block">
-            <Image
-              src={'/img/los-angeles-photo.jpg'}
-              layout="fill"
-              objectFit="cover"
-              style={{ borderRadius: '3px' }}
-            />
-          </figure>
-          <figure className="position-relative d-block">
-            <Image
-              src={'/img/newyork-photo.jpg'}
-              layout="fill"
-              objectFit="cover"
-              style={{ borderRadius: '3px' }}
-            />
-          </figure>
+          {props.reviewImages?.[0] ? (
+            <figure className="position-relative d-block m-0">
+              <Image
+                src={props.reviewImages[0].photoUrl}
+                layout="fill"
+                objectFit="cover"
+                style={{ borderRadius: '3px' }}
+              />
+            </figure>
+          ) : null}
+
+          {props.reviewImages?.[1] ? (
+            <figure className="position-relative d-block">
+              <Image
+                src={props.reviewImages?.[1].photoUrl}
+                layout="fill"
+                objectFit="cover"
+                style={{ borderRadius: '3px' }}
+              />
+            </figure>
+          ) : null}
+
+          {props.reviewImages?.[2] ? (
+            <figure
+              className="position-relative d-block"
+              data-remaining-count={'+' + (undisplayedPhotos?.length || 0)}
+            >
+              <Image
+                src={props.reviewImages?.[2].photoUrl}
+                layout="fill"
+                objectFit="cover"
+                style={{ borderRadius: '3px' }}
+              />
+              {/* undisplayedPhotos?.length */}
+              {/* {true ? (
+                <span className={cls(styles.remainingPhotosCount, 'd-flex xy-center fs-2')}>
+                  +22
+                  +{undisplayedPhotos?.length}
+                </span>
+              ) : null} */}
+            </figure>
+          ) : null}
         </div>
       </div>
     </header>

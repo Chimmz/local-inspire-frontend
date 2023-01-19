@@ -93,40 +93,41 @@
 
 .answer {
   font-size: 1.7rem;
-  // background-color: #f5f5f5;
   padding-block: 1.5rem;
   border-radius: 4px;
+  border-bottom: 1px solid #ccc;
 
   &:not(:last-of-type) {
-    // margin-bottom: 1rem;
-    border-bottom: 1px solid #ccc;
   }
-  &:last-of-type {
-    // margin-bottom: 2.6rem;
-  }
-
-  &:hover {
-    // background-color: #f1f1f1;
-  }
-
   & > *:first-child > *:first-child {
     display: block;
     margin-top: 4px;
   }
-  .answerHeader {
+  & > .answerHeader {
     display: grid;
-    grid-template-columns: 30px 1fr;
+    grid-template-columns: 34px 1fr; // 34px = 30px + row-gap
+    grid-template-rows: 15px 15px;
     align-items: start;
-    column-gap: 10px;
+    column-gap: 7px;
+    row-gap: 4px;
     margin-bottom: 2rem;
-  }
-  .authorAndDate {
-    grid-row: 1;
-    grid-column: 2 / -1;
-  }
-  .responderInfo {
-    grid-row: 2;
-    grid-column: 2 / -1;
+
+    & > figure {
+      grid-row: 1 / -1;
+      grid-column: 1 / 2;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1;
+    }
+
+    & > .authorAndDate {
+      grid-row: 1;
+      grid-column: 2 / -1;
+    }
+    & > .responderInfo {
+      grid-row: 2;
+      grid-column: 2 / -1;
+    }
   }
 }
 

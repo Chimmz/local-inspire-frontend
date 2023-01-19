@@ -1,22 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface UploadProps {
-  toUrl: boolean;
+  // toUrl?: boolean;
+  type: 'image';
   multiple?: boolean;
 }
 
-function useDeviceFileUpload({ multiple = false, toUrl = true }: UploadProps) {
-  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+export type FileUpload = { rawFile?: File; url?: string };
+
+function useDeviceFileUpload(props: UploadProps) {
+  const [uploadedFile, setUploadedFile] = useState<FileUpload | null>(null);
+
+  useEffect(() => {
+    console.log('Raw file: ', uploadedFile?.rawFile);
+  }, [uploadedFile?.rawFile]);
+
+  useEffect(() => {
+    console.log({ uploadedFile });
+  }, [uploadedFile]);
 
   const handleChangeInput: React.ChangeEventHandler<HTMLInputElement> = ev => {
     const file = ev.target.files![0];
-    console.log(ev.target.files);
+    // const imgUrls = Array.from(files).map(URL.createObjectURL).join(' ');
 
-    if (toUrl) {
-      // const imgUrls = Array.from(files).map(URL.createObjectURL).join(' ');
-      const imgUrl = URL.createObjectURL(file);
-      setUploadedFile(imgUrl);
-    }
+    setUploadedFile({
+      rawFile: file,
+      url: props.type === 'image' ? URL.createObjectURL(file) : undefined,
+    });
   };
 
   return { uploadedFile, setUploadedFile, handleChangeInput };

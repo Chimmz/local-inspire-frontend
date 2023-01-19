@@ -75,9 +75,12 @@
       // background-color: rgba($color-pry, 0.1);
       color: $color-pry;
       border-color: currentColor;
+      font-weight: 500;
 
       &:hover {
         background-color: rgba($color-pry, 0.05);
+        background-color: $color-pry;
+        color: #fff;
       }
     }
 
@@ -116,8 +119,8 @@
     }
 
     &:is(.btn-outline-transp) {
-      color: rgba(#fff, 0.6);
       border: 1px solid currentColor;
+      color: rgba(#fff, 0.6);
 
       &:hover {
         color: rgba(#fff, 0.8);

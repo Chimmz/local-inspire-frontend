@@ -16,6 +16,7 @@ import cls from 'classnames';
 import styles from '../Auth.module.scss';
 import AuthNav from '../AuthNav';
 import useDeviceFileUpload from '../../../hooks/useDeviceFileUpload';
+import api from '../../../library/api';
 
 interface Props {
   goBack: () => void;
@@ -38,13 +39,17 @@ const MoreSignupDetails: React.FC<Props> = props => {
     day: null,
   });
   const {
-    uploadedFile: uploadedPhoto,
-    setUploadedFile: setUploadedPhoto,
+    uploadedFile: uploadedFile,
+    setUploadedFile: setUploadedFile,
     handleChangeInput: handleChangeFileInput,
-  } = useDeviceFileUpload({ toUrl: true });
+  } = useDeviceFileUpload({ type: 'image' });
 
-  const { send: sendSignupRequest, loading: isAuthenticating } = useRequest({
-    autoStopLoading: true,
+  const {
+    send: sendSignupRequest,
+    loading: isAuthenticating,
+    stopLoading,
+  } = useRequest({
+    autoStopLoading: false,
   });
 
   const changeBirthInfo = (field: 'day' | 'month' | 'year', newValue: string | number) => {
@@ -52,17 +57,29 @@ const MoreSignupDetails: React.FC<Props> = props => {
   };
 
   const authenticate = async function (credentials: object) {
-    const options: SignInOptions = { ...credentials, redirect: false };
-    // const spin5s = () => new Promise((resolve, reject) => setTimeout(resolve, 5000));
-    // const result = await sendSignupRequest(spin5s());
     try {
-      const result = await sendSignupRequest(signIn('register', options));
-      console.table(result);
-      const { ok, error } = result;
-      if (ok) return props.closeModal();
+      const formData = new FormData();
+      for (let [key, val] of Object.entries(credentials)) formData.append(key, val);
 
-      const res = JSON.parse(error);
-      console.log('Main response: ', res);
+      const res = await sendSignupRequest(api.signup(formData));
+      console.log('Response: ', res);
+
+      switch (res.status) {
+        case 'SUCCESS':
+          const options: SignInOptions = { user: JSON.stringify(res.data), redirect: false };
+          await signIn('register', options);
+          props.closeModal();
+          break;
+
+        case 'FAIL':
+          console.log('Login fail response: ', res);
+          if (res.reason === 'EMAIL_IN_USE')
+            authData!.newRegistration.pushEmailValidationError(res.msg as string);
+
+        case 'ERROR':
+          console.log('Something wrong has happened: ', res);
+      }
+      stopLoading();
     } catch (err) {
       console.log('Credential signin Error: ', err);
     }
@@ -79,23 +96,24 @@ const MoreSignupDetails: React.FC<Props> = props => {
       email: authData!.newRegistration.email,
       password: authData!.newRegistration.password,
     };
+    if (!!uploadedFile?.rawFile) credentials.photo = uploadedFile.rawFile; // If user uploaded from device
+
     if (actionTaken === 'skip') return authenticate(credentials);
 
     // Populate the credentials object if user clicked the 'save and continue' button
     if (facebookEmail) credentials.facebookEmail = facebookEmail; // If FB photo uploaded (we got also his email)
-    if (uploadedPhoto) credentials.imgUrl = uploadedPhoto; // If user uploaded FB photo
+    if (uploadedFile?.url?.startsWith('https')) credentials.imgUrl = uploadedFile.url; // If user uploaded FB photo
     if (gender) credentials.gender = gender; // If user selected gender
 
     // If the birthday fields were all selected
     if (Object.values(birthInfo).every(field => !!field)) credentials.birthInfo = birthInfo;
 
-    console.log('Credentials: ', credentials);
     authenticate(credentials);
   };
 
   const handleFacebookProfileSuccess = function (profile: any) {
     console.log('Profile success', profile);
-    if (profile?.picture?.data?.url) setUploadedPhoto(profile.picture.data.url);
+    if (profile?.picture?.data?.url) setUploadedFile({ url: profile.picture.data.url });
     if (profile?.email) setFacebookEmail(profile.email);
   };
 
@@ -107,7 +125,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
       <div className={styles.moreSignupDetails}>
         <div className={styles.photo}>
           <Image
-            src={uploadedPhoto || '/img/default-profile-pic.jpeg'}
+            src={uploadedFile?.url || '/img/default-profile-pic.jpeg'}
             width={120}
             height={120}
             objectFit="cover"

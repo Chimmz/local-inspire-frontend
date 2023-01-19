@@ -3,7 +3,7 @@ import { RequestInit } from 'next/dist/server/web/spec-extension/request';
 interface RequestConfig {
   path: string;
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-  body?: string;
+  body?: string | FormData;
   headers?: object;
   mode?: string;
 }
@@ -34,12 +34,27 @@ class API {
     });
   }
 
-  async register(credentials: object) {
+  async register(formData: FormData) {
+    // const fd = new FormData();
+    // fd.append('name', 'Chima');
+    // fd.append('age', '22');
+
     return this._makeRequest({
       path: `/users/signup`,
       method: 'POST',
-      body: JSON.stringify(credentials),
-      headers: { 'Content-Type': 'application/json' },
+      // body: JSON.stringify(credentials),
+      body: formData,
+      // body: fd,
+      // headers: { 'Content-Type': 'multipart/form-data; boundary=--photo' },
+    });
+  }
+
+  async signup(formData: FormData) {
+    console.log('In signup: ', formData);
+    return this._makeRequest({
+      path: '/users/signup',
+      method: 'POST',
+      body: formData,
     });
   }
 
@@ -48,9 +63,7 @@ class API {
       path: '/users/login',
       method: 'POST',
       body: JSON.stringify(credentials),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -139,16 +152,17 @@ class API {
   async reviewBusiness({
     businessId,
     token,
-    ...body
+    formData,
   }: {
     businessId: string;
     token: string;
+    formData: FormData;
   }) {
     return this._makeRequest({
       path: `/businesses/${businessId}/reviews`,
       method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      body: formData,
+      headers: { authorization: `Bearer ${token}` },
     });
   }
 

@@ -67,14 +67,14 @@ const Answer: React.FC<Props> = function (props) {
   return (
     <div className={styles.answer}>
       <div className={styles.answerHeader}>
-        <Image
-          src={imgSrc}
-          width={30}
-          height={30}
-          objectFit="cover"
-          style={{ borderRadius: '50%' }}
-          onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
-        />
+        <figure className="position-relative d-block">
+          <Image
+            src={props.answeredBy.imgUrl}
+            layout="fill"
+            objectFit="cover"
+            style={{ borderRadius: '50%' }}
+          />
+        </figure>
         <small className={cls(styles.authorAndDate, 'd-block')}>
           <small>
             Answer from
@@ -96,10 +96,10 @@ const Answer: React.FC<Props> = function (props) {
           ) : null}
 
           <small>
-            {props.likes.length}{' '}
-            {props.likes.length < 1
+            {reactions.likes.length}{' '}
+            {reactions.likes.length < 1
               ? 'persons'
-              : props.likes.length === 1
+              : reactions.likes.length === 1
               ? 'person'
               : 'people'}{' '}
             found this helpful
@@ -114,7 +114,7 @@ const Answer: React.FC<Props> = function (props) {
         </small>
       </div>
 
-      <small className="parag mb-4 d-block ">{props.answerText}</small>
+      <small className="parag mb-4 d-block text-black">{props.answerText}</small>
 
       <div
         className={`d-${

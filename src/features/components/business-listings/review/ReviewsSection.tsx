@@ -1,23 +1,23 @@
-import React, { ChangeEventHandler, useEffect, useMemo, useRef, useState } from 'react';
-
-import { Icon } from '@iconify/react';
-import { Form } from 'react-bootstrap';
-import LabelledCheckbox from '../../shared/LabelledCheckbox';
-import styles from './Reviews.module.scss';
+import React, { ChangeEventHandler, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import cls from 'classnames';
-import Link from 'next/link';
-import StarRating from '../../shared/star-rating/StarRating';
+// Types
 import { ReviewProps } from '../../recommend-business/UserReview';
-import useSignedInUser from '../../../hooks/useSignedInUser';
-import api from '../../../library/api';
+// Hooks and Utils
 import useRequest from '../../../hooks/useRequest';
-// import { simulateRequest } from '../../utils/async-utils';
-import FeatureRating from '../../shared/feature-rating/FeatureRating';
+import api from '../../../library/api';
+import cls from 'classnames';
+// Components
+import { Icon } from '@iconify/react';
+import { Modal } from 'react-bootstrap';
+import LabelledCheckbox from '../../shared/LabelledCheckbox';
 import ReviewItem from './ReviewItem';
-import { simulateRequest } from '../../../utils/async-utils';
 import Spinner from '../../shared/spinner/Spinner';
 import NoReviewsYet from './NoReviewsYet';
+import styles from './Reviews.module.scss';
+import Link from 'next/link';
+import { UserPublicProfile } from '../../../types';
+import { UserRoles } from '../../../data/constants';
+import * as userUtils from '../../../utils/user-utils';
 
 type ReviewFilter =
   | 'Excellent'
@@ -47,12 +47,18 @@ interface Props {
 
 function ReviewsSection(props: Props) {
   const [reviews, setReviews] = useState<ReviewProps[]>(props.reviews || []);
+
+  const [filters, setFilters] = useState<ReviewFilter[]>([]);
+  const [queryStr, setQueryString] = useState('');
+
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
   });
 
-  const [filters, setFilters] = useState<ReviewFilter[]>([]);
-  const [queryStr, setQueryString] = useState('');
+  const [reviewLikers, setReviewLikers] = useState<null | {
+    likers: UserPublicProfile[];
+    reviewerName: string;
+  }>(null);
 
   interface FullQuery {
     match: { [key: string]: string[] };
@@ -137,7 +143,7 @@ function ReviewsSection(props: Props) {
 
   return (
     <>
-      <section className={cls(props.show && reviews.length ? 'd-block' : 'd-none')}>
+      <section className={cls(props.show && props.reviews?.length ? 'd-block' : 'd-none')}>
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>
@@ -152,6 +158,9 @@ function ReviewsSection(props: Props) {
           {...r}
           show={!!props.reviews?.length && props.show}
           businessName={props.businessName}
+          showReviewLikers={(likers: UserPublicProfile[], reviewerName: string) =>
+            setReviewLikers({ likers, reviewerName })
+          }
           key={r._id}
         />
       ))}
@@ -160,6 +169,54 @@ function ReviewsSection(props: Props) {
         businessName={props.businessName}
         show={!props.reviews?.length && props.show}
       />
+
+      <Modal centered scrollable show={!!reviewLikers} onHide={() => setReviewLikers(null)}>
+        <Modal.Header
+          style={{ backgroundColor: '#f3f3f3' }}
+          className="px-5 py-4 pb-3"
+          closeButton
+        >
+          <h2>
+            {reviewLikers && (
+              <>
+                <Link href="/">{reviewLikers?.reviewerName}</Link>'s review
+              </>
+            )}
+          </h2>
+        </Modal.Header>
+
+        <Modal.Body className="px-5">
+          <ul className={styles.reviewLikersList}>
+            {reviewLikers?.likers?.map(user => (
+              <li
+                className={cls(styles.liker, 'd-flex align-items-center gap-3 py-4')}
+                key={user._id}
+              >
+                <figure
+                  className="position-relative"
+                  style={{ width: '50px', height: '50px' }}
+                >
+                  <Image
+                    src={user.imgUrl}
+                    layout="fill"
+                    objectFit="cover"
+                    style={{ borderRadius: '50%' }}
+                  />
+                </figure>
+                <div className="flex-grow-1">
+                  <h4>
+                    <strong>{UserRoles[user.role]}</strong>
+                  </h4>
+                  <small>0 contributions • 0 Followers</small>
+                </div>
+                <button className="btn btn-outline-pry btn--sm">
+                  <Icon icon="material-symbols:person-add" width={20} /> Follow
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

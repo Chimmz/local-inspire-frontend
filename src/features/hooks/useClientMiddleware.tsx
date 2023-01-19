@@ -17,7 +17,7 @@ const useClientAuthMiddleware = function () {
   );
   const [middlewareType, setMiddlewareType] = useState<'AUTH' | null>(null);
 
-  const removeMiddleware = () => {
+  const removeNextAction = () => {
     setNextAction(undefined);
     setMiddlewareType(null);
   };
@@ -25,13 +25,13 @@ const useClientAuthMiddleware = function () {
   useEffect(() => {
     if (middlewareType === 'AUTH' && currentUser.isSignedIn) {
       nextAction?.(currentUser.accessToken!);
-      removeMiddleware(); // Reset next action since it is already executed
+      removeNextAction(); // Reset next action since it is already executed
     }
   }, [currentUser.isSignedIn]);
 
   useEffect(() => {
     // If user closes the auth modal without signing in
-    if (!isAuthModalOpen && middlewareType === 'AUTH') removeMiddleware();
+    if (!isAuthModalOpen && middlewareType === 'AUTH') removeNextAction();
   }, [isAuthModalOpen]);
 
   const withAuth: Middleware = function (next: AuthMiddlewareNextAction) {

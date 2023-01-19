@@ -20,6 +20,7 @@ const SignedInUser: React.FC = function ({}) {
     await sendSignOutRequest(signOut({ redirect: false }));
   };
 
+  if (!session) return <></>;
   return (
     <div
       className={cls(
@@ -35,12 +36,7 @@ const SignedInUser: React.FC = function ({}) {
         color="white"
         title={
           <>
-            <Image
-              src={session?.user.imgUrl || '/img/default-profile-pic.jpeg'}
-              width={30}
-              height={30}
-              objectFit="cover"
-            />
+            <Image src={session?.user.imgUrl} width={30} height={30} objectFit="cover" />
             <span className={styles.userName}>{session?.user?.firstName || ''}</span>
           </>
         }

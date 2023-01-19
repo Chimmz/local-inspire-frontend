@@ -63,9 +63,7 @@ const BusinessListings: NextPage<Props> = function (props) {
           businessName={props.params.businessName}
           linkToReviewPage={linkToReviewPage}
           reviewsCount={props.reviews?.results}
-          // reviewImages={props.reviews?.data?.find(r => {
-          //   if (r.reviewedBy._id === currentUser._id) return
-          // })}
+          reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
         />
         <div className={styles.left}>
           <Announcement />
@@ -255,10 +253,10 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   const loc = location.split('-');
   return {
     props: {
-      business,
-      reviews,
-      questions,
-      tips,
+      business: business || {},
+      reviews: reviews || {},
+      questions: questions || {},
+      tips: tips || {},
       params: {
         businessName: toTitleCase(businessName.replace('-', ' ')),
         stateCode: loc.pop(),

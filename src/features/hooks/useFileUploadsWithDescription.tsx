@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 import { ValidationFeedback } from '../utils/validators/types';
-import useDeviceFileUpload from './useDeviceFileUpload';
+import useDeviceFileUpload, { FileUpload } from './useDeviceFileUpload';
 
 export interface ItemUpload {
-  photo: string;
+  img: FileUpload;
   description?: string;
   validatorRunner?(): { errorExists: boolean; errors: ValidationFeedback[] };
   id: string;
@@ -18,10 +18,10 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
     uploadedFile: newFile,
     setUploadedFile: setNewFile,
     handleChangeInput: handleChangeFile,
-  } = useDeviceFileUpload({ toUrl: true, multiple: true });
+  } = useDeviceFileUpload({ type: 'image' });
 
-  const pushNewUpload = (photo: string) => {
-    const newData: ItemUpload = { photo, id: uuidv4(), description: '' };
+  const pushNewUpload = (fileUpload: FileUpload) => {
+    const newData: ItemUpload = { img: fileUpload, id: uuidv4(), description: '' };
     setUploads(prevData => [...prevData, newData]);
   };
 

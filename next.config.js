@@ -10,9 +10,10 @@ const nextConfig = {
     domains: [
       'plus.unsplash.com',
       'images.unsplash.com',
+      'res.cloudinary.com',
       'lh3.googleusercontent.com',
       'platform-lookaside.fbsbx.com',
-      'encrypted-tbn0.gstatic.com'
+      'encrypted-tbn0.gstatic.com',
     ],
   },
   async headers() {

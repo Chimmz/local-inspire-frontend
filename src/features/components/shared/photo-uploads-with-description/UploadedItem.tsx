@@ -10,7 +10,8 @@ import { isRequired } from '../../../utils/validators/inputValidators';
 import TextInput from '../text-input/TextInput';
 import styles from './UploadedItem.module.scss';
 
-type Props = ItemUpload & Partial<ReturnType<typeof useFileUploadsWithDescription>>;
+type Props = Pick<ItemUpload, 'id' | 'description' | 'img'> &
+  Partial<ReturnType<typeof useFileUploadsWithDescription>>;
 
 const UploadedItem = function (props: Props) {
   const { inputValue, handleChange, validationErrors, runValidators } = useInput({
@@ -36,9 +37,9 @@ const UploadedItem = function (props: Props) {
   }, []);
 
   return (
-    <li className={cls(styles.item, 'position-relative')} key={props.photo}>
+    <li className={cls(styles.item, 'position-relative')} key={props.id}>
       <Image
-        src={props.photo}
+        src={props.img.url!}
         width={200}
         height={200}
         objectFit="cover"

@@ -1,6 +1,7 @@
 import cls from 'classnames';
 import Image from 'next/image';
 import React from 'react';
+import useDate from '../../hooks/useDate';
 import { UserPublicProfile } from '../../types';
 import * as userUtils from '../../utils/user-utils';
 import StarRating from '../shared/star-rating/StarRating';
@@ -16,18 +17,18 @@ export interface ReviewProps {
   reviewTitle: string;
   review: string;
   visitType: string;
-  featuresRating: { feature: string; rating: number; _id: string }[];
+  featureRatings: { feature: string; rating: number; _id: string }[];
   adviceToFutureVisitors: string;
-  photosWithDescription: [{ photo: string; description: string; _id: string }];
-  likedBy: string[];
+  images: Array<{ photoUrl: string; description: string; _id: string }>;
+  likes: Array<{ user: UserPublicProfile }>;
   createdAt: string;
   updatedAt: string;
 }
 
 const UserReview: React.FC<ReviewProps> = function (props) {
   if (!props?._id) return null;
-
-  const reviewDate = [props.visitedWhen.month, '' + props.visitedWhen.year].join(' ');
+  const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
+  console.log({ props: userUtils.getFullName(props?.reviewedBy) });
 
   return (
     <article className={styles.review}>
@@ -36,17 +37,14 @@ const UserReview: React.FC<ReviewProps> = function (props) {
           src={props.reviewedBy?.imgUrl || '/img/default-profile-pic.jpeg'}
           width={50}
           height={50}
-          alt={`Avatar of ${userUtils.getFullName({
-            firstName: props?.reviewedBy?.firstName,
-            lastName: props?.reviewedBy?.lastName,
-          })}`}
+          alt={`Avatar of ${userUtils.getFullName(props?.reviewedBy)}`}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
           onError={err => console.log('Image error: ', err)}
         />
       </figure>
       <strong className={styles.reviewedBy}>
-        {props?.reviewedBy?.firstName} {props?.reviewedBy?.lastName?.[0]}.
+        {userUtils.getFullName(props?.reviewedBy, { lastNameInitial: true })}
       </strong>
       <StarRating
         initialValue={props.businessRating}

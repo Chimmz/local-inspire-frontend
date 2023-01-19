@@ -21,13 +21,19 @@ import useClientMiddleware, {
   MiddlewareNextAction,
 } from '../../../hooks/useClientMiddleware';
 import styles from './Reviews.module.scss';
+import { UserPublicProfile } from '../../../types';
+import { getFullName } from '../../../utils/user-utils';
 
-type Props = ReviewProps & { show: boolean; businessName: string };
+type Props = ReviewProps & {
+  show: boolean;
+  businessName: string;
+  showReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
+};
 
 const ReviewItem = function (props: Props) {
   // console.log('BusinessReview is evaluated');
-  const [likes, setLikes] = useState(props.likedBy);
-  const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
+  const [likes, setLikes] = useState(props.likes);
+  // const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
 
   const { withAuth } = useClientMiddleware();
   const currentUser = useSignedInUser();
@@ -36,19 +42,19 @@ const ReviewItem = function (props: Props) {
     autoStopLoading: true,
   });
 
-  const handleLikeReview: MiddlewareNextAction = useCallback(
+  const handleToggleLikeReview: MiddlewareNextAction = useCallback(
     async (token?: string) => {
       const data = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
       console.log({ data });
 
       if (data.status !== 'SUCCESS') return;
-      setLikes(data?.likes?.users as string[]);
+      setLikes(data?.likes as { user: UserPublicProfile }[]);
     },
     [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken],
   );
 
   const isLikedByCurrentUser = useMemo(
-    () => likes.includes(currentUser?._id!),
+    () => likes.some(({ user }) => user._id === currentUser?._id!),
     [likes, currentUser?._id],
   );
 
@@ -68,19 +74,23 @@ const ReviewItem = function (props: Props) {
     () => (
       <button
         className="btn btn-transp d-flex align-items-center gap-2"
-        onClick={withAuth.bind(null, handleLikeReview)}
+        onClick={withAuth.bind(null, handleToggleLikeReview)}
         disabled={isLiking}
       >
-        {/* <Icon icon={`mdi:like${!isLikedByCurrentUser ? '-outline' : ''}`} width={20} /> */}
         <Icon
           icon={`ant-design:like-${isLikedByCurrentUser ? 'filled' : 'outlined'}`}
           width={20}
         />
-        {isLikedByCurrentUser ? 'Thank you for your vote' : 'Helpful'}{' '}
+        {isLikedByCurrentUser ? 'Thank you for your vote ' : 'Helpful '}
         {likes.length ? `(${likes.length})` : ''}
       </button>
     ),
-    [handleLikeReview, isLiking, isLikedByCurrentUser, likes, likes.length],
+    [handleToggleLikeReview, isLiking, isLikedByCurrentUser, likes],
+  );
+
+  const reviewerName = getFullName(props.reviewedBy, { lastNameInitial: true })?.replace(
+    '.',
+    '',
   );
 
   return (
@@ -90,18 +100,15 @@ const ReviewItem = function (props: Props) {
     >
       <div className={styles.reviewHeader}>
         <Image
-          src={src}
+          src={props.reviewedBy.imgUrl}
           width={50}
           height={50}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
-          onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
+          // onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
         <small className="">
-          <span className="text-black">
-            {props.reviewedBy.firstName + ' ' + props.reviewedBy.lastName[0] + '.'}
-          </span>{' '}
-          wrote a review on {reviewDate}
+          <span className="text-black">{reviewerName}</span> wrote a review on {reviewDate}
         </small>
 
         <small className={styles.location}>
@@ -173,8 +180,8 @@ const ReviewItem = function (props: Props) {
 
             <div className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
               <FeatureRating
-                features={props.featuresRating.map(f => f.feature)}
-                ratings={props.featuresRating.map(f => f.rating)}
+                features={props.featureRatings.map(f => f.feature)}
+                ratings={props.featureRatings.map(f => f.rating)}
                 readonly
                 grid
               />
@@ -187,6 +194,7 @@ const ReviewItem = function (props: Props) {
 
       <div className={styles.reviewFooter}>
         {btnLike}
+
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
           onClick={withAuth.bind(null, () => {})}
@@ -194,7 +202,16 @@ const ReviewItem = function (props: Props) {
           <Icon icon="fluent:share-48-regular" width={20} />
           Share
         </button>
-        <button className="btn bg-none">
+
+        <button
+          className="btn bg-none"
+          onClick={() =>
+            props.showReviewLikers(
+              likes.map(like => ({ ...like.user })),
+              reviewerName!,
+            )
+          }
+        >
           {likes.length} people found this review helpful
         </button>
       </div>

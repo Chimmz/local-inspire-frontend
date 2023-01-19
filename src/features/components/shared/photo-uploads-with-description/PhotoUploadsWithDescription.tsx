@@ -24,9 +24,9 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
   } = mainProps;
 
   useEffect(() => {
-    if (!newFile?.length) return;
+    if (!newFile) return;
     pushNewUpload(newFile);
-    setNewFile(''); // Reset the file str
+    setNewFile(null); // Reset the file str
   }, [newFile]); // Watch for when user uploads a new file
 
   const handleContinue: React.MouseEventHandler<HTMLButtonElement> = async ev => {
@@ -67,7 +67,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
             {uploads.map(item => (
               <UploadedItem
                 id={item.id}
-                photo={item.photo}
+                img={item.img}
                 description={item.description}
                 editUploadedItem={editUploadedItem}
                 deleteUpload={deleteUpload}

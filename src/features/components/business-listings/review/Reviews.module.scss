@@ -89,3 +89,9 @@
 //   flex-direction: column;
 //   align-items: center;
 // }
+
+.reviewLikersList {
+  & > *:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+  }
+}

@@ -21,7 +21,6 @@ export interface QuestionItemProps {
   _id: string;
   questionText: string;
   askedBy: UserPublicProfile;
-  askedDate: '2023-01-07T02:33:50.633Z';
   answers: AnswerProps[];
   createdAt: string;
 }
@@ -30,20 +29,20 @@ type Props = QuestionItemProps & { show: boolean };
 
 const QuestionItem = (props: Props) => {
   const [question, setQuestion] = useState<QuestionItemProps>(props);
-  const { send: sendAnswerReq, loading: isSendingAnswer } = useRequest({
-    autoStopLoading: true,
-  });
+  // const [imgSrc, setImgSrc] = useState(
+  //   // question.askedBy.imgUrl ||
+  //   '/img/default-profile-pic.jpeg',
+  // );
   const { date: askedDate } = useDate(question.createdAt, {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
   });
-  const [imgSrc, setImgSrc] = useState(
-    // question.askedBy.imgUrl ||
-    '/img/default-profile-pic.jpeg',
-  );
+  const { send: sendAnswerReq, loading: isSendingAnswer } = useRequest({
+    autoStopLoading: true,
+  });
 
-  const handleSelectDropdownItem = (evKey: string) => {
+  const handleSelectDropdownOption = (evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
         console.log('Reporting...');
@@ -62,19 +61,17 @@ const QuestionItem = (props: Props) => {
     return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
   }, [question.answers]);
 
-  if (props._id === '63c3566720476f44f35f6b82') {
-    console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
-  }
+  console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
 
   return (
     <section className={cls(styles.question, props.show ? 'd-block' : 'd-none')}>
       <div className={styles.questionHeader}>
         <figure>
           <Image
-            src={imgSrc}
+            src={question.askedBy.imgUrl}
             layout="fill"
             objectFit="cover"
-            onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
+            // onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
             style={{ borderRadius: '50%' }}
           />
         </figure>
@@ -91,13 +88,9 @@ const QuestionItem = (props: Props) => {
           Terrell, TX • 5 contributions
         </small>
 
-        {/* <button className={cls(styles.flag, 'btn btn-circle')}>
-          <Icon icon="mi:options-horizontal" width={22} />
-        </button> */}
-
         <AppDropdown
           items={['Report']}
-          onSelect={handleSelectDropdownItem}
+          onSelect={handleSelectDropdownOption}
           toggler={<Icon icon="material-symbols:more-vert" width={20} />}
           className={styles.options}
         />
@@ -121,7 +114,7 @@ const QuestionItem = (props: Props) => {
 
       <>
         {!mostHelpfulAnswer ? (
-          <ul className={question.answers.length < 2 ? 'd-none' : 'd-block'}>
+          <ul>
             {question.answers.map(a => (
               <Answer
                 {...a}

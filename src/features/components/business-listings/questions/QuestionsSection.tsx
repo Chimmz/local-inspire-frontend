@@ -67,6 +67,7 @@ const QuestionsSection = function (props: Props) {
   };
 
   return (
+    // This is the Q&A header section containing the Ask question accordion
     <>
       <Accordion
         defaultActiveKey="0"
@@ -83,9 +84,9 @@ const QuestionsSection = function (props: Props) {
           eventKey="1"
           className={cls(styles.btnNewQuestion, 'btn btn-bg-none no-bg-hover text-pry')}
           contentOnExpand={
-            <button className="btn btn-bg-none text-pry" ref={btnCloseAccordionRef}>
+            <span className="btn btn-bg-none text-pry" ref={btnCloseAccordionRef}>
               Close
-            </button>
+            </span>
           }
         >
           <Icon icon="material-symbols:add" width={20} />
