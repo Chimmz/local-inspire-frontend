@@ -60,7 +60,7 @@ function ReviewsSection(props: Props) {
     reviewerName: string;
   }>(null);
 
-  interface FullQuery {
+  interface QueryProperties {
     match: { [key: string]: string[] };
     sort: string[];
   }
@@ -78,38 +78,39 @@ function ReviewsSection(props: Props) {
   }, [queryStr]);
 
   useEffect(() => {
-    const fullQuery: FullQuery = { match: {}, sort: [] };
+    const queryProperties: QueryProperties = { match: {}, sort: [] };
 
     filters.forEach((filter, i) => {
       const query = filterToQueryMap.get(filter);
 
       if ('sort' in query!) {
-        fullQuery.sort.push(query.sort!);
+        queryProperties.sort.push(query.sort!);
       } else {
         const [k, v] = Object.entries(query!).flat();
-        if (!fullQuery.match[k]) fullQuery.match[k] = [v];
-        else fullQuery.match[k].push(v);
+        if (!queryProperties.match[k]) queryProperties.match[k] = [v];
+        else queryProperties.match[k].push(v);
       }
     });
 
     let queryStr = '?';
 
-    for (let queryType in fullQuery) {
+    for (let queryType in queryProperties) {
       switch (queryType) {
         case 'match':
-          Object.keys(fullQuery[queryType]).map(k => {
-            queryStr += `${k}=${fullQuery.match[k].join(',')}`;
+          Object.keys(queryProperties[queryType]).map(k => {
+            queryStr += `${k}=${queryProperties.match[k].join(',')}`;
             queryStr += '&';
           });
           break;
         case 'sort':
-          if (!fullQuery.sort.length) continue;
-          queryStr += `sort=${fullQuery.sort.join(',')}`;
+          if (!queryProperties.sort.length) continue;
+          queryStr += `sort=${queryProperties.sort.join(',')}`;
           queryStr += '&';
           break;
       }
     }
     console.log(queryStr.slice(0, -1));
+    console.log(queryProperties)
     setQueryString(queryStr.slice(0, -1));
   }, [filters.length]);
 

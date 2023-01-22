@@ -6,11 +6,12 @@ import styles from './PageSuccess.module.scss';
 interface Props {
   title: string | number;
   description?: string;
+  className?: string;
 }
 
 function PageSuccess(props: Props) {
   return (
-    <div className={styles.success}>
+    <div className={cls(styles.success, props.className)}>
       <div className={cls(styles.successIcon, 'mb-5')}>
         <Icon icon="mdi:success" color="#008500" width="50" height="50" />
       </div>

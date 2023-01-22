@@ -22,12 +22,15 @@ import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle'
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
 import styles from './QuestionsSection.module.scss';
 import BusinessesToConsider from './BusinessesToConsider';
+import { getBusinessQuestionsUrl } from '../../../utils/url-utils';
+import { BusinessProps } from '../../business-results/Business';
 
 interface Props {
   readonly show: boolean;
   readonly questions: QuestionItemProps[] | undefined;
-  readonly businessId: string;
-  readonly businessName: string | undefined;
+  business: BusinessProps | undefined;
+  readonly slug: string;
+  questionsCount: number;
 }
 
 const QuestionsSection = function (props: Props) {
@@ -49,7 +52,7 @@ const QuestionsSection = function (props: Props) {
 
   const postNewQuestion: MiddlewareNextAction = async (token?: string) => {
     const data = await sendSubmitQuestionReq(
-      api.askQuestionAboutBusiness(newQuestion, props.businessId, token!),
+      api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
     );
     console.log({ data });
 
@@ -66,6 +69,8 @@ const QuestionsSection = function (props: Props) {
     withAuth(postNewQuestion);
   };
 
+  const questionsPageUrl = getBusinessQuestionsUrl<string>({ slug: props.slug });
+
   return (
     // This is the Q&A header section containing the Ask question accordion
     <>
@@ -75,8 +80,8 @@ const QuestionsSection = function (props: Props) {
       >
         <h2 className="">Questions & Answers</h2>
         {questions?.length ? (
-          <Link href={'/'} passHref>
-            <a className="text-pry">See all {questions?.length} questions</a>
+          <Link href={questionsPageUrl} passHref>
+            <a className="text-pry">See all {props.questionsCount} questions</a>
           </Link>
         ) : null}
 
@@ -92,11 +97,15 @@ const QuestionsSection = function (props: Props) {
           <Icon icon="material-symbols:add" width={20} />
           Ask new question
         </CustomAccordionToggle>
-        <Accordion.Collapse eventKey="1" className={cls('mt-5', styles.collapsedContent)}>
+        <Accordion.Collapse
+          eventKey="1"
+          className={cls('mt-5', styles.collapsedContent)}
+          appear
+        >
           <form className={cls(styles.newQuestionForm)} onSubmit={handleSubmit}>
             <small className="fs-4">
               <strong className="mb-3 d-inline-block"> Got Questions?</strong> Get answers
-              from <strong>{props.businessName}</strong> staff and past visitors.
+              from <strong>{props.business?.businessName}</strong> staff and past visitors.
             </small>
 
             <div className={styles.defaultImg}>
@@ -136,7 +145,12 @@ const QuestionsSection = function (props: Props) {
       </Accordion>
 
       {questions?.map(que => (
-        <QuestionItem {...que} show={props.show && !!questions?.length} key={que._id} />
+        <QuestionItem
+          {...que}
+          show={props.show && !!questions?.length}
+          key={que._id}
+          business={props.business}
+        />
       ))}
 
       <BusinessesToConsider show={!questions?.length && props.show} />

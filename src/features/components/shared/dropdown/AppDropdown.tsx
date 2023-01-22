@@ -3,12 +3,10 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 import cls from 'classnames';
 import styles from './AppDropdown.module.scss';
 
-type Item = string | number | { label: ReactNode; value: string | number };
-
 interface DropdownProps {
-  items: Item[];
+  items: (string | number | { label: ReactNode; value: string | number })[];
   toggler: React.ReactNode;
-  className: string;
+  className?: string;
   onSelect(evKey: string): void;
   noDefaultIcon?: boolean;
 }

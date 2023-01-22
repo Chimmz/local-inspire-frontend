@@ -105,11 +105,11 @@
   }
   & > .answerHeader {
     display: grid;
-    grid-template-columns: 34px 1fr; // 34px = 30px + row-gap
+    grid-template-columns: 37px 1fr; // 34px = 30px + row-gap
     grid-template-rows: 15px 15px;
     align-items: start;
     column-gap: 7px;
-    row-gap: 4px;
+    row-gap: 7px;
     margin-bottom: 2rem;
 
     & > figure {

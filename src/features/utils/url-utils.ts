@@ -1,4 +1,25 @@
 import { NextRouter } from 'next/router';
+import { toTitleCase } from './string-utils';
+
+type BusinessPageUrlParams<T> = T extends string
+  ? { slug: string }
+  : { businessId: string; businessName: string; city: string; stateCode: string };
+
+type ParseBusinessSlugOptions = {
+  titleCase: boolean;
+} | null;
+
+type QuestionDetailsPageUrlParams = (
+  | { slug: string }
+  | {
+      businessName: string;
+      location?: string;
+      stateCode?: string;
+      city?: string;
+      qText: string;
+      qId: string;
+    }
+) & { scrollToAnswerForm?: boolean };
 
 const navigateTo = function (path: string, router: NextRouter) {
   router.push(path);
@@ -36,9 +57,20 @@ export const parseBusinessSearchUrlParams = (
   return { category, city, stateCode };
 };
 
-type BusinessPageUrlParams<T> = T extends string
-  ? { slug: string }
-  : { businessId: string; businessName: string; city: string; stateCode: string };
+export const parseBusinessSlug = (slug: string, options?: ParseBusinessSlugOptions) => {
+  let [businessName, location, businessId] = slug.split('_');
+
+  if (options?.titleCase) {
+    businessName = toTitleCase(businessName.split('-').join(' '));
+
+    return {
+      businessName,
+      location,
+      businessId,
+    };
+  }
+  return { businessName, location, businessId };
+};
 
 const transformBusinessUrlParams = (args: BusinessPageUrlParams<{}>) => {
   return {
@@ -71,7 +103,6 @@ export function genRecommendBusinessPageUrl<T>(
     args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '';
 
   if ('slug' in args) return `/write-a-review/${args.slug}`.concat(queryStr);
-
   const {
     businessName: name,
     city,
@@ -80,5 +111,45 @@ export function genRecommendBusinessPageUrl<T>(
   } = transformBusinessUrlParams(args);
   return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(queryStr);
 }
+
+export const getBusinessQuestionsUrl = function <T>(
+  args: BusinessPageUrlParams<T> & { promptNewQuestion?: boolean },
+) {
+  if ('slug' in args)
+    return `/questions/${args.slug}`.concat(
+      args.promptNewQuestion ? '?promptNewQuestion=true' : '',
+    );
+  const {
+    businessName: name,
+    city,
+    stateCode,
+    businessId: id,
+  } = transformBusinessUrlParams(args);
+  return `/questions/${name}_${city}-${stateCode}_${id}`.concat(
+    args.promptNewQuestion ? '?promptNewQuestion=true' : '',
+  );
+};
+
+export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) => {
+  let url: string;
+  console.log('genQuestionDetailsPageUrl params: ', params);
+
+  if ('slug' in params) url = `/question/${params.slug}`;
+  else {
+    let { businessName, qText, qId } = params;
+    businessName = businessName.split(' ').join('-').toLowerCase().trim();
+    qText = qText.split(' ').join('-').toLowerCase().replaceAll?.('?', '');
+
+    const location =
+      'location' in params
+        ? params.location
+        : [params.city?.toLowerCase(), params.stateCode?.toUpperCase()].join('-');
+
+    url = `/question/${businessName}_${location}_${qText}_${qId}`;
+  }
+
+  if (params.scrollToAnswerForm) return url.concat('?promptAnswer=true');
+  return url;
+};
 
 export default navigateTo;

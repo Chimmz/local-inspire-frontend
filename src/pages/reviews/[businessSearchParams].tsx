@@ -75,18 +75,11 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const {
-    currentPage,
-    currentPageData,
-    setPageData,
-    setCurrentPage,
-    pageHasData,
-    resetPagesData,
-    resetCurrentPage,
-  } = usePaginate<{ status: string; businesses: BusinessProps[] }>({
-    defaultCurrentPage: 1,
-    init: { 1: propsData as any },
-  });
+  const { currentPage, currentPageData, setPageData, setCurrentPage, pageHasData } =
+    usePaginate<{ status: string; businesses: BusinessProps[] }>({
+      defaultCurrentPage: 1,
+      init: { 1: propsData as any },
+    });
 
   useEffect(() => {
     const paginators = document.querySelector("[class*='paginators']");
@@ -153,23 +146,18 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     router.push(url);
   };
 
-  const handlePageChange: (arg: { selected: number }) => void = async param => {
-    const { selected: pageIndex } = param;
-    const currentPage = pageIndex + 1;
-    console.log({ currentPage });
-
-    setCurrentPage(currentPage);
-    if (pageHasData(currentPage, 'businesses')) return;
+  const handlePageChange = async (newPage: number) => {
+    setCurrentPage(newPage);
+    if (pageHasData(newPage, 'businesses')) return;
 
     const res = await API.findBusinesses(
       currentCategory,
       currentCity,
       currentStateCode,
-      currentPage,
+      newPage,
       PER_PAGE,
     );
-    if (res)
-      setPageData(currentPage, { status: res?.status, businesses: res?.businesses });
+    if (res) setPageData(newPage, { status: res?.status, businesses: res?.businesses });
     console.log(res);
   };
 
@@ -203,9 +191,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
               {/* <Image src="/img/map-img.jpg" layout="fill" /> */}
               <MapView
                 shown
-                closeMap={useCallback(setShowGoogleMap.bind(null, false), [
-                  setShowGoogleMap,
-                ])}
+                closeMap={useCallback(setShowGoogleMap.bind(null, false), [setShowGoogleMap])}
                 coords={propsData.businesses?.[0]?.coordinates as string}
                 withModal={false}
                 scrollZoom={false}
@@ -263,9 +249,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
 export const getStaticPaths: GetStaticPaths = async function () {
   return {
-    paths: [
-      { params: { businessSearchParams: 'find=restaurants&location=anchorage-AK' } },
-    ],
+    paths: [{ params: { businessSearchParams: 'find=restaurants&location=anchorage-AK' } }],
     fallback: 'blocking',
   };
 };

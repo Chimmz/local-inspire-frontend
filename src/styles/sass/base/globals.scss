@@ -10,14 +10,17 @@ html {
   font-size: 62.5%;
   // scroll-padding-top: 5rem;
 
+  // Small desktops
   @media screen and (min-width: 75em) {
     font-size: 71%;
   }
+  // Large Desktops
   @media screen and (min-width: 100em) {
     font-size: 76%;
   }
+  // Portrait
   @media screen and (max-width: 56.25em) {
-    font-size: 54%;
+    font-size: 60%;
   }
 }
 

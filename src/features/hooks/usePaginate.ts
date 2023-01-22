@@ -11,7 +11,7 @@ const usePaginate = <PageData>({ init, defaultCurrentPage = 1 }: Params<PageData
   const [currentPage, setCurrentPage] = useState(defaultCurrentPage);
   const [pagesMap, setPagesMap] = useState<PageDataMap<PageData>>(init || {});
 
-  const setPageData = (page: number, data: any) => {
+  const setPageData = (page: number, data: PageData) => {
     setPagesMap(map => ({ ...map, [page]: data }));
   };
 
@@ -32,7 +32,6 @@ const usePaginate = <PageData>({ init, defaultCurrentPage = 1 }: Params<PageData
     setPageData,
     pageHasData,
     resetPagesData,
-    resetCurrentPage: () => setPageData(currentPage, []),
   };
 };
 

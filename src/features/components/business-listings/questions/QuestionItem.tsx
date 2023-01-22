@@ -16,12 +16,16 @@ import { Accordion } from 'react-bootstrap';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import styles from './QuestionsSection.module.scss';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
+import { BusinessProps } from '../../business-results/Business';
+import { genQuestionDetailsPageUrl } from '../../../utils/url-utils';
 
 export interface QuestionItemProps {
   _id: string;
   questionText: string;
+  business: BusinessProps | undefined;
   askedBy: UserPublicProfile;
   answers: AnswerProps[];
+  answersCount: number;
   createdAt: string;
 }
 
@@ -29,17 +33,11 @@ type Props = QuestionItemProps & { show: boolean };
 
 const QuestionItem = (props: Props) => {
   const [question, setQuestion] = useState<QuestionItemProps>(props);
-  // const [imgSrc, setImgSrc] = useState(
-  //   // question.askedBy.imgUrl ||
-  //   '/img/default-profile-pic.jpeg',
-  // );
+
   const { date: askedDate } = useDate(question.createdAt, {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
-  });
-  const { send: sendAnswerReq, loading: isSendingAnswer } = useRequest({
-    autoStopLoading: true,
   });
 
   const handleSelectDropdownOption = (evKey: string) => {
@@ -51,15 +49,31 @@ const QuestionItem = (props: Props) => {
   };
 
   const mostHelpfulAnswer = useMemo(() => {
-    return question.answers.reduce((accum: AnswerProps | null, ans) => {
-      if (accum && ans.likes.length > accum?.likes?.length) return ans;
-      return accum;
-    }, null);
-  }, [question, question.answers]);
+    if (!question) return null;
+
+    let answer = question!.answers.reduce((acc, ans) => {
+      if (ans.likes.length > acc.likes.length) return ans;
+      else return acc;
+    }, question!.answers[0]);
+
+    return answer?.likes.length ? answer : null;
+  }, [question]);
 
   const lessHelpfulAnswers = useMemo(() => {
     return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
   }, [question.answers]);
+
+  const questionDetailsUrl = useMemo(
+    () =>
+      genQuestionDetailsPageUrl({
+        businessName: props.business!.businessName!,
+        qId: props._id,
+        qText: props.questionText,
+        city: props.business?.city,
+        stateCode: props.business?.stateCode,
+      }),
+    [],
+  );
 
   console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
 
@@ -97,7 +111,7 @@ const QuestionItem = (props: Props) => {
       </div>
 
       <div className={cls(styles.questionText, 'text-dark text-hover-dark fs-3')}>
-        <Link href={'/'} className="link">
+        <Link href={questionDetailsUrl} className="link">
           {question.questionText}
         </Link>
       </div>

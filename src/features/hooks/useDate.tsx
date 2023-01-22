@@ -2,23 +2,22 @@ import { useState, useEffect } from 'react';
 
 type DateFormatOptions = Intl.DateTimeFormatOptions;
 
-const useDate = (rawValue: string, options?: DateFormatOptions) => {
+const useDate = (rawValue?: string, options?: DateFormatOptions) => {
   const [date, setDate] = useState('');
 
-  const format = function () {
-    if (!rawValue) return;
+  const format = function (dateStr?: string) {
+    if (!dateStr) return;
 
-    const result = new Intl.DateTimeFormat(window.navigator?.language, options).format(
-      new Date(rawValue),
-    );
-    setDate(result);
+    const result = new Intl.DateTimeFormat('en-US', options).format(new Date(dateStr));
+    if (rawValue) setDate(result);
+    return result;
   };
 
   useEffect(() => {
-    if (options) format();
+    if (options) format(rawValue);
   }, [rawValue]);
 
-  return { date };
+  return { date, formatDate: format };
 };
 
 export default useDate;

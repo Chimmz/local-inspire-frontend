@@ -4,7 +4,7 @@
   font-size: 1.3rem;
   border-color: transparent;
   min-width: max-content;
-  padding: 0.6em 1em;
+  padding: 0.7em 1em;
   border-radius: 4px;
   text-align: center;
   cursor: pointer;
@@ -41,9 +41,7 @@
     background-color: $color-sec;
     color: #fff;
 
-    &:hover,
-    &:focus,
-    &:active {
+    &:hover {
       background-color: $color-sec-dark !important;
       color: #fff !important;
     }
@@ -151,8 +149,14 @@
   }
   &--sm {
     // transform: scale(0.9);
-    border-radius: 4px;
+    border-radius: 3px;
     font-size: 1.1rem;
+    // padding: 7px 1.6em;
+  }
+  &--xsm {
+    // transform: scale(0.9);
+    border-radius: 3px;
+    font-size: 1rem;
     // padding: 7px 1.6em;
   }
   &--lg {

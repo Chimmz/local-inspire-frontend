@@ -231,9 +231,29 @@ class API {
     });
   }
 
-  async getQuestionsAskedAboutBusiness(businessId: string) {
+  async getQuestionsAskedAboutBusiness(
+    businessId: string,
+    queryStr?: string,
+    opts?: { page?: number; limit?: number },
+  ) {
+    const url = `/businesses/${businessId}/questions`
+      .concat(queryStr || '')
+      .concat(!queryStr ? '?&' : '')
+      .concat(opts?.page ? `page=${opts.page}` : '')
+      .concat(opts?.limit ? `&limit=${opts.limit}` : '');
+
     return this._makeRequest({
-      path: `/businesses/${businessId}/questions`,
+      path: url,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async getQuestion(qId: string, opts?: { textSearch: string }) {
+    return this._makeRequest({
+      path: `/questions/${qId}`.concat(
+        opts?.textSearch ? `?textSearch=${opts.textSearch}` : '',
+      ),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

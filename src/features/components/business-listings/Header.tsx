@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 
 import { Icon } from '@iconify/react';
@@ -10,26 +10,31 @@ import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 import { BusinessProps } from '../business-results/Business';
 import Link from 'next/link';
-import { genRecommendBusinessPageUrl } from '../../utils/url-utils';
+import { genRecommendBusinessPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
 import { useRouter } from 'next/router';
 import { ReviewProps } from '../recommend-business/UserReview';
 
 interface Props {
   businessName: string;
   reviewsCount: number | undefined;
-  linkToReviewPage: string;
   business: Partial<BusinessProps> | undefined;
   reviewImages: Array<{ photoUrl: string; description: string; _id: string }> | undefined;
+  slug: string;
 }
-
-let a: Pick<ReviewProps, 'images'>;
 
 function Header(props: Props) {
   const slug = useRouter().query.businessDetails as string;
   const reviewPageUrl = genRecommendBusinessPageUrl<string>({ slug, recommends: null });
+  const questionsPageUrl = useMemo(
+    () =>
+      getBusinessQuestionsUrl<string>({
+        slug: props.slug,
+        promptNewQuestion: true,
+      }),
+    [],
+  );
 
   const undisplayedPhotos = props.reviewImages?.slice(3);
-  console.log({ undisplayedPhotos });
 
   return (
     <header className={styles.header}>
@@ -59,7 +64,9 @@ function Header(props: Props) {
             </Link>
           </button>
 
-          <button className="btn btn-outline btn--lg">Ask a question</button>
+          <Link href={questionsPageUrl} passHref>
+            <a className="btn btn-outline btn--lg">Ask a question</a>
+          </Link>
 
           {props.business?.claimed ? (
             <button className="btn btn-outline btn--lg">Message owner</button>

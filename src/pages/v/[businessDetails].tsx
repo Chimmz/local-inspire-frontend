@@ -29,7 +29,12 @@ import useSignedInUser from '../../features/hooks/useSignedInUser';
 
 interface Props {
   business: { data: BusinessProps | undefined };
-  questions: { results: number; status: 'SUCCESS' | 'FAIL'; data?: QuestionItemProps[] };
+  questions: {
+    results: number;
+    status: 'SUCCESS' | 'FAIL';
+    data?: QuestionItemProps[];
+    total: number;
+  };
   reviews: { results: number; status: 'SUCCESS' | 'FAIL'; data?: ReviewProps[] };
   tips: { results: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
   params: {
@@ -61,9 +66,9 @@ const BusinessListings: NextPage<Props> = function (props) {
         <Header
           business={props.business.data}
           businessName={props.params.businessName}
-          linkToReviewPage={linkToReviewPage}
           reviewsCount={props.reviews?.results}
           reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
+          slug={props.params.slug}
         />
         <div className={styles.left}>
           <Announcement />
@@ -145,7 +150,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               data-active={whatsActive === 'q&a'}
             >
               <Icon icon="jam:messages-f" width={30} />
-              <strong>{props.questions.data?.length} Q&A</strong>
+              <strong>{props.questions.total} Q&A</strong>
             </button>
             <button
               className="d-flex flex-column gap-3 align-items-center"
@@ -166,8 +171,9 @@ const BusinessListings: NextPage<Props> = function (props) {
           <QuestionsSection
             show={whatsActive === 'q&a'}
             questions={props.questions.data}
-            businessId={props.params.businessId}
-            businessName={props.business.data?.businessName}
+            business={props.business.data}
+            slug={props.params.slug}
+            questionsCount={props.questions.total}
           />
           <AdvicesSection
             show={whatsActive === 'advices'}

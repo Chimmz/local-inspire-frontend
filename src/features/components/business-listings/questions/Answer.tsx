@@ -40,10 +40,6 @@ const Answer: React.FC<Props> = function (props) {
     dislikes: props.dislikes,
   });
   const { withAuth } = useClientMiddleware();
-  const [imgSrc, setImgSrc] = useState(
-    // props.answeredBy.imgUrl ||
-    '/img/default-profile-pic.jpeg',
-  );
 
   // const allowReaction = currentUserId !== props.answeredBy._id;
   const allowReaction = true;
@@ -87,7 +83,10 @@ const Answer: React.FC<Props> = function (props) {
         </small>
 
         <small
-          className={cls(styles.responderInfo, 'd-flex gap-4 align-items-center flex-wrap')}
+          className={cls(
+            styles.responderInfo,
+            'd-flex gap-4 align-items-center flex-wrap text-light',
+          )}
         >
           {props.answeredBy.role === 'BUSINESS_OWNER' ? (
             <>

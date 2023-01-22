@@ -4,7 +4,7 @@ import styles from './Paginators.module.scss';
 
 interface Props {
   pageCount: number;
-  onPageChange(selectedItem: { selected: number }): any;
+  onPageChange(n: number): any;
   currentPage: number;
 }
 
@@ -14,10 +14,12 @@ const Paginators = function (props: Props) {
   const showPreviousLabel = currentPage > 1;
   const showNextLabel = currentPage < pageCount;
 
+  console.log({ showPreviousLabel, showNextLabel });
+
   return (
     <ReactPaginate
       breakLabel="..."
-      onPageChange={pageChangeHandler}
+      onPageChange={({ selected: pageIndex }) => pageChangeHandler(pageIndex + 1)}
       // pageRangeDisplayed={10}
       pageCount={pageCount}
       previousLabel={
@@ -25,7 +27,7 @@ const Paginators = function (props: Props) {
           icon="material-symbols:chevron-left-rounded"
           width={22}
           color="gray"
-          style={{ opacity: showPreviousLabel ? 1 : '0.2' }}
+          // style={{ opacity: showPreviousLabel ? 1 : '0.2' }}
         />
       }
       nextLabel={
@@ -33,7 +35,7 @@ const Paginators = function (props: Props) {
           icon="material-symbols:chevron-right-rounded"
           color="gray"
           width={22}
-          style={{ opacity: showNextLabel ? 1 : '0.2' }}
+          // style={{ opacity: showNextLabel ? 1 : '0.2' }}
         />
       }
       renderOnZeroPageCount={() => {}}

@@ -15,13 +15,15 @@ const CustomAccordionToggle = function (props: Props) {
   // toggleExpanded is used as an onclick callback
   const decoratedOnClick = useAccordionButton(props.eventKey, toggleExpanded);
 
+  const btnContent = expanded ? props.contentOnExpand || props.children : props.children;
+
   return (
     <button
       type="button"
       className={expanded ? props.classNameOnExpand || props.className : props.className}
       onClick={decoratedOnClick}
     >
-      {expanded ? props.contentOnExpand || props.children : props.children}
+      {btnContent}
     </button>
   );
 };

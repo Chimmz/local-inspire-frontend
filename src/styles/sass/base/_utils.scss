@@ -11,6 +11,11 @@
 .text-pry {
   color: $color-pry-light;
 }
+
+.text-light {
+  color: #888888 !important;
+}
+
 .text-sec {
   color: $color-sec;
 }
@@ -49,6 +54,9 @@
 .w-max-content {
   max-width: max-content;
 }
+.w-min-content {
+  max-width: min-content;
+}
 
 .text-black {
   color: #000;
@@ -67,4 +75,10 @@
 }
 .bg-white {
   background-color: #fff;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.u-border-none {
+  border-color: transparent !important;
 }
