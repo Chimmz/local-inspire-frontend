@@ -145,7 +145,10 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     stateCode: question!.business!.stateCode,
   };
   const businessUrl = useMemo(() => genBusinessPageUrl(externalUrlParams), []);
-  const questionsUrl = useMemo(() => getBusinessQuestionsUrl(externalUrlParams), []);
+  const questionsUrl = useMemo(
+    () => getBusinessQuestionsUrl({ ...externalUrlParams, promptNewQuestion: true }),
+    [],
+  );
 
   return (
     <SSRProvider>
@@ -175,7 +178,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             </small>
             <Icon icon="ic:baseline-greater-than" width={10} />
             <small className="text-pry">
-              <Link href={'/'}>Ask the Community</Link>
+              <Link href={questionsUrl}>Ask the Community</Link>
             </small>
             <Icon icon="ic:baseline-greater-than" width={10} />
             <small className="">{question?.questionText}</small>

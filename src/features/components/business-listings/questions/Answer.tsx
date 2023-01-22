@@ -14,6 +14,7 @@ import { Icon } from '@iconify/react';
 import styles from './QuestionsSection.module.scss';
 import { QuestionItemProps } from './QuestionItem';
 import useDate from '../../../hooks/useDate';
+import * as qtyUtils from '../../../utils/quantity-utils';
 
 export interface AnswerProps {
   readonly _id: string;
@@ -101,13 +102,7 @@ const Answer: React.FC<Props> = function (props) {
           ) : null}
 
           <small>
-            {reactions.likes.length}{' '}
-            {reactions.likes.length < 1
-              ? 'persons'
-              : reactions.likes.length === 1
-              ? 'person'
-              : 'people'}{' '}
-            found this helpful
+            {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
           </small>
 
           {props.mostHelpful ? (

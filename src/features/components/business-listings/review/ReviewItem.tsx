@@ -23,6 +23,7 @@ import useClientMiddleware, {
 import styles from './Reviews.module.scss';
 import { UserPublicProfile } from '../../../types';
 import { getFullName } from '../../../utils/user-utils';
+import * as qtyUtils from '../../../utils/quantity-utils';
 
 type Props = ReviewProps & {
   show: boolean;
@@ -214,7 +215,7 @@ const ReviewItem = function (props: Props) {
             );
           }}
         >
-          {likes.length} people found this review helpful
+          {qtyUtils.getPeopleQuantity(likes.length)} found this review helpful
         </button>
       </div>
     </section>
