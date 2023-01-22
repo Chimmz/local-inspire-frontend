@@ -60,8 +60,13 @@ const QuestionItem = (props: Props) => {
   }, [question]);
 
   const lessHelpfulAnswers = useMemo(() => {
+    if (!mostHelpfulAnswer) return question.answers;
     return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
-  }, [question.answers]);
+  }, [question.answers, mostHelpfulAnswer]);
+
+  if (question._id === '63caa1fcfe667c5d91a7112f') {
+    console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
+  }
 
   const questionDetailsUrl = useMemo(
     () =>
@@ -126,6 +131,18 @@ const QuestionItem = (props: Props) => {
         />
       ) : null}
 
+      {/* <ul>
+        {question.answers.map(a => (
+          <Answer
+            {...a}
+            questionId={question._id}
+            key={a._id}
+            mostHelpful={false}
+            setQuestion={setQuestion}
+          />
+        ))}
+      </ul> */}
+
       <>
         {!mostHelpfulAnswer ? (
           <ul>
@@ -141,7 +158,7 @@ const QuestionItem = (props: Props) => {
           </ul>
         ) : (
           <Accordion
-            className={cls(styles.lessHelpfulAnswers, lessHelpfulAnswers.length && 'd-none')}
+            className={cls(styles.lessHelpfulAnswers, !lessHelpfulAnswers.length && 'd-none')}
           >
             <CustomAccordionToggle
               eventKey="1"

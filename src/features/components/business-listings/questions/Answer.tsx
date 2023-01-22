@@ -13,6 +13,7 @@ import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import styles from './QuestionsSection.module.scss';
 import { QuestionItemProps } from './QuestionItem';
+import useDate from '../../../hooks/useDate';
 
 export interface AnswerProps {
   readonly _id: string;
@@ -34,6 +35,11 @@ const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
   const { send: sendReactionReq, loading: isReacting } = useRequest({
     autoStopLoading: true,
+  });
+  const { date: answeredDate } = useDate(props.createdAt, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
   const [reactions, setReactions] = useState({
     likes: props.likes,

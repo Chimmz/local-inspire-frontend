@@ -39,13 +39,13 @@ function Header(props: Props) {
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-        <h1>{props.business?.businessName}</h1>
+        <h1 className="mb-3">{props.business?.businessName}</h1>
         <StarRating
           readonly
           ratingValue={props.reviewsCount}
           initialValue={3}
           showRatingCaption
-          starSize="lg"
+          starSize="xlg"
           renderReviewsCount={n => `${n} reviews`}
           className="mb-4"
         />
