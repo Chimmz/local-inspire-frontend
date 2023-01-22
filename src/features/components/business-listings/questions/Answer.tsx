@@ -84,7 +84,7 @@ const Answer: React.FC<Props> = function (props) {
               {' '}
               {getFullName(props.answeredBy, { lastNameInitial: true })}
             </span>{' '}
-            on Jan 07, 2020
+            on {answeredDate}
           </small>
         </small>
 
