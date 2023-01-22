@@ -250,7 +250,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             <h6 className="fs-5 mb-5">
               <strong>
                 {' '}
-                Hi, Don, can you provide an answer for this traveler's question?
+                Hi, Don, can you provide an answer for this traveler&apos;s question?
               </strong>
             </h6>
             <Image

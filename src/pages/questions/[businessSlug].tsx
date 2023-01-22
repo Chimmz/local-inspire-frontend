@@ -244,7 +244,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
             <h3 className="mb-4">Popular Questions on {props.params.businessName}</h3>
             <ul className="no-bullets">
               {popularQuestions?.map(q => (
-                <PopularQuestion {...q} {...props.params} />
+                <PopularQuestion {...q} {...props.params} key={q._id} />
               ))}
             </ul>
           </aside>
