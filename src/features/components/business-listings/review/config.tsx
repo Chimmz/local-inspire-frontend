@@ -3,8 +3,8 @@ export const reportModalConfig = {
   body: (
     <>
       <p className="parag">
-        Please let us know why you think the content you're reporting violates our guidelines.
-        Use the below forms to report any questionable or inappropriate reviews.
+        Please let us know why you think the content you&apos;re reporting violates our
+        guidelines. Use the below forms to report any questionable or inappropriate reviews.
       </p>
       <strong className="mb-3 d-block">Why do you want to report this review?</strong>
       <ul>
