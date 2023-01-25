@@ -67,16 +67,6 @@ class API {
     });
   }
 
-  // async oauthSignIn(user: object, account: { provider: object }) {
-  //   const { provider, ...accountInfo } = account;
-
-  //   return this._makeRequest({
-  //     path: `/users/oauth/${provider}`,
-  //     method: 'POST',
-  //     body: JSON.stringify({ user, account: accountInfo }),
-  //     headers: { 'Content-Type': 'application/json' },
-  //   });
-  // }
   async oauthSignIn(provider: string, accessToken?: string, profile?: string) {
     console.log('The profile object: ', profile);
     return this._makeRequest({
@@ -109,6 +99,15 @@ class API {
       path: `/users/confirm-account?email=${email}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async updateUserLocation(locationObj: object, token: string) {
+    return this._makeRequest({
+      path: `/users/update-user-location`,
+      method: 'PATCH',
+      body: JSON.stringify(locationObj),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
 
@@ -166,9 +165,16 @@ class API {
     });
   }
 
-  async getBusinessReviews(businessId: string, queryStr?: string) {
+  async getBusinessReviews(
+    businessId: string,
+    queryStr?: string,
+    options?: { page: number; limit: number },
+  ) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/reviews`.concat(queryStr || ''),
+      path: `/businesses/${businessId}/reviews`
+        .concat(queryStr || '')
+        .concat(!queryStr?.length && options ? '?' : '')
+        .concat(options ? `&page=${options.page}&limit=${options.limit}` : ''),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -259,9 +265,11 @@ class API {
     });
   }
 
-  async getTipsAboutBusiness(businessId: string) {
+  async getTipsAboutBusiness(businessId: string, opts?: { page: number; limit: number }) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/tips`,
+      path: `/businesses/${businessId}/tips`.concat(
+        opts ? `?page=${opts.page}&limit=${opts.limit}` : '',
+      ),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

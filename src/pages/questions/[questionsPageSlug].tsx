@@ -5,7 +5,7 @@ import { Modal, SSRProvider } from 'react-bootstrap';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
 import Layout from '../../features/components/layout';
 import api from '../../features/library/api';
-import { genBusinessPageUrl, parseBusinessSlug } from '../../features/utils/url-utils';
+import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
 
 import { Icon } from '@iconify/react';
 
@@ -265,7 +265,7 @@ export const getStaticPaths: GetStaticPaths = async function (context) {
   return {
     paths: [
       {
-        params: { businessSlug: 'chicken-express_terrell-TX_63930e95aece20c26be873a4' },
+        params: { questionsPageSlug: 'chicken-express_terrell-TX_63930e95aece20c26be873a4' },
       },
     ],
     fallback: 'blocking',
@@ -274,9 +274,9 @@ export const getStaticPaths: GetStaticPaths = async function (context) {
 
 export const getStaticProps: GetStaticProps = async function (context) {
   try {
-    const slug = context.params!.businessSlug as string;
+    const slug = context.params!.questionsPageSlug as string;
 
-    const { businessName, location, businessId } = parseBusinessSlug(slug, {
+    const { businessName, location, businessId } = parseQuestionsPageSlug(slug, {
       titleCase: true,
     });
     // console.log({ businessName, location, businessId });

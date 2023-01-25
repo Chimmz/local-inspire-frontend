@@ -57,7 +57,7 @@ export const parseBusinessSearchUrlParams = (
   return { category, city, stateCode };
 };
 
-export const parseBusinessSlug = (slug: string, options?: ParseBusinessSlugOptions) => {
+export const parseQuestionsPageSlug = (slug: string, options?: ParseBusinessSlugOptions) => {
   let [businessName, location, businessId] = slug.split('_');
 
   if (options?.titleCase) {
@@ -81,21 +81,6 @@ const transformBusinessUrlParams = (args: BusinessPageUrlParams<{}>) => {
   };
 };
 
-export function genBusinessPageUrl<T>(
-  args: BusinessPageUrlParams<T extends string ? string : {}>,
-) {
-  if ('slug' in args) return `/v/${args.slug}`;
-
-  const {
-    businessName: name,
-    city,
-    stateCode,
-    businessId: id,
-  } = transformBusinessUrlParams(args);
-
-  return `/v/${name}_${city.split(' ').join('-')}-${stateCode}_${id}`;
-}
-
 export function genRecommendBusinessPageUrl<T>(
   args: BusinessPageUrlParams<T> & { recommends: boolean | null },
 ) {
@@ -110,6 +95,21 @@ export function genRecommendBusinessPageUrl<T>(
     businessId: id,
   } = transformBusinessUrlParams(args);
   return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(queryStr);
+}
+
+export function genBusinessPageUrl<T>(
+  args: BusinessPageUrlParams<T extends string ? string : {}>,
+) {
+  if ('slug' in args) return `/v/${args.slug}`;
+
+  const {
+    businessName: name,
+    city,
+    stateCode,
+    businessId: id,
+  } = transformBusinessUrlParams(args);
+
+  return `/v/${name}_${city.split(' ').join('-')}-${stateCode}_${id}`;
 }
 
 export const getBusinessQuestionsUrl = function <T>(

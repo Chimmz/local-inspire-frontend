@@ -9,4 +9,7 @@ export interface UserPublicProfile {
   lastName: string;
   imgUrl: string;
   role: 'USER' | 'CITY_MANAGER' | 'BUSINESS_OWNER' | 'MAIN_ADMIN';
+  city: string;
+  location: { city: string; cityName: string; stateCode: string };
+  contributions: [object];
 }

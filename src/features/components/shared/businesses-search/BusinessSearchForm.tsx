@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
@@ -6,7 +6,6 @@ import * as uuid from 'uuid';
 import { useRouter } from 'next/router';
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
-import useCurrentLocation from '../../../hooks/useCurrentLocation';
 import useAPISearchResults from '../../../hooks/useAPISearchResults';
 import useDelayActionUponTextInput from '../../../hooks/useDelayActionUponTextInput';
 
@@ -15,6 +14,7 @@ import { Button, Spinner as BootstrapSpinner } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
 import SearchResults from '../search-results/SearchResults';
 import styles from './BusinessSearchForm.module.scss';
+import { UserLocationContext } from '../../../contexts/UserLocationContext';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
 const MIN_CHARS_FOR_CITY_SEARCH = 1;
@@ -34,7 +34,8 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   const [hasSelectedCategory, setHasSelectedCategory] = useState(false);
   const [hasSelectedCity, setHasSelectedCity] = useState(false);
-  const currentLocation = useCurrentLocation();
+
+  const { userLocation } = useContext(UserLocationContext);
 
   const {
     inputValue: categoryValue,
@@ -46,7 +47,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     inputValue: cityValue,
     handleChange: handleChangeCity,
     setInputValue: setCityValue,
-  } = useInput({ init: currentLocation.state });
+  } = useInput({ init: '' });
 
   const {
     search: searchCategories,
@@ -74,11 +75,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     responseDataField: 'cities',
   });
 
-  const categoryInputKeyUpHandler = useDelayActionUponTextInput({
+  const searchCategoriesDelayed = useDelayActionUponTextInput({
     action: searchCategories,
     delay: 100,
   });
-  const cityInputKeyUpHandler = useDelayActionUponTextInput({
+  const searchCitiesDelayed = useDelayActionUponTextInput({
     action: searchCities,
     delay: 100,
   });
@@ -86,9 +87,9 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
   useEffect(() => {
-    setCityValue(currentLocation.state);
+    setCityValue(userLocation?.city || '');
     hideCityResults();
-  }, [currentLocation.state, setCityValue]);
+  }, [userLocation?.city, setCityValue]);
 
   useEffect(() => {
     if (props.promptUserInput) categoryInput.current?.focus();
@@ -150,7 +151,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     if (cityResults.length) return;
     if (isSearchingCities) return;
     if (cityValue.length < MIN_CHARS_FOR_CITY_SEARCH) return;
-    if (ev.target.value === currentLocation.state) return; // Dont search when user selects current location
+    if (ev.target.value === userLocation?.city) return; // Dont search when user selects current location
     searchCities();
   };
 
@@ -168,20 +169,15 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const locationSuggestions: Array<{ label: React.ReactNode; value: string }> =
     cityResults.map(city => ({ label: city, value: city }));
 
-  if (currentLocation.state.length) {
+  if (userLocation?.city?.length) {
     locationSuggestions.unshift({
       label: (
         <>
-          <Icon
-            icon="material-symbols:location-on"
-            color="#0955a1"
-            width="22"
-            height="20"
-          />{' '}
-          {currentLocation.state}
+          <Icon icon="material-symbols:location-on" color="#0955a1" width="22" height="20" />{' '}
+          {userLocation?.city}
         </>
       ),
-      value: currentLocation.state,
+      value: userLocation?.city,
     });
   }
 
@@ -206,7 +202,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             setHasSelectedCategory(false);
             if (hasSelectedCategory) return hideCategoryResults();
             if (thisInput.value.length < MIN_CHARS_FOR_CATEGORY_SEARCH) return;
-            categoryInputKeyUpHandler(ev);
+            searchCategoriesDelayed(ev);
           }}
         />
         <label htmlFor="category">Find:</label>
@@ -248,8 +244,8 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
             if (hasSelectedCity) return hideCityResults();
 
             if (thisInput.value.length < MIN_CHARS_FOR_CITY_SEARCH) return;
-            if (thisInput.value === currentLocation.state) return;
-            cityInputKeyUpHandler(ev);
+            if (thisInput.value === userLocation?.city) return;
+            searchCitiesDelayed(ev);
           }}
         />
         <label htmlFor="city">Near:</label>

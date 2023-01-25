@@ -1,14 +1,14 @@
 import cls from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import useCurrentLocation from '../../../hooks/useCurrentLocation';
-import styles from './Header.module.scss';
 
+import { useUserLocationContext } from '../../../contexts/UserLocationContext';
 import * as urlUtils from '../../../utils/url-utils';
 
+import styles from './Header.module.scss';
+
 function HeaderServices() {
-  const { state } = useCurrentLocation();
-  const [stateName, stateCode] = (state || '').split(', ');
+  const { userLocation } = useUserLocationContext();
 
   const services = [
     { id: 'hotels', name: 'Hotels', icon: '/icons/restaurant-icon.png' },
@@ -28,11 +28,11 @@ function HeaderServices() {
         <li key={id}>
           <Link
             href={
-              state
+              userLocation?.city
                 ? urlUtils.getBusinessSearchResultsUrl({
                     category: id,
-                    city: stateName,
-                    stateCode,
+                    city: userLocation.cityName || '',
+                    stateCode: userLocation.stateCode || '',
                   })
                 : '/'
             }

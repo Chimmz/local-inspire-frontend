@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEventHandler, useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 // Types
 import { ReviewProps } from '../../recommend-business/UserReview';
@@ -18,6 +18,13 @@ import Link from 'next/link';
 import { UserPublicProfile } from '../../../types';
 import { UserRoles } from '../../../data/constants';
 import * as userUtils from '../../../utils/user-utils';
+import Paginators from '../../shared/pagination/Paginators';
+import usePaginate from '../../../hooks/usePaginate';
+import GuidelinesPopup from '../../GuidelinesPopup';
+import { reportModalConfig } from './config';
+import TextInput from '../../shared/text-input/TextInput';
+import useInput from '../../../hooks/useInput';
+import { minLength } from '../../../utils/validators/inputValidators';
 
 type ReviewFilter =
   | 'Excellent'
@@ -38,18 +45,52 @@ const filterToQueryMap = new Map([
   ['Helpful', { sort: '-likedBy' }],
 ]);
 
+interface QueryProperties {
+  match: { [key: string]: string[] };
+  sort: string[];
+}
+
 interface Props {
   show: boolean;
   reviews: ReviewProps[] | undefined;
+  totalReviewsCount: number;
   businessName: string;
   businessId: string;
+  sendRequest: (req: Promise<any>) => any;
+  loading: boolean;
 }
+
+// const REVIEWS_PER_PAGE = 10;
+const REVIEWS_PER_PAGE = 2;
+const MAX_PAGES = 3;
+const MAX_ITEMS = MAX_PAGES * REVIEWS_PER_PAGE; // 15
 
 function ReviewsSection(props: Props) {
   const [reviews, setReviews] = useState<ReviewProps[]>(props.reviews || []);
+  const [totalReviewsCount, setTotalReviewsCount] = useState(props.totalReviewsCount);
 
   const [filters, setFilters] = useState<ReviewFilter[]>([]);
   const [queryStr, setQueryString] = useState('');
+
+  const [newReviewReport, setNewReviewReport] = useState<{
+    id: string;
+    reason: string;
+    showModal: boolean;
+  } | null>(null);
+
+  const {
+    inputValue: reportExplanation,
+    handleChange: handleChangeExplanation,
+    runValidators: runExplanationValidators,
+  } = useInput({
+    init: '',
+    validators: [
+      {
+        fn: minLength,
+        params: [7, 'Please enter at least 7 characters to submit a report '],
+      },
+    ],
+  });
 
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
@@ -60,22 +101,7 @@ function ReviewsSection(props: Props) {
     reviewerName: string;
   }>(null);
 
-  interface QueryProperties {
-    match: { [key: string]: string[] };
-    sort: string[];
-  }
-
-  const filterReviews = async () => {
-    console.log('In filterReviews');
-    // await simulateRequest(5, sendFilterReq);
-    const res = await sendFilterReq(api.getBusinessReviews(props.businessId, queryStr));
-    res?.status === 'SUCCESS' && setReviews(res.data);
-  };
-
-  useEffect(() => {
-    if (!queryStr.length && props.reviews) setReviews(props.reviews);
-    else filterReviews();
-  }, [queryStr]);
+  const { currentPage } = usePaginate({ init: reviews });
 
   useEffect(() => {
     const queryProperties: QueryProperties = { match: {}, sort: [] };
@@ -110,9 +136,28 @@ function ReviewsSection(props: Props) {
       }
     }
     console.log(queryStr.slice(0, -1));
-    console.log(queryProperties)
+    console.log(queryProperties);
     setQueryString(queryStr.slice(0, -1));
   }, [filters.length]);
+
+  const filterReviews = async (qString?: string, opts?: { page: number; limit: number }) => {
+    const req = api.getBusinessReviews(props.businessId, qString, opts);
+    const res = await props.sendRequest(sendFilterReq(req));
+
+    if (res?.status === 'SUCCESS') {
+      setReviews(res.data);
+      setTotalReviewsCount(res.total);
+    }
+  };
+
+  useEffect(() => {
+    if (queryStr.length) {
+      filterReviews(queryStr);
+      return;
+    } else if (!props.reviews) return;
+    setReviews(props.reviews);
+    setTotalReviewsCount(props.totalReviewsCount);
+  }, [queryStr]);
 
   const handleCheckInput: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const filter = target.value as ReviewFilter;
@@ -126,6 +171,20 @@ function ReviewsSection(props: Props) {
         break;
     }
   };
+
+  const handlePageChange = async (newPage: number) => {
+    filterReviews(undefined, { page: newPage, limit: REVIEWS_PER_PAGE });
+  };
+
+  const totalPages = useMemo(() => {
+    const itemsExceedMaxItems = totalReviewsCount >= MAX_ITEMS;
+    return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
+  }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
+
+  const showWith = useCallback(
+    (showClassName: string) => (!props.show ? 'd-none' : showClassName),
+    [props.show],
+  );
 
   const filtersUI = useMemo(() => {
     return (
@@ -142,8 +201,33 @@ function ReviewsSection(props: Props) {
     );
   }, []);
 
+  const showReportModal = (reviewId: string) => {
+    setNewReviewReport(prev => {
+      return { id: reviewId, reason: '', showModal: true };
+    });
+  };
+
   return (
     <>
+      <GuidelinesPopup
+        show={newReviewReport?.showModal!}
+        heading={reportModalConfig.get('heading')}
+        close={setNewReviewReport.bind(null, null)}
+      >
+        <form>
+          {reportModalConfig.get('body')}
+          <TextInput
+            value={reportExplanation}
+            as="textarea"
+            onChange={handleChangeExplanation}
+            className="textfield mb-2"
+          />
+          <div className="d-flex align-items-center gap-2">
+            <button className="btn btn-pry">Submit</button>
+            <button className="btn outline">Cancel</button>
+          </div>
+        </form>
+      </GuidelinesPopup>
       <section className={cls(props.show && props.reviews?.length ? 'd-block' : 'd-none')}>
         <h2>Reviews</h2>
         <hr />
@@ -162,9 +246,18 @@ function ReviewsSection(props: Props) {
           showReviewLikers={(likers: UserPublicProfile[], reviewerName: string) =>
             setReviewLikers({ likers, reviewerName })
           }
+          showReportModal={showReportModal}
           key={r._id}
         />
       ))}
+
+      <div className={cls('align-items-center justify-content-between', showWith('d-flex'))}>
+        <Paginators
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          pageCount={totalPages}
+        />
+      </div>
 
       <NoReviewsYet
         businessName={props.businessName}

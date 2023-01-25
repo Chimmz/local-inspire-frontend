@@ -5,6 +5,7 @@ import { Session } from 'next-auth';
 import 'bootstrap/dist/css/bootstrap.css';
 import '../styles/sass/main.scss';
 import AuthContextProvider from '../features/contexts/AuthContext';
+import { UserLocationProvider } from '../features/contexts/UserLocationContext';
 // import Script from 'next/script';
 
 interface PageProps {
@@ -17,9 +18,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SessionProvider session={session}>
-      <AuthContextProvider>
-        <Component {...restPageProps} />
-      </AuthContextProvider>
+      <UserLocationProvider>
+        <AuthContextProvider>
+          <Component {...restPageProps} />
+        </AuthContextProvider>
+      </UserLocationProvider>
     </SessionProvider>
   );
 }

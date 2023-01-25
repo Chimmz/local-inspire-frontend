@@ -17,7 +17,7 @@ const usePaginate = <PageData>({ init, defaultCurrentPage = 1 }: Params<PageData
 
   const getPageData = (page: number) => pagesMap?.[page];
 
-  const pageHasData = (page: number, dataField: string) => {
+  const pageHasData = (page: number, dataField?: string) => {
     // @ts-ignore
     return !!pagesMap[page]?.[dataField]?.length;
   };

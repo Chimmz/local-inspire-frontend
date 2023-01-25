@@ -43,7 +43,11 @@
 
     &:hover {
       background-color: $color-sec-dark !important;
-      color: #fff !important;
+
+      &,
+      & a {
+        color: #fff;
+      }
     }
   }
 

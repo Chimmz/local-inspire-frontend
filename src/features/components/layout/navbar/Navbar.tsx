@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import MenuIcon from '@mui/icons-material/Menu';
 import { useSession } from 'next-auth/react';
-
-import { NewRegistrationContextProvider } from '../../../contexts/NewRegistrationContext';
 
 import { useRouter } from 'next/router';
 import useRequest from '../../../hooks/useRequest';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { NewRegistrationContextProvider } from '../../../contexts/NewRegistrationContext';
 
-import { toTitleCase } from '../../../utils/string-utils';
 import * as urlUtils from '../../../utils/url-utils';
-
 import cls from 'classnames';
+
+import { Icon } from '@iconify/react';
+import { NavDropdown } from 'react-bootstrap';
 import Auth from '../../auth/Auth';
 import SignedInUser from './SignedInUser';
 import MobileBusinessSearchForm from '../../shared/businesses-search/MobileBusinessSearchForm';
 import BusinessSearchForm from '../../shared/businesses-search/BusinessSearchForm';
-import { Icon } from '@iconify/react';
-import { NavDropdown } from 'react-bootstrap';
 import styles from './Navbar.module.scss';
 
 export interface NavbarProps {
@@ -34,7 +31,6 @@ export interface NavbarProps {
 export type AuthType = 'login' | 'register';
 
 function Navbar(props: NavbarProps) {
-  // prettier-ignore
   const { bg = '#003366', position, lightLogo = true, withSearchForm = true, sticky } = props;
 
   const authData = useAuthContext();

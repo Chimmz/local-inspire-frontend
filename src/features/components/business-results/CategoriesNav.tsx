@@ -1,10 +1,12 @@
 import { Dispatch, FC, SetStateAction } from 'react';
 import Link from 'next/link';
 
+import { useUserLocationContext } from '../../contexts/UserLocationContext';
+
 import * as urlUtils from '../../utils/url-utils';
 import cls from 'classnames';
+
 import styles from './CategoriesNav.module.scss';
-import useCurrentLocation from '../../hooks/useCurrentLocation';
 
 interface CategoriesNavProps {
   searchParams: { category: string; city: string; stateCode: string };
@@ -12,11 +14,11 @@ interface CategoriesNavProps {
 }
 
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
-  const currentLocation = useCurrentLocation();
+  const { userLocation } = useUserLocationContext();
 
   const {
-    city: currentCity = currentLocation?.state?.split(', ')?.[0],
-    stateCode: currentStateCode = currentLocation.state?.split(', ')?.[1],
+    city: currentCity = userLocation?.cityName,
+    stateCode: currentStateCode = userLocation?.stateCode,
   } = props.searchParams;
 
   const popularCategories = [
@@ -26,7 +28,7 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
     'Vacation Rentals',
     'Things to do',
     'Cruises',
-  ]
+  ];
 
   return (
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
@@ -34,8 +36,8 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
         {popularCategories.map(categ => {
           const href = urlUtils.getBusinessSearchResultsUrl({
             category: categ,
-            city: currentCity,
-            stateCode: currentStateCode,
+            city: currentCity || '',
+            stateCode: currentStateCode || '',
           });
           return (
             <li key={categ}>

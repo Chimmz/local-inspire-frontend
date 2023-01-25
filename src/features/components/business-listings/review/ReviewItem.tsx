@@ -29,12 +29,11 @@ type Props = ReviewProps & {
   show: boolean;
   businessName: string;
   showReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
+  showReportModal: (reviewId: string) => void;
 };
 
 const ReviewItem = function (props: Props) {
-  // console.log('BusinessReview is evaluated');
   const [likes, setLikes] = useState(props.likes);
-  // const [src, setSrc] = useState(props.reviewedBy.imgUrl || '/img/default-profile-pic.jpeg');
 
   const { withAuth } = useClientMiddleware();
   const currentUser = useSignedInUser();
@@ -83,7 +82,7 @@ const ReviewItem = function (props: Props) {
           width={20}
         />
         {isLikedByCurrentUser ? 'Thank you for your vote ' : 'Helpful '}
-        {likes.length ? `(${likes.length})` : ''}
+        {likes.length ? `(${likes.length})` : 'No helpful votes, was it helpful to you?'}
       </button>
     ),
     [handleToggleLikeReview, isLiking, isLikedByCurrentUser, likes],
@@ -114,7 +113,7 @@ const ReviewItem = function (props: Props) {
 
         <small className={styles.location}>
           <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-          Terrell, TX • 5 contributions
+          Terrell, TX • {props.reviewedBy.contributions?.length || 0} contributions
         </small>
 
         <Dropdown className={cls(styles.options)}>
@@ -122,7 +121,12 @@ const ReviewItem = function (props: Props) {
             <Icon icon="material-symbols:more-vert" width={20} />
           </Dropdown.Toggle>
           <Dropdown.Menu className="fs-5" style={{ overflowY: 'auto' }}>
-            <Dropdown.Item>Report</Dropdown.Item>
+            <Dropdown.Item
+              eventKey="report"
+              onSelect={props.showReportModal.bind(null, props._id)}
+            >
+              Report
+            </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -140,7 +144,7 @@ const ReviewItem = function (props: Props) {
           readonly
           className="mb-5"
         />
-        <p className="parag">{props.review}</p>
+        <p className="parag w-max-content">{props.review}</p>
       </div>
 
       <Accordion>
@@ -215,7 +219,9 @@ const ReviewItem = function (props: Props) {
             );
           }}
         >
-          {qtyUtils.getPeopleQuantity(likes.length)} found this review helpful
+          {likes.length
+            ? qtyUtils.getPeopleQuantity(likes.length)?.concat(' found this review helpful')
+            : ''}
         </button>
       </div>
     </section>

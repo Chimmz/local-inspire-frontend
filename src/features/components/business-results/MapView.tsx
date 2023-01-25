@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Map, { Marker } from 'react-map-gl';
 
 import Modal from 'react-bootstrap/Modal';
-import useCurrentLocation from '../../hooks/useCurrentLocation';
 
 interface Props {
   shown: boolean;
@@ -22,7 +21,6 @@ interface Viewport {
 
 const MapView = function (props: Props) {
   const { shown, closeMap, coords, withModal = true, scrollZoom = true, zoom } = props;
-  const userLocation = useCurrentLocation();
 
   const [lat, lng] = coords?.split(',') || [];
   const [view, setView] = useState<Viewport>({
@@ -63,10 +61,7 @@ const MapView = function (props: Props) {
       <Modal.Header closeButton>
         <Modal.Title>{props.placeName}</Modal.Title>
       </Modal.Header>
-      <Modal.Body
-        className=""
-        style={{ width: '100%', height: '100%', overflow: 'hidden' }}
-      >
+      <Modal.Body className="" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
         <Map
           initialViewState={view}
           style={{ width: '100%', height: '100%' }}

@@ -60,7 +60,7 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   const userRecommendYes = router.query.recommend === 'yes';
   const userIsNeutral = !router.query.recommend;
   const [businessName, location, businessId] = useMemo(
-    () => (router.query.businessInfo as string).split('_'),
+    () => (router.query.reviewPageSlug as string).split('_'),
     [],
   );
 
@@ -89,10 +89,10 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
             {userIsNeutral ? (
               <section className={styles.wouldYouRecommend}>
                 <strong className="me-auto fs-3">Do you recommend Chicken Express?</strong>
-                <Link href={`/write-a-review/${router.query.businessInfo}?recommend=yes`}>
+                <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=yes`}>
                   <span className="btn btn-outline">Yes</span>
                 </Link>
-                <Link href={`/write-a-review/${router.query.businessInfo}?recommend=no`}>
+                <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=no`}>
                   <span className="btn btn-outline">No</span>
                 </Link>
               </section>
@@ -167,7 +167,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
   const session = await unstable_getServerSession(req, res, authOptions as NextAuthOptions);
   if (!session) return { redirect: { destination: '/?authError=true', permanent: false } };
 
-  const slug = params!.businessInfo as string;
+  const slug = params!.reviewPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
 
   const business = (await api.getBusinessById(businessId)) as {

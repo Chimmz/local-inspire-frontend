@@ -18,6 +18,7 @@ import styles from './QuestionsSection.module.scss';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
 import { BusinessProps } from '../../business-results/Business';
 import { genQuestionDetailsPageUrl } from '../../../utils/url-utils';
+import * as qtyUtils from '../../../utils/quantity-utils';
 
 export interface QuestionItemProps {
   _id: string;
@@ -29,7 +30,10 @@ export interface QuestionItemProps {
   createdAt: string;
 }
 
-type Props = QuestionItemProps & { show: boolean };
+type Props = QuestionItemProps & {
+  show: boolean;
+  showPostingGuidelines: () => void;
+};
 
 const QuestionItem = (props: Props) => {
   const [question, setQuestion] = useState<QuestionItemProps>(props);
@@ -40,13 +44,13 @@ const QuestionItem = (props: Props) => {
     year: 'numeric',
   });
 
-  const handleSelectDropdownOption = (evKey: string) => {
+  const handleSelectDropdownOption = useCallback((evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
         console.log('Reporting...');
         break;
     }
-  };
+  }, []);
 
   const mostHelpfulAnswer = useMemo(() => {
     if (!question) return null;
@@ -80,7 +84,7 @@ const QuestionItem = (props: Props) => {
     [],
   );
 
-  console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
+  // console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
 
   return (
     <section className={cls(styles.question, props.show ? 'd-block' : 'd-none')}>
@@ -104,7 +108,11 @@ const QuestionItem = (props: Props) => {
 
         <small className={styles.location}>
           <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-          Terrell, TX • 5 contributions
+          {props.askedBy?.city} •{' '}
+          {qtyUtils.quantitize(props.askedBy.contributions?.length || 0, [
+            'contribution',
+            'contributions',
+          ])}{' '}
         </small>
 
         <AppDropdown
@@ -130,18 +138,6 @@ const QuestionItem = (props: Props) => {
           setQuestion={setQuestion}
         />
       ) : null}
-
-      {/* <ul>
-        {question.answers.map(a => (
-          <Answer
-            {...a}
-            questionId={question._id}
-            key={a._id}
-            mostHelpful={false}
-            setQuestion={setQuestion}
-          />
-        ))}
-      </ul> */}
 
       <>
         {!mostHelpfulAnswer ? (
@@ -188,7 +184,12 @@ const QuestionItem = (props: Props) => {
         )}
       </>
 
-      <NewAnswerForm show questionId={props._id} setQuestion={setQuestion} />
+      <NewAnswerForm
+        show
+        questionId={props._id}
+        setQuestion={setQuestion}
+        showPostingGuidelines={props.showPostingGuidelines}
+      />
     </section>
   );
 };

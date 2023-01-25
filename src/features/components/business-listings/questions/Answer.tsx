@@ -34,7 +34,7 @@ type Props = AnswerProps & {
 
 const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
-  const { send: sendReactionReq, loading: isReacting } = useRequest({
+  const { send: sendReactionReq, loading: isReactingToAnswer } = useRequest({
     autoStopLoading: true,
   });
   const { date: answeredDate } = useDate(props.createdAt, {
@@ -123,30 +123,25 @@ const Answer: React.FC<Props> = function (props) {
       >
         <button
           className="btn btn-bg-none no-bg-hover"
-          disabled={isReacting}
+          disabled={isReactingToAnswer}
           onClick={withAuth.bind(null, (token: string) => reactToAnswer('like', token))}
         >
           {/* <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '} */}
-          <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={20} />
-          Helpful ({reactions.likes.length})
+          <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={18} />
+          <small> Helpful ({reactions.likes.length})</small>
         </button>
 
         <button
           className="btn btn-bg-none no-bg-hover gap-2"
           style={{ alignItems: 'flex-start' }}
-          disabled={isReacting}
+          disabled={isReactingToAnswer}
           onClick={withAuth.bind(null, (token: string) => reactToAnswer('dislike', token))}
         >
           <Icon
             icon={`ant-design:dislike-${userDislikes ? 'filled' : 'outlined'}`}
-            width={20}
+            width={18}
           />
-          {/* <Icon
-            icon={`mdi:dislike${userDislikes ? '' : '-outline'}`}
-            width={20}
-            color="gray"
-          /> */}
-          Not helpful ({reactions.dislikes.length})
+          <small> Not helpful ({reactions.dislikes.length})</small>
         </button>
       </div>
     </div>

@@ -15,6 +15,13 @@ declare module 'next-auth' {
       signedUpWith: 'google' | 'facebook' | 'credentials' | 'twitter';
       role: 'USER' | 'CITY_MANAGER' | 'BUSINESS_OWNER' | 'MAIN_ADMIN';
       currentlyLoggedInWith: 'google' | 'facebook' | 'credentials' | 'twitter';
+      location?: {
+        city: string;
+        cityName: string;
+        stateCode: string;
+        lat: number;
+        long: number;
+      };
       accessToken: string;
       rft: string;
     };
