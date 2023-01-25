@@ -1,7 +1,6 @@
-export const reportModalConfig = new Map<string, React.ReactNode>([
-  ['heading', <h4 className="text-center w-100 fs-1">Report a problem</h4>],
-  [
-    'body',
+export const reportModalConfig = {
+  heading: <h4 className="text-center w-100 fs-1">Report a problem</h4>,
+  body: (
     <>
       <p className="parag">
         Please let us know why you think the content you're reporting violates our guidelines.
@@ -30,6 +29,6 @@ export const reportModalConfig = new Map<string, React.ReactNode>([
         </li>
       </ul>
       <strong className="my-4 d-block">Please provide specific details below:</strong>
-    </>,
-  ],
-]);
+    </>
+  ),
+};

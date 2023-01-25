@@ -210,11 +210,11 @@ function ReviewsSection(props: Props) {
     <>
       <GuidelinesPopup
         show={newReviewReport?.showModal!}
-        heading={reportModalConfig.get('heading')}
+        heading={reportModalConfig.heading}
         close={setNewReviewReport.bind(null, null)}
       >
         <form>
-          {reportModalConfig.get('body')}
+          {reportModalConfig.body}
           <TextInput
             value={reportExplanation}
             as="textarea"
