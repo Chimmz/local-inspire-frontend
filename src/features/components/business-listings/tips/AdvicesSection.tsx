@@ -36,7 +36,7 @@ interface AdvicesSectionProps {
   loading: boolean;
 }
 
-const TIPS_PER_PAGE = 2;
+const TIPS_PER_PAGE = 5;
 const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * TIPS_PER_PAGE; // 15
 

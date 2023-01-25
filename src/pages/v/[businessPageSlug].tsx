@@ -269,9 +269,9 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
 
   const responses = await Promise.allSettled([
     api.getBusinessById(businessId),
-    api.getBusinessReviews(businessId, undefined, { page: 1, limit: 2 }),
+    api.getBusinessReviews(businessId, undefined, { page: 1, limit: 5 }),
     api.getQuestionsAskedAboutBusiness(businessId, undefined, { page: 1, limit: 5 }),
-    api.getTipsAboutBusiness(businessId, { page: 1, limit: 2 }),
+    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }),
   ]);
 
   console.log('Review response: ', responses[1]);

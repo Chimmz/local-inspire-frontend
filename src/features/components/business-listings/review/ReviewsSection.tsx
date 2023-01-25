@@ -60,8 +60,7 @@ interface Props {
   loading: boolean;
 }
 
-// const REVIEWS_PER_PAGE = 10;
-const REVIEWS_PER_PAGE = 2;
+const REVIEWS_PER_PAGE = 10;
 const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * REVIEWS_PER_PAGE; // 15
 
