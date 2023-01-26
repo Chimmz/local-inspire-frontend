@@ -10,11 +10,9 @@ import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import api from '../../../library/api';
 import { QuestionItemProps } from './QuestionItem';
-import useClientMiddleware, {
-  MiddlewareNextAction,
-} from '../../../hooks/useClientMiddleware';
+import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 import Image from 'next/image';
-import GuidelinesPopup from '../../GuidelinesPopup';
+import GuidelinesPopup from '../../PopupInfo';
 
 interface NewAnswerFormProps {
   show: boolean;
@@ -31,7 +29,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
     autoStopLoading: true,
   });
   const currentUser = useSignedInUser();
-  const { withAuth } = useClientMiddleware();
+  const { withAuth } = useMiddleware();
 
   const {
     inputValue: newAnswer,
@@ -39,7 +37,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
     clearInput: clearNewAnswer,
   } = useInput({ init: '' });
 
-  const postAnswer: MiddlewareNextAction = useCallback(
+  const postAnswer: MiddlewareNext = useCallback(
     async (token?: string) => {
       const textarea = formRef.current!.querySelector('textarea')!;
 

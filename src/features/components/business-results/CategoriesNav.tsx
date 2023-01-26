@@ -32,7 +32,7 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
 
   return (
     <nav className={cls(styles.categoriesNav, 'no-bullets')}>
-      <ul className={styles.categories}>
+      <ul className={cls(styles.categories, 'container')}>
         {popularCategories.map(categ => {
           const href = urlUtils.getBusinessSearchResultsUrl({
             category: categ,

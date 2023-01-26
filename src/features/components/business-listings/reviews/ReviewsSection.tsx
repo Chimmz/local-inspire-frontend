@@ -20,7 +20,7 @@ import { UserRoles } from '../../../data/constants';
 import * as userUtils from '../../../utils/user-utils';
 import Paginators from '../../shared/pagination/Paginators';
 import usePaginate from '../../../hooks/usePaginate';
-import GuidelinesPopup from '../../GuidelinesPopup';
+import GuidelinesPopup from '../../PopupInfo';
 import { reportModalConfig } from './config';
 import TextInput from '../../shared/text-input/TextInput';
 import useInput from '../../../hooks/useInput';
@@ -60,7 +60,7 @@ interface Props {
   loading: boolean;
 }
 
-const REVIEWS_PER_PAGE = 10;
+const REVIEWS_PER_PAGE = 3;
 const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * REVIEWS_PER_PAGE; // 15
 
@@ -145,7 +145,7 @@ function ReviewsSection(props: Props) {
 
     if (res?.status === 'SUCCESS') {
       setReviews(res.data);
-      setTotalReviewsCount(res.total);
+      setTotalReviewsCount(res.total); // In case there are new reviews in the DB
     }
   };
 
@@ -180,11 +180,6 @@ function ReviewsSection(props: Props) {
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
 
-  const showWith = useCallback(
-    (showClassName: string) => (!props.show ? 'd-none' : showClassName),
-    [props.show],
-  );
-
   const filtersUI = useMemo(() => {
     return (
       <section className={styles.filters}>
@@ -205,6 +200,11 @@ function ReviewsSection(props: Props) {
       return { id: reviewId, reason: '', showModal: true };
     });
   };
+
+  const showWith = useCallback(
+    (showClassName: string) => (!props.show ? 'd-none' : showClassName),
+    [props.show],
+  );
 
   return (
     <>

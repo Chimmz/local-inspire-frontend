@@ -3,18 +3,16 @@ import { useEffect, useState } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import useSignedInUser from './useSignedInUser';
 
-export type MiddlewareNextAction = (...args: []) => any;
-export type AuthMiddlewareNextAction = (token: string) => any;
+export type MiddlewareNext = (...args: []) => any;
+export type AuthMiddlewareNext = (token?: string) => any;
 
-type Middleware = (next: AuthMiddlewareNextAction) => any;
+type Middleware = (next: AuthMiddlewareNext) => any;
 
 const useClientAuthMiddleware = function () {
   const currentUser = useSignedInUser();
   const { showAuthModal, isAuthModalOpen } = useAuthContext();
 
-  const [nextAction, setNextAction] = useState<AuthMiddlewareNextAction | undefined>(
-    undefined,
-  );
+  const [nextAction, setNextAction] = useState<AuthMiddlewareNext | undefined>(undefined);
   const [middlewareType, setMiddlewareType] = useState<'AUTH' | null>(null);
 
   const removeNextAction = () => {
@@ -34,7 +32,7 @@ const useClientAuthMiddleware = function () {
     if (!isAuthModalOpen && middlewareType === 'AUTH') removeNextAction();
   }, [isAuthModalOpen]);
 
-  const withAuth: Middleware = function (next: AuthMiddlewareNextAction) {
+  const withAuth: Middleware = function (next: AuthMiddlewareNext) {
     setMiddlewareType('AUTH');
     if (currentUser.isSignedIn) return next(currentUser.accessToken!); // Proceed if logged in
 

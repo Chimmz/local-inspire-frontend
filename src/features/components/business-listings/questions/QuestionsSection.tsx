@@ -10,9 +10,7 @@ import cls from 'classnames';
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
-import useClientAuthMiddleware, {
-  MiddlewareNextAction,
-} from '../../../hooks/useClientMiddleware';
+import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 
 import { Icon, listIcons } from '@iconify/react';
 import LoadingButton from '../../shared/button/Button';
@@ -29,7 +27,7 @@ import {
   getBusinessQuestionsUrl,
 } from '../../../utils/url-utils';
 import { BusinessProps } from '../../business-results/Business';
-import GuidelinesPopup from '../../GuidelinesPopup';
+import GuidelinesPopup from '../../PopupInfo';
 import { useRouter } from 'next/router';
 import Paginators from '../../shared/pagination/Paginators';
 import usePaginate from '../../../hooks/usePaginate';
@@ -53,7 +51,7 @@ const QuestionsSection = function (props: Props) {
   const [questions, setQuestions] = useState(props.questions);
   const [questionsCount, setQuestionsCount] = useState(props.questionsCount);
 
-  const { withAuth } = useClientAuthMiddleware();
+  const { withAuth } = useMiddleware();
   const currentUser = useSignedInUser();
 
   const { send: sendSubmitQuestionReq, loading: isPostingQuestion } = useRequest({
@@ -76,7 +74,7 @@ const QuestionsSection = function (props: Props) {
   const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
     usePaginate<QuestionItemProps[]>({ init: { 1: props.questions } });
 
-  const postNewQuestion: MiddlewareNextAction = async (token?: string) => {
+  const postNewQuestion: MiddlewareNext = async (token?: string) => {
     const data = await sendSubmitQuestionReq(
       api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
     );
@@ -271,9 +269,9 @@ const QuestionsSection = function (props: Props) {
       <GuidelinesPopup
         show={showPostingGuidelines}
         close={setShowPostingGuidelines.bind(null, false)}
-        heading={postingGuidelinesConfig(null).get('heading')}
+        heading={postingGuidelinesConfig.heading}
       >
-        {postingGuidelinesConfig(props.business?.businessName!).get('body')}
+        {postingGuidelinesConfig.body(props.business?.businessName!)}
       </GuidelinesPopup>
     </>
   );

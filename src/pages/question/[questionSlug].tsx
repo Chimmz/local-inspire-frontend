@@ -4,12 +4,15 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, SSRProvider } from 'react-bootstrap';
 import Answer, {
   AnswerProps,
 } from '../../features/components/business-listings/questions/Answer';
+import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
+import { reportModalConfig } from '../../features/components/business-listings/reviews/config';
+import PopupInfo from '../../features/components/PopupInfo';
 import Layout from '../../features/components/layout';
 import PopularQuestions from '../../features/components/question-details-page/PopularQuestions';
 import NewQuestionSection from '../../features/components/questions-page/NewQuestionSection';
@@ -19,9 +22,7 @@ import LabelledCheckbox from '../../features/components/shared/LabelledCheckbox'
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import PageSuccess from '../../features/components/shared/success/PageSuccess';
 import TextInput from '../../features/components/shared/text-input/TextInput';
-import useClientMiddleware, {
-  AuthMiddlewareNextAction,
-} from '../../features/hooks/useClientMiddleware';
+import useMiddleware, { AuthMiddlewareNext } from '../../features/hooks/useMiddleware';
 import useDate from '../../features/hooks/useDate';
 import useInput from '../../features/hooks/useInput';
 import useRequest from '../../features/hooks/useRequest';
@@ -29,19 +30,26 @@ import useSignedInUser from '../../features/hooks/useSignedInUser';
 import api from '../../features/library/api';
 import { genBusinessPageUrl, getBusinessQuestionsUrl } from '../../features/utils/url-utils';
 import { getFullName } from '../../features/utils/user-utils';
+import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
+import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
 
 interface Props {
   question?: QuestionItemProps;
   error?: string;
-  // params: { questionText: string | undefined };
 }
+
+const NEW_ANSWER_MIN_LENGTH = 5;
+const NEW_ANSWER_MAX_LENGTH = 180;
 
 const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   const [question, setQuestion] = useState<QuestionItemProps | undefined>(props.question);
   const { isSignedIn, ...currentUser } = useSignedInUser();
-  const { withAuth } = useClientMiddleware();
+  const { withAuth } = useMiddleware();
+  // Modals
   const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
+  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const router = useRouter();
   console.log({ 'router.query': router.query });
@@ -61,44 +69,34 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     validationErrors: newAnswerValidators,
     runValidators: runNewAnswerValidators,
     clearInput: clearNewAnswerText,
-  } = useInput({ init: '', validators: [] });
-
-  if ('promptAnswer' in router.query) {
-    const scrollToAndFocusTextarea = async () => {
-      const textarea = await new Promise<HTMLTextAreaElement | null>(resolve => {
-        resolve(document.querySelector('textarea'));
-      });
-      console.log({ textarea });
-      textarea?.focus();
-      window.scrollTo(0, window.innerHeight);
-    };
-    scrollToAndFocusTextarea();
-  }
+  } = useInput({
+    init: '',
+    validators: [
+      {
+        fn: minLength,
+        params: [
+          NEW_ANSWER_MIN_LENGTH,
+          `Please enter at least ${NEW_ANSWER_MIN_LENGTH} characters`,
+        ],
+      },
+      {
+        fn: maxLength,
+        params: [
+          NEW_ANSWER_MAX_LENGTH,
+          `Please enter no more than ${NEW_ANSWER_MAX_LENGTH} characters`,
+        ],
+      },
+    ],
+  });
 
   useEffect(() => {
     if (props.question) setQuestion(props.question);
   }, [props.question]);
 
-  useEffect(() => {
-    // if (!('promptAnswer' in router.query)) return;
-    // if (question) {
-    //   console.log('Exists in router!!!');
-    //   const scrollToAndFocusTextarea = async () => {
-    //     const textarea = await new Promise<HTMLTextAreaElement | null>(resolve => {
-    //       resolve(document.querySelector('textarea'));
-    //     });
-    //     console.log({ textarea });
-    //     textarea?.focus();
-    //     window.scrollTo(0, window.innerHeight);
-    //   };
-    //   scrollToAndFocusTextarea();
-    // }
-  }, [question, setQuestion]);
-
   const handleSelectDropdownOption = (evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        console.log('Reporting...');
+        withAuth(setShowReportModal.bind(null, true));
         break;
     }
   };
@@ -112,11 +110,10 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     textarea?.focus();
   };
 
-  const submitNewAnswer: AuthMiddlewareNextAction = async (token: string) => {
+  const submitNewAnswer: AuthMiddlewareNext = async (token?: string) => {
     const res = await sendAnswerReq(
-      api.addAnswerToBusinessQuestion(props.question!._id, newAnswer, token),
+      api.addAnswerToBusinessQuestion(props.question!._id, newAnswer, token!),
     );
-
     if (res.status === 'SUCCESS') {
       setQuestion(res.question);
       setShowAnswerSuccessModal(true);
@@ -124,18 +121,20 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     }
   };
 
+  const handleReportQuestion = (reason: string, explanation: string) => {
+    console.log(reason, explanation);
+  };
+
   const mostHelpfulAnswer = useMemo(() => {
     if (!question) return null;
 
     let answer: AnswerProps | null = question!.answers.reduce((acc, ans) => {
-      if (ans.likes.length > acc.likes.length) return ans;
-      else return acc;
+      return ans.likes.length > acc.likes.length ? ans : acc;
     }, question!.answers[0]);
 
     return answer?.likes.length ? answer : null;
   }, [question]);
 
-  // mostHelpfulAnswer = !!mostHelpfulAnswer.likes.length ? mostHelpfulAnswer : null;
   console.log({ mostHelpfulAnswer });
 
   const externalUrlParams = {
@@ -172,128 +171,165 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       <Layout>
         <Layout.Nav></Layout.Nav>
         <Layout.Main className={cls(styles.main, 'page-main')}>
-          <nav className={cls(styles.pageRouteNav, 'd-flex align-items-center gap-2 mb-4')}>
-            <small className="text-pry">
-              <Link href={businessUrl}>{props.question?.business?.businessName}</Link>
-            </small>
-            <Icon icon="ic:baseline-greater-than" width={10} />
-            <small className="text-pry">
-              <Link href={questionsUrl}>Ask the Community</Link>
-            </small>
-            <Icon icon="ic:baseline-greater-than" width={10} />
-            <small className="">{question?.questionText}</small>
-          </nav>
-
-          <header className={styles.header}>
-            <h1 className="flex-grow-1" style={{ flexBasis: '90%' }}>
-              {question?.questionText}
-            </h1>
-            <AppDropdown
-              items={['Report']}
-              onSelect={handleSelectDropdownOption}
-              toggler={<Icon icon="material-symbols:more-vert" width={20} />}
-              className={styles.options}
-            />
-            <figure>
-              <Image
-                src={isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
-                width={40}
-                height={40}
-                objectFit="cover"
-                style={{ borderRadius: '50%' }}
-              />
-            </figure>
-
-            <div className="" style={{ flexBasis: '80%' }}>
-              <small className="d-block">
-                <span className="text-black">
-                  {getFullName(question?.askedBy, { lastNameInitial: true })}
-                </span>{' '}
-                asked a question on {formatDate(question?.createdAt)}
-              </small>
-              <small className={styles.location}>
-                <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-                Terrell, TX • 5 contributions
-              </small>
-            </div>
-            <LabelledCheckbox
-              onChange={ev => {}}
-              label={<small>Notify me of new answers</small>}
-            />
-            <button
-              className="btn btn-outline btn--sm ms-auto"
-              onClick={handleClickProvideNewAnswer}
+          <div className={cls(styles.container, 'container')}>
+            <nav
+              className={cls(
+                styles.pageRouteNav,
+                'd-flex align-items-center gap-2 mb-5 flex-wrap',
+              )}
             >
-              Provide an answer
-            </button>
-          </header>
+              <small className="text-pry">
+                <Link href={businessUrl}>{props.question?.business?.businessName}</Link>
+              </small>
+              <Icon icon="ic:baseline-greater-than" width={10} />
+              <small className="text-pry">
+                <Link href={questionsUrl}>Ask the Community</Link>
+              </small>
+              <Icon icon="ic:baseline-greater-than" width={10} />
+              <small className="">{question?.questionText}</small>
+            </nav>
 
-          {/* <h3>2 Answers sorted by most helpful</h3> */}
-          <h3>{question?.answersCount} Answers</h3>
-
-          <ul className={cls(styles.answersList, 'no-bullets')}>
-            {question?.answers.map(a => (
-              <Answer
-                {...a}
-                setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
-                questionId={question._id}
-                mostHelpful={a._id === mostHelpfulAnswer?._id}
-                key={a._id}
+            <header className={styles.header}>
+              <h1 className="flex-grow-1" style={{ flexBasis: '90%' }}>
+                {question?.questionText}
+              </h1>
+              <AppDropdown
+                items={['Report']}
+                onSelect={handleSelectDropdownOption}
+                toggler={<Icon icon="material-symbols:more-vert" width={20} />}
+                className={styles.options}
               />
-            ))}
-          </ul>
+              <figure>
+                <Image
+                  src={isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
+                  width={40}
+                  height={40}
+                  objectFit="cover"
+                  style={{ borderRadius: '50%' }}
+                />
+              </figure>
 
-          <form
-            className={cls(styles.newAnswer, 'newAnswerForm')}
-            onSubmit={ev => {
-              ev.preventDefault();
-              if (!runNewAnswerValidators().errorExists) withAuth(submitNewAnswer);
-            }}
-          >
-            <h6 className="fs-5 mb-5">
-              <strong>
-                {' '}
-                Hi, Don, can you provide an answer for this traveler&apos;s question?
-              </strong>
-            </h6>
-            <Image
-              src={isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
-              width={40}
-              height={40}
-              objectFit="cover"
-              style={{ borderRadius: '50%' }}
-            />
-            <TextInput
-              as="textarea"
-              value={newAnswer}
-              onChange={handleChangeNewAnswer}
-              validationErrors={newAnswerValidators}
-              className="textfield w-100 d-block bg-white u-border-none mb-3"
-            />
-            <LoadingButton
-              className="btn btn-pry"
-              isLoading={submittingAnswer}
-              textWhileLoading="Submitting..."
+              <div className="" style={{ flexBasis: '80%' }}>
+                <small className="d-block">
+                  <span className="text-black">
+                    {getFullName(question?.askedBy, { lastNameInitial: true })}
+                  </span>{' '}
+                  asked a question on {formatDate(question?.createdAt)}
+                </small>
+                <small className={styles.location}>
+                  {props.question?.askedBy.city ? (
+                    <>
+                      <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
+                      {props.question?.askedBy.city} •
+                    </>
+                  ) : null}
+                  5 contributions
+                </small>
+              </div>
+              <button
+                className="btn btn-outline btn--sm ms-auto"
+                onClick={handleClickProvideNewAnswer}
+              >
+                Provide an answer
+              </button>
+            </header>
+
+            {/* <h3>2 Answers sorted by most helpful</h3> */}
+            <h3>{question?.answersCount} Answers</h3>
+
+            <ul className={cls(styles.answersList, 'no-bullets mb-5')}>
+              {question?.answers.map(a => (
+                <Answer
+                  {...a}
+                  setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
+                  questionId={question._id}
+                  mostHelpful={a._id === mostHelpfulAnswer?._id}
+                  key={a._id}
+                />
+              ))}
+            </ul>
+
+            <form
+              className={cls(styles.newAnswer, 'newAnswerForm')}
+              id="new-answer"
+              onSubmit={ev => {
+                ev.preventDefault();
+                if (!runNewAnswerValidators().errorExists) withAuth(submitNewAnswer);
+              }}
             >
-              Post your answer
-            </LoadingButton>
-          </form>
+              <h6 className="fs-4 mb-5" style={{ flexBasis: '100%' }}>
+                <strong>
+                  Hi, {currentUser.firstName}, can you provide an answer for this
+                  traveler&apos;s question?
+                </strong>
+              </h6>
+              <div className="d-flex align-items-start flex-wrap gap-4 mb-3">
+                <Image
+                  src={isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
+                  width={40}
+                  height={40}
+                  objectFit="cover"
+                  style={{ borderRadius: '50%' }}
+                />
+                <div className="flex-grow-1">
+                  <TextInput
+                    as="textarea"
+                    value={newAnswer}
+                    onChange={handleChangeNewAnswer}
+                    validationErrors={newAnswerValidators}
+                    className="textfield bg-white mb-3"
+                  />
+                </div>
+              </div>
 
-          <aside>
-            <Link href={questionsUrl} passHref>
-              <a className="btn btn-sec ms-auto mb-5 w-max-content">See all questions</a>
-            </Link>
-            <section className={styles.popularQuestions}>
-              <h3 className="mb-5">
-                Popular questions for {question?.business?.businessName}
-              </h3>
-              <PopularQuestions
-                business={props.question!.business!}
-                className={cls(styles.popularList, 'no-bullets')}
-              />
-            </section>
-          </aside>
+              <div className="d-flex align-items-center gap-5">
+                <LoadingButton
+                  className="btn btn-pry"
+                  isLoading={submittingAnswer}
+                  textWhileLoading="Submitting..."
+                >
+                  Post your answer
+                </LoadingButton>
+                <button
+                  className="btn btn-bg-none no-bg-hover"
+                  type="button"
+                  onClick={setShowPostingGuidelines.bind(null, true)}
+                >
+                  Posting guidelines
+                </button>
+              </div>
+            </form>
+
+            <aside>
+              <Link href={questionsUrl} passHref>
+                <a className="btn btn-sec ms-auto mb-5 w-max-content">See all questions</a>
+              </Link>
+              <section className={styles.popularQuestions}>
+                <h3 className="mb-5">
+                  Popular questions for {question?.business?.businessName}
+                </h3>
+                <PopularQuestions
+                  business={props.question!.business!}
+                  className={cls(styles.popularList, 'no-bullets')}
+                />
+              </section>
+            </aside>
+          </div>
         </Layout.Main>
+
+        <PopupInfo
+          heading={postingGuidelinesConfig.heading}
+          show={showPostingGuidelines}
+          close={setShowPostingGuidelines.bind(null, false)}
+        >
+          {postingGuidelinesConfig.body(props.question?.business?.businessName!)}
+        </PopupInfo>
+
+        <ReportQA
+          show={showReportModal}
+          close={setShowReportModal.bind(null, false)}
+          onReport={handleReportQuestion}
+        ></ReportQA>
       </Layout>
     </SSRProvider>
   );

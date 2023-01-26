@@ -34,22 +34,7 @@ class Layout extends Component<LayoutProps> {
 
     return (
       <>
-        {props.children}
-        {/* {props.navbar ? (
-          <Navbar
-            bg={props.navBg}
-            defaultCategorySuggestions={[
-              'Hotels and motels',
-              'Restaurants',
-              'Cabins Rentals',
-              'Vacation Rentals',
-              'Things to do',
-              'Cruises',
-            ]}
-          />
-        ) : null}
-        <main>{props.children}</main> */}
-        <Footer />
+        {props.children} <Footer />
       </>
     );
   }

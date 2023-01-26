@@ -34,7 +34,6 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
 
       console.log('In context, Mapbox data: ', data);
-      await fetch('/user-location', { method: 'POST', body: JSON.stringify(data) });
 
       if (!data?.features) throw Error('Something went wrong');
       // const cityName = data.features[0].context[1].text as string;

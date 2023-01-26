@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { FormEventHandler, useRef } from 'react';
 import { Accordion } from 'react-bootstrap';
-import useClientAuthMiddleware from '../../hooks/useClientMiddleware';
+import useMiddleware from '../../hooks/useMiddleware';
 import useDate from '../../hooks/useDate';
 import useInput from '../../hooks/useInput';
 import useSignedInUser from '../../hooks/useSignedInUser';
@@ -32,17 +32,20 @@ type Props = QuestionItemProps & {
   sendSubmitAnswerReq: (req: Promise<any>) => Promise<any>;
   submittingNewAnswer: boolean;
   successModalShown: boolean;
+  guidelinesModalShown: boolean;
+  triggerGuidelinesModalOpen(): void;
+  setReportedQueId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const MIN_ANSWER_LENGTH = 2;
 
-const Question = function (props: Props) {
+function Question(props: Props) {
   const { date: askedDate } = useDate(props.createdAt, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
-  const { withAuth } = useClientAuthMiddleware();
+  const { withAuth } = useMiddleware();
 
   const currentUser = useSignedInUser();
   const accordionTogglerRef = useRef<HTMLButtonElement | null>(null);
@@ -56,22 +59,25 @@ const Question = function (props: Props) {
     clearInput: clearNewAnswerText,
   } = useInput({
     init: '',
-    validators: [
-      {
-        fn: minLength,
-        params: [MIN_ANSWER_LENGTH, `Please enter at least ${MIN_ANSWER_LENGTH} characters`],
-      },
-    ],
+    validators: [{ fn: isRequired, params: ['This field cannot be empty for a new'] }],
   });
 
-  const submitAnswer = async function (token: string) {
+  const submitAnswer = async function (token?: string) {
     const res = await props.sendSubmitAnswerReq(
-      api.addAnswerToBusinessQuestion(props.businessId, newAnswer, token),
+      api.addAnswerToBusinessQuestion(props.businessId, newAnswer, token!),
     );
     if (res.status === 'SUCCESS') {
       props.onAnswerSuccess();
       clearNewAnswerText();
       accordionTogglerRef.current!.click();
+    }
+  };
+
+  const handleSelectDropdownOption = (evKey: string) => {
+    switch (evKey) {
+      case 'report':
+        withAuth(props.setReportedQueId.bind(null, props._id));
+        break;
     }
   };
 
@@ -113,9 +119,8 @@ const Question = function (props: Props) {
 
         <AppDropdown
           items={['Report']}
-          onSelect={(val: string) => {}}
+          onSelect={handleSelectDropdownOption}
           toggler={<Icon icon="material-symbols:more-vert" width={20} />}
-          // className={styles.options}
         />
 
         <Link href={questionDetailsUrl} passHref>
@@ -154,26 +159,31 @@ const Question = function (props: Props) {
               value={newAnswer}
               onChange={handleChangeNewAnswer}
               validationErrors={newAnswerValidators}
-              className="textfield w-50 d-block"
-              style={{ flexBasis: '92%' }}
+              className="textfield w-50 d-block flex-grow-1"
+              style={{ flexBasis: '100%' }}
             />
-            <LabelledCheckbox
-              label={<small>Get notified about new answers to your questions</small>}
-              onChange={() => {}}
-            />
-            <LoadingButton
-              className="btn btn-pry mt-3 w-100"
-              type="submit"
-              isLoading={props.submittingNewAnswer}
-              textWhileLoading="Posting..."
-            >
-              Post question
-            </LoadingButton>
+            <div className="d-flex gap-3 justify-content-between w-100">
+              <LoadingButton
+                className="btn btn-pry"
+                type="submit"
+                isLoading={props.submittingNewAnswer}
+                textWhileLoading="Posting..."
+              >
+                Post answer
+              </LoadingButton>
+              <button
+                className="btn btn-bg-none no-bg-hover"
+                type="button"
+                onClick={props.triggerGuidelinesModalOpen}
+              >
+                Posting guidelines
+              </button>
+            </div>
           </form>
         </Accordion.Collapse>
       </Accordion>
     </li>
   );
-};
+}
 
 export default Question;

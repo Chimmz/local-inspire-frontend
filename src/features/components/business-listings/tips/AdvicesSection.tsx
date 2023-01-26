@@ -20,7 +20,7 @@ import navigateTo, {
 } from '../../../utils/url-utils';
 
 import Paginators from '../../shared/pagination/Paginators';
-import NoReviewsYet from '../review/NoReviewsYet';
+import NoReviewsYet from '../reviews/NoReviewsYet';
 import api from '../../../library/api';
 import { BusinessProps } from '../../business-results/Business';
 import * as domUtils from '../../../utils';

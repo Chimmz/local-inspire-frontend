@@ -1,7 +1,7 @@
 $row-gap: 2rem;
 
-.main {
-  padding-block: 3rem;
+.container {
+  padding-block: 2rem;
   display: grid;
   grid-template-columns: 2fr 1fr;
   align-items: start;
@@ -73,9 +73,6 @@ $row-gap: 2rem;
         font-weight: 400;
         font-size: 2rem;
       }
-      // @media screen and (max-width: 56.25em) {
-      //   margin-bottom: 7rem !important;
-      // }
 
       & ul > * {
         padding-block: 2rem;

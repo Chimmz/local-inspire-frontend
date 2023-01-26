@@ -17,9 +17,7 @@ import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
-import useClientMiddleware, {
-  MiddlewareNextAction,
-} from '../../../hooks/useClientMiddleware';
+import useMiddleware, { AuthMiddlewareNext } from '../../../hooks/useMiddleware';
 import styles from './Reviews.module.scss';
 import { UserPublicProfile } from '../../../types';
 import { getFullName } from '../../../utils/user-utils';
@@ -35,14 +33,14 @@ type Props = ReviewProps & {
 const ReviewItem = function (props: Props) {
   const [likes, setLikes] = useState(props.likes);
 
-  const { withAuth } = useClientMiddleware();
+  const { withAuth } = useMiddleware();
   const currentUser = useSignedInUser();
   const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
 
-  const handleToggleLikeReview: MiddlewareNextAction = useCallback(
+  const handleToggleLikeReview: AuthMiddlewareNext = useCallback(
     async (token?: string) => {
       const data = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
       console.log({ data });
@@ -112,8 +110,13 @@ const ReviewItem = function (props: Props) {
         </small>
 
         <small className={styles.location}>
-          <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-          Terrell, TX • {props.reviewedBy.contributions?.length || 0} contributions
+          {props.reviewedBy.location?.city ? (
+            <>
+              <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />{' '}
+              props.reviewedBy.location.city •
+            </>
+          ) : null}
+          {props.reviewedBy.contributions?.length || 0} contributions
         </small>
 
         <Dropdown className={cls(styles.options)}>

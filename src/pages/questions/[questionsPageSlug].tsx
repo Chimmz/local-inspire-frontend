@@ -1,27 +1,30 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
-import { Modal, SSRProvider } from 'react-bootstrap';
+// Types
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
-import Layout from '../../features/components/layout';
+
+import { useRouter } from 'next/router';
 import api from '../../features/library/api';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
 
-import { Icon } from '@iconify/react';
-
 import cls from 'classnames';
+import { Icon } from '@iconify/react';
+import { Modal, SSRProvider } from 'react-bootstrap';
 import Question from '../../features/components/questions-page/Question';
 import Paginators from '../../features/components/shared/pagination/Paginators';
 import NewQuestionSection from '../../features/components/questions-page/NewQuestionSection';
 import useUrlQueryBuilder from '../../features/hooks/useUrlQueryBuilder';
 import useRequest from '../../features/hooks/useRequest';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import styles from '../../styles/sass/pages/BusinessQuestionsPage.module.scss';
 import usePaginate from '../../features/hooks/usePaginate';
 import PageSuccess from '../../features/components/shared/success/PageSuccess';
-import useDate from '../../features/hooks/useDate';
 import PopularQuestion from '../../features/components/questions-page/PopularQuestion';
-import { useRouter } from 'next/router';
+import Layout from '../../features/components/layout';
+import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
+import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
+import PopupInfo from '../../features/components/PopupInfo';
+import ReportQA from '../../features/components/ReportQA';
 
 interface QuestionsPageProps {
   questions: {
@@ -54,22 +57,21 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest({
     autoStopLoading: true,
   });
-  const { send: sendPageReq, loading: isPaginating } = useRequest({
-    autoStopLoading: true,
-  });
+  const { send: sendPageReq, loading: isPaginating } = useRequest({ autoStopLoading: true });
 
-  const { formatDate } = useDate(undefined, { month: 'short', year: 'numeric' });
   const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
     QuestionItemProps[]
-  >({
-    defaultCurrentPage: 1,
-  });
+  >({ defaultCurrentPage: 1 });
 
   const { send: sendSubmitAnswerReq, loading: submittingNewAnswer } = useRequest({
     autoStopLoading: true,
   });
 
+  // Modals
   const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
+  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
+  // const [showReportModal, setShowReportModal] = useState(false);
+  const [reportedQueId, setReportedQueId] = useState<null | string>(null);
 
   console.log({ currentPageData });
 
@@ -136,6 +138,10 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
     }
   };
 
+  const handleReportQuestion = (reason: string, explanation: string) => {
+    console.log(reason, explanation);
+  };
+
   const pageCount = useMemo(
     () => Math.ceil(QUESTIONS_PER_PAGE / props.questions.total!),
     [props.questions.total],
@@ -178,84 +184,104 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
       <Layout>
         <Layout.Nav></Layout.Nav>
         <Layout.Main className={cls(styles.main, 'page-main')}>
-          <nav className={cls(styles.pageRouteNav, 'd-flex align-items-center gap-2')}>
-            <small className="text-pry">
-              <Link href={businessUrl}>{props.params.businessName}</Link>
-            </small>
-            <Icon icon="ic:baseline-greater-than" width={10} />
-            <small className="">Ask the Community</small>
-          </nav>
+          <div className={cls(styles.container, 'container')}>
+            <nav className={cls(styles.pageRouteNav, 'd-flex align-items-center gap-2')}>
+              <small className="text-pry">
+                <Link href={businessUrl}>{props.params.businessName}</Link>
+              </small>
+              <Icon icon="ic:baseline-greater-than" width={10} />
+              <small className="">Ask the Community</small>
+            </nav>
 
-          <header className="mb-2">
-            <h1 className="mb-3">{props.params.businessName} Questions & Answers</h1>
-            <p className="parag mb-5">
-              Below are the questions that previous visitors have asked, with answers from
-              representatives of {props.params.businessName}&apos; staff and other visitors.
-            </p>
-            <small className="d-flex gap-3 flex-wrap">
-              <>
-                {props.questions.total} questions sorted by:
-                {questionFilterNames.map((filter, i) => {
-                  return (
-                    <span
-                      className="text-pry cursor-pointer"
-                      style={{
-                        textUnderlineOffset: '7px',
-                        textDecoration: filterNames.includes(filter) ? 'underline' : 'none',
-                      }}
-                      key={i}
-                      onClick={handleClickFilterName.bind(null, filter)}
-                    >
-                      {filter}
-                    </span>
-                  );
-                })}
-              </>
-            </small>
-          </header>
+            <header className="mb-2">
+              <h1 className="mb-3">{props.params.businessName} Questions & Answers</h1>
+              <p className="parag mb-5">
+                Below are the questions that previous visitors have asked, with answers from
+                representatives of {props.params.businessName}&apos; staff and other visitors.
+              </p>
+              <small className="d-flex gap-3 flex-wrap">
+                <>
+                  {props.questions.total} questions sorted by:
+                  {questionFilterNames.map((filter, i) => {
+                    return (
+                      <span
+                        className="text-pry cursor-pointer"
+                        style={{
+                          textUnderlineOffset: '7px',
+                          textDecoration: filterNames.includes(filter) ? 'underline' : 'none',
+                        }}
+                        key={i}
+                        onClick={handleClickFilterName.bind(null, filter)}
+                      >
+                        {filter}
+                      </span>
+                    );
+                  })}
+                </>
+              </small>
+            </header>
 
-          <ul className={cls(styles.questionsList, 'no-bullets')}>
-            {questions?.map(que => (
-              <Question
-                {...que}
-                {...props.params}
-                sendSubmitAnswerReq={sendSubmitAnswerReq}
-                submittingNewAnswer={submittingNewAnswer}
-                onAnswerSuccess={setShowAnswerSuccessModal.bind(null, true)}
-                successModalShown={showAnswerSuccessModal}
-                key={que._id}
-              />
-            ))}
-          </ul>
-
-          <section className={styles.pagination}>
-            <Paginators
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              pageCount={pageCount}
-            />
-            <small>
-              Page 1 of {pageCount}, showing {currentPageData?.length} record(s) out of{' '}
-              {props.questions.total} results
-            </small>
-          </section>
-
-          <aside className={styles.popularQuestions}>
-            <h3 className="mb-4">Popular Questions on {props.params.businessName}</h3>
-            <ul className="no-bullets">
-              {popularQuestions?.map(q => (
-                <PopularQuestion {...q} {...props.params} key={q._id} />
+            <ul className={cls(styles.questionsList, 'no-bullets')}>
+              {questions?.map(que => (
+                <Question
+                  {...que}
+                  {...props.params}
+                  sendSubmitAnswerReq={sendSubmitAnswerReq}
+                  submittingNewAnswer={submittingNewAnswer}
+                  onAnswerSuccess={setShowAnswerSuccessModal.bind(null, true)}
+                  successModalShown={showAnswerSuccessModal}
+                  guidelinesModalShown={showPostingGuidelines}
+                  triggerGuidelinesModalOpen={setShowPostingGuidelines.bind(null, true)}
+                  setReportedQueId={setReportedQueId}
+                  key={que._id}
+                />
               ))}
             </ul>
-          </aside>
 
-          <NewQuestionSection
-            {...props.params}
-            sendSubmitReq={sendSubmitQuestionReq}
-            submitting={submittingNewQuestion!}
-            pushQuestion={(q: QuestionItemProps) => setQuestions(items => [q, ...items])}
-          />
+            <section className={styles.pagination}>
+              <Paginators
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                pageCount={pageCount}
+              />
+              <small>
+                Page 1 of {pageCount}, showing {currentPageData?.length} record(s) out of{' '}
+                {props.questions.total} results
+              </small>
+            </section>
+
+            <aside className={styles.popularQuestions}>
+              <h3 className="mb-4">Popular Questions on {props.params.businessName}</h3>
+              <ul className="no-bullets">
+                {popularQuestions?.map(q => (
+                  <PopularQuestion {...q} {...props.params} key={q._id} />
+                ))}
+              </ul>
+            </aside>
+
+            <NewQuestionSection
+              {...props.params}
+              sendSubmitReq={sendSubmitQuestionReq}
+              submitting={submittingNewQuestion!}
+              pushQuestion={(q: QuestionItemProps) => setQuestions(items => [q, ...items])}
+              openGuidelinesModal={setShowPostingGuidelines.bind(null, true)}
+            />
+          </div>
         </Layout.Main>
+
+        <PopupInfo
+          heading={postingGuidelinesConfig.heading}
+          show={showPostingGuidelines}
+          close={setShowPostingGuidelines.bind(null, false)}
+        >
+          {postingGuidelinesConfig.body(props.questions.data?.[0].business?.businessName!)}
+        </PopupInfo>
+
+        <ReportQA
+          show={!!reportedQueId}
+          close={() => setReportedQueId(null)}
+          onReport={handleReportQuestion}
+        />
       </Layout>
     </SSRProvider>
   );

@@ -1,7 +1,7 @@
 main.page-main {
-  padding-inline: max(5.2rem, 5.2vw);
+  padding-inline: 1rem;
 
   @media screen and (max-width: 56.25em) {
-    padding-inline: 5vw;
+    // padding-inline: 5vw;
   }
 }

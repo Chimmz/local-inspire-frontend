@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 
-interface GuidelinesPopupProps {
+interface PopupInfoPropsProps {
   show: boolean;
   close: Function;
   heading?: React.ReactNode;
@@ -9,7 +9,7 @@ interface GuidelinesPopupProps {
   children: React.ReactNode;
 }
 
-const GuidelinesPopup: React.FC<GuidelinesPopupProps> = props => {
+const PopupInfo: React.FC<PopupInfoPropsProps> = props => {
   return (
     <Modal show={props.show} centered scrollable onHide={props.close as () => void}>
       {props.heading ? <Modal.Header closeButton>{props.heading}</Modal.Header> : null}
@@ -18,4 +18,4 @@ const GuidelinesPopup: React.FC<GuidelinesPopupProps> = props => {
   );
 };
 
-export default GuidelinesPopup;
+export default PopupInfo;

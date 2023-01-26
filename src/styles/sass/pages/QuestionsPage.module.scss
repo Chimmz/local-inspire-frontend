@@ -1,6 +1,9 @@
 $row-gap: 2rem;
 
 .main {
+  padding-inline: 1rem;
+}
+.container {
   padding-block: 3rem;
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -9,8 +12,6 @@ $row-gap: 2rem;
   column-gap: 6rem;
 
   & > * {
-    // background-color: #ccc;
-
     &:where(nav.pageRouteNav) {
       grid-column: 1 / -1;
       grid-row: 1;

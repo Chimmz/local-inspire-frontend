@@ -4,7 +4,7 @@ import { UserPublicProfile } from '../../../types';
 
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useRequest from '../../../hooks/useRequest';
-import useClientMiddleware from '../../../hooks/useClientMiddleware';
+import useMiddleware from '../../../hooks/useMiddleware';
 
 import api from '../../../library/api';
 import { getFullName } from '../../../utils/user-utils';
@@ -46,7 +46,7 @@ const Answer: React.FC<Props> = function (props) {
     likes: props.likes,
     dislikes: props.dislikes,
   });
-  const { withAuth } = useClientMiddleware();
+  const { withAuth } = useMiddleware();
 
   // const allowReaction = currentUserId !== props.answeredBy._id;
   const allowReaction = true;
@@ -124,7 +124,7 @@ const Answer: React.FC<Props> = function (props) {
         <button
           className="btn btn-bg-none no-bg-hover"
           disabled={isReactingToAnswer}
-          onClick={withAuth.bind(null, (token: string) => reactToAnswer('like', token))}
+          onClick={withAuth.bind(null, (token?: string) => reactToAnswer('like', token!))}
         >
           {/* <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '} */}
           <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={18} />
@@ -135,7 +135,7 @@ const Answer: React.FC<Props> = function (props) {
           className="btn btn-bg-none no-bg-hover gap-2"
           style={{ alignItems: 'flex-start' }}
           disabled={isReactingToAnswer}
-          onClick={withAuth.bind(null, (token: string) => reactToAnswer('dislike', token))}
+          onClick={withAuth.bind(null, (token?: string) => reactToAnswer('dislike', token!))}
         >
           <Icon
             icon={`ant-design:dislike-${userDislikes ? 'filled' : 'outlined'}`}
