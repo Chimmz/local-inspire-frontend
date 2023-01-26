@@ -1,5 +1,8 @@
 .main {
   background-color: #f2f2f2;
+}
+
+.container {
   min-height: 100%;
   display: flex;
   justify-content: center;
@@ -17,30 +20,30 @@
     padding: 3rem;
     border-radius: 4px;
   }
-}
 
-.newReview {
-  flex: 2;
-  font-size: 1.5rem;
+  .newReview {
+    flex: 2;
+    font-size: 1.5rem;
 
-  & > * {
-  }
+    & > * {
+    }
 
-  section.wouldYouRecommend {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding-block: 2rem;
-    border-block: 1px solid #d3d3d3;
-  }
+    section.wouldYouRecommend {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-block: 2rem;
+      border-block: 1px solid #d3d3d3;
+    }
 
-  .responseFromBusiness {
-    svg {
-      color: $color-pry;
+    .responseFromBusiness {
+      svg {
+        color: $color-pry;
+      }
     }
   }
-}
 
-.recentReviews {
-  flex: 1;
+  .recentReviews {
+    flex: 1;
+  }
 }

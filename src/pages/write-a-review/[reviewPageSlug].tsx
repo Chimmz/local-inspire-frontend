@@ -81,82 +81,84 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
           ) : null}
         </Layout.Nav>
         <Layout.Main className={styles.main}>
-          <div className={styles.newReview}>
-            <h1 className={cls('u-page-main-heading mb-5')}>
-              Write a review for {toTitleCase(businessName, '-')}
-            </h1>
+          <div className={cls(styles.container, 'container')}>
+            <div className={styles.newReview}>
+              <h1 className={cls('u-page-main-heading mb-5')}>
+                Write a review for {toTitleCase(businessName, '-')}
+              </h1>
 
-            {userIsNeutral ? (
-              <section className={styles.wouldYouRecommend}>
-                <strong className="me-auto fs-3">Do you recommend Chicken Express?</strong>
-                <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=yes`}>
-                  <span className="btn btn-outline">Yes</span>
-                </Link>
-                <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=no`}>
-                  <span className="btn btn-outline">No</span>
-                </Link>
-              </section>
-            ) : (
-              <section
-                className={cls(styles.wouldYouRecommend, styles.responseFromBusiness)}
-                style={{ display: 'block' }}
-              >
-                <Icon
-                  icon="icon-park:quote"
-                  width={35}
-                  className="mb-3"
-                  color="#024180"
-                  style={{ color: '#024180' }}
-                />
-                <p className="parag fs-3 mb-5">
-                  <strong className="text-dark">{`${
-                    userRecommendYes
-                      ? 'Thank you for recommending us.'
-                      : 'Sorry you were disappointed.'
-                  }`}</strong>{' '}
-                  {`${
-                    userRecommendYes
-                      ? 'Please give your personal experience with us below! Your review will help consumers find trustworthy businesses.'
-                      : 'Please help us to improve by giving us constructive criticism!'
-                  }`}
-                </p>
-                <div className="d-flex align-items-center gap-3">
-                  <Image
-                    src="/img/default-profile-pic.jpeg"
-                    height={70}
-                    width={70}
-                    style={{
-                      borderRadius: '50%',
-                      border: '1px solid gray',
-                    }}
-                    objectPosition="bottom"
+              {userIsNeutral ? (
+                <section className={styles.wouldYouRecommend}>
+                  <strong className="me-auto fs-3">Do you recommend Chicken Express?</strong>
+                  <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=yes`}>
+                    <span className="btn btn-outline">Yes</span>
+                  </Link>
+                  <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=no`}>
+                    <span className="btn btn-outline">No</span>
+                  </Link>
+                </section>
+              ) : (
+                <section
+                  className={cls(styles.wouldYouRecommend, styles.responseFromBusiness)}
+                  style={{ display: 'block' }}
+                >
+                  <Icon
+                    icon="icon-park:quote"
+                    width={35}
+                    className="mb-3"
+                    color="#024180"
+                    style={{ color: '#024180' }}
                   />
-                  — Rockwall, TX
-                </div>
-              </section>
-            )}
+                  <p className="parag fs-3 mb-5">
+                    <strong className="text-dark">{`${
+                      userRecommendYes
+                        ? 'Thank you for recommending us.'
+                        : 'Sorry you were disappointed.'
+                    }`}</strong>{' '}
+                    {`${
+                      userRecommendYes
+                        ? 'Please give your personal experience with us below! Your review will help consumers find trustworthy businesses.'
+                        : 'Please help us to improve by giving us constructive criticism!'
+                    }`}
+                  </p>
+                  <div className="d-flex align-items-center gap-3">
+                    <Image
+                      src="/img/default-profile-pic.jpeg"
+                      height={70}
+                      width={70}
+                      style={{
+                        borderRadius: '50%',
+                        border: '1px solid gray',
+                      }}
+                      objectPosition="bottom"
+                    />
+                    — Rockwall, TX
+                  </div>
+                </section>
+              )}
 
-            <NewReviewForm
-              {...{ businessName, location, businessId }}
-              userRecommends={userRecommendYes}
-              readonly={hasUserReviewedBefore as boolean}
-              userReview={props.currentUserReview}
-              sendReviewRequest={sendReviewRequest}
-              submitting={isSubmittingReview}
-            />
+              <NewReviewForm
+                {...{ businessName, location, businessId }}
+                userRecommends={userRecommendYes}
+                readonly={hasUserReviewedBefore as boolean}
+                userReview={props.currentUserReview}
+                sendReviewRequest={sendReviewRequest}
+                submitting={isSubmittingReview}
+              />
+            </div>
+
+            {/* Recent reviews */}
+            <aside className={styles.recentReviews}>
+              <h3 className="mb-4">Recent Reviews</h3>
+              {!!reviews?.length ? (
+                reviews?.map(review => <Review {...review} key={review._id} />)
+              ) : (
+                <small style={{ color: '#ccc', fontSize: '16px' }}>
+                  No reviews made for {toTitleCase(businessName, '-')}.
+                </small>
+              )}
+            </aside>
           </div>
-
-          {/* Recent reviews */}
-          <aside className={styles.recentReviews}>
-            <h3 className="mb-4">Recent Reviews</h3>
-            {!!reviews?.length ? (
-              reviews?.map(review => <Review {...review} key={review._id} />)
-            ) : (
-              <small style={{ color: '#ccc', fontSize: '16px' }}>
-                No reviews made for {toTitleCase(businessName, '-')}.
-              </small>
-            )}
-          </aside>
         </Layout.Main>
       </Layout>
     </SSRProvider>

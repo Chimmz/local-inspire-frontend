@@ -167,20 +167,20 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   }, [propsData.pageId]);
 
   return (
-    <>
+    <Layout>
       {pageLoading && <Spinner pageWide />}
       <Head>
         <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
-      <Layout>
-        <Layout.Nav bg="#003366" lightLogo sticky>
-          <CategoriesNav
-            searchParams={props.pageSearchParams}
-            setPageLoading={setPageLoading}
-          />
-        </Layout.Nav>
-        <div className={styles.businessesResultsPage}>
+      <Layout.Nav bg="#003366" lightLogo sticky>
+        <CategoriesNav
+          searchParams={props.pageSearchParams}
+          setPageLoading={setPageLoading}
+        />
+      </Layout.Nav>
+      <Layout.Main className={styles.main}>
+        <div className={cls(styles.businessesResultsPage, 'container')}>
           <h1 className={cls(styles.heading, 'text-dark')}>
             {categoryTitle}
             <span style={{ color: '#bbb' }}>{' in '}</span>
@@ -242,8 +242,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             placeName={propsData.businesses?.[0]?.city as string}
           />
         </div>
-      </Layout>
-    </>
+      </Layout.Main>
+    </Layout>
   );
 };
 

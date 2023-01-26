@@ -1,8 +1,11 @@
+.main {
+  background-color: #f2f2f2;
+}
+
 .businessesResultsPage {
   min-height: 100%;
   // max-height: 100%;
   padding: 6rem 4rem;
-  background-color: #f2f2f2;
 
   display: grid;
   grid-template-columns: max(20%, 27rem) 1fr;
