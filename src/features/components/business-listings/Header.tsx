@@ -23,8 +23,10 @@ interface Props {
 }
 
 function Header(props: Props) {
-  const slug = useRouter().query.businessDetails as string;
-  const reviewPageUrl = genRecommendBusinessPageUrl<string>({ slug, recommends: null });
+  const reviewPageUrl = useMemo(
+    () => genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null }),
+    [],
+  );
   const questionsPageUrl = useMemo(
     () =>
       getBusinessQuestionsUrl<string>({

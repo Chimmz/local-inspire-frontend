@@ -7,12 +7,11 @@ import { QuestionItemProps } from '../../features/components/business-listings/q
 import { TipProps } from '../../features/components/business-listings/tips/Tip';
 
 import { useRouter } from 'next/router';
-import useSignedInUser from '../../features/hooks/useSignedInUser';
 import useRequest from '../../features/hooks/useRequest';
 
 import api from '../../features/library/api';
 import { toTitleCase } from '../../features/utils/string-utils';
-import navigateTo, { genRecommendBusinessPageUrl } from '../../features/utils/url-utils';
+import navigateTo from '../../features/utils/url-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
