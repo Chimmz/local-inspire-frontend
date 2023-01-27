@@ -38,7 +38,7 @@ export interface BusinessProps {
   SIC: string;
   NAICS: string;
   industry: string;
-  rating?: number;
+  avgRating?: number;
   claimed: boolean;
 }
 
@@ -47,7 +47,7 @@ type Props = Partial<BusinessProps> & { featured?: boolean; index?: number };
 const Business: FC<Props> = function (props) {
   const router = useRouter();
   const rand = Math.floor(Math.random() * 9);
-  const { businessName, address, rating, featured = false, index } = props;
+  const { businessName, address, featured = false, index } = props;
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
   const [userRecommends, setUserRecommends] = useState<boolean | null>(null);

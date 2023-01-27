@@ -8,7 +8,7 @@ export type AuthMiddlewareNext = (token?: string) => any;
 
 type Middleware = (next: AuthMiddlewareNext) => any;
 
-const useClientAuthMiddleware = function () {
+const useMiddleware = function () {
   const currentUser = useSignedInUser();
   const { showAuthModal, isAuthModalOpen } = useAuthContext();
 
@@ -40,7 +40,11 @@ const useClientAuthMiddleware = function () {
     setNextAction(() => next); // Cache the next function that will be run once user signs in
   };
 
+  // const withApiAuthErrorHandler = async (req: Promise<any>) => {
+
+  // }
+
   return { withAuth };
 };
 
-export default useClientAuthMiddleware;
+export default useMiddleware;

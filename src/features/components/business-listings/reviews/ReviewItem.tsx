@@ -8,7 +8,6 @@ import useDate from '../../../hooks/useDate';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useRequest from '../../../hooks/useRequest';
 
-import * as dateUtils from '../../../utils/date-utils';
 import api from '../../../library/api';
 
 import cls from 'classnames';
@@ -79,8 +78,11 @@ const ReviewItem = function (props: Props) {
           icon={`ant-design:like-${isLikedByCurrentUser ? 'filled' : 'outlined'}`}
           width={20}
         />
-        {isLikedByCurrentUser ? 'Thank you for your vote ' : 'Helpful '}
-        {likes.length ? `(${likes.length})` : 'No helpful votes, was it helpful to you?'}
+        {isLikedByCurrentUser
+          ? 'Thank you for your vote '
+          : likes.length
+          ? `Helpful (${likes.length})`
+          : 'No helpful votes, was it helpful to you?'}
       </button>
     ),
     [handleToggleLikeReview, isLiking, isLikedByCurrentUser, likes],

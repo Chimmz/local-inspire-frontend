@@ -83,7 +83,6 @@ const BusinessListings: NextPage<Props> = function (props) {
               slug={props.params.slug}
             />
             <div className={styles.left}>
-              <Announcement />
               <section
                 className={cls(styles.bookNow, 'd-flex', 'align-items-center', 'gap-4')}
               >
@@ -155,7 +154,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   onClick={setActive.bind(null, 'reviews')}
                   data-active={active === 'reviews'}
                 >
-                  <Icon icon="material-symbols:rate-review" width={30} />
+                  <Icon icon="material-symbols:rate-review-outline" width={30} />
                   <strong>{props.reviews.total || ''} Reviews</strong>
                 </button>
                 <button
@@ -163,7 +162,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   onClick={setActive.bind(null, 'q&a')}
                   data-active={active === 'q&a'}
                 >
-                  <Icon icon="jam:messages-f" width={30} />
+                  <Icon icon="bx:chat" width={30} />
                   <strong>{props.questions.total} Q&A</strong>
                 </button>
                 <button
@@ -171,7 +170,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   onClick={setActive.bind(null, 'advices')}
                   data-active={active === 'advices'}
                 >
-                  <Icon icon="material-symbols:tips-and-updates" width={30} />
+                  <Icon icon="material-symbols:tips-and-updates-outline" width={30} />
                   <strong>{props.tips.total || ''} Tips</strong>
                 </button>
               </nav>
@@ -208,7 +207,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               />
             </div>
 
-            <Aside />
+            <Aside business={props.business.data} />
 
             <FeaturedBusinesses
               className={styles.similarBusinesses}

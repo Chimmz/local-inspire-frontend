@@ -83,12 +83,13 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
       >
         {currentUser ? (
           <Image
-            src={currentUser.imgUrl!}
+            src={
+              currentUser.isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'
+            }
             width={30}
             height={30}
             objectFit="cover"
             style={{ borderRadius: '50%' }}
-            // onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
           />
         ) : (
           <small className="d-flex align-items-center gap-2 w-max-content">

@@ -250,13 +250,17 @@ function ReviewsSection(props: Props) {
         />
       ))}
 
-      <div className={cls('align-items-center justify-content-between', showWith('d-flex'))}>
-        <Paginators
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          pageCount={totalPages}
-        />
-      </div>
+      {reviews.length ? (
+        <div
+          className={cls('align-items-center justify-content-between', showWith('d-flex'))}
+        >
+          <Paginators
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            pageCount={totalPages}
+          />
+        </div>
+      ) : null}
 
       <NoReviewsYet
         businessName={props.businessName}

@@ -219,7 +219,7 @@ const QuestionsSection = function (props: Props) {
         </Accordion.Collapse>
       </Accordion>
 
-      {/* Page questions */}
+      {/* Current page questions */}
       {currentPageData?.map(que => (
         <QuestionItem
           {...que}

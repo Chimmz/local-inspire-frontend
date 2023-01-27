@@ -110,13 +110,15 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
         />
       ))}
 
-      <div className={showWith('d-block')}>
-        <Paginators
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          pageCount={totalPages}
-        />
-      </div>
+      {props.tips?.length ? (
+        <div className={showWith('d-block')}>
+          <Paginators
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            pageCount={totalPages}
+          />
+        </div>
+      ) : null}
 
       <NoReviewsYet
         businessName={props.businessName}

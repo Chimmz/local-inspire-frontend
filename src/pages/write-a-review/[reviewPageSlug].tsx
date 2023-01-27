@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GetServerSideProps, NextPage } from 'next';
@@ -26,9 +26,8 @@ import NewReviewForm from '../../features/components/recommend-business/NewRevie
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import Alert from 'react-bootstrap/Alert';
 import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
-import { Modal, SSRProvider } from 'react-bootstrap';
+import { SSRProvider } from 'react-bootstrap';
 import { BusinessProps } from '../../features/components/business-results/Business';
-import PageSuccess from '../../features/components/shared/success/PageSuccess';
 
 interface Props {
   // status: 'SUCCESS' | 'FAIL' | 'ERROR';
@@ -43,7 +42,6 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   const [showAlert, setShowAlert] = useState(!!props.currentUserReview);
 
   const [reviews, setReviews] = useState<ReviewProps[]>([]);
-  const currentUser = useSignedInUser();
 
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
     autoStopLoading: false,
@@ -175,12 +173,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
   const business = (await api.getBusinessById(businessId)) as {
     data: Partial<BusinessProps>;
   };
-  // console.log(business.data.businessName?.toLowerCase().split(' ').join('-'), businessName);
-  // console.log(
-  //   [business?.data?.city, business?.data?.stateCode].join('-').toLowerCase(),
-  //   '->',
-  //   location.toLowerCase(),
-  // );
+
   if (
     !business?.data?._id ||
     business.data.businessName?.toLowerCase().split(' ').join('-') !== businessName ||

@@ -49,13 +49,12 @@
       flex-grow: 1;
       padding-block: 2rem;
       position: relative;
-      border-bottom: 3px solid transparent;
+      border: 0.5px solid #d8d8d8;
+      border-top: 3px solid transparent;
       min-width: 150px;
 
       &[data-active*='true'] {
-        background-color: #fafafa;
-        color: $color-pry;
-        border-color: currentColor;
+        border-top-color: #3d3d3d;
       }
 
       &:hover {
@@ -64,7 +63,7 @@
 
       &[data-active*='false']:hover {
         // background-color: #;
-        border-color: #ccc;
+        // border-color: #ccc;
       }
     }
   }

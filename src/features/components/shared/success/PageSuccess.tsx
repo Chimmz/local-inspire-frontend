@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './PageSuccess.module.scss';
 
 interface Props {
-  title: string | number;
+  title?: string | number;
   description?: string;
   className?: string;
 }

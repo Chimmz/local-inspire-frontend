@@ -35,8 +35,8 @@ const UserReview: React.FC<ReviewProps> = function (props) {
       <figure>
         <Image
           src={props.reviewedBy?.imgUrl || '/img/default-profile-pic.jpeg'}
-          width={50}
-          height={50}
+          width={40}
+          height={40}
           alt={`Avatar of ${userUtils.getFullName(props?.reviewedBy)}`}
           objectFit="cover"
           style={{ borderRadius: '50%' }}

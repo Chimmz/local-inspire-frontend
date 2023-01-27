@@ -1,23 +1,34 @@
 import React, { useEffect, useRef, useState, FormEventHandler } from 'react';
 
-import { Icon } from '@iconify/react';
-import styles from './Aside.module.scss';
-import { Form } from 'react-bootstrap';
-import LabelledCheckbox from '../shared/LabelledCheckbox';
 import useInput from '../../hooks/useInput';
+import useRequest from '../../hooks/useRequest';
+import useMiddleware from '../../hooks/useMiddleware';
+
 import { minLength } from '../../utils/validators/inputValidators';
+
+import { Icon } from '@iconify/react';
 import TextInput from '../shared/text-input/TextInput';
+import PageSuccess from '../shared/success/PageSuccess';
+import styles from './Aside.module.scss';
+import api from '../../library/api';
+import { BusinessProps } from '../business-results/Business';
+import useSignedInUser from '../../hooks/useSignedInUser';
+import LoadingButton from '../shared/button/Button';
 
 const MIN_QUE_LENGTH = 10;
 
-function Aside() {
-  const getNotifiedCheckboxRef = useRef<HTMLInputElement | null>(null);
+interface Props {
+  business: Partial<BusinessProps> | undefined;
+}
 
+function Aside(props: Props) {
+  const [submittedQuestion, setSubmittedQuestion] = useState(false);
   const {
     inputValue: question,
     handleChange,
     validationErrors,
     runValidators: runQuestionValidators,
+    clearInput: clearQuestion,
   } = useInput({
     init: '',
     validators: [
@@ -28,14 +39,26 @@ function Aside() {
     ],
   });
 
-  const handleCheckGetNotified: React.ChangeEventHandler<HTMLInputElement> = ev => {
-    console.log();
-  };
+  const { withAuth } = useMiddleware();
+  const { send: sendSubmitReq, loading: submitting } = useRequest({ autoStopLoading: true });
 
   const handleSubmitQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (runQuestionValidators().errorExists) return;
-    // const getNotified = getNotifiedCheckboxRef.current!.checked;
+
+    withAuth((token?: string) => {
+      const req = api.askQuestionAboutBusiness(question, props.business?._id!, token!);
+
+      sendSubmitReq(req)
+        .then(res => {
+          if (res.status === 'SUCCESS') {
+            setSubmittedQuestion(true);
+            clearQuestion();
+            setTimeout(setSubmittedQuestion.bind(null, false), 4000);
+          }
+        })
+        .catch(console.log);
+    });
   };
 
   return (
@@ -43,15 +66,13 @@ function Aside() {
       <section className={styles.about}>
         <h2>About the Business</h2>
         <p className="parag mb-3 mt-3">
-          At Crystals Cabin we strive on comfort, cleanliness, and an all around good
-          time. We welcome you to join us for a weekend getaway.
+          At Crystals Cabin we strive on comfort, cleanliness, and an all around good time. We
+          welcome you to join us for a weekend getaway.
         </p>
         <p className="parag mb-5">
           <strong> Fannies BBQ</strong> was established in 1985.
         </p>
-        <button className="btn btn-outline-sec d-block w-100">
-          Send owner a message
-        </button>
+        <button className="btn btn-outline-sec d-block w-100">Send owner a message</button>
       </section>
 
       <section className={styles.getUpdated}>
@@ -82,32 +103,33 @@ function Aside() {
         </ul>
       </section>
 
-      <form className={styles.askNewQuestion} onSubmit={handleSubmitQuestion}>
-        <h2 className="mb-4">Ask a question</h2>
-        <small className="mb-2 d-block">
-          Get quick answers from Fannies BBQ staff and past visitors.
-        </small>
+      {submittedQuestion ? (
+        <PageSuccess description="Your question has been submitted" />
+      ) : (
+        <form className={styles.askNewQuestion} onSubmit={handleSubmitQuestion}>
+          <h2 className="mb-4">Ask a question</h2>
+          <small className="mb-2 d-block">
+            Get quick answers from Fannies BBQ staff and past visitors.
+          </small>
 
-        <TextInput
-          as="textarea"
-          value={question}
-          className="textfield w-100"
-          onChange={handleChange}
-          validationErrors={validationErrors}
-        />
+          <TextInput
+            as="textarea"
+            value={question}
+            className="textfield w-100"
+            onChange={handleChange}
+            validationErrors={validationErrors}
+          />
 
-        <LabelledCheckbox
-          label={<small>Get notified about new answers to your questions.</small>}
-          onChange={handleCheckGetNotified}
-          className="my-4"
-        />
-        <button
-          className={`btn btn${!question.length ? '-outline' : ''}-pry d-block w-100`}
-          type="submit"
-        >
-          Post question
-        </button>
-      </form>
+          <LoadingButton
+            isLoading={submitting}
+            className={`btn btn${!question.length ? '-outline' : ''}-pry d-block w-100 mt-3`}
+            type="submit"
+            textWhileLoading={'Submitting...'}
+          >
+            Post question
+          </LoadingButton>
+        </form>
+      )}
     </aside>
   );
 }

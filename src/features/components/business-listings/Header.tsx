@@ -1,18 +1,15 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+
+import { BusinessProps } from '../business-results/Business';
+
+import { genRecommendBusinessPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
+import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
-import TextInput from '../shared/text-input/TextInput';
-
-import cls from 'classnames';
-import { Form } from 'react-bootstrap';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
-import { BusinessProps } from '../business-results/Business';
-import Link from 'next/link';
-import { genRecommendBusinessPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
-import { useRouter } from 'next/router';
-import { ReviewProps } from '../recommend-business/UserReview';
 
 interface Props {
   businessName: string;
@@ -23,6 +20,8 @@ interface Props {
 }
 
 function Header(props: Props) {
+  const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
+
   const reviewPageUrl = useMemo(
     () => genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null }),
     [],
@@ -36,16 +35,14 @@ function Header(props: Props) {
     [],
   );
 
-  const undisplayedPhotos = props.reviewImages?.slice(3);
-
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
         <h1 className="mb-3">{props.business?.businessName}</h1>
         <StarRating
           readonly
+          initialValue={props.business?.avgRating}
           ratingValue={props.reviewsCount}
-          initialValue={3}
           showRatingCaption
           starSize="xlg"
           renderReviewsCount={n => `${n} reviews`}
@@ -92,50 +89,51 @@ function Header(props: Props) {
           </button>
         </div>
 
-        <div className={cls(styles.headerImages, 'flex-grow-1')}>
-          {props.reviewImages?.[0] ? (
-            <figure className="position-relative d-block m-0">
-              <Image
-                src={props.reviewImages[0].photoUrl}
-                layout="fill"
-                objectFit="cover"
-                style={{ borderRadius: '3px' }}
-              />
-            </figure>
-          ) : null}
+        {!props.reviewImages?.length ? (
+          <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
+            <Icon icon="ic:outline-camera-alt" width={35} />
+            <h4>Enhance this page - Upload photos</h4>
+            <button className="btn btn-pry">Add photos</button>
+          </div>
+        ) : (
+          <div className={cls(styles.headerImages, 'flex-grow-1')}>
+            {props.reviewImages?.[0] ? (
+              <figure className="position-relative d-block m-0">
+                <Image
+                  src={props.reviewImages[0].photoUrl}
+                  layout="fill"
+                  objectFit="cover"
+                  style={{ borderRadius: '3px' }}
+                />
+              </figure>
+            ) : null}
 
-          {props.reviewImages?.[1] ? (
-            <figure className="position-relative d-block">
-              <Image
-                src={props.reviewImages?.[1].photoUrl}
-                layout="fill"
-                objectFit="cover"
-                style={{ borderRadius: '3px' }}
-              />
-            </figure>
-          ) : null}
+            {props.reviewImages?.[1] ? (
+              <figure className="position-relative d-block">
+                <Image
+                  src={props.reviewImages?.[1].photoUrl}
+                  layout="fill"
+                  objectFit="cover"
+                  style={{ borderRadius: '3px' }}
+                />
+              </figure>
+            ) : null}
 
-          {props.reviewImages?.[2] ? (
-            <figure
-              className="position-relative d-block"
-              data-remaining-count={'+' + (undisplayedPhotos?.length || 0)}
-            >
-              <Image
-                src={props.reviewImages?.[2].photoUrl}
-                layout="fill"
-                objectFit="cover"
-                style={{ borderRadius: '3px' }}
-              />
-              {/* undisplayedPhotos?.length */}
-              {/* {true ? (
-                <span className={cls(styles.remainingPhotosCount, 'd-flex xy-center fs-2')}>
-                  +22
-                  +{undisplayedPhotos?.length}
-                </span>
-              ) : null} */}
-            </figure>
-          ) : null}
-        </div>
+            {props.reviewImages?.[2] ? (
+              <figure
+                className="position-relative d-block"
+                data-remaining-count={'+' + (undisplayedPhotos?.length || 0)}
+              >
+                <Image
+                  src={props.reviewImages?.[2].photoUrl}
+                  layout="fill"
+                  objectFit="cover"
+                  style={{ borderRadius: '3px' }}
+                />
+              </figure>
+            ) : null}
+          </div>
+        )}
       </div>
     </header>
   );
