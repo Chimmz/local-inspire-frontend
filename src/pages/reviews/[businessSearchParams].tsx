@@ -1,38 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import ReactPaginate from 'react-paginate';
-
+// Types
 import { BusinessProps } from '../../features/components/business-results/Business';
-
+// Hooks
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
-
+// Utils
 import * as uuid from 'uuid';
 import * as urlUtils from '../../features/utils/url-utils';
 import * as stringUtils from '../../features/utils/string-utils';
 import { ParsedUrlQuery } from 'querystring';
 import API from '../../features/library/api';
-
 import cls from 'classnames';
+// Components
 import Layout from '../../features/components/layout';
-import Navbar from '../../features/components/layout/navbar/Navbar';
-import BusinessSearchForm from '../../features/components/shared/businesses-search/BusinessSearchForm';
 import Filters from '../../features/components/business-results/Filters';
 import AllBusinesses from '../../features/components/business-results/AllBusinesses';
 import MapView from '../../features/components/business-results/MapView';
-import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
-import CategoriesNav from '../../features/components/business-results/CategoriesNav';
 import Spinner from '../../features/components/shared/spinner/Spinner';
+import CategoriesNav from '../../features/components/layout/navbar/CategoriesNav';
 import Paginators from '../../features/components/shared/pagination/Paginators';
-import { Icon } from '@iconify/react';
-import AuthContextProvider from '../../features/contexts/AuthContext';
+
+import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
 }
+
 interface Props {
   status: 'SUCCESS' | 'ERROR';
   error?: string;
@@ -54,7 +50,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [propsData, setPropsData] = useState<Props>(props);
   const [showGoogleMap, setShowGoogleMap] = useState(false);
 
-  const router = useRouter();
+  const error = propsData?.status !== 'SUCCESS';
 
   const {
     category: currentCategory,
@@ -67,19 +63,17 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     stringUtils.toTitleCase(currentCity),
   ];
 
-  const error = propsData?.status !== 'SUCCESS';
+  const { currentPage, currentPageData, setPageData, setCurrentPage, pageHasData } =
+    usePaginate<{ status: string; businesses: BusinessProps[] }>({
+      defaultCurrentPage: 1,
+      init: { 1: propsData as any },
+    });
 
   const {
     startLoading: startNewSearchLoader,
     stopLoading: stopNewSearchLoader,
     loading: newSearchLoading,
   } = useRequest({ autoStopLoading: false });
-
-  const { currentPage, currentPageData, setPageData, setCurrentPage, pageHasData } =
-    usePaginate<{ status: string; businesses: BusinessProps[] }>({
-      defaultCurrentPage: 1,
-      init: { 1: propsData as any },
-    });
 
   useEffect(() => {
     const paginators = document.querySelector("[class*='paginators']");
@@ -88,63 +82,16 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     anchors?.forEach(a => {
       a.onclick = () => window.scrollTo(0, 2000);
     });
-    // console.log({ anchors });
   }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
     const paginators = document.querySelector("[class*='paginators']");
-
     const previousActivePaginator = paginators?.querySelector('li.selected');
-    // console.log({ previousActivePaginator });
-    // // previousActivePaginator?.classList.remove('selected');
-    // const previousActiveLink = previousActivePaginator?.firstElementChild;
-
-    // if (previousActiveLink) {
-    //   previousActiveLink.className = previousActiveLink.className
-    //     .split(' ')
-    //     .filter((cls, i) => {
-    //       return !cls.includes('activePagelink');
-    //     })
-    //     .join(' ');
-    //   previousActiveLink.setAttribute('aria-label', '');
-    // }
-    // const firstPageLink = document.querySelector("[aria-label='Page 1']");
-    // console.log({ firstPageLink });
-    // if (firstPageLink) {
-    //   firstPageLink.classList.add(styles.activePagelink);
-    //   firstPageLink.parentElement!.classList.add('selected');
-    // }
 
     setPropsData(props);
     setPageData(1, props as any);
   }, [props, setPropsData, props.pageId]);
-
-  const onSearchHandler = (categoryValue: string, locationValue: string) => {
-    if (!categoryValue || !locationValue) return;
-
-    let [cityValue, stateValue] = locationValue.split(',');
-    [cityValue, stateValue] = [cityValue.trim(), stateValue.trim()];
-
-    console.log({ cityValue: cityValue.trim(), stateValue: stateValue.trim() });
-    if (
-      currentCategory === categoryValue.toLowerCase() &&
-      currentCity === cityValue.trim().toLowerCase() &&
-      currentStateCode === stateValue.trim()
-    )
-      return console.log('Same as current page query');
-
-    startNewSearchLoader();
-    setPageLoading(true);
-
-    const url = urlUtils.getBusinessSearchResultsUrl({
-      category: categoryValue,
-      city: cityValue,
-      stateCode: stateValue,
-    });
-    console.log('To push: ', url);
-    router.push(url);
-  };
 
   const handlePageChange = async (newPage: number) => {
     setCurrentPage(newPage);

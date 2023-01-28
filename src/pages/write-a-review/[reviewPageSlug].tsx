@@ -7,7 +7,7 @@ import { signOut } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
 
 // Types
-import Review, { ReviewProps } from '../../features/components/recommend-business/UserReview';
+import Review, { ReviewProps } from '../../features/components/page-reviews/UserReview';
 
 // Hooks
 import { useRouter } from 'next/router';
@@ -22,7 +22,7 @@ import api from '../../features/library/api';
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import Layout from '../../features/components/layout';
-import NewReviewForm from '../../features/components/recommend-business/NewReviewForm';
+import NewReviewForm from '../../features/components/page-reviews/NewReviewForm';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import Alert from 'react-bootstrap/Alert';
 import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';

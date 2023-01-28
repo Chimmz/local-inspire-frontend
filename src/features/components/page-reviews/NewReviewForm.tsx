@@ -55,13 +55,11 @@ function NewReviewForm(props: Props) {
     featuresToRate.map(f => (typeof f === 'string' ? f : f.label)),
   );
   const businessNameTitle = toTitleCase(props.businessName.split('-').join(' '));
-  const past12Months = useMemo(() => getPast12MonthsWithYear(), []);
+  const past12Months = useMemo(getPast12MonthsWithYear.bind(null), []);
 
   const router = useRouter();
 
-  const { accessToken } = useSignedInUser({
-    onSignOut: navigateTo.bind(null, '/', router),
-  });
+  const { accessToken } = useSignedInUser({ onSignOut: navigateTo.bind(null, '/', router) });
 
   const {
     inputValue: reviewTitle,
@@ -148,12 +146,8 @@ function NewReviewForm(props: Props) {
       description: upl.description,
     })),
   );
-  // props.userReview?.images.map(upl => ({ ...upl, id: upl._id })),
 
-  const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
-    ev.preventDefault();
-    if (props.readonly) return;
-
+  const validateFields = function () {
     const validationResults = [
       runReviewTitleValidators(),
       runMainReviewValidators(),
@@ -166,13 +160,20 @@ function NewReviewForm(props: Props) {
 
     if (validationResults.some(result => result.errorExists)) {
       domUtils.scrollToElement('.invalid-feedback');
-      return console.log('Cannot submit review because of v-errors');
+      console.log('Cannot submit review because of v-errors');
+      return false;
     }
+    return true;
+  };
 
-    const formData = new FormData();
+  const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
+    ev.preventDefault();
+    if (props.readonly) return;
+    if (!validateFields()) return;
 
     const rawFiles = uploads.map(item => item.img.rawFile) as File[];
     const photoDescriptions = uploads.map(item => item.description) as string[];
+    const formData = new FormData();
 
     formData.append('businessRating', String(mainRating));
     formData.append('recommends', props.userRecommends ? 'yes' : 'no');

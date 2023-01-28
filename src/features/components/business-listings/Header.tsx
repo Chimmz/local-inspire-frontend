@@ -92,7 +92,7 @@ function Header(props: Props) {
         {!props.reviewImages?.length ? (
           <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
             <Icon icon="ic:outline-camera-alt" width={35} />
-            <h4>Enhance this page - Upload photos</h4>
+            <h4 className="text-center">Enhance this page - Upload photos</h4>
             <button className="btn btn-pry">Add photos</button>
           </div>
         ) : (

@@ -14,7 +14,7 @@ const Paginators = function (props: Props) {
   const showPreviousLabel = currentPage > 1;
   const showNextLabel = currentPage < pageCount;
 
-  console.log({ showPreviousLabel, showNextLabel });
+  // console.log({ showPreviousLabel, showNextLabel });
 
   return (
     <ReactPaginate

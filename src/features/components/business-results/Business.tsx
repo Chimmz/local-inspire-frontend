@@ -42,7 +42,16 @@ export interface BusinessProps {
   claimed: boolean;
 }
 
-type Props = Partial<BusinessProps> & { featured?: boolean; index?: number };
+type Props = Partial<BusinessProps> & {
+  featured?: boolean;
+  // For the non-featured properties
+  index?: number;
+  // If logged in user reviewed the business
+  userRating?: number;
+  photoUrl?: string;
+  reviewText?: string;
+  reviewedByCurrentUser?: boolean;
+};
 
 const Business: FC<Props> = function (props) {
   const router = useRouter();
@@ -80,7 +89,8 @@ const Business: FC<Props> = function (props) {
     <li className={cls(styles.business, featured && styles.featured)} key={rand}>
       <figure>
         <Image
-          src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
+          // src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
+          src={props.photoUrl || '/img/business-img-default.jpeg'}
           alt={`${props.SIC8 || ''} photo of ${businessName}`}
           layout="fill"
           objectFit="cover"
@@ -89,7 +99,7 @@ const Business: FC<Props> = function (props) {
 
       <div className={styles.details}>
         <div className={styles.info}>
-          <div className="d-flex justify-content-between">
+          <div className="d-flex justify-content-between align-items-center gap-3 flex-wrap">
             <h4 className={styles.businessName}>
               <Link
                 href={urlUtils.genBusinessPageUrl({
@@ -111,14 +121,14 @@ const Business: FC<Props> = function (props) {
                   height="17"
                   color="#777"
                 />
-                {address?.replace('<br/>', '\n') || 'No address available'}
+                <small>{address?.replace('<br/>', '\n') || 'No address available'}</small>
               </address>
             ) : null}
           </div>
 
           <StarRating
             starSize={featured ? 'sm' : 'md'}
-            initialValue={4}
+            initialValue={props.avgRating}
             ratingValue={4}
             renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
             showRatingCaption
@@ -132,15 +142,11 @@ const Business: FC<Props> = function (props) {
           ) : null}
         </div>
 
-        {!featured ? (
-          <div className={styles.userComment}>
-            {`Lorem, ipsum dolor sit amet consectetur adipisici elit. Voluptatibus beatae
-      at architecto possimus quas ullam! Accusantium, facilis! Magni, vitae
-      voluptatum...`}
-          </div>
+        {!featured && props.reviewedByCurrentUser ? (
+          <div className={styles.userComment}>{props.reviewText}</div>
         ) : null}
 
-        {!featured ? (
+        {!featured && !props.reviewedByCurrentUser ? (
           <div className={cls(styles.question, 'd-flex gap-2')}>
             <p className="me-3">Been here before? Would you recommend?</p>
             <LoadingButton
@@ -160,23 +166,6 @@ const Business: FC<Props> = function (props) {
             >
               No
             </LoadingButton>
-            {/* <button
-              className="btn btn-gray btn--sm"
-              onClick={setUserRecommends.bind(null, true)}
-              data-choice="yes"
-              disabled={userRecommends!}
-            >
-              Yes
-              <Spinner />
-            </button>
-            <button
-              className="btn btn-gray btn--sm"
-              onClick={setUserRecommends.bind(null, false)}
-              data-choice="no"
-              disabled={userRecommends === false}
-            >
-              No
-            </button> */}
           </div>
         ) : null}
       </div>

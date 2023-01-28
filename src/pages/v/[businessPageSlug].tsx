@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
-import { GetServerSideProps, NextPage } from 'next';
-
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+// Types
 import { BusinessProps } from '../../features/components/business-results/Business';
-import { ReviewProps } from '../../features/components/recommend-business/UserReview';
+import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
 import { TipProps } from '../../features/components/business-listings/tips/Tip';
-
+// Hooks
 import { useRouter } from 'next/router';
 import useRequest from '../../features/hooks/useRequest';
-
+// Utils
 import api from '../../features/library/api';
 import { toTitleCase } from '../../features/utils/string-utils';
 import navigateTo from '../../features/utils/url-utils';
 import cls from 'classnames';
-
+// Components
 import { Icon } from '@iconify/react';
 import { SSRProvider } from 'react-bootstrap';
 import Layout from '../../features/components/layout';
-import CategoriesNav from '../../features/components/business-results/CategoriesNav';
+import CategoriesNav from '../../features/components/layout/navbar/CategoriesNav';
 import Aside from '../../features/components/business-listings/Aside';
 import Header from '../../features/components/business-listings/Header';
-import Announcement from '../../features/components/business-listings/Announcement';
 import ReviewsSection from '../../features/components/business-listings/reviews/ReviewsSection';
 import QuestionsSection from '../../features/components/business-listings/questions/QuestionsSection';
 import AdvicesSection from '../../features/components/business-listings/tips/AdvicesSection';
@@ -262,7 +261,14 @@ const BusinessListings: NextPage<Props> = function (props) {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async function (context) {
+export const getStaticPaths: GetStaticPaths = async function (context) {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async function (context) {
   const slug = context.params!.businessPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
 

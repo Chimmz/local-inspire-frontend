@@ -187,6 +187,14 @@ class API {
     });
   }
 
+  async getReviewsMadeByUser(token: string) {
+    return this._makeRequest({
+      path: `/reviews/made-by-user`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
   async toggleBusinessReviewHelpful(businessId: string, token: string) {
     return this._makeRequest({
       path: `/businesses/reviews/${businessId}/like`,

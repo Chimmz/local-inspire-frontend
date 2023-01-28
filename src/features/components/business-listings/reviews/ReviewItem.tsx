@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { ReviewProps } from '../../recommend-business/UserReview';
+import { ReviewProps } from '../../page-reviews/UserReview';
 
 import useDate from '../../../hooks/useDate';
 import useSignedInUser from '../../../hooks/useSignedInUser';

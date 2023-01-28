@@ -1,9 +1,9 @@
 import { Dispatch, FC, SetStateAction } from 'react';
 import Link from 'next/link';
 
-import { useUserLocationContext } from '../../contexts/UserLocationContext';
+import { useUserLocationContext } from '../../../contexts/UserLocationContext';
 
-import * as urlUtils from '../../utils/url-utils';
+import * as urlUtils from '../../../utils/url-utils';
 import cls from 'classnames';
 
 import styles from './CategoriesNav.module.scss';

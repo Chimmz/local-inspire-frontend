@@ -59,7 +59,9 @@ function Question(props: Props) {
     clearInput: clearNewAnswerText,
   } = useInput({
     init: '',
-    validators: [{ fn: isRequired, params: ['This field cannot be empty for a new'] }],
+    validators: [
+      { fn: isRequired, params: ['This field cannot be empty for a new question'] },
+    ],
   });
 
   const submitAnswer = async function (token?: string) {

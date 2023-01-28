@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 // Types
-import { ReviewProps } from '../../recommend-business/UserReview';
+import { ReviewProps } from '../../page-reviews/UserReview';
 // Hooks and Utils
 import useRequest from '../../../hooks/useRequest';
 import api from '../../../library/api';
@@ -25,6 +25,7 @@ import { reportModalConfig } from './config';
 import TextInput from '../../shared/text-input/TextInput';
 import useInput from '../../../hooks/useInput';
 import { minLength } from '../../../utils/validators/inputValidators';
+import { quantitize } from '../../../utils/quantity-utils';
 
 type ReviewFilter =
   | 'Excellent'
@@ -42,7 +43,7 @@ const filterToQueryMap = new Map([
   ['Poor', { rating: 2 }],
   ['Terrible', { rating: 1 }],
   ['Recommends', { recommends: 1 }],
-  ['Helpful', { sort: '-likedBy' }],
+  ['Helpful', { sort: '-likes' }],
 ]);
 
 interface QueryProperties {
@@ -139,8 +140,8 @@ function ReviewsSection(props: Props) {
     setQueryString(queryStr.slice(0, -1));
   }, [filters.length]);
 
-  const filterReviews = async (qString?: string, opts?: { page: number; limit: number }) => {
-    const req = api.getBusinessReviews(props.businessId, qString, opts);
+  const filterReviews = async (opts?: { page: number; limit: number }) => {
+    const req = api.getBusinessReviews(props.businessId, queryStr, opts);
     const res = await props.sendRequest(sendFilterReq(req));
 
     if (res?.status === 'SUCCESS') {
@@ -151,7 +152,7 @@ function ReviewsSection(props: Props) {
 
   useEffect(() => {
     if (queryStr.length) {
-      filterReviews(queryStr);
+      filterReviews();
       return;
     } else if (!props.reviews) return;
     setReviews(props.reviews);
@@ -172,7 +173,7 @@ function ReviewsSection(props: Props) {
   };
 
   const handlePageChange = async (newPage: number) => {
-    filterReviews(undefined, { page: newPage, limit: REVIEWS_PER_PAGE });
+    filterReviews({ page: newPage, limit: REVIEWS_PER_PAGE });
   };
 
   const totalPages = useMemo(() => {
@@ -304,7 +305,10 @@ function ReviewsSection(props: Props) {
                   <h4>
                     <strong>{userUtils.getFullName(user, { lastNameInitial: true })}</strong>
                   </h4>
-                  <small>0 contributions • 0 Followers</small>
+                  <small>
+                    {quantitize(user.contributions.length, ['contribution', 'contributions'])}{' '}
+                    • 0 Followers
+                  </small>
                 </div>
                 <button className="btn btn-outline-pry btn--sm">
                   <Icon icon="material-symbols:person-add" width={20} /> Follow
