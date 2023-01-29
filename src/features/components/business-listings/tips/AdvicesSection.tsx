@@ -41,13 +41,7 @@ const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * TIPS_PER_PAGE; // 15
 
 const AdvicesSection = function (props: AdvicesSectionProps) {
-  // const [tips, setTips] = useState()
   const [tipsTotal, setTipsTotal] = useState(props.tipsTotal);
-
-  const reviewPageUrl = genRecommendBusinessPageUrl<string>({
-    slug: props.slug,
-    recommends: null,
-  });
   const tipsSectionRef = useRef<HTMLElement | null>(null);
 
   const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
@@ -65,21 +59,25 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       limit: TIPS_PER_PAGE,
     });
     const res = await props.sendRequest(req);
+    if (res?.status !== 'SUCCESS') return;
 
-    if (res?.status === 'SUCCESS') {
-      setPageData(newPage, res.data);
-      setCurrentPage(newPage);
-      domUtils.scrollToElement(tipsSectionRef.current!);
+    setPageData(newPage, res.data);
+    setCurrentPage(newPage);
+    domUtils.scrollToElement(tipsSectionRef.current!);
 
-      // In case there are new tips, let it reflect as a change in the number of pages
-      if (tipsTotal !== res.total) setTipsTotal(res.total);
-    }
+    // In case there are new tips in DB, let it reflect as a change in the number of pages
+    if (tipsTotal !== res.total) setTipsTotal(res.total);
   };
 
   const totalPages = useMemo(() => {
     const itemsExceedMaxItems = tipsTotal >= MAX_ITEMS;
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(tipsTotal / TIPS_PER_PAGE);
   }, [tipsTotal, MAX_ITEMS, MAX_PAGES, TIPS_PER_PAGE]);
+
+  const reviewPageUrl = genRecommendBusinessPageUrl<string>({
+    slug: props.slug,
+    recommends: null,
+  });
 
   const showWith = useCallback(
     (showClassName: string) => (!props.show ? 'd-none' : showClassName),
@@ -96,11 +94,13 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
         ref={tipsSectionRef}
       >
         <h2>Tips/Advice</h2>
-        <button className="btn btn-pry">
-          <Link href={reviewPageUrl}>Write a review</Link>
-        </button>
+
+        <Link href={reviewPageUrl} passHref>
+          <a className="btn btn-pry">Write a review</a>
+        </Link>
       </section>
 
+      {/* Each tip in current page */}
       {currentPageData?.map(tip => (
         <Tip
           {...tip}
@@ -110,6 +110,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
         />
       ))}
 
+      {/* Pagination */}
       {props.tips?.length ? (
         <div className={showWith('d-block')}>
           <Paginators
@@ -120,6 +121,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
         </div>
       ) : null}
 
+      {/* If there are no tips (reviews) */}
       <NoReviewsYet
         businessName={props.businessName}
         show={props.show && !props.tips?.length}

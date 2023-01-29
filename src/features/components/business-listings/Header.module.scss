@@ -53,11 +53,11 @@
     }
 
     &:hover {
-      outline-style: solid;
-      outline-offset: 6px;
+      // outline-style: solid;
+      // outline-offset: 6px;
 
-      outline-color: $color-pry-light;
-      outline-width: 5px;
+      // outline-color: $color-pry-light;
+      // outline-width: 5px;
       transform: scale(1.5) translateY(-1rem);
       z-index: 4;
     }

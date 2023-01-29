@@ -129,7 +129,7 @@ const Business: FC<Props> = function (props) {
           <StarRating
             starSize={featured ? 'sm' : 'md'}
             initialValue={props.avgRating}
-            ratingValue={4}
+            ratingValue={props.avgRating}
             renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
             showRatingCaption
             readonly

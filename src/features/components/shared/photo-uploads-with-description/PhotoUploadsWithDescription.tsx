@@ -10,9 +10,10 @@ import useFileUploadsWithDescription from '../../../hooks/useFileUploadsWithDesc
 type Props = ReturnType<typeof useFileUploadsWithDescription> & {
   show: boolean;
   close(): void;
+  onSave?: () => void;
 };
 
-function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
+function PhotoUploadsWithDescription({ show, close, onSave, ...mainProps }: Props) {
   const {
     uploads,
     pushNewUpload,
@@ -29,16 +30,19 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
     setNewFile(null); // Reset the file str
   }, [newFile]); // Watch for when user uploads a new file
 
-  const handleContinue: React.MouseEventHandler<HTMLButtonElement> = async ev => {
-    // Run validators
+  const validateUploads = (runSave: boolean | undefined) => {
     new Promise<boolean>((resolve, reject) => {
       setTimeout(() => {
         const errorsExists = uploads
           .map(upl => upl.validatorRunner?.())
           .some(result => result?.errorExists);
+
         (errorsExists ? reject : resolve)(errorsExists);
       }, 500);
-    }).then(close);
+    }).then(() => {
+      close();
+      if (runSave) onSave?.();
+    });
   };
 
   useEffect(() => {
@@ -49,7 +53,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
   return (
     <Modal
       show={show}
-      onHide={close}
+      onHide={validateUploads.bind(null, false)}
       centered
       scrollable={!!uploads.length}
       backdrop="static"
@@ -98,7 +102,7 @@ function PhotoUploadsWithDescription({ show, close, ...mainProps }: Props) {
             Add another photo
           </FileUploadPrompt>
 
-          <button className="btn btn-outline-gray" onClick={handleContinue}>
+          <button className="btn btn-outline-gray" onClick={validateUploads.bind(null, true)}>
             Continue
           </button>
         </Modal.Footer>

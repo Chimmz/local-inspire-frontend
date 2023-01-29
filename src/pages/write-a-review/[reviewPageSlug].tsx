@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GetServerSideProps, NextPage } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { unstable_getServerSession, NextAuthOptions, Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
@@ -30,29 +30,44 @@ import { SSRProvider } from 'react-bootstrap';
 import { BusinessProps } from '../../features/components/business-results/Business';
 
 interface Props {
-  // status: 'SUCCESS' | 'FAIL' | 'ERROR';
-  session: Session;
-  reviews: { data: ReviewProps[] } | undefined;
-  currentUserReview: ReviewProps | null;
-  error?: string;
+  reviews: { status: 'SUCCESS' | 'FAIL' | 'ERROR'; data: ReviewProps[] | undefined };
+  business: { status: 'SUCCESS' | 'FAIL' | 'ERROR'; data: BusinessProps | undefined };
+  slug: string;
 }
 
-const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
-  const [hasUserReviewedBefore, setHasReviewedBefore] = useState(!!props.currentUserReview);
-  const [showAlert, setShowAlert] = useState(!!props.currentUserReview);
-
+const ReviewsPage: NextPage<Props> = function (props: Props) {
   const [reviews, setReviews] = useState<ReviewProps[]>([]);
 
+  const [currentUserReview, setCurrentUserReview] = useState<ReviewProps | null>(null);
+  const [showReviewedBeforeAlert, setShowReviewedBeforeAlert] = useState(false);
+  const [attemptedUserReviewFetch, setAttemptedUserReviewFetch] = useState(false);
+  const { isSignedIn, ...currentUser } = useSignedInUser();
+
+  const { send: sendUserReviewReq, loading: isGettingUserReview } = useRequest({
+    autoStopLoading: true,
+  });
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
     autoStopLoading: false,
   });
 
   useEffect(() => {
-    if (!props.reviews?.data.length) return;
+    if (!isSignedIn) return;
+    const req = api.getUserReviewOnBusiness(businessId, currentUser.accessToken!);
+
+    sendUserReviewReq(req)
+      .then(res => {
+        if (res.status === 'SUCCESS' && res.review !== null) {
+          setCurrentUserReview(res.review);
+          setShowReviewedBeforeAlert(true);
+        }
+      })
+      .finally(setAttemptedUserReviewFetch.bind(null, true));
+  }, [isSignedIn, currentUser.accessToken]);
+
+  useEffect(() => {
+    if (!props.reviews?.data?.length) return;
     setReviews(props.reviews.data);
   }, [props?.reviews]);
-
-  if (props.error) signOut({ redirect: false });
 
   const router = useRouter();
   const userRecommendYes = router.query.recommend === 'yes';
@@ -65,14 +80,14 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   return (
     <SSRProvider>
       <Layout>
-        <Spinner pageWide show={isSubmittingReview} />
+        <Spinner pageWide show={isGettingUserReview || isSubmittingReview} />
         <Layout.Nav>
-          {hasUserReviewedBefore && showAlert ? (
+          {showReviewedBeforeAlert ? (
             <Alert
               variant="info"
               className="text-center fs-4 position-absolute w-100"
               dismissible
-              onClose={setShowAlert.bind(null, false)}
+              onClose={setShowReviewedBeforeAlert.bind(null, false)}
             >
               You have previously reviewed {toTitleCase(businessName, '-')}
             </Alert>
@@ -135,14 +150,18 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
                 </section>
               )}
 
-              <NewReviewForm
-                {...{ businessName, location, businessId }}
-                userRecommends={userRecommendYes}
-                readonly={hasUserReviewedBefore as boolean}
-                userReview={props.currentUserReview}
-                sendReviewRequest={sendReviewRequest}
-                submitting={isSubmittingReview}
-              />
+              {attemptedUserReviewFetch ? (
+                <NewReviewForm
+                  userRecommends={userRecommendYes}
+                  userReview={currentUserReview}
+                  businessId={props.business.data?._id!}
+                  businessName={props.business.data?.businessName!}
+                  sendReviewRequest={sendReviewRequest}
+                  submitting={isSubmittingReview}
+                  readonly={Boolean(currentUserReview)}
+                  slug={props.slug}
+                />
+              ) : null}
             </div>
 
             {/* Recent reviews */}
@@ -163,10 +182,14 @@ const RecommendBusinessPage: NextPage<Props> = function (props: Props) {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res, params }) => {
-  const session = await unstable_getServerSession(req, res, authOptions as NextAuthOptions);
-  if (!session) return { redirect: { destination: '/?authError=true', permanent: false } };
+export const getStaticPaths: GetStaticPaths = async function (context) {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
 
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const slug = params!.reviewPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
 
@@ -182,27 +205,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
   )
     return { notFound: true };
 
-  const responses = await Promise.allSettled([
-    api.getUserReviewOnBusiness(businessId, session.user._id),
-    api.getBusinessReviews(businessId),
-  ]);
-
-  console.log({ responses });
-
-  const [userReviewResponse, reviewsResponse] = responses
-    .filter(res => res.status === 'fulfilled' && res.value)
-    .map(res => res.status === 'fulfilled' && res.value);
-
-  if (reviewsResponse.msg === 'AUTH_ERROR' && !reviewsResponse.data)
-    return { redirect: { destination: '/?authError=true', permanent: false } };
-
+  const res = await api.getBusinessReviews(businessId);
   return {
-    props: {
-      reviews: reviewsResponse,
-      currentUserReview: userReviewResponse?.userReview,
-      business,
-    },
+    props: { reviews: res, business, slug },
   };
 };
 
-export default RecommendBusinessPage;
+export default ReviewsPage;

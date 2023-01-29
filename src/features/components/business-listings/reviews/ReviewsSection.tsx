@@ -2,8 +2,16 @@ import React, { ChangeEventHandler, useEffect, useMemo, useState, useCallback } 
 import Image from 'next/image';
 // Types
 import { ReviewProps } from '../../page-reviews/UserReview';
-// Hooks and Utils
+// Hooks
 import useRequest from '../../../hooks/useRequest';
+import usePaginate from '../../../hooks/usePaginate';
+import useInput from '../../../hooks/useInput';
+// Utils
+import { reportModalConfig } from './config';
+import { UserRoles } from '../../../data/constants';
+import * as userUtils from '../../../utils/user-utils';
+import { minLength } from '../../../utils/validators/inputValidators';
+import { quantitize } from '../../../utils/quantity-utils';
 import api from '../../../library/api';
 import cls from 'classnames';
 // Components
@@ -16,16 +24,11 @@ import NoReviewsYet from './NoReviewsYet';
 import styles from './Reviews.module.scss';
 import Link from 'next/link';
 import { UserPublicProfile } from '../../../types';
-import { UserRoles } from '../../../data/constants';
-import * as userUtils from '../../../utils/user-utils';
 import Paginators from '../../shared/pagination/Paginators';
-import usePaginate from '../../../hooks/usePaginate';
-import GuidelinesPopup from '../../PopupInfo';
-import { reportModalConfig } from './config';
+import PopupInfo from '../../PopupInfo';
+import ReportQA from '../../ReportQA';
 import TextInput from '../../shared/text-input/TextInput';
-import useInput from '../../../hooks/useInput';
-import { minLength } from '../../../utils/validators/inputValidators';
-import { quantitize } from '../../../utils/quantity-utils';
+import useMiddleware from '../../../hooks/useMiddleware';
 
 type ReviewFilter =
   | 'Excellent'
@@ -72,11 +75,8 @@ function ReviewsSection(props: Props) {
   const [filters, setFilters] = useState<ReviewFilter[]>([]);
   const [queryStr, setQueryString] = useState('');
 
-  const [newReviewReport, setNewReviewReport] = useState<{
-    id: string;
-    reason: string;
-    showModal: boolean;
-  } | null>(null);
+  const [reviewReportId, setReviewReportId] = useState<string | null>(null);
+  const { withAuth } = useMiddleware();
 
   const {
     inputValue: reportExplanation,
@@ -181,26 +181,20 @@ function ReviewsSection(props: Props) {
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
 
-  const filtersUI = useMemo(() => {
-    return (
-      <section className={styles.filters}>
-        {Array.from(filterToQueryMap.keys()).map(filterName => (
-          <LabelledCheckbox
-            key={filterName}
-            label={<small>{filterName}</small>}
-            onChange={handleCheckInput}
-            value={filterName}
-          />
-        ))}
-      </section>
-    );
-  }, []);
-
-  const showReportModal = (reviewId: string) => {
-    setNewReviewReport(prev => {
-      return { id: reviewId, reason: '', showModal: true };
-    });
+  const openReportModal = (reviewId: string) => {
+    withAuth((_?: string) => setReviewReportId(reviewId));
   };
+
+  const handleReportReview = async (reason: string, explanation: string) => {
+    console.log(`Reported ${reviewReportId} because ${reason}. More details: ${explanation}`);
+  };
+
+  const showReviewLikers = useCallback(
+    function (likers: UserPublicProfile[], reviewerName: string) {
+      setReviewLikers({ likers, reviewerName });
+    },
+    [setReviewLikers],
+  );
 
   const showWith = useCallback(
     (showClassName: string) => (!props.show ? 'd-none' : showClassName),
@@ -209,48 +203,38 @@ function ReviewsSection(props: Props) {
 
   return (
     <>
-      <GuidelinesPopup
-        show={newReviewReport?.showModal!}
-        heading={reportModalConfig.heading}
-        close={setNewReviewReport.bind(null, null)}
-      >
-        <form>
-          {reportModalConfig.body}
-          <TextInput
-            value={reportExplanation}
-            as="textarea"
-            onChange={handleChangeExplanation}
-            className="textfield mb-2"
-          />
-          <div className="d-flex align-items-center gap-2">
-            <button className="btn btn-pry">Submit</button>
-            <button className="btn outline">Cancel</button>
-          </div>
-        </form>
-      </GuidelinesPopup>
       <section className={cls(props.show && props.reviews?.length ? 'd-block' : 'd-none')}>
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>
 
-        {filtersUI}
-
+        {/* Checkbox filters section in header */}
+        <section className={styles.filters}>
+          {Array.from(filterToQueryMap.keys()).map(filterName => (
+            <LabelledCheckbox
+              key={filterName}
+              label={<small>{filterName}</small>}
+              onChange={handleCheckInput}
+              value={filterName}
+            />
+          ))}
+        </section>
         <Spinner show={isFilteringReviews} pageWide />
       </section>
 
+      {/* All reviews. Paginated and filtered */}
       {reviews?.map(r => (
         <ReviewItem
           {...r}
           show={!!props.reviews?.length && props.show}
           businessName={props.businessName}
-          showReviewLikers={(likers: UserPublicProfile[], reviewerName: string) =>
-            setReviewLikers({ likers, reviewerName })
-          }
-          showReportModal={showReportModal}
+          showReviewLikers={showReviewLikers}
+          openReportModal={openReportModal}
           key={r._id}
         />
       ))}
 
+      {/* Pagination */}
       {reviews.length ? (
         <div
           className={cls('align-items-center justify-content-between', showWith('d-flex'))}
@@ -263,11 +247,20 @@ function ReviewsSection(props: Props) {
         </div>
       ) : null}
 
+      {/* Default if no reviews */}
       <NoReviewsYet
         businessName={props.businessName}
         show={!props.reviews?.length && props.show}
       />
 
+      {/* The Report modal */}
+      <ReportQA
+        show={!!reviewReportId}
+        onReport={handleReportReview}
+        close={setReviewReportId.bind(null, null)}
+      />
+
+      {/* Modal showing likers of a review */}
       <Modal centered scrollable show={!!reviewLikers} onHide={() => setReviewLikers(null)}>
         <Modal.Header
           style={{ backgroundColor: '#f3f3f3' }}
@@ -282,7 +275,6 @@ function ReviewsSection(props: Props) {
             )}
           </h2>
         </Modal.Header>
-
         <Modal.Body className="px-5">
           <ul className={styles.reviewLikersList}>
             {reviewLikers?.likers?.map(user => (
@@ -306,7 +298,10 @@ function ReviewsSection(props: Props) {
                     <strong>{userUtils.getFullName(user, { lastNameInitial: true })}</strong>
                   </h4>
                   <small>
-                    {quantitize(user.contributions.length, ['contribution', 'contributions'])}{' '}
+                    {quantitize(user.contributions?.length || 0, [
+                      'contribution',
+                      'contributions',
+                    ])}{' '}
                     • 0 Followers
                   </small>
                 </div>

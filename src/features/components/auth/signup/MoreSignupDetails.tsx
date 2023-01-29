@@ -100,7 +100,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
 
     if (actionTaken === 'skip') return authenticate(credentials);
 
-    // Populate the credentials object if user clicked the 'save and continue' button
+    // Populate the credentials object if user clicked 'save and continue'
     if (facebookEmail) credentials.facebookEmail = facebookEmail; // If FB photo uploaded (we got also his email)
     if (uploadedFile?.url?.startsWith('https')) credentials.imgUrl = uploadedFile.url; // If user uploaded FB photo
     if (gender) credentials.gender = gender; // If user selected gender
@@ -112,7 +112,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
   };
 
   const handleFacebookProfileSuccess = function (profile: any) {
-    console.log('Profile success', profile);
+    console.log('Facebook Profile success', profile);
     if (profile?.picture?.data?.url) setUploadedFile({ url: profile.picture.data.url });
     if (profile?.email) setFacebookEmail(profile.email);
   };

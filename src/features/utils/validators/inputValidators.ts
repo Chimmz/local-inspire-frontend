@@ -6,9 +6,7 @@ export const createFeedback = (type: FeedbackType, msg: string): ValidationFeedb
 });
 
 // Actual validators
-export const isRequired: Validator<string> = function (
-  errMsg = 'This field is required',
-) {
+export const isRequired: Validator<string> = function (errMsg = 'This field is required') {
   console.log(`Checking input: ${this?.userInput}`);
   const hasError = !this?.userInput;
 
@@ -36,7 +34,7 @@ export const minLength: Validator<string> = function (
 
 export const maxLength: Validator<string> = function (
   maxLength: number,
-  errMsg: string = `Must be at least ${maxLength}`,
+  errMsg: string = `Please enter at most ${maxLength} characters`,
 ) {
   let hasError = this.userInput?.length > maxLength;
   //   if (!this.userInput) hasError = true;
@@ -56,9 +54,7 @@ export const containsUpperCase: Validator<string> = function (
   return createFeedback(hasError ? 'failed' : 'passed', hasError && errMsg);
 };
 
-export const containsDigit: Validator<string> = function (
-  errMsg = 'Please include a digit',
-) {
+export const containsDigit: Validator<string> = function (errMsg = 'Please include a digit') {
   const hasDigit = this.userInput.split('').some(char => !isNaN(+char));
   const hasError = !hasDigit;
 

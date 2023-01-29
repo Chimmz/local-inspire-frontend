@@ -7,16 +7,19 @@ interface Props {
   title?: string | number;
   description?: string;
   className?: string;
+  showSuccessIcon?: boolean;
 }
 
-function PageSuccess(props: Props) {
+function PageSuccess({ className, showSuccessIcon = true, title, description }: Props) {
   return (
-    <div className={cls(styles.success, props.className)}>
-      <div className={cls(styles.successIcon, 'mb-5')}>
-        <Icon icon="mdi:success" color="#008500" width="50" height="50" />
-      </div>
-      <h1 className="mb-4">{props.title || 'Successful!'}</h1>
-      <small className="text-center mx-auto fs-4">{props.description}</small>
+    <div className={cls(styles.success, className)}>
+      {showSuccessIcon && true ? (
+        <div className={cls(styles.successIcon, 'mb-5')}>
+          <Icon icon="mdi:success" color="#008500" width="50" height="50" />
+        </div>
+      ) : null}
+      <h1 className="mb-4">{title || 'Successful!'}</h1>
+      <small className="text-center mx-auto fs-4">{description}</small>
     </div>
   );
 }

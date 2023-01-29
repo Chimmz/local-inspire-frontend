@@ -4,7 +4,11 @@ import Link from 'next/link';
 
 import { BusinessProps } from '../business-results/Business';
 
-import { genRecommendBusinessPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
+import {
+  genRecommendBusinessPageUrl,
+  getBusinessQuestionsUrl,
+  genAddPhotosPageUrl,
+} from '../../utils/url-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
@@ -83,10 +87,15 @@ function Header(props: Props) {
             <Icon icon="mdi:share" width={21} />
             Share
           </button>
-          <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
-            <Icon icon="material-symbols:photo-camera" width={19} />
-            Add photo
-          </button>
+          <Link
+            href={genAddPhotosPageUrl(props.business?._id!, props.business?.businessName!)}
+            passHref
+          >
+            <a href="" className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+              <Icon icon="material-symbols:photo-camera" width={19} />
+              Add photo
+            </a>
+          </Link>
         </div>
 
         {!props.reviewImages?.length ? (

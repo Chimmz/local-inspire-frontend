@@ -51,6 +51,10 @@
     }
   }
 
+  &-curved {
+    border-radius: 99999px;
+  }
+
   &-gray {
     background-color: #f0f0f0;
     color: $text-dark;

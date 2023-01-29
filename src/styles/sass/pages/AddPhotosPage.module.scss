@@ -1,0 +1,46 @@
+.main {
+  background-color: #fffcf5;
+  display: flex;
+  min-height: 90vh;
+
+  @media screen and (max-width: 60em) {
+    min-height: 110vh;
+  }
+}
+
+.header {
+  padding-block: 2rem;
+  padding-inline: 4rem;
+  position: relative;
+
+  nav {
+    margin-bottom: 10vw;
+  }
+
+  .text {
+    max-width: 50ch;
+  }
+
+  & h1 {
+    font-family: 'Poppins', 'sans-serif';
+    font-weight: 400;
+  }
+
+  & > figure {
+    position: absolute;
+    bottom: 0;
+    right: 3rem;
+  }
+
+  & img {
+    // transform: scale(0.8);
+  }
+
+  nav {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+  }
+}
+
+.text {
+}

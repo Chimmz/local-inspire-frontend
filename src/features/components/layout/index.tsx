@@ -10,8 +10,14 @@ const Nav: React.FC<NavbarProps> = props => (
   </div>
 );
 
-const Main = (props: { children: ReactNode; className?: string }) => (
-  <main className={cls(props.className, 'flex-grow-1')}>{props.children}</main>
+const Main = (props: {
+  children: ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) => (
+  <main className={cls(props.className, 'flex-grow-1')} style={props.style}>
+    {props.children}
+  </main>
 );
 
 type LayoutProps = {

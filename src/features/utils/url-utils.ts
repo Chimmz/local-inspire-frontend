@@ -152,4 +152,8 @@ export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) 
   return url;
 };
 
+export const genAddPhotosPageUrl = (businessId: string, businessName: string) => {
+  return `/add-photos/${businessId}/${businessName.toLowerCase().split(' ').join('-')}`;
+};
+
 export default navigateTo;

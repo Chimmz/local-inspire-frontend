@@ -158,10 +158,19 @@ class API {
     formData: FormData;
   }) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/reviews`,
+      path: `/reviews/on/${businessId}/new`,
       method: 'POST',
       body: formData,
       headers: { authorization: `Bearer ${token}` },
+    });
+  }
+
+  async addPhotosOfBusiness(args: { businessId: string; token: string; formData: FormData }) {
+    return this._makeRequest({
+      path: `/reviews/by-user/on/${args.businessId}/add-photos`,
+      method: 'PATCH',
+      body: args.formData,
+      headers: { authorization: `Bearer ${args.token}` },
     });
   }
 
@@ -180,10 +189,11 @@ class API {
     });
   }
 
-  async getUserReviewOnBusiness(businessId: string, uid: string) {
+  async getUserReviewOnBusiness(businessId: string, token: string) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/user-review?uid=${uid}`,
+      path: `/reviews/on/${businessId}/by-user`,
       method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
 

@@ -1,7 +1,8 @@
-import React from 'react';
-import { Modal } from 'react-bootstrap';
+import React, { useEffect } from 'react';
+import { Form, Modal } from 'react-bootstrap';
 import useInput from '../hooks/useInput';
-import { isRequired } from '../utils/validators/inputValidators';
+import { isRequired, maxLength } from '../utils/validators/inputValidators';
+import RadioOptions from './shared/radio/RadioOptions';
 import TextInput from './shared/text-input/TextInput';
 
 interface ReportQAProps {
@@ -12,58 +13,80 @@ interface ReportQAProps {
 
 const ReportQA = function (props: ReportQAProps) {
   const {
-    inputValue: reportText,
-    handleChange: handleChangeReport,
-    validationErrors: reportValidators,
-    runValidators: runReportValidators,
-    clearInput: clearReportText,
-  } = useInput({ init: '', validators: [{ fn: isRequired, params: [] }] });
+    inputValue: reason,
+    handleChange: handleChangeReason,
+    validationErrors: reasonValidationErrors,
+    runValidators: runReasonValidators,
+    clearInput: clearReasonText,
+  } = useInput({
+    init: '',
+    validators: [{ fn: isRequired, params: ['Please select a reason'] }],
+  });
 
-  const handleSubmitClick: React.FormEventHandler = ev => {
-    if (runReportValidators().errorExists) return;
-    props.onReport('some_reason', reportText);
+  const {
+    inputValue: explanation,
+    handleChange: handleChangeExplanation,
+    validationErrors: explanationValidationErrors,
+    runValidators: runExplanationReportValidators,
+    clearInput: clearExplanation,
+  } = useInput({
+    init: '',
+    validators: [
+      { fn: isRequired, params: ['Please give a brief explanation'] },
+      { fn: maxLength, params: [200] },
+    ],
+  });
+
+  const handleSubmitClick: React.FormEventHandler = function (ev) {
+    const vResults = [runReasonValidators(), runExplanationReportValidators()];
+    if (vResults.some(r => r.errorExists)) return;
+
+    props.onReport(reason, explanation);
     props.close();
   };
+
+  useEffect(() => {
+    if (!props.show) {
+      clearExplanation();
+      clearReasonText();
+    }
+  }, [props.show]);
 
   return (
     <Modal show={Boolean(props.show)} centered scrollable onHide={props.close}>
       <Modal.Header closeButton>
         <h4 className="text-center w-100 fs-2 mt-3">Report a problem</h4>
       </Modal.Header>
-      <Modal.Body className="py-3 px-5">
+      <Modal.Body className="py-5 px-5">
         <p className="parag">
           Please let us know why you think the content you&apos;re reporting violates our
           guidelines. Use the below forms to report any questionable or inappropriate reviews.
         </p>
         <strong className="mb-3 d-block">Why do you want to report this review?</strong>
-        <ul>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" />
-            Review contains false information
-          </li>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" /> Review violates guidelines
-          </li>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" /> Contains threats, lewdness, or hate speach
-          </li>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" /> Review posted to wrong location
-          </li>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" /> Review is spam
-          </li>
-          <li className="d-flex align-items-center gap-3">
-            <input type="radio" name="" id="" /> I want to report something else
-          </li>
-        </ul>
-        <strong className="my-4 d-block">Please provide specific details below:</strong>
 
+        <RadioOptions
+          as="circle"
+          options={[
+            'Review contains false information',
+            'Review violates guidelines',
+            'Contains threats, lewdness, or hate speach',
+            'Review posted to wrong location',
+            'Review is spam',
+            'I want to report something else',
+          ]}
+          onChange={handleChangeReason}
+          value={reason}
+          name="report_reason"
+          layout="block"
+          validationError={reasonValidationErrors[0]?.msg}
+        />
+
+        <strong className="my-4 d-block">Please provide specific details below:</strong>
         <TextInput
           as="textarea"
-          value={reportText}
-          onChange={handleChangeReport}
-          validationErrors={reportValidators}
+          value={explanation}
+          onChange={handleChangeExplanation}
+          validationErrors={explanationValidationErrors}
           className="textfield"
         />
 
@@ -75,7 +98,7 @@ const ReportQA = function (props: ReportQAProps) {
             className="btn btn-bg-none-no-bg-hover"
             onClick={() => {
               props.close();
-              clearReportText();
+              clearExplanation();
             }}
           >
             Cancel

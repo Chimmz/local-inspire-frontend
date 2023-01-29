@@ -36,7 +36,7 @@ const StarRating = (props: StarRatingProps) => {
         onClick={rating => props.onRate?.(rating)}
         initialValue={props.initialValue || 0}
         readonly={props.readonly}
-        allowFraction
+        // allowFraction
         // onPointerEnter={console.log}
         // onPointerLeave={console.log}
         // onPointerMove={console.log}

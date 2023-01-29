@@ -25,28 +25,28 @@ import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
 import { Form, Modal } from 'react-bootstrap';
-import Radio from '../shared/radio/Radio';
+import RadioOptions from '../shared/radio/RadioOptions';
 import TextInput from '../shared/text-input/TextInput';
 import StarRating from '../shared/star-rating/StarRating';
 import FeatureRating from '../shared/feature-rating/FeatureRating';
 import PhotoUploadsWithDescription from '../shared/photo-uploads-with-description/PhotoUploadsWithDescription';
 import PageSuccess from '../shared/success/PageSuccess';
 import styles from './NewReviewForm.module.scss';
+import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
 
 interface Props {
   userReview: ReviewProps | null;
+  userRecommends: boolean;
   readonly: boolean;
   businessName: string;
-  location: string;
   businessId: string;
-  userRecommends: boolean;
   submitting: boolean;
   sendReviewRequest(req: any): Promise<any>;
+  slug: string;
 }
 
 function NewReviewForm(props: Props) {
-  const { businessId } = props;
-
+  const { businessId, businessName } = props;
   const [submitted, setSubmitted] = useState(false);
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
   const [mainRating, setMainRating] = useState(0);
@@ -54,12 +54,10 @@ function NewReviewForm(props: Props) {
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
     featuresToRate.map(f => (typeof f === 'string' ? f : f.label)),
   );
-  const businessNameTitle = toTitleCase(props.businessName.split('-').join(' '));
   const past12Months = useMemo(getPast12MonthsWithYear.bind(null), []);
 
   const router = useRouter();
-
-  const { accessToken } = useSignedInUser({ onSignOut: navigateTo.bind(null, '/', router) });
+  const { withAuth } = useMiddleware();
 
   const {
     inputValue: reviewTitle,
@@ -101,10 +99,10 @@ function NewReviewForm(props: Props) {
       ? [props.userReview?.visitedWhen.month, props.userReview?.visitedWhen.year].join(' ')
       : 'Please select',
     validators: [
-      { fn: isRequired, params: [`Please specify when you visited ${businessNameTitle}`] },
+      { fn: isRequired, params: [`Please specify when you visited ${businessName}`] },
       {
         fn: mustNotBeSameAs,
-        params: ['Please select', `Please specify when you visited ${businessNameTitle}`],
+        params: ['Please select', `Please specify when you visited ${businessName}`],
       },
     ],
   });
@@ -166,8 +164,7 @@ function NewReviewForm(props: Props) {
     return true;
   };
 
-  const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = async ev => {
-    ev.preventDefault();
+  const submitReview: AuthMiddlewareNext = async (token?: string) => {
     if (props.readonly) return;
     if (!validateFields()) return;
 
@@ -187,16 +184,11 @@ function NewReviewForm(props: Props) {
     formData.append('photoDescriptions', JSON.stringify(photoDescriptions));
 
     const res = await props.sendReviewRequest(
-      api.reviewBusiness({ businessId, token: accessToken!, formData }),
+      api.reviewBusiness({ businessId, token: token!, formData }),
     );
     console.log(res);
-
     if (res?.status === 'SUCCESS') setSubmitted(true);
   };
-
-  const validUploadsCount = useMemo(() => {
-    return uploads.reduce((accum, upl) => (!!upl.description!.length ? accum + 1 : accum), 0);
-  }, [uploads]);
 
   return (
     <>
@@ -204,19 +196,11 @@ function NewReviewForm(props: Props) {
         <Modal.Body>
           <PageSuccess
             title="Thank you."
-            description={`Your review on ${businessNameTitle} has been added successfully.`}
+            description={`Your review on ${businessName} has been added successfully.`}
             className="mb-5 pt-2"
           />
           <div className="success-actions d-flex flex-column mx-auto gap-3 px-4 pb-4">
-            <Link
-              href={urlUtils.genBusinessPageUrl({
-                businessId: props.businessId,
-                businessName: props.businessName,
-                city: props.location.split('-')[0],
-                stateCode: props.location.split('-')[1],
-              })}
-              passHref
-            >
+            <Link href={urlUtils.genBusinessPageUrl<string>({ slug: props.slug })} passHref>
               <a className="btn btn--lg btn-pry">Continue</a>
             </Link>
             <button className="btn btn--lg btn-gray">Share on Facebook</button>
@@ -225,7 +209,13 @@ function NewReviewForm(props: Props) {
         </Modal.Body>
       </Modal>
 
-      <form className={styles.form} onSubmit={handleFormSubmit}>
+      <form
+        className={styles.form}
+        onSubmit={ev => {
+          ev.preventDefault();
+          withAuth(submitReview);
+        }}
+      >
         <div className="que-group d-flex align-items-center gap-5 mb-0 position-relative">
           <label htmlFor="" className="">
             Leave a rating
@@ -269,7 +259,7 @@ function NewReviewForm(props: Props) {
 
         <div className="que-group">
           <label>What sort of visit was this?</label>
-          <Radio
+          <RadioOptions
             options={['Solo', 'Couples', 'Family', 'Friends', 'Business']}
             as="btn"
             name="visitType"
@@ -341,11 +331,7 @@ function NewReviewForm(props: Props) {
             >
               <Icon icon="fluent-mdl2:photo-2-add" width={20} /> Add photo
             </button>
-            {/* <small
-              style={{ color: '#039903', display: validUploadsCount ? 'block' : 'none' }}
-            >
-              ({validUploadsCount} photos uploaded)
-            </small> */}
+
             <div className={cls(styles.uploadsPreview, 'd-flex', 'gap-2')}>
               {uploads.map(({ img, id, description }) => (
                 <div className={cls(styles.imgPreview, 'position-relative')} key={id}>

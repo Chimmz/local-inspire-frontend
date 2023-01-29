@@ -26,7 +26,7 @@ type Props = ReviewProps & {
   show: boolean;
   businessName: string;
   showReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
-  showReportModal: (reviewId: string) => void;
+  openReportModal: (reviewId: string) => void;
 };
 
 const ReviewItem = function (props: Props) {
@@ -101,8 +101,8 @@ const ReviewItem = function (props: Props) {
       <div className={styles.reviewHeader}>
         <Image
           src={props.reviewedBy.imgUrl}
-          width={50}
-          height={50}
+          width={40}
+          height={40}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
           // onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
@@ -128,7 +128,7 @@ const ReviewItem = function (props: Props) {
           <Dropdown.Menu className="fs-5" style={{ overflowY: 'auto' }}>
             <Dropdown.Item
               eventKey="report"
-              onSelect={props.showReportModal.bind(null, props._id)}
+              onClick={props.openReportModal.bind(null, props._id)}
             >
               Report
             </Dropdown.Item>

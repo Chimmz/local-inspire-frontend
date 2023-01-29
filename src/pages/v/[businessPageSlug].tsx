@@ -285,6 +285,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
 
   // console.log(responses);
 
+  // Filter success responses
   const [business, reviews, questions, tips] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
