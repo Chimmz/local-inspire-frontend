@@ -102,7 +102,17 @@ function Header(props: Props) {
           <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
             <Icon icon="ic:outline-camera-alt" width={35} />
             <h4 className="text-center">Enhance this page - Upload photos</h4>
-            <button className="btn btn-pry">Add photos</button>
+            {/* <button className="btn btn-pry">Add photos</button> */}
+
+            <Link
+              href={genAddPhotosPageUrl(props.business?._id!, props.business?.businessName!)}
+              passHref
+            >
+              <a href="" className="btn btn-pry" style={{ color: '#6a6a6a' }}>
+                <Icon icon="material-symbols:photo-camera" width={19} />
+                Add photo
+              </a>
+            </Link>
           </div>
         ) : (
           <div className={cls(styles.headerImages, 'flex-grow-1')}>
