@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction, useCallback } from 'react';
 import Image from 'next/image';
 import { UserPublicProfile } from '../../../types';
 
@@ -15,6 +15,7 @@ import styles from './QuestionsSection.module.scss';
 import { QuestionItemProps } from './QuestionItem';
 import useDate from '../../../hooks/useDate';
 import * as qtyUtils from '../../../utils/quantity-utils';
+import AppDropdown from '../../shared/dropdown/AppDropdown';
 
 export interface AnswerProps {
   readonly _id: string;
@@ -30,21 +31,23 @@ export interface AnswerProps {
 type Props = AnswerProps & {
   questionId: string;
   setQuestion: Dispatch<SetStateAction<QuestionItemProps>>;
+  openReportAnswerModal: (id: string) => void;
 };
 
 const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
-  const { send: sendReactionReq, loading: isReactingToAnswer } = useRequest({
-    autoStopLoading: true,
+
+  const [reactions, setReactions] = useState({
+    likes: props.likes,
+    dislikes: props.dislikes,
   });
   const { date: answeredDate } = useDate(props.createdAt, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
-  const [reactions, setReactions] = useState({
-    likes: props.likes,
-    dislikes: props.dislikes,
+  const { send: sendReactionReq, loading: isReactingToAnswer } = useRequest({
+    autoStopLoading: true,
   });
   const { withAuth } = useMiddleware();
 
@@ -66,6 +69,14 @@ const Answer: React.FC<Props> = function (props) {
 
     data?.status === 'SUCCESS' && setReactions(data as typeof reactions);
   };
+
+  const handleSelectDropdownAction = useCallback((evKey: string) => {
+    switch (evKey as 'report') {
+      case 'report':
+        props.openReportAnswerModal(props._id);
+        break;
+    }
+  }, []);
 
   return (
     <div className={styles.answer}>
@@ -92,26 +103,36 @@ const Answer: React.FC<Props> = function (props) {
         <small
           className={cls(
             styles.responderInfo,
-            'd-flex gap-4 align-items-center flex-wrap text-light',
+            'd-flex gap-2 align-items-center flex-wrap text-light',
           )}
+          style={{ rowGap: '5px' }}
         >
-          {props.answeredBy.role === 'BUSINESS_OWNER' ? (
+          <small>
+            {props.answeredBy.role === 'BUSINESS_OWNER'
+              ? 'Business Representative'
+              : 'Reviewed Business'}
+          </small>
+          {reactions.likes.length ? (
             <>
-              <small>Business Representative</small>•
+              •
+              <small>
+                {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
+              </small>
             </>
           ) : null}
-
-          <small>
-            {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
-          </small>
-
           {props.mostHelpful ? (
-            <span className="d-flex align-items-center gap-2">
-              <Icon icon="ant-design:like-filled" width={15} />
-              <small className="t-2 d-block"> Most helpful answer</small>
-            </span>
+            <strong className="d-flex align-items-center gap-2">
+              • <small className="t-2 d-block">Most helpful answer</small>
+            </strong>
           ) : null}
         </small>
+
+        <AppDropdown
+          items={['Report']}
+          onSelect={handleSelectDropdownAction}
+          toggler={<Icon icon="material-symbols:more-vert" width={20} />}
+          className={styles.options}
+        />
       </div>
 
       <small className="parag mb-4 d-block text-black">{props.answerText}</small>

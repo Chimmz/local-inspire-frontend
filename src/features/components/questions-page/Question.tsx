@@ -102,12 +102,7 @@ function Question(props: Props) {
 
   return (
     <li>
-      <Accordion
-        className={cls(
-          // styles.question,
-          'd-flex align-items-start gap-5 flex-wrap',
-        )}
-      >
+      <Accordion className={cls('d-flex align-items-start gap-5 flex-wrap')}>
         <div className="flex-grow-1" style={{ flexBasis: '82%' }}>
           <p className="parag text-dark fs-4 mb-0">{props.questionText}</p>
           <small className="fs-5 text-light">

@@ -24,9 +24,7 @@ function HomePage({ popularCategorySuggestions }: HomePageProps) {
     <AuthContextProvider>
       <Layout>
         <Navbar bg="transparent" position="absolute" lightLogo withSearchForm={false} />
-        <Header
-          defaultCategorySuggestions={useMemo(() => popularCategorySuggestions, [])}
-        />
+        <Header defaultCategorySuggestions={useMemo(() => popularCategorySuggestions, [])} />
         <Gallery />
         <BestPlaces />
       </Layout>

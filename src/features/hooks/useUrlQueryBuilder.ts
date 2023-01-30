@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface QueryProperties {
   match: { [key: string]: (string | number)[] };
@@ -16,12 +16,15 @@ const useUrlQueryBuilder = function <T extends string>(params: Params) {
   const [queryStr, setQueryStr] = useState('');
   const [filterNames, setFilterNames] = useState<string[]>([]);
 
-  const addNewFilterName = (filter: T) => {
-    setFilterNames(filters => [filter, ...filters]);
-  };
-  const removeFilterName = (filter: T) => {
-    setFilterNames(filters => filters.filter(f => f !== filter));
-  };
+  const addNewFilterName = useCallback(
+    (filter: T) => setFilterNames(filters => [filter, ...filters]),
+    [setFilterNames],
+  );
+
+  const removeFilterName = useCallback(
+    (filter: T) => setFilterNames(filters => filters.filter(f => f !== filter)),
+    [setFilterNames],
+  );
 
   const triggerBuildQuery = () => {
     const queryProperties: QueryProperties = { match: {}, sort: [], page: 0 };
@@ -57,7 +60,7 @@ const useUrlQueryBuilder = function <T extends string>(params: Params) {
     }
     console.log(queryStr.slice(0, -1));
     setQueryStr(queryStr.slice(0, -1));
-    params.onBuild?.(queryStr);
+    if (queryStr.length) params.onBuild?.(queryStr);
   };
 
   useEffect(() => {

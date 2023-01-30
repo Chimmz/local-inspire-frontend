@@ -21,6 +21,7 @@ function useDeviceFileUpload(props: UploadProps) {
 
   const handleChangeInput: React.ChangeEventHandler<HTMLInputElement> = ev => {
     const file = ev.target.files![0];
+    if (!file) return;
     // const imgUrls = Array.from(files).map(URL.createObjectURL).join(' ');
 
     setUploadedFile({

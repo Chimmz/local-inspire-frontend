@@ -86,128 +86,127 @@ function Navbar(props: NavbarProps) {
 
   return (
     <nav
-      className={cls(sticky && styles.sticky)}
+      className={cls(sticky && styles.sticky, styles.nav, props.styleName)}
       style={{ backgroundColor: bg, position: position || 'relative' }}
     >
-      <div className={cls('container', styles.nav, props.styleName)}>
-        <Link href="/">
-          <div className={styles['nav-logo']}>
-            <Image
-              src={`/img/localinspire-logo${lightLogo ? '-white' : ''}.${
-                lightLogo ? 'png' : 'jpeg'
-              }`}
-              // src="/img/localinspire-logo.jpeg"
-              alt="Local Inspire Logo"
-              width={170}
-              height={32}
-            />
-          </div>
-        </Link>
-
-        {/* {children} */}
-        {withSearchForm ? (
-          <BusinessSearchForm
-            promptUserInput={false}
-            fontSize="13px"
-            defaultCategorySuggestions={[
-              'Hotels and motels',
-              'Restaurants',
-              'Cabins Rentals',
-              'Vacation Rentals',
-              'Things to do',
-              'Cruises',
-            ]}
-            onSearch={onSearchHandler}
-            loading={newSearchLoading}
+      {/* <div className={cls('container', styles.nav, props.styleName)}> */}
+      <Link href="/">
+        <div className={styles['nav-logo']}>
+          <Image
+            src={`/img/localinspire-logo${lightLogo ? '-white' : ''}.${
+              lightLogo ? 'png' : 'jpeg'
+            }`}
+            alt="Local Inspire Logo"
+            width={170}
+            height={32}
           />
-        ) : null}
-
-        <div
-          className={cls(styles.search, 'd-flex gap-2')}
-          // style={{ marginLeft: 'auto' }}
-          onClick={setSearchOpen.bind(null, !searchModalOpen)}
-        >
-          <Icon icon="akar-icons:search" color="#e87525" width={20} />
-          <span>Search</span>
         </div>
-        {searchModalOpen ? (
-          <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
-        ) : null}
+      </Link>
 
-        {/* <div className={styles.userIcon}>
+      {/* {children} */}
+      {withSearchForm ? (
+        <BusinessSearchForm
+          promptUserInput={false}
+          fontSize="13px"
+          defaultCategorySuggestions={[
+            'Hotels and motels',
+            'Restaurants',
+            'Cabins Rentals',
+            'Vacation Rentals',
+            'Things to do',
+            'Cruises',
+          ]}
+          onSearch={onSearchHandler}
+          loading={newSearchLoading}
+        />
+      ) : null}
+
+      <div
+        className={cls(styles.search, 'd-flex gap-2')}
+        // style={{ marginLeft: 'auto' }}
+        onClick={setSearchOpen.bind(null, !searchModalOpen)}
+      >
+        <Icon icon="akar-icons:search" color="#e87525" width={20} />
+        <span>Search</span>
+      </div>
+      {searchModalOpen ? (
+        <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
+      ) : null}
+
+      {/* <div className={styles.userIcon}>
         <Icon icon="mdi:user" color="white" width={25} />
       </div> */}
 
-        {authSession ? (
-          <div className={styles.icons}>
-            <NavDropdown
-              className={styles.notifToggler}
-              color="white"
-              title={<Icon icon="ic:baseline-notifications" color="#fff" width={22} />}
-              // align="end"
-            >
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-            </NavDropdown>
+      {authSession ? (
+        <div className={styles.icons}>
+          <NavDropdown
+            className={styles.notifToggler}
+            color="white"
+            title={<Icon icon="ic:baseline-notifications" color="#fff" width={22} />}
+            // align="end"
+          >
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Divider />
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+          </NavDropdown>
 
-            <NavDropdown
-              className={styles.notifToggler}
-              color="white"
-              title={<Icon icon="ic:round-message" color="#fff" width={22} />}
-              // align="end"
-            >
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-            </NavDropdown>
-          </div>
-        ) : null}
-
-        <div className={styles['nav-auth']}>
-          {!authSession ? (
-            <>
-              <button
-                className="btn btn-outline-transp btn--sm"
-                onClick={authData?.showAuthModal?.bind(null, 'login')}
-              >
-                Login
-              </button>
-              <button
-                className="btn btn-sec btn--sm"
-                onClick={authData?.showAuthModal?.bind(null, 'register')}
-              >
-                Join
-              </button>
-            </>
-          ) : null}
-          {authSession ? <SignedInUser /> : null}
+          <NavDropdown
+            className={styles.notifToggler}
+            color="white"
+            title={<Icon icon="ic:round-message" color="#fff" width={22} />}
+            // align="end"
+          >
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+            <NavDropdown.Divider />
+            <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
+            </NavDropdown.Item>
+          </NavDropdown>
         </div>
+      ) : null}
 
-        <div className={styles['nav-breadcrumb']}>
-          <Icon icon="material-symbols:menu" width={15} color="#eee" />
-        </div>
-
-        {authData?.isAuthModalOpen ? (
-          <NewRegistrationContextProvider>
-            <Auth show authType={authData?.authType!} />
-          </NewRegistrationContextProvider>
+      <div className={styles['nav-auth']}>
+        {!authSession ? (
+          <>
+            <button
+              className="btn btn-outline-transp btn--sm"
+              onClick={authData?.showAuthModal?.bind(null, 'login')}
+            >
+              Login
+            </button>
+            <button
+              className="btn btn-sec btn--sm"
+              onClick={authData?.showAuthModal?.bind(null, 'register')}
+            >
+              Join
+            </button>
+          </>
         ) : null}
+        {authSession ? <SignedInUser /> : null}
       </div>
+
+      <div className={styles['nav-breadcrumb']}>
+        <Icon icon="material-symbols:menu" width={15} color="#eee" />
+      </div>
+
+      {authData?.isAuthModalOpen ? (
+        <NewRegistrationContextProvider>
+          <Auth show authType={authData?.authType!} />
+        </NewRegistrationContextProvider>
+      ) : null}
+      {/* </div> */}
     </nav>
   );
 }

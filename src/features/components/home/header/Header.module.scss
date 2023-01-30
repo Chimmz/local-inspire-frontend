@@ -8,6 +8,7 @@
   position: relative;
   $header-padding: max(3rem, 3vw);
   padding-inline: $header-padding;
+  // z-index: 1;
 
   &-content {
     display: flex;

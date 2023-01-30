@@ -29,9 +29,11 @@ const PopularQuestions = function (props: Props) {
   const getPopularQuestions = async () => {
     const res = await api.getQuestionsAskedAboutBusiness(props.business._id);
     console.log('Popular: ', res);
-    if (res.status === 'SUCCESS') {
-      setQuestions((res.data as QuestionItemProps[]).slice(5));
-    }
+    if (res.status !== 'SUCCESS') return;
+
+    const items = res.data as QuestionItemProps[];
+    items?.sort((prev, next) => (next.answers.length < prev.answers.length ? -1 : 1));
+    setQuestions(items.slice(5));
   };
 
   useEffect(() => {
@@ -61,10 +63,6 @@ const PopularQuestions = function (props: Props) {
               {formatDate(q.createdAt)}
             </small>
 
-            {/* <Link
-              href={}
-              passHref
-            > */}
             <a
               href={genQuestionDetailsPageUrl({
                 businessName: props.business.businessName,
@@ -78,10 +76,10 @@ const PopularQuestions = function (props: Props) {
             >
               Answer this question
             </a>
-            {/* </Link> */}
           </li>
         ))}
       </ul>
+
       <small className="text-pry cursor-pointer">
         <Link href={questionsPageUrl} passHref>
           <a> View all {questions.length} questions</a>

@@ -3,28 +3,29 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
 // Types
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
-
+// Hooks
 import { useRouter } from 'next/router';
+import useUrlQueryBuilder from '../../features/hooks/useUrlQueryBuilder';
+import useRequest from '../../features/hooks/useRequest';
+import usePaginate from '../../features/hooks/usePaginate';
+// Utils
 import api from '../../features/library/api';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
-
+import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
 import cls from 'classnames';
+// Components
 import { Icon } from '@iconify/react';
 import { Modal, SSRProvider } from 'react-bootstrap';
 import Question from '../../features/components/questions-page/Question';
 import Paginators from '../../features/components/shared/pagination/Paginators';
 import NewQuestionSection from '../../features/components/questions-page/NewQuestionSection';
-import useUrlQueryBuilder from '../../features/hooks/useUrlQueryBuilder';
-import useRequest from '../../features/hooks/useRequest';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import usePaginate from '../../features/hooks/usePaginate';
 import PageSuccess from '../../features/components/shared/success/PageSuccess';
 import PopularQuestion from '../../features/components/questions-page/PopularQuestion';
 import Layout from '../../features/components/layout';
-import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
-import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
 import PopupInfo from '../../features/components/PopupInfo';
 import ReportQA from '../../features/components/ReportQA';
+import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
 
 interface QuestionsPageProps {
   questions: {
@@ -33,12 +34,7 @@ interface QuestionsPageProps {
     data?: QuestionItemProps[] | undefined;
     error?: { msg: string };
   };
-  params: {
-    businessName: string;
-    businessId: string;
-    location: string;
-    slug: string;
-  };
+  params: { businessName: string; businessId: string; location: string; slug: string };
 }
 type FilterName = 'Most Answered' | 'Most Recent' | 'Oldest' | 'Page' | string;
 const questionFilterNames: FilterName[] = ['Most Answered', 'Most Recent', 'Oldest'];
@@ -48,54 +44,52 @@ const QUESTIONS_PER_PAGE = 10;
 const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const { businessId, businessName } = props.params;
   const [questions, setQuestions] = useState<QuestionItemProps[]>(props.questions.data || []);
+  const [questionsCount, setQuestionsCount] = useState<number>(props.questions.total!);
 
   const router = useRouter();
 
-  const { send: sendQuestionFilterReq, loading: isFilteringQuestions } = useRequest({
-    autoStopLoading: true,
-  });
   const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest({
     autoStopLoading: true,
   });
-  const { send: sendPageReq, loading: isPaginating } = useRequest({ autoStopLoading: true });
+  const { send: sendSubmitAnswerReq, loading: submittingNewAnswer } = useRequest({
+    autoStopLoading: true,
+  });
+  const { send: sendFilterReq, loading: isFiltering } = useRequest({ autoStopLoading: true });
 
   const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
     QuestionItemProps[]
   >({ defaultCurrentPage: 1 });
 
-  const { send: sendSubmitAnswerReq, loading: submittingNewAnswer } = useRequest({
-    autoStopLoading: true,
-  });
-
   // Modals
   const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
   const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
-  // const [showReportModal, setShowReportModal] = useState(false);
   const [reportedQueId, setReportedQueId] = useState<null | string>(null);
 
-  console.log({ currentPageData });
+  const filterQuestions = async (queryStr: string, page?: number) => {
+    console.log('onBuild running');
+    const res = await sendFilterReq(
+      api.getQuestionsAskedAboutBusiness(props.params.businessId, queryStr, {
+        page: page || currentPage,
+        limit: QUESTIONS_PER_PAGE,
+      }),
+    );
+
+    if (res.status !== 'SUCCESS') return;
+    setQuestions(res.data);
+    setQuestionsCount(res.total); // If there are new questions in DB, it will reflect in the number of pages
+    console.log('Reponse: ', res);
+  };
 
   const { addNewFilterName, removeFilterName, filterNames, queryStr } =
     useUrlQueryBuilder<FilterName>({
       autoBuild: true,
+      onBuild: filterQuestions,
       filtersConfig: new Map([
         ['Most Answered', { sort: '-answersCount', match: '', page: '' }],
         ['Most Recent', { sort: '-createdAt', match: '', page: '' }],
         ['Oldest', { sort: '+createdAt', match: '', page: '' }],
         ['Page', { sort: '', match: '', page: 0 }],
       ]),
-      onBuild: async (queryStr: string) => {
-        if (!queryStr.length) return;
-        console.log('onBuild running');
-        const res = await sendQuestionFilterReq(
-          api.getQuestionsAskedAboutBusiness(props.params.businessId, queryStr, {
-            page: currentPage,
-            limit: QUESTIONS_PER_PAGE,
-          }),
-        );
-        if (res.status === 'SUCCESS') setQuestions(res.data);
-        console.log('Reponse: ', res);
-      },
     });
 
   useEffect(() => {
@@ -126,16 +120,9 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   };
 
   const handlePageChange = async (newPage: number) => {
-    console.log(newPage);
-    const res = await sendPageReq(
-      api.getQuestionsAskedAboutBusiness(businessId, queryStr, {
-        page: newPage,
-        limit: QUESTIONS_PER_PAGE,
-      }),
-    );
-    if (res.status === 'SUCCESS') {
-      setQuestions(res.data as QuestionItemProps[]);
-    }
+    setCurrentPage(newPage);
+    filterQuestions(queryStr, newPage);
+    window.scrollTo(0, 0);
   };
 
   const handleReportQuestion = (reason: string, explanation: string) => {
@@ -143,15 +130,21 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   };
 
   const pageCount = useMemo(
-    () => Math.ceil(QUESTIONS_PER_PAGE / props.questions.total!),
-    [props.questions.total],
+    () => Math.ceil(questionsCount! / QUESTIONS_PER_PAGE),
+    [questionsCount],
   );
-  console.log({ pageCount });
 
-  const popularQuestions = useMemo(
-    () => props.questions.data?.filter(q => q.answersCount > 0),
-    [props.questions.data],
-  );
+  const recordsShown = useMemo(() => {
+    if (pageCount > currentPage) return QUESTIONS_PER_PAGE * currentPage;
+    return props.questions.total;
+  }, [pageCount, currentPage, questionsCount]);
+
+  const popularQuestions = useMemo(() => {
+    const items = props.questions.data?.filter(q => q.answersCount > 0);
+    items?.sort((prev, next) => (next.answers.length < prev.answers.length ? -1 : 1));
+    return items;
+  }, [props.questions.data]);
+
   const businessUrl = useMemo(
     () => genBusinessPageUrl<string>({ slug: props.params.slug }),
     [],
@@ -159,12 +152,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   return (
     <SSRProvider>
-      <Spinner
-        show={
-          isFilteringQuestions || submittingNewQuestion || isPaginating || submittingNewAnswer
-        }
-        pageWide
-      />
+      <Spinner show={submittingNewQuestion || isFiltering || submittingNewAnswer} pageWide />
       <Modal show={showAnswerSuccessModal}>
         <Modal.Body className="py-5">
           <PageSuccess
@@ -201,7 +189,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
               </p>
               <small className="d-flex gap-3 flex-wrap">
                 <>
-                  {props.questions.total} questions sorted by:
+                  {questionsCount} questions sorted by:
                   {questionFilterNames.map((filter, i) => {
                     return (
                       <span
@@ -238,6 +226,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
               ))}
             </ul>
 
+            {/* Pagination */}
             <section className={styles.pagination}>
               <Paginators
                 currentPage={currentPage}
@@ -245,8 +234,8 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
                 pageCount={pageCount}
               />
               <small>
-                Page 1 of {pageCount}, showing {currentPageData?.length} record(s) out of{' '}
-                {props.questions.total} results
+                Page 1 of {pageCount}, showing {recordsShown} record(s) out of{' '}
+                {questionsCount} results
               </small>
             </section>
 
@@ -269,6 +258,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
           </div>
         </Layout.Main>
 
+        {/* Posting guidelines modal */}
         <PopupInfo
           heading={postingGuidelinesConfig.heading}
           show={showPostingGuidelines}
@@ -277,6 +267,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
           {postingGuidelinesConfig.body(props.questions.data?.[0].business?.businessName!)}
         </PopupInfo>
 
+        {/* Report question modal */}
         <ReportQA
           show={!!reportedQueId}
           close={() => setReportedQueId(null)}
@@ -301,7 +292,6 @@ export const getStaticPaths: GetStaticPaths = async function (context) {
 export const getStaticProps: GetStaticProps = async function (context) {
   try {
     const slug = context.params!.questionsPageSlug as string;
-
     const { businessName, location, businessId } = parseQuestionsPageSlug(slug, {
       titleCase: true,
     });
@@ -309,7 +299,8 @@ export const getStaticProps: GetStaticProps = async function (context) {
     const res = await api.getQuestionsAskedAboutBusiness(businessId);
     console.log({ res });
 
-    if (res.status === 'NOT_FOUND') return { notFound: true }; // If business not found
+    // If business not found
+    if (res.status === 'NOT_FOUND') return { notFound: true };
 
     return {
       props: {

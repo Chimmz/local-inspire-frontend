@@ -16,7 +16,7 @@ export const getPeopleQuantity = (n: number, opts?: GetPeopleQuantityOptions) =>
 };
 
 export const quantitize = (n: number, [singular, plural]: SingularPluralForm) => {
-  switch (n) {
+  switch (+n) {
     case 0:
       return `0 ${plural}`;
     case 1:

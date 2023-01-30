@@ -78,28 +78,14 @@ function ReviewsSection(props: Props) {
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
   const { withAuth } = useMiddleware();
 
-  const {
-    inputValue: reportExplanation,
-    handleChange: handleChangeExplanation,
-    runValidators: runExplanationValidators,
-  } = useInput({
-    init: '',
-    validators: [
-      {
-        fn: minLength,
-        params: [7, 'Please enter at least 7 characters to submit a report '],
-      },
-    ],
-  });
-
-  const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
-    autoStopLoading: true,
-  });
-
   const [reviewLikers, setReviewLikers] = useState<null | {
     likers: UserPublicProfile[];
     reviewerName: string;
   }>(null);
+
+  const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
+    autoStopLoading: true,
+  });
 
   const { currentPage } = usePaginate({ init: reviews });
 

@@ -108,7 +108,7 @@ const ReviewItem = function (props: Props) {
           // onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
         <small className="">
-          <span className="text-black">{reviewerName}</span> wrote a review on {reviewDate}
+          <span className="text-black">{reviewerName}.</span> wrote a review on {reviewDate}
         </small>
 
         <small className={styles.location}>
@@ -217,7 +217,6 @@ const ReviewItem = function (props: Props) {
           className="btn bg-none"
           onClick={() => {
             if (!likes.length) return;
-
             props.showReviewLikers(
               likes.map(like => ({ ...like.user })),
               reviewerName!,

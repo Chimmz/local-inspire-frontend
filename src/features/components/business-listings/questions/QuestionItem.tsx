@@ -19,6 +19,8 @@ import AppDropdown from '../../shared/dropdown/AppDropdown';
 import { BusinessProps } from '../../business-results/Business';
 import { genQuestionDetailsPageUrl } from '../../../utils/url-utils';
 import * as qtyUtils from '../../../utils/quantity-utils';
+import useMiddleware from '../../../hooks/useMiddleware';
+import ReportQA from '../../ReportQA';
 
 export interface QuestionItemProps {
   _id: string;
@@ -32,22 +34,26 @@ export interface QuestionItemProps {
 
 type Props = QuestionItemProps & {
   show: boolean;
+  openReportQuestionModal: (qId: string) => void;
   showPostingGuidelines: () => void;
 };
 
-const QuestionItem = (props: Props) => {
+const QuestionItem = function (props: Props) {
   const [question, setQuestion] = useState<QuestionItemProps>(props);
 
+  const { withAuth } = useMiddleware();
   const { date: askedDate } = useDate(question.createdAt, {
     month: 'short',
     day: '2-digit',
     year: 'numeric',
   });
 
+  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
+
   const handleSelectDropdownOption = useCallback((evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        console.log('Reporting...');
+        props.openReportQuestionModal(question._id);
         break;
     }
   }, []);
@@ -68,9 +74,12 @@ const QuestionItem = (props: Props) => {
     return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
   }, [question.answers, mostHelpfulAnswer]);
 
-  if (question._id === '63caa1fcfe667c5d91a7112f') {
-    console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
-  }
+  const openReportAnswerModal = function (qId: string) {
+    withAuth((token?: string) => setAnswerIdReport(qId));
+  };
+  const handleReportAnswer = async function (reason: string, explanation: string) {
+    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
+  };
 
   const questionDetailsUrl = useMemo(
     () =>
@@ -115,6 +124,7 @@ const QuestionItem = (props: Props) => {
           ])}{' '}
         </small>
 
+        {/* Actions dropdown */}
         <AppDropdown
           items={['Report']}
           onSelect={handleSelectDropdownOption}
@@ -123,6 +133,7 @@ const QuestionItem = (props: Props) => {
         />
       </div>
 
+      {/* Question text content */}
       <div className={cls(styles.questionText, 'text-dark text-hover-dark fs-3')}>
         <Link href={questionDetailsUrl} className="link">
           {question.questionText}
@@ -136,9 +147,11 @@ const QuestionItem = (props: Props) => {
           questionId={question._id}
           mostHelpful
           setQuestion={setQuestion}
+          openReportAnswerModal={openReportAnswerModal}
         />
       ) : null}
 
+      {/* If no most helpful answer, show all answers. Else show a collapsible list of less helpfuls */}
       <>
         {!mostHelpfulAnswer ? (
           <ul>
@@ -149,6 +162,7 @@ const QuestionItem = (props: Props) => {
                 key={a._id}
                 mostHelpful={false}
                 setQuestion={setQuestion}
+                openReportAnswerModal={openReportAnswerModal}
               />
             ))}
           </ul>
@@ -167,7 +181,7 @@ const QuestionItem = (props: Props) => {
               </span>
             </CustomAccordionToggle>
 
-            <Accordion.Collapse eventKey="1">
+            <Accordion.Collapse eventKey="1" className="w-100">
               <ul>
                 {lessHelpfulAnswers.map(a => (
                   <Answer
@@ -176,6 +190,7 @@ const QuestionItem = (props: Props) => {
                     key={a._id}
                     mostHelpful={a._id === mostHelpfulAnswer._id}
                     setQuestion={setQuestion}
+                    openReportAnswerModal={openReportAnswerModal}
                   />
                 ))}
               </ul>
@@ -184,11 +199,18 @@ const QuestionItem = (props: Props) => {
         )}
       </>
 
+      {/* Form for logged in user to provide a new answer */}
       <NewAnswerForm
         show
         questionId={props._id}
         setQuestion={setQuestion}
         showPostingGuidelines={props.showPostingGuidelines}
+      />
+
+      <ReportQA
+        show={!!answerIdReport}
+        close={() => setAnswerIdReport(null)}
+        onReport={handleReportAnswer}
       />
     </section>
   );

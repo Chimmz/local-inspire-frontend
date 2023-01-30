@@ -215,7 +215,7 @@ class API {
 
   async askQuestionAboutBusiness(question: string, businessId: string, token: string) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/ask`,
+      path: `/questions/about/${businessId}`,
       method: 'POST',
       body: JSON.stringify({ question }),
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
@@ -224,7 +224,7 @@ class API {
 
   async addAnswerToBusinessQuestion(questionId: string, answer: string, token: string) {
     return this._makeRequest({
-      path: `/businesses/questions/${questionId}/answer`,
+      path: `/questions/${questionId}/answers`,
       method: 'POST',
       body: JSON.stringify({ answer }),
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
@@ -277,6 +277,16 @@ class API {
     return this._makeRequest({
       path: `/questions/${qId}`.concat(
         opts?.textSearch ? `?textSearch=${opts.textSearch}` : '',
+      ),
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async getAnswersToQuestion(qId: string, opts?: { page: number; limit: number }) {
+    return this._makeRequest({
+      path: `/questions/${qId}/answers`.concat(
+        opts ? `?page=${opts.page}&limit=${opts.limit}` : '',
       ),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

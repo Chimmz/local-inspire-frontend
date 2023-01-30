@@ -1,4 +1,4 @@
-import React, { FormEventHandler } from 'react';
+import React, { FormEventHandler, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,7 +9,6 @@ import { newQuestionValidatorsConfig } from '../business-listings/questions/conf
 import TextInput from '../shared/text-input/TextInput';
 import LabelledCheckbox from '../shared/LabelledCheckbox';
 import LoadingButton from '../shared/button/Button';
-import styles from './styles.module.scss';
 import useRequest from '../../hooks/useRequest';
 import api from '../../library/api';
 import useSignedInUser from '../../hooks/useSignedInUser';
@@ -18,12 +17,15 @@ import { QuestionItemProps } from '../business-listings/questions/QuestionItem';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 interface Props {
+  className?: string;
   businessName: string;
   businessId: string;
-  sendSubmitReq: (req: Promise<any>) => Promise<any>;
+  withUserPhoto?: boolean;
   submitting: boolean;
-  pushQuestion: (q: QuestionItemProps) => void;
+  sendSubmitReq: (req: Promise<any>) => Promise<any>;
+  pushQuestion?: (q: QuestionItemProps) => void;
   openGuidelinesModal: () => void;
+  openSuccessModal?: () => void;
 }
 
 function NewQuestionSection(props: Props) {
@@ -43,35 +45,40 @@ function NewQuestionSection(props: Props) {
       api.askQuestionAboutBusiness(newQuestion, props.businessId, token!),
     );
     console.log('New question resp: ', res);
-    if (res.status === 'SUCCESS') {
-      props.pushQuestion(res.question as QuestionItemProps);
-      window.scrollTo(0, 0);
-    }
+    if (res.status !== 'SUCCESS') return;
+
+    props.openSuccessModal?.();
+    clearNewQuestionText();
+
+    if (!props.pushQuestion) return;
+    props.pushQuestion(res.question as QuestionItemProps);
+    window.scrollTo(0, 0);
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (runNewQuestionValidators().errorExists) return;
     withAuth(submitQuestion);
-    clearNewQuestionText();
   };
 
   return (
-    <form className={cls(styles.newQuestionForm)} onSubmit={handleSubmit}>
-      <small className="fs-4">
+    <form onSubmit={handleSubmit} id="#new-question">
+      <small className="" style={{ lineHeight: '.1' }}>
         <strong className="mb-3 d-inline-block"> Questions?</strong> Get answers from{' '}
         <strong>{props.businessName}</strong> staff and past visitors.
       </small>
 
       <div className="d-flex align-items-start gap-3">
-        <figure className={styles.defaultImg}>
-          <Image
-            src={isSignedIn ? loggedInUser.imgUrl! : '/img/default-profile-pic.jpeg'}
-            width={35}
-            height={35}
-            style={{ borderRadius: '50%' }}
-          />
-        </figure>
+        {props.withUserPhoto ? (
+          <figure>
+            <Image
+              src={isSignedIn ? loggedInUser.imgUrl! : '/img/default-profile-pic.jpeg'}
+              width={35}
+              height={35}
+              style={{ borderRadius: '50%' }}
+            />
+          </figure>
+        ) : null}
 
         <div className="flex-grow-1">
           <TextInput
@@ -84,7 +91,10 @@ function NewQuestionSection(props: Props) {
         </div>
       </div>
 
-      <small className="mb-3 d-flex align-items-center gap-4" style={{ marginLeft: '45px' }}>
+      <small
+        className="mb-3 d-flex align-items-center gap-4"
+        style={{ marginLeft: props.withUserPhoto ? '45px' : '0' }}
+      >
         Note: your question will be posted publicly on this page{' '}
         <OverlayTrigger
           key="top-placement"

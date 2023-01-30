@@ -20,12 +20,13 @@ export interface TipProps {
 type Props = TipProps & {
   show: boolean;
   slug: string;
+  openAdviceReportModal: (id: string) => void;
 };
 
 const Tip = function (props: Props) {
   const router = useRouter();
 
-  const [src, setSrc] = useState(props.reviewedBy.imgUrl);
+  const [src, setSrc] = useState();
   const { date: reviewDate } = useDate(props.createdAt, {
     month: 'short',
     year: 'numeric',
@@ -35,7 +36,7 @@ const Tip = function (props: Props) {
   const handleSelectDropdownItem = (evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        console.log('Reporting...');
+        props.openAdviceReportModal(props._id);
         break;
     }
   };
@@ -46,10 +47,9 @@ const Tip = function (props: Props) {
       <div className={styles.adviceHeader}>
         <figure>
           <Image
-            src={src}
+            src={props.reviewedBy.imgUrl}
             layout="fill"
             objectFit="cover"
-            onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
             style={{ borderRadius: '50%' }}
           />
         </figure>

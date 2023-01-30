@@ -77,7 +77,7 @@ const BusinessListings: NextPage<Props> = function (props) {
             <Header
               business={props.business.data}
               businessName={props.params.businessName}
-              reviewsCount={props.reviews?.results}
+              reviewsCount={props.reviews?.total}
               reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
               slug={props.params.slug}
             />

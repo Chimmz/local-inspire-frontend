@@ -33,26 +33,44 @@ import { getFullName } from '../../features/utils/user-utils';
 import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
 import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
+import * as qtyUtils from '../../features/utils/quantity-utils';
+import usePaginate from '../../features/hooks/usePaginate';
+import Paginators from '../../features/components/shared/pagination/Paginators';
 
 interface Props {
   question?: QuestionItemProps;
+  answers: { data: AnswerProps[] | undefined; total: number; results: number };
   error?: string;
 }
 
 const NEW_ANSWER_MIN_LENGTH = 5;
 const NEW_ANSWER_MAX_LENGTH = 180;
+const ANSWERS_PER_PAGE = 10;
 
 const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   const [question, setQuestion] = useState<QuestionItemProps | undefined>(props.question);
+
+  const [answers, setAnswers] = useState<AnswerProps[] | undefined>(props.answers.data);
+  const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
+    AnswerProps[]
+  >({ init: { 1: props.answers.data } });
+
+  const [answersTotal, setAnswersTotal] = useState(props.answers.total);
+  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
+
   const { isSignedIn, ...currentUser } = useSignedInUser();
   const { withAuth } = useMiddleware();
   // Modals
-  const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
+  const [showNewQuestionSuccessModal, setShowNewQuestionSuccessModal] = useState(false);
   const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
+  const { send: sendPageReq, loading: isPaginating } = useRequest({ autoStopLoading: true });
+  const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest({
+    autoStopLoading: true,
+  });
   const router = useRouter();
-  console.log({ 'router.query': router.query });
+  console.log('Checking: ', router);
 
   const { formatDate } = useDate(undefined, {
     day: '2-digit',
@@ -89,9 +107,23 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     ],
   });
 
-  useEffect(() => {
-    if (props.question) setQuestion(props.question);
-  }, [props.question]);
+  const handlePageChange = async (newPage: number) => {
+    setCurrentPage(newPage);
+    const res = await sendPageReq(
+      api.getAnswersToQuestion(props.question?._id!, {
+        page: newPage,
+        limit: ANSWERS_PER_PAGE,
+      }),
+    );
+    setAnswers(res.data);
+    setAnswersTotal(res.total);
+    window.scrollTo(0, 0);
+  };
+
+  const pageCount = useMemo(
+    () => Math.ceil(answersTotal! / ANSWERS_PER_PAGE),
+    [answersTotal],
+  );
 
   const handleSelectDropdownOption = (evKey: string) => {
     switch (evKey as 'report') {
@@ -115,25 +147,33 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       api.addAnswerToBusinessQuestion(props.question!._id, newAnswer, token!),
     );
     if (res.status === 'SUCCESS') {
-      setQuestion(res.question);
-      setShowAnswerSuccessModal(true);
+      setAnswers(items => [...items!, res.newAnswer]);
+      setAnswersTotal(n => n + 1);
       clearNewAnswerText();
     }
   };
 
-  const handleReportQuestion = (reason: string, explanation: string) => {
+  const openReportAnswerModal = function (qId: string) {
+    withAuth((token?: string) => setAnswerIdReport(qId));
+  };
+
+  const reportAnswer = async function (reason: string, explanation: string) {
+    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
+  };
+
+  const reportQuestion = (reason: string, explanation: string) => {
     console.log(reason, explanation);
   };
 
   const mostHelpfulAnswer = useMemo(() => {
-    if (!question) return null;
+    if (!question) return undefined;
 
-    let answer: AnswerProps | null = question!.answers.reduce((acc, ans) => {
-      return ans.likes.length > acc.likes.length ? ans : acc;
-    }, question!.answers[0]);
+    let answer: AnswerProps | undefined = answers?.reduce((acc, ans) => {
+      return ans?.likes.length > acc?.likes.length ? ans : acc;
+    }, answers?.[0]);
 
-    return answer?.likes.length ? answer : null;
-  }, [question]);
+    return answer?.likes.length ? answer : undefined;
+  }, [answers]);
 
   console.log({ mostHelpfulAnswer });
 
@@ -143,6 +183,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     city: question!.business!.city,
     stateCode: question!.business!.stateCode,
   };
+
   const businessUrl = useMemo(() => genBusinessPageUrl(externalUrlParams), []);
   const questionsUrl = useMemo(
     () => getBusinessQuestionsUrl({ ...externalUrlParams, promptNewQuestion: true }),
@@ -151,18 +192,18 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
 
   return (
     <SSRProvider>
-      <Spinner show={submittingAnswer} pageWide />
-      <Modal show={showAnswerSuccessModal}>
+      <Spinner show={isPaginating || submittingAnswer} pageWide />
+      <Modal show={showNewQuestionSuccessModal}>
         <Modal.Body className="py-5">
           <PageSuccess
-            title="Answer Submitted."
-            description="Your answer has been submitted successfully."
+            title="Submitted."
+            description="Your question has been posted successfully in the Q&A page."
             className="mb-5"
           />
           <button
             className="btn btn-pry mx-auto text-center"
             style={{ minWidth: '150px' }}
-            onClick={setShowAnswerSuccessModal.bind(null, false)}
+            onClick={setShowNewQuestionSuccessModal.bind(null, false)}
           >
             Close
           </button>
@@ -201,7 +242,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
               />
               <figure>
                 <Image
-                  src={isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
+                  src={props.question?.askedBy.imgUrl || '/img/default-profile-pic.jpeg'}
                   width={40}
                   height={40}
                   objectFit="cover"
@@ -223,7 +264,10 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                       {props.question?.askedBy.city} •
                     </>
                   ) : null}
-                  5 contributions
+                  {qtyUtils.quantitize(props.question?.askedBy?.contributions?.length! || 0, [
+                    'contribution',
+                    'contributions',
+                  ])}
                 </small>
               </div>
               <button
@@ -235,22 +279,32 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             </header>
 
             {/* <h3>2 Answers sorted by most helpful</h3> */}
-            <h3>{question?.answersCount} Answers</h3>
+            <h3>{answersTotal} Answers</h3>
 
             <ul className={cls(styles.answersList, 'no-bullets mb-5')}>
-              {question?.answers.map(a => (
+              {answers?.map(a => (
                 <Answer
                   {...a}
                   setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
-                  questionId={question._id}
+                  questionId={props.question?._id!}
                   mostHelpful={a._id === mostHelpfulAnswer?._id}
+                  openReportAnswerModal={openReportAnswerModal}
                   key={a._id}
                 />
               ))}
             </ul>
 
+            {/* Pagination */}
+            <section className={(styles.pagination, 'mb-5')}>
+              <Paginators
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                pageCount={pageCount}
+              />
+            </section>
+
             <form
-              className={cls(styles.newAnswer, 'newAnswerForm')}
+              className={cls(styles.newAnswer, 'newAnswerForm', 'mb-5')}
               id="new-answer"
               onSubmit={ev => {
                 ev.preventDefault();
@@ -290,13 +344,12 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                 >
                   Post your answer
                 </LoadingButton>
-                <button
-                  className="btn btn-bg-none no-bg-hover"
-                  type="button"
+                <small
+                  className="cursor-pointer text-pry"
                   onClick={setShowPostingGuidelines.bind(null, true)}
                 >
                   Posting guidelines
-                </button>
+                </small>
               </div>
             </form>
 
@@ -304,10 +357,18 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
               <Link href={questionsUrl} passHref>
                 <a className="btn btn-sec ms-auto mb-5 w-max-content">See all questions</a>
               </Link>
+              <NewQuestionSection
+                businessId={props.question?.business?._id!}
+                businessName={props.question?.business?.businessName!}
+                sendSubmitReq={sendSubmitQuestionReq}
+                submitting={submittingNewQuestion!}
+                openGuidelinesModal={setShowPostingGuidelines.bind(null, true)}
+                className="mb-5"
+                withUserPhoto={false}
+                openSuccessModal={setShowNewQuestionSuccessModal.bind(null, true)}
+              />
               <section className={styles.popularQuestions}>
-                <h3 className="mb-5">
-                  Popular questions for {question?.business?.businessName}
-                </h3>
+                <h3 className="">Popular questions for {question?.business?.businessName}</h3>
                 <PopularQuestions
                   business={props.question!.business!}
                   className={cls(styles.popularList, 'no-bullets')}
@@ -317,6 +378,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
           </div>
         </Layout.Main>
 
+        {/* Guidelines modal */}
         <PopupInfo
           heading={postingGuidelinesConfig.heading}
           show={showPostingGuidelines}
@@ -325,11 +387,19 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
           {postingGuidelinesConfig.body(props.question?.business?.businessName!)}
         </PopupInfo>
 
+        {/* Report question modal */}
         <ReportQA
           show={showReportModal}
           close={setShowReportModal.bind(null, false)}
-          onReport={handleReportQuestion}
-        ></ReportQA>
+          onReport={reportQuestion}
+        />
+
+        {/* Report answer modal */}
+        <ReportQA
+          show={!!answerIdReport}
+          close={() => setAnswerIdReport(null)}
+          onReport={reportAnswer}
+        />
       </Layout>
     </SSRProvider>
   );
@@ -346,15 +416,19 @@ export const getStaticProps: GetStaticProps = async function (context) {
   if (!businessName || !location || !questionText || !questionId) return { notFound: true };
   console.log({ businessName, location, questionText, questionId });
 
-  const res = await api.getQuestion(questionId, {
-    textSearch: questionText.split('-').join(' ').split('?').join(' ').trim().toLowerCase(),
-  });
+  const responses = await Promise.all([
+    api.getQuestion(questionId, {
+      textSearch: questionText.split('-').join(' ').split('?').join(' ').trim().toLowerCase(),
+    }),
+    api.getAnswersToQuestion(questionId, { page: 1, limit: 10 }),
+  ]);
 
-  if (res.status === 'NOT_FOUND') return { notFound: true };
+  if (responses[0].status === 'NOT_FOUND') return { notFound: true };
 
   return {
     props: {
-      question: res.question,
+      question: responses[0].question,
+      answers: responses[1],
       // params: { questionText: questionText.split('-').join(' ') },
     },
   };

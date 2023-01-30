@@ -32,6 +32,7 @@ import { useRouter } from 'next/router';
 import Paginators from '../../shared/pagination/Paginators';
 import usePaginate from '../../../hooks/usePaginate';
 import * as domUtils from '../../../utils';
+import ReportQA from '../../ReportQA';
 
 interface Props {
   show: boolean;
@@ -58,6 +59,8 @@ const QuestionsSection = function (props: Props) {
     autoStopLoading: true,
   });
 
+  const [questionIdReport, setQuestionIdReport] = useState<string | null>(null);
+
   const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
   const btnCloseAccordionRef = useRef<HTMLButtonElement | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -74,28 +77,8 @@ const QuestionsSection = function (props: Props) {
   const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
     usePaginate<QuestionItemProps[]>({ init: { 1: props.questions } });
 
-  const postNewQuestion: MiddlewareNext = async (token?: string) => {
-    const data = await sendSubmitQuestionReq(
-      api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
-    );
-    console.log({ data });
-
-    if (data?.status) {
-      setQuestions(items => [data.question, ...(items || [])]);
-      clearNewQuestionText();
-      btnCloseAccordionRef.current!.click();
-    }
-  };
-
-  const handleSubmitNewQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
-    ev.preventDefault();
-    if (runNewQuestionValidators().errorExists) return;
-    withAuth(postNewQuestion);
-  };
-
   const handlePageChange = async function (newPage: number) {
     console.log({ newPage });
-
     // Check if data for this page has previously been fetched
     if (getPageData(newPage)?.length) {
       setCurrentPage(newPage);
@@ -112,10 +95,36 @@ const QuestionsSection = function (props: Props) {
     if (res.status === 'SUCCESS') {
       setPageData(newPage, res.data); // Populate the new page
       setCurrentPage(newPage); // Make the populated page be the current page
-
       domUtils.scrollToElement(sectionRef.current!); // Scroll to the section top
       if (res.total !== questionsCount) setQuestionsCount(res.total); // In case total has changed
     }
+  };
+
+  const postNewQuestion: MiddlewareNext = async function (token?: string) {
+    const data = await sendSubmitQuestionReq(
+      api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
+    );
+    console.log({ data });
+    if (data?.status) {
+      setQuestions(items => [data.question, ...(items || [])]);
+      clearNewQuestionText();
+      btnCloseAccordionRef.current!.click();
+    }
+  };
+
+  const handleSubmitNewQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
+    ev.preventDefault();
+    if (runNewQuestionValidators().errorExists) return;
+    withAuth(postNewQuestion);
+  };
+
+  const openReportQuestionModal = function (qId: string) {
+    withAuth((token?: string) => setQuestionIdReport(qId));
+  };
+  const handleReportQuestion = async function (reason: string, explanation: string) {
+    console.log(
+      `Reported ${questionIdReport} because ${reason}. More details: ${explanation}`,
+    );
   };
 
   const totalPages = useMemo(() => {
@@ -226,6 +235,7 @@ const QuestionsSection = function (props: Props) {
           show={props.show && !!questions?.length}
           key={que._id}
           business={props.business}
+          openReportQuestionModal={openReportQuestionModal}
           showPostingGuidelines={setShowPostingGuidelines.bind(null, true)}
         />
       ))}
@@ -247,6 +257,7 @@ const QuestionsSection = function (props: Props) {
         </div>
       )}
 
+      {/* Pagination */}
       {currentPageData?.length ? (
         <div
           className={cls('align-items-center justify-content-between', showWith('d-flex'))}
@@ -266,6 +277,14 @@ const QuestionsSection = function (props: Props) {
         </div>
       ) : null}
 
+      {/* The Report question modal */}
+      <ReportQA
+        onReport={handleReportQuestion}
+        close={() => setQuestionIdReport(null)}
+        show={!!questionIdReport}
+      />
+
+      {/* Guidelines on writing a new answer */}
       <GuidelinesPopup
         show={showPostingGuidelines}
         close={setShowPostingGuidelines.bind(null, false)}

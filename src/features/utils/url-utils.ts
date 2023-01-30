@@ -116,9 +116,7 @@ export const getBusinessQuestionsUrl = function <T>(
   args: BusinessPageUrlParams<T> & { promptNewQuestion?: boolean },
 ) {
   if ('slug' in args)
-    return `/questions/${args.slug}`.concat(
-      args.promptNewQuestion ? '?promptNewQuestion=true' : '',
-    );
+    return `/questions/${args.slug}`.concat(args.promptNewQuestion ? '#new-question' : '');
   const {
     businessName: name,
     city,
@@ -126,13 +124,12 @@ export const getBusinessQuestionsUrl = function <T>(
     businessId: id,
   } = transformBusinessUrlParams(args);
   return `/questions/${name}_${city}-${stateCode}_${id}`.concat(
-    args.promptNewQuestion ? '?promptNewQuestion=true' : '',
+    args.promptNewQuestion ? '#new-question' : '',
   );
 };
 
 export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) => {
   let url: string;
-  console.log('genQuestionDetailsPageUrl params: ', params);
 
   if ('slug' in params) url = `/question/${params.slug}`;
   else {
@@ -148,7 +145,7 @@ export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) 
     url = `/question/${businessName}_${location}_${qText}_${qId}`;
   }
 
-  if (params.scrollToAnswerForm) return url.concat('?promptAnswer=true');
+  if (params.scrollToAnswerForm) return url.concat('#new-answer');
   return url;
 };
 

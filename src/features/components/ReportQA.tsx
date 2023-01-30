@@ -55,7 +55,7 @@ const ReportQA = function (props: ReportQAProps) {
   return (
     <Modal show={Boolean(props.show)} centered scrollable onHide={props.close}>
       <Modal.Header closeButton>
-        <h4 className="text-center w-100 fs-2 mt-3">Report a problem</h4>
+        <h4 className="fs-2 ps-4 mt-3">Report a problem</h4>
       </Modal.Header>
       <Modal.Body className="py-5 px-5">
         <p className="parag">

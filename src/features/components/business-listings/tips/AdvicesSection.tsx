@@ -24,6 +24,8 @@ import NoReviewsYet from '../reviews/NoReviewsYet';
 import api from '../../../library/api';
 import { BusinessProps } from '../../business-results/Business';
 import * as domUtils from '../../../utils';
+import useMiddleware from '../../../hooks/useMiddleware';
+import ReportQA from '../../ReportQA';
 
 interface AdvicesSectionProps {
   show: boolean;
@@ -43,6 +45,8 @@ const MAX_ITEMS = MAX_PAGES * TIPS_PER_PAGE; // 15
 const AdvicesSection = function (props: AdvicesSectionProps) {
   const [tipsTotal, setTipsTotal] = useState(props.tipsTotal);
   const tipsSectionRef = useRef<HTMLElement | null>(null);
+  const { withAuth } = useMiddleware();
+  const [adviceIdReport, setAdviceIdReport] = useState<string | null>(null);
 
   const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
     usePaginate<TipProps[]>({ init: { 1: props.tips! } });
@@ -67,6 +71,13 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
 
     // In case there are new tips in DB, let it reflect as a change in the number of pages
     if (tipsTotal !== res.total) setTipsTotal(res.total);
+  };
+
+  const openAdviceReportModal = function (tId: string) {
+    withAuth((token?: string) => setAdviceIdReport(tId));
+  };
+  const handleReportAdvice = async function (reason: string, explanation: string) {
+    console.log(`Reported ${adviceIdReport} because ${reason}. More details: ${explanation}`);
   };
 
   const totalPages = useMemo(() => {
@@ -107,6 +118,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
           show={props.show && !!props.tips?.length}
           key={tip._id}
           slug={props.slug}
+          openAdviceReportModal={openAdviceReportModal}
         />
       ))}
 
@@ -125,6 +137,12 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       <NoReviewsYet
         businessName={props.businessName}
         show={props.show && !props.tips?.length}
+      />
+
+      <ReportQA
+        show={!!adviceIdReport}
+        close={setAdviceIdReport.bind(null, null)}
+        onReport={handleReportAdvice}
       />
     </>
   );
