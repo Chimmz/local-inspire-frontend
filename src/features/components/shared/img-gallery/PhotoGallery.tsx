@@ -7,9 +7,11 @@ import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
 import styles from './PhotoGallery.module.scss';
 import Image from 'next/image';
 
-// const commonItemProperties = (args: ReactImageGalleryItem) => ({
-
-// })
+const commonItemProperties = {
+  thumbnailClass: styles.thumbnail,
+  thumbnailHeight: 100,
+  thumbnailWidth: 100,
+};
 const images: ReactImageGalleryItem[] = [
   {
     original:
@@ -29,10 +31,7 @@ const images: ReactImageGalleryItem[] = [
         </figure>
       );
     },
-    thumbnailClass: styles.thumbnail,
-    thumbnailHeight: 100,
-    thumbnailWidth: 100,
-    // re,
+    ...commonItemProperties,
   },
   {
     original:
@@ -41,21 +40,11 @@ const images: ReactImageGalleryItem[] = [
       'https://res.cloudinary.com/dpvothk2d/image/upload/v1674966681/businesses/xmpftfp9jxedut7cixvz.jpg',
     renderItem: function (args) {
       return (
-        <figure className={styles.imgFigure}>
-          <Image
-            src={args.original}
-            layout="fill"
-            // width={500}
-            // height={500}
-            objectFit="cover"
-          />
-        </figure>
+        // <figure className={styles.imgFigure}>
+        <Image src={args.original} layout="fill" width={500} height={500} objectFit="cover" />
       );
     },
-    thumbnailClass: styles.thumbnail,
-    thumbnailHeight: 100,
-    thumbnailWidth: 100,
-    // re,
+    ...commonItemProperties,
   },
   {
     original:
@@ -75,10 +64,7 @@ const images: ReactImageGalleryItem[] = [
         </figure>
       );
     },
-    thumbnailClass: styles.thumbnail,
-    thumbnailHeight: 100,
-    thumbnailWidth: 100,
-    // re,
+    ...commonItemProperties,
   },
 ];
 
@@ -89,9 +75,12 @@ const PhotoGallery = function () {
       <Modal.Body className={cls(styles.modalBody, 'p-0')}>
         <ImageGallery
           items={images}
-          renderThumbInner={args => <Image src={args.original} width="100" height={100} />}
+          // renderThumbInner={args => <Image src={args.original} width="100" height={100} />}
+          // showPlayButton
         />
-        <section className={styles.imgDescription}>Description</section>
+        <section className={styles.imgDescription}>
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Rerum, cupiditate.
+        </section>
         {/* <div className={styles.myGalleryContainer}>
           
         </div> */}

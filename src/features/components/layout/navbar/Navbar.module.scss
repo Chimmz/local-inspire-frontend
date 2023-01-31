@@ -1,18 +1,16 @@
 .nav {
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  // justify-content: center;
+  // justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 3rem;
-  padding: max(1.7rem, 1vw) max(4rem, 4vw);
-  // background-color: #2b2b2b;
+  gap: max(3vw, 2.5rem);
+  padding: max(1.7rem, 1vw) 0; // max(4rem, 4vw)
   font-size: 1rem !important;
   z-index: 10;
 
   @media screen and (max-width: 56.25em) {
     justify-content: space-between !important;
-    padding-inline: 0;
 
     &-logo {
       margin-left: 0 !important;
@@ -20,15 +18,16 @@
     }
   }
 
+  &[class*='container'] {
+    max-width: 100%;
+  }
+
   &.sticky {
     position: sticky;
     width: 100%;
     left: 0;
     top: 0;
-    // justify-content: center !important;
-    // padding-inline: 7vw;
     border-top: 3px solid #333;
-    // gap: 0;
     z-index: 5;
 
     @media screen and (max-width: 56.25em) {
@@ -47,8 +46,7 @@
   &-logo {
     color: #fff;
     cursor: pointer;
-    // margin-left: auto;
-    margin-right: auto !important;
+    // margin-right: auto !important;
     transform: scale(0.7);
     // transform-origin: left;
 
@@ -106,8 +104,8 @@
   & > .icons {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    margin-left: auto;
+    gap: max(1.5vw, 1.5rem);
+    // margin-left: auto;
     margin-right: 1vw;
 
     & > * {
@@ -131,7 +129,7 @@
       }
     }
     @media screen and (max-width: 50em) {
-      margin-inline: auto;
+      // margin-inline: auto;
     }
   }
 
@@ -159,9 +157,9 @@
       }
     }
   }
-  @media screen and (max-width: 37.5em) {
+  @media screen and (max-width: 56.25em) {
     & [class*='BusinessSearchForm'] {
-      display: none;
+      // display: none;
     }
   }
 }
@@ -174,23 +172,6 @@
     color: $color-sec;
   }
 }
-
-// .dropdownToggler > button {
-//   background-color: transparent !important;
-//   display: flex;
-//   align-items: center;
-//   gap: 5px;
-//   font-size: 1.5rem;
-
-//   & img {
-//     display: inline-block;
-//     border-radius: 50%;
-//   }
-
-//   & .userName {
-//     margin-left: 1rem;
-//   }
-// }
 
 .dropdownToggler > a {
   background-color: transparent !important;

@@ -42,7 +42,12 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
           return (
             <li key={categ}>
               <Link href={href} passHref>
-                <a onClick={props.setPageLoading?.bind(null, true)}>{categ}</a>
+                <a
+                  onClick={props.setPageLoading?.bind(null, true)}
+                  className="w-max-content d-block"
+                >
+                  {categ}
+                </a>
               </Link>
             </li>
           );

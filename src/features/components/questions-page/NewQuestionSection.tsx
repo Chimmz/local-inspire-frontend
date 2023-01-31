@@ -62,7 +62,7 @@ function NewQuestionSection(props: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} id="#new-question">
+    <form className={props.className} onSubmit={handleSubmit} id="#new-question">
       <small className="" style={{ lineHeight: '.1' }}>
         <strong className="mb-3 d-inline-block"> Questions?</strong> Get answers from{' '}
         <strong>{props.businessName}</strong> staff and past visitors.

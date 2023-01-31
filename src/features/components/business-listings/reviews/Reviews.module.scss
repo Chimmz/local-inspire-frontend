@@ -93,6 +93,6 @@
 
 .reviewLikersList {
   & > *:not(:last-child) {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $line-color;
   }
 }
