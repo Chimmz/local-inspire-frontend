@@ -3,7 +3,7 @@ import { toTitleCase } from './string-utils';
 
 type BusinessPageUrlParams<T> = T extends string
   ? { slug: string }
-  : { businessId: string; businessName: string; city: string; stateCode: string };
+  : { businessId?: string; businessName?: string; city?: string; stateCode?: string };
 
 type ParseBusinessSlugOptions = {
   titleCase: boolean;
@@ -20,6 +20,10 @@ type QuestionDetailsPageUrlParams = (
       qId: string;
     }
 ) & { scrollToAnswerForm?: boolean };
+
+type UserReviewPageUrlParams =
+  | { slug: string }
+  | { businessName: string; city: string; stateCode?: string; reviewId: string };
 
 const navigateTo = function (path: string, router: NextRouter) {
   router.push(path);
@@ -73,11 +77,15 @@ export const parseQuestionsPageSlug = (slug: string, options?: ParseBusinessSlug
 };
 
 const transformBusinessUrlParams = (args: BusinessPageUrlParams<{}>) => {
+  const city = args.city?.toLowerCase().split(' ').join('-');
+  const stateCode = args.stateCode?.toUpperCase();
+
   return {
     ...args,
-    businessName: args.businessName.toLowerCase().split(' ').join('-'),
-    city: args.city.toLowerCase().split(' ').join('-'),
-    stateCode: args.stateCode.toUpperCase(),
+    businessName: args.businessName?.toLowerCase().split(' ').join('-'),
+    city,
+    stateCode,
+    location: city?.concat('-').concat(stateCode || ''),
   };
 };
 
@@ -109,7 +117,7 @@ export function genBusinessPageUrl<T>(
     businessId: id,
   } = transformBusinessUrlParams(args);
 
-  return `/v/${name}_${city.split(' ').join('-')}-${stateCode}_${id}`;
+  return `/v/${name}_${city?.split(' ').join('-')}-${stateCode}_${id}`;
 }
 
 export const getBusinessQuestionsUrl = function <T>(
@@ -151,6 +159,18 @@ export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) 
 
 export const genAddPhotosPageUrl = (businessId: string, businessName: string) => {
   return `/add-photos/${businessId}/${businessName.toLowerCase().split(' ').join('-')}`;
+};
+
+// chicken-express_TX_63d6f2e02a4c348418afdb16
+export const genUserReviewPageUrl = (args: UserReviewPageUrlParams) => {
+  if ('slug' in args) return `/user-review/${args.slug}`;
+  const { businessName, location } = transformBusinessUrlParams(args);
+
+  return `/user-review/${businessName}_${location}_${args.reviewId}`;
+};
+export const parseUserReviewPageSlug = (slug: string) => {
+  const [businessName, stateCode, reviewId] = slug.split('_').map(param => param.trim());
+  return { businessName, stateCode, reviewId };
 };
 
 export default navigateTo;

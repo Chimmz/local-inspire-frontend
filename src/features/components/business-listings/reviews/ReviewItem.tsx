@@ -2,31 +2,35 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { UserPublicProfile } from '../../../types';
 import { ReviewProps } from '../../page-reviews/UserReview';
 
 import useDate from '../../../hooks/useDate';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useRequest from '../../../hooks/useRequest';
+import useMiddleware, { AuthMiddlewareNext } from '../../../hooks/useMiddleware';
 
 import api from '../../../library/api';
-
+import { getFullName } from '../../../utils/user-utils';
+import * as qtyUtils from '../../../utils/quantity-utils';
 import cls from 'classnames';
+
 import { Icon } from '@iconify/react';
+import { FacebookShareButton, TwitterShareButton } from 'react-share';
 import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
-import useMiddleware, { AuthMiddlewareNext } from '../../../hooks/useMiddleware';
 import styles from './Reviews.module.scss';
-import { UserPublicProfile } from '../../../types';
-import { getFullName } from '../../../utils/user-utils';
-import * as qtyUtils from '../../../utils/quantity-utils';
+import { BusinessProps } from '../../business-results/Business';
+import { genUserReviewPageUrl } from '../../../utils/url-utils';
 
 type Props = ReviewProps & {
   show: boolean;
   businessName: string;
-  showReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
-  openReportModal: (reviewId: string) => void;
+  openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
+  openReportModal: (arg: any) => void;
+  openShareModal?: (arg: any) => void;
 };
 
 const ReviewItem = function (props: Props) {
@@ -78,11 +82,7 @@ const ReviewItem = function (props: Props) {
           icon={`ant-design:like-${isLikedByCurrentUser ? 'filled' : 'outlined'}`}
           width={20}
         />
-        {isLikedByCurrentUser
-          ? 'Thank you for your vote '
-          : likes.length
-          ? `Helpful (${likes.length})`
-          : 'No helpful votes, was it helpful to you?'}
+        {isLikedByCurrentUser ? 'Thank you for your vote' : `Helpful (${likes.length})`}
       </button>
     ),
     [handleToggleLikeReview, isLiking, isLikedByCurrentUser, likes],
@@ -128,7 +128,9 @@ const ReviewItem = function (props: Props) {
           <Dropdown.Menu className="fs-5" style={{ overflowY: 'auto' }}>
             <Dropdown.Item
               eventKey="report"
-              onClick={props.openReportModal.bind(null, props._id)}
+              onClick={withAuth.bind(null, (token?: string) =>
+                props.openReportModal(props._id),
+              )}
             >
               Report
             </Dropdown.Item>
@@ -138,7 +140,10 @@ const ReviewItem = function (props: Props) {
 
       <div className={styles.reviewText}>
         <h4 className="fs-3 mb-3 text-dark text-hover-dark text-hover-underline">
-          <Link href={'/'} className="link">
+          <Link
+            href={genUserReviewPageUrl({ ...props.business!, reviewId: props._id })}
+            className="link"
+          >
             {props.reviewTitle}
           </Link>
         </h4>
@@ -207,17 +212,16 @@ const ReviewItem = function (props: Props) {
 
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
-          onClick={withAuth.bind(null, () => {})}
+          onClick={props.openShareModal?.bind?.(null, props._id)}
         >
-          <Icon icon="fluent:share-48-regular" width={20} />
-          Share
+          <Icon icon="fluent:share-48-regular" width={20} /> Share
         </button>
 
         <button
           className="btn bg-none"
           onClick={() => {
             if (!likes.length) return;
-            props.showReviewLikers(
+            props.openReviewLikers(
               likes.map(like => ({ ...like.user })),
               reviewerName!,
             );
@@ -225,7 +229,7 @@ const ReviewItem = function (props: Props) {
         >
           {likes.length
             ? qtyUtils.getPeopleQuantity(likes.length)?.concat(' found this review helpful')
-            : ''}
+            : 'No helpful votes, was it helpful to you?'}
         </button>
       </div>
     </section>

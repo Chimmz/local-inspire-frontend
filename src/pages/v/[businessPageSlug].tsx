@@ -180,6 +180,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                 totalReviewsCount={props.reviews?.total}
                 businessName={props.params.businessName}
                 businessId={props.params.businessId}
+                business={props.business.data}
                 sendRequest={sendRequest}
                 loading={loading}
               />

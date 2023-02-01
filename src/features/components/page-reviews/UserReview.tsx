@@ -4,13 +4,14 @@ import React from 'react';
 import useDate from '../../hooks/useDate';
 import { UserPublicProfile } from '../../types';
 import * as userUtils from '../../utils/user-utils';
+import { BusinessProps } from '../business-results/Business';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Review.module.scss';
 
 export interface ReviewProps {
   _id: string;
   visitedWhen: { month: string; year: 2022 };
-  business: string;
+  business: BusinessProps;
   reviewedBy: UserPublicProfile;
   recommends: boolean;
   businessRating: number;

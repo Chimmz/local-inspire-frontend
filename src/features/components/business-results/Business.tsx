@@ -30,6 +30,8 @@ export interface BusinessProps {
   zipCode: string;
   address: string;
   phone: string;
+  email?: string;
+  web: string;
   yearFounded: string;
   locationType: string;
   marketVariable: string;

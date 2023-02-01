@@ -11,11 +11,17 @@
     flex-direction: column;
   }
 
+  &:not([class*='featured']) {
+    // width: 330px !important;
+    // height: 260px !important;
+    & > figure {
+      flex: 0 0 300px;
+      height: 200px !important;
+    }
+  }
+
   & > figure {
-    // width: 25rem;
-    // height: 21rem;
     flex: 1 0 24rem;
-    // height: 19rem;
     margin: 0;
     position: relative;
 

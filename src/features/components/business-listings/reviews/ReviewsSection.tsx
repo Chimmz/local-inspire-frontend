@@ -21,7 +21,6 @@ import LabelledCheckbox from '../../shared/LabelledCheckbox';
 import ReviewItem from './ReviewItem';
 import Spinner from '../../shared/spinner/Spinner';
 import NoReviewsYet from './NoReviewsYet';
-import styles from './Reviews.module.scss';
 import Link from 'next/link';
 import { UserPublicProfile } from '../../../types';
 import Paginators from '../../shared/pagination/Paginators';
@@ -29,6 +28,11 @@ import PopupInfo from '../../PopupInfo';
 import ReportQA from '../../ReportQA';
 import TextInput from '../../shared/text-input/TextInput';
 import useMiddleware from '../../../hooks/useMiddleware';
+import SocialShareModal from '../../shared/social-share/SocialShare';
+import styles from './Reviews.module.scss';
+import ReviewLikersModal from './ReviewLikersModal';
+import { BusinessProps } from '../../business-results/Business';
+import { genUserReviewPageUrl } from '../../../utils/url-utils';
 
 type ReviewFilter =
   | 'Excellent'
@@ -60,6 +64,7 @@ interface Props {
   totalReviewsCount: number;
   businessName: string;
   businessId: string;
+  business: BusinessProps | undefined;
   sendRequest: (req: Promise<any>) => any;
   loading: boolean;
 }
@@ -76,13 +81,13 @@ function ReviewsSection(props: Props) {
   const [queryStr, setQueryString] = useState('');
 
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
-  const { withAuth } = useMiddleware();
-
+  const [reviewShareId, setReviewShareId] = useState<string | null>(null);
   const [reviewLikers, setReviewLikers] = useState<null | {
     likers: UserPublicProfile[];
     reviewerName: string;
   }>(null);
 
+  const { withAuth } = useMiddleware();
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
   });
@@ -167,15 +172,11 @@ function ReviewsSection(props: Props) {
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
 
-  const openReportModal = (reviewId: string) => {
-    withAuth((_?: string) => setReviewReportId(reviewId));
-  };
-
   const handleReportReview = async (reason: string, explanation: string) => {
     console.log(`Reported ${reviewReportId} because ${reason}. More details: ${explanation}`);
   };
 
-  const showReviewLikers = useCallback(
+  const openReviewLikers = useCallback(
     function (likers: UserPublicProfile[], reviewerName: string) {
       setReviewLikers({ likers, reviewerName });
     },
@@ -189,7 +190,7 @@ function ReviewsSection(props: Props) {
 
   return (
     <>
-      <section className={cls(props.show && props.reviews?.length ? 'd-block' : 'd-none')}>
+      <section className={cls(showWith((props.reviews?.length && 'd-block') || 'd-none'))}>
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>
@@ -214,8 +215,10 @@ function ReviewsSection(props: Props) {
           {...r}
           show={!!props.reviews?.length && props.show}
           businessName={props.businessName}
-          showReviewLikers={showReviewLikers}
-          openReportModal={openReportModal}
+          business={props.business!}
+          openReviewLikers={openReviewLikers}
+          openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
+          openShareModal={(reviewId: string) => setReviewShareId(reviewId)}
           key={r._id}
         />
       ))}
@@ -247,58 +250,20 @@ function ReviewsSection(props: Props) {
       />
 
       {/* Modal showing likers of a review */}
-      <Modal centered scrollable show={!!reviewLikers} onHide={() => setReviewLikers(null)}>
-        <Modal.Header
-          style={{ backgroundColor: '#f3f3f3' }}
-          className="px-5 py-4 pb-3"
-          closeButton
-        >
-          <h2>
-            {reviewLikers && (
-              <>
-                <Link href="/">{reviewLikers?.reviewerName}</Link>&apos;s review
-              </>
-            )}
-          </h2>
-        </Modal.Header>
-        <Modal.Body className="px-5">
-          <ul className={styles.reviewLikersList}>
-            {reviewLikers?.likers?.map(user => (
-              <li
-                className={cls(styles.liker, 'd-flex align-items-center gap-3 py-4')}
-                key={user._id}
-              >
-                <figure
-                  className="position-relative"
-                  style={{ width: '50px', height: '50px' }}
-                >
-                  <Image
-                    src={user.imgUrl}
-                    layout="fill"
-                    objectFit="cover"
-                    style={{ borderRadius: '50%' }}
-                  />
-                </figure>
-                <div className="flex-grow-1">
-                  <h4>
-                    <strong>{userUtils.getFullName(user, { lastNameInitial: true })}</strong>
-                  </h4>
-                  <small>
-                    {quantitize(user.contributions?.length || 0, [
-                      'contribution',
-                      'contributions',
-                    ])}{' '}
-                    • 0 Followers
-                  </small>
-                </div>
-                <button className="btn btn-outline-pry btn--sm">
-                  <Icon icon="material-symbols:person-add" width={20} /> Follow
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Modal.Body>
-      </Modal>
+      <ReviewLikersModal
+        show={!!reviewLikers}
+        closeModal={setReviewLikers.bind(null, null)}
+        likers={reviewLikers?.likers}
+        reviewerName={reviewLikers?.reviewerName}
+      />
+
+      {/* Share review */}
+      <SocialShareModal
+        heading="Share Review"
+        url={genUserReviewPageUrl({ ...props.business!, reviewId: reviewShareId! })}
+        show={!!reviewShareId}
+        close={setReviewShareId.bind(null, null)}
+      />
     </>
   );
 }

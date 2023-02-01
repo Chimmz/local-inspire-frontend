@@ -180,7 +180,7 @@ class API {
     options?: { page: number; limit: number },
   ) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/reviews`
+      path: `/reviews/businesses/${businessId}`
         .concat(queryStr || '')
         .concat(!queryStr?.length && options ? '?' : '')
         .concat(options ? `&page=${options.page}&limit=${options.limit}` : ''),
@@ -202,6 +202,14 @@ class API {
       path: `/reviews/made-by-user`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getReviewById(id: string) {
+    return this._makeRequest({
+      path: `/reviews/${id}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 

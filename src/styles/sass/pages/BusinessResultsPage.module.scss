@@ -4,7 +4,6 @@
 
 .businessesResultsPage {
   min-height: 100%;
-  // max-height: 100%;
   padding: 6rem 4rem;
 
   display: grid;
@@ -17,7 +16,7 @@
   align-items: start;
   justify-content: center;
   row-gap: 2.5rem;
-  column-gap: 3vw;
+  column-gap: 2vw;
 
   &:has([class*='noResults']) {
     grid-template-columns: max(20%, 27rem) 1fr;

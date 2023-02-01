@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import { unstable_getServerSession, NextAuthOptions, Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
 
