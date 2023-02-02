@@ -70,9 +70,9 @@ const UserReviewPage: NextPage<Props> = function (props) {
     <SSRProvider>
       <Head>
         <title>
-          Favorite Restaurant - Reviews for{' '}
-          {review?.business.businessName.concat(', ').concat(review?.business.stateCode)} |
-          Localinspire
+          {`Favorite Restaurant - Reviews for ${review?.business.businessName
+            .concat(', ')
+            .concat(review?.business.stateCode)} | Localinspire`}
         </title>
       </Head>
       <Layout>
