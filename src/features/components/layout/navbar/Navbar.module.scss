@@ -1,8 +1,8 @@
 .nav {
-  width: 100%;
+  // width: 100%;
   display: flex;
-  // justify-content: space-between;
-  justify-content: center;
+  justify-content: space-between;
+  // justify-content: center;
   align-items: center;
   gap: max(3vw, 2.5rem);
   padding: max(1.7rem, 1vw) 0; // max(4rem, 4vw)
@@ -19,7 +19,7 @@
   }
 
   &[class*='container'] {
-    max-width: 100%;
+    // max-width: 100%;
   }
 
   &.sticky {

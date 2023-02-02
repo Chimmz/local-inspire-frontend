@@ -2,11 +2,7 @@ import Link from 'next/link';
 import React, { useState, useEffect, useMemo } from 'react';
 import useDate from '../../hooks/useDate';
 import api from '../../library/api';
-import {
-  genBusinessPageUrl,
-  genQuestionDetailsPageUrl,
-  getBusinessQuestionsUrl,
-} from '../../utils/url-utils';
+import { genQuestionDetailsPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
 import { getFullName } from '../../utils/user-utils';
 import { QuestionItemProps } from '../business-listings/questions/QuestionItem';
 import { BusinessProps } from '../business-results/Business';

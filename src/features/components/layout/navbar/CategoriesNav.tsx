@@ -31,28 +31,30 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
   ];
 
   return (
-    <nav className={cls(styles.categoriesNav, 'no-bullets')}>
-      <ul className={cls(styles.categories, 'container')}>
-        {popularCategories.map(categ => {
-          const href = urlUtils.getBusinessSearchResultsUrl({
-            category: categ,
-            city: currentCity || '',
-            stateCode: currentStateCode || '',
-          });
-          return (
-            <li key={categ}>
-              <Link href={href} passHref>
-                <a
-                  onClick={props.setPageLoading?.bind(null, true)}
-                  className="w-max-content d-block"
-                >
-                  {categ}
-                </a>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+    <nav className={cls(styles.categoriesNav)}>
+      <div className="container">
+        <ul className={cls(styles.categories, 'no-bullets')}>
+          {popularCategories.map(categ => {
+            const href = urlUtils.getBusinessSearchResultsUrl({
+              category: categ,
+              city: currentCity || '',
+              stateCode: currentStateCode || '',
+            });
+            return (
+              <li key={categ}>
+                <Link href={href} passHref>
+                  <a
+                    onClick={props.setPageLoading?.bind(null, true)}
+                    className="w-max-content d-block"
+                  >
+                    {categ}
+                  </a>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </nav>
   );
 };

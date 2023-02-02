@@ -1,6 +1,6 @@
 .categoriesNav {
   margin: 0;
-  padding: max(1.5vw, 1.5rem) max(5.5rem, 5.5vw);
+  padding: max(1.5vw, 1.5rem) max(5.2rem, 5.2vw);
   font-size: 1.35rem;
   border: 1px solid #003060;
   background-color: #00376e;
@@ -10,7 +10,7 @@
     display: none;
   }
 
-  .categories {
+  ul.categories {
     margin: 0;
     display: flex;
     align-items: center;
@@ -19,7 +19,7 @@
     gap: 2rem;
     // margin-inline: auto;
     list-style-type: none;
-    max-width: fit-content;
+    // max-width: fit-content;
     font-family: 'Poppins', sans-serif;
     // border: 1px solid #ccc;
 
