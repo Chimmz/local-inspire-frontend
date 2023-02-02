@@ -24,10 +24,12 @@ import TextInput from '../../features/components/shared/text-input/TextInput';
 import ReviewLikersModal from '../../features/components/business-listings/reviews/ReviewLikersModal';
 import ReportQA from '../../features/components/ReportQA';
 import Head from 'next/head';
+import { BusinessProps } from '../../features/components/business-results/Business';
 
 interface Props {
-  status: string;
+  status: 'SUCCESS' | 'FAIL';
   review: ReviewProps | undefined;
+  business: BusinessProps | undefined;
   error: Error | undefined;
 }
 
@@ -56,10 +58,10 @@ const UserReviewPage: NextPage<Props> = function (props) {
 
   const businessUrl = useMemo(
     () =>
-      review?.business
-        ? genBusinessPageUrl<{}>({ ...review?.business!, businessId: review?.business._id })
+      props.business
+        ? genBusinessPageUrl<{}>({ ...props.business, businessId: props.business?._id })
         : '',
-    [review?.business],
+    [props.business],
   );
 
   const handleReportReview = async (reviewId: string) => {
@@ -70,9 +72,9 @@ const UserReviewPage: NextPage<Props> = function (props) {
     <SSRProvider>
       <Head>
         <title>
-          {`Favorite Restaurant - Reviews for ${review?.business.businessName
+          {`Favorite Restaurant - Reviews for ${props.business?.businessName
             .concat(', ')
-            .concat(review?.business.stateCode)} | Localinspire`}
+            .concat(props.business?.stateCode)} | Localinspire`}
         </title>
       </Head>
       <Layout>
@@ -90,28 +92,27 @@ const UserReviewPage: NextPage<Props> = function (props) {
               </small>
               <Icon icon="ic:baseline-greater-than" width={10} />
               <small className="text-pry">
-                <Link href={businessUrl}>
-                  {review?.business.businessName || 'Loading...'}
-                </Link>
+                <Link href={businessUrl}>{props.business?.businessName || 'Loading...'}</Link>
               </small>
               <Icon icon="ic:baseline-greater-than" width={10} />
               <small className="">
                 {userFullname ? `${userFullname}s` : 'Loading...'} of{' '}
-                {review?.business.businessName}
+                {props.business?.businessName}
               </small>
             </nav>
 
             <h1>
-              {review?.reviewedBy.firstName}&apos;s review of {review?.business.businessName}
+              {review?.reviewedBy.firstName}&apos;s review of {props.business?.businessName}
             </h1>
 
             {review ? (
               <ReviewItem
                 {...review}
-                show
+                businessData={props.business!}
                 businessName={'Business Name'}
                 openReviewLikers={setShowLikersModal.bind(null, true)}
                 openReportModal={() => setShowReportModal(true)}
+                show
               />
             ) : (
               <section></section>
@@ -183,7 +184,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
                 >
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="ic:outline-location-on" width={19} />
-                    {review?.business.address}
+                    {props.business?.address}
                   </li>
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="ri:direction-line" width={19} />
@@ -191,14 +192,14 @@ const UserReviewPage: NextPage<Props> = function (props) {
                   </li>
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="fluent-mdl2:website" width={18} />
-                    <Link href={'https://'.concat(review?.business.web || '')} passHref>
+                    <Link href={'https://'.concat(props.business?.web || '')} passHref>
                       <a target="_blank">Website</a>
                     </Link>
                   </li>
-                  {review?.business.email ? (
+                  {props.business?.email ? (
                     <li className="d-flex align-items-center gap-3">
                       <Icon icon="ic:outline-email" width={18} />
-                      <Link href={'mailto:'.concat(review?.business.email || '')} passHref>
+                      <Link href={'mailto:'.concat(props.business?.email || '')} passHref>
                         <a target="_blank">Website</a>
                       </Link>
                       Email
@@ -244,13 +245,16 @@ export const getStaticProps: GetStaticProps = async context => {
   try {
     const slug = context.params!.userReviewPageSlug as string;
     const { reviewId } = parseUserReviewPageSlug(slug);
-    const res = await api.getReviewById(reviewId);
+
+    const res1 = await api.getReviewById(reviewId);
+    console.log('res1: ', res1);
+    if (res1.status === 'NOT_FOUND') return { notFound: true };
+
+    const res2 = await api.getBusinessById(res1.review.business as string);
+    console.log('res2: ', res2);
 
     return {
-      props: {
-        status: res.status,
-        review: res?.review,
-      },
+      props: { review: res1.review, business: res2.data },
     };
   } catch (err) {
     return { props: { error: err } };

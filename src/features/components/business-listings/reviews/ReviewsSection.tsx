@@ -215,7 +215,7 @@ function ReviewsSection(props: Props) {
           {...r}
           show={!!props.reviews?.length && props.show}
           businessName={props.businessName}
-          business={props.business!}
+          businessData={props.business!}
           openReviewLikers={openReviewLikers}
           openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
           openShareModal={(reviewId: string) => setReviewShareId(reviewId)}

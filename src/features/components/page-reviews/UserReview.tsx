@@ -11,7 +11,7 @@ import styles from './Review.module.scss';
 export interface ReviewProps {
   _id: string;
   visitedWhen: { month: string; year: 2022 };
-  business: BusinessProps;
+  business: string;
   reviewedBy: UserPublicProfile;
   recommends: boolean;
   businessRating: number;

@@ -28,6 +28,7 @@ import { genUserReviewPageUrl } from '../../../utils/url-utils';
 type Props = ReviewProps & {
   show: boolean;
   businessName: string;
+  businessData: BusinessProps;
   openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
   openReportModal: (arg: any) => void;
   openShareModal?: (arg: any) => void;
@@ -141,7 +142,7 @@ const ReviewItem = function (props: Props) {
       <div className={styles.reviewText}>
         <h4 className="fs-3 mb-3 text-dark text-hover-dark text-hover-underline">
           <Link
-            href={genUserReviewPageUrl({ ...props.business!, reviewId: props._id })}
+            href={genUserReviewPageUrl({ ...props.businessData!, reviewId: props._id })}
             className="link"
           >
             {props.reviewTitle}
