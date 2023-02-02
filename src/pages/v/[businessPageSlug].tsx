@@ -282,9 +282,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
     api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }),
   ]);
 
-  console.log('Review response: ', responses[1]);
-
-  // console.log(responses);
+  console.log('Business page responses: ', responses);
 
   // Filter success responses
   const [business, reviews, questions, tips] = responses
