@@ -120,7 +120,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
         <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
-      <Layout.Nav bg="#003366" lightLogo sticky>
+      <Layout.Nav bg="#003366" lightLogo position="sticky">
         <CategoriesNav
           searchParams={props.pageSearchParams}
           setPageLoading={setPageLoading}
