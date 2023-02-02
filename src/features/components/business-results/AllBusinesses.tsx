@@ -39,7 +39,7 @@ function AllBusinesses(props: Props) {
         console.log('Reponse: ', res);
         if (!res || res?.status !== 'SUCCESS') return;
         (res.reviews as ReviewProps[]).forEach(r => {
-          normalizedUserReviews[r.business] = r;
+          normalizedUserReviews[r.business._id] = r;
         });
         setUserReviewLookup(normalizedUserReviews);
       })
