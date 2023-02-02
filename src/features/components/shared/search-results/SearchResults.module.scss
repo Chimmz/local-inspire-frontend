@@ -16,6 +16,10 @@
   background-color: #ffffff;
   text-align: left;
 
+  & * {
+    z-index: 50;
+  }
+
   & ul {
     padding: 7px 3px 0px 3px;
   }

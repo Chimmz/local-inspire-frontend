@@ -26,6 +26,8 @@ export interface NavbarProps {
   children?: React.ReactNode;
   lightLogo?: boolean;
   withSearchForm?: boolean;
+  logoClassName?: string;
+  justifyIconsRight?: boolean;
 }
 export type AuthType = 'login' | 'register';
 
@@ -85,12 +87,12 @@ function Navbar(props: NavbarProps) {
 
   return (
     <nav
-      className={cls(props.styleName)}
+      className={cls(props.styleName, 'w-100')}
       style={{ backgroundColor: bg, position: position || 'relative' }}
     >
       <div className={cls('container', styles.nav)}>
         <Link href="/">
-          <div className={styles['nav-logo']}>
+          <div className={cls(styles['nav-logo'], props.logoClassName)}>
             <Image
               src={`/img/localinspire-logo${lightLogo ? '-white' : ''}.${
                 lightLogo ? 'png' : 'jpeg'
@@ -133,7 +135,12 @@ function Navbar(props: NavbarProps) {
         ) : null}
 
         {authSession ? (
-          <div className={styles.icons}>
+          <div
+            className={cls(
+              styles.icons,
+              props.justifyIconsRight && 'flex-grow-1 justify-content-end',
+            )}
+          >
             <NavDropdown
               className={styles.notifToggler}
               color="white"

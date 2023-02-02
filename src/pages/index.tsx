@@ -23,8 +23,14 @@ function HomePage({ popularCategorySuggestions }: HomePageProps) {
   return (
     <AuthContextProvider>
       <Layout>
-        <Layout.Nav bg="transparent" position="absolute" lightLogo withSearchForm={false} />
-        {/* <Navbar bg="transparent" position="absolute" lightLogo withSearchForm={false} /> */}
+        <Layout.Nav
+          bg="transparent"
+          position="absolute"
+          lightLogo
+          // logoClassName="mr-auto"
+          justifyIconsRight
+          withSearchForm={false}
+        />
         <Header defaultCategorySuggestions={useMemo(() => popularCategorySuggestions, [])} />
         <Gallery />
         <BestPlaces />

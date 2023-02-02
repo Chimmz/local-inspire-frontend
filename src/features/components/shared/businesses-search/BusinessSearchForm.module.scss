@@ -7,9 +7,10 @@
   border-radius: 0.3em;
   background-color: #fff;
   box-shadow: 0 0 5px rgba(#000, 0.3), 0 0 15px rgba(#000, 0.1);
-  position: relative;
   transition: width 0.5s;
   animation: fade-up 1s 0.3s forwards;
+  position: relative;
+  z-index: 45;
 
   @media screen and (max-width: 37.5em) {
     gap: 2rem;
