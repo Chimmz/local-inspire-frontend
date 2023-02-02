@@ -96,13 +96,13 @@ const UserReviewPage: NextPage<Props> = function (props) {
               </small>
               <Icon icon="ic:baseline-greater-than" width={10} />
               <small className="">
-                {userFullname ? `${userFullname}'s` : 'Loading...'} of{' '}
+                {userFullname ? `${userFullname}s` : 'Loading...'} of{' '}
                 {review?.business.businessName}
               </small>
             </nav>
 
             <h1>
-              {review?.reviewedBy.firstName}'s review of {review?.business.businessName}
+              {review?.reviewedBy.firstName}&apos;s review of {review?.business.businessName}
             </h1>
 
             {review ? (
