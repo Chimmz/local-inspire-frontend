@@ -4,10 +4,10 @@ import Footer from './Footer';
 import cls from 'classnames';
 
 const Nav: React.FC<NavbarProps> = props => (
-  <div className="position-relative">
-    <Navbar bg={props.bg} lightLogo={props.lightLogo} />
+  <>
+    <Navbar {...props} />
     {props.children} {/* For rendering secondary navs*/}
-  </div>
+  </>
 );
 
 const Main = (props: {

@@ -3,9 +3,11 @@ import styles from './BestPlaces.module.scss';
 import cls from 'classnames';
 import Image from 'next/image';
 
+console.log(styles);
+
 function BestPlaces() {
   return (
-    <section className={styles['best-places']}>
+    <section className={styles.bestPlaces}>
       <h2 className="mb-">The best places in the top cities</h2>
       <div className={styles.places}>
         <figure className={cls(styles.place, styles['place--special'])}>

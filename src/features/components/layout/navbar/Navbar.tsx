@@ -26,12 +26,11 @@ export interface NavbarProps {
   children?: React.ReactNode;
   lightLogo?: boolean;
   withSearchForm?: boolean;
-  sticky?: boolean;
 }
 export type AuthType = 'login' | 'register';
 
 function Navbar(props: NavbarProps) {
-  const { bg = '#003366', position, lightLogo = true, withSearchForm = true, sticky } = props;
+  const { bg = '#003366', position, lightLogo = true, withSearchForm = true } = props;
 
   const authData = useAuthContext();
   const [searchModalOpen, setSearchOpen] = useState(false);
@@ -86,10 +85,10 @@ function Navbar(props: NavbarProps) {
 
   return (
     <nav
-      className={cls(sticky && styles.sticky)}
+      className={cls(props.styleName)}
       style={{ backgroundColor: bg, position: position || 'relative' }}
     >
-      <div className={cls('container', styles.nav, props.styleName)}>
+      <div className={cls('container', styles.nav)}>
         <Link href="/">
           <div className={styles['nav-logo']}>
             <Image

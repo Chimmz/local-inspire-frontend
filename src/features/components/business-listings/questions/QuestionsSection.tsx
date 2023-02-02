@@ -1,38 +1,33 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
-import api from '../../../library/api';
-import { postingGuidelinesConfig } from './config';
-import { newQuestionValidatorsConfig } from './config';
-import cls from 'classnames';
+import { BusinessProps } from '../../business-results/Business';
 
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 
-import { Icon, listIcons } from '@iconify/react';
+import api from '../../../library/api';
+import { postingGuidelinesConfig } from './config';
+import { newQuestionValidatorsConfig } from './config';
+import cls from 'classnames';
+import * as domUtils from '../../../utils';
+
+import { Icon } from '@iconify/react';
 import LoadingButton from '../../shared/button/Button';
 import TextInput from '../../shared/text-input/TextInput';
-import LabelledCheckbox from '../../shared/LabelledCheckbox';
 import Accordion from 'react-bootstrap/Accordion';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
-import styles from './QuestionsSection.module.scss';
-import BusinessesToConsider from './BusinessesToConsider';
-import {
-  genQuestionDetailsPageUrl,
-  genRecommendBusinessPageUrl,
-  getBusinessQuestionsUrl,
-} from '../../../utils/url-utils';
-import { BusinessProps } from '../../business-results/Business';
+import { getBusinessQuestionsUrl } from '../../../utils/url-utils';
 import GuidelinesPopup from '../../PopupInfo';
-import { useRouter } from 'next/router';
 import Paginators from '../../shared/pagination/Paginators';
 import usePaginate from '../../../hooks/usePaginate';
-import * as domUtils from '../../../utils';
 import ReportQA from '../../ReportQA';
+import styles from './QuestionsSection.module.scss';
 
 interface Props {
   show: boolean;

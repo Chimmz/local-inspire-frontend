@@ -9,6 +9,15 @@
   font-size: 1rem !important;
   z-index: 10;
 
+  left: 0;
+  width: 100%;
+  z-index: 22222;
+
+  & * {
+    position: relative;
+    z-index: 45;
+  }
+
   @media screen and (max-width: 56.25em) {
     justify-content: space-between !important;
 

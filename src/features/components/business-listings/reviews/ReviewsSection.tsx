@@ -1,4 +1,11 @@
-import React, { ChangeEventHandler, useEffect, useMemo, useState, useCallback } from 'react';
+import React, {
+  ChangeEventHandler,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+} from 'react';
 import Image from 'next/image';
 // Types
 import { ReviewProps } from '../../page-reviews/UserReview';
@@ -33,6 +40,7 @@ import styles from './Reviews.module.scss';
 import ReviewLikersModal from './ReviewLikersModal';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
+import * as domUtils from '../../../utils';
 
 type ReviewFilter =
   | 'Excellent'
@@ -86,8 +94,8 @@ function ReviewsSection(props: Props) {
     likers: UserPublicProfile[];
     reviewerName: string;
   }>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
-  const { withAuth } = useMiddleware();
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
   });
@@ -138,6 +146,7 @@ function ReviewsSection(props: Props) {
     if (res?.status === 'SUCCESS') {
       setReviews(res.data);
       setTotalReviewsCount(res.total); // In case there are new reviews in the DB
+      domUtils.scrollToElement(sectionRef.current!);
     }
   };
 
@@ -190,7 +199,10 @@ function ReviewsSection(props: Props) {
 
   return (
     <>
-      <section className={cls(showWith((props.reviews?.length && 'd-block') || 'd-none'))}>
+      <section
+        className={cls(showWith((props.reviews?.length && 'd-block') || ''))}
+        ref={sectionRef}
+      >
         <h2>Reviews</h2>
         <hr />
         <small className="d-block my-4">Filter for better results</small>

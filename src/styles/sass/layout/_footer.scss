@@ -4,12 +4,52 @@
   border-top: 1px solid #bbb;
   padding: 2rem max(5vw, 5rem);
   font-size: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+
+  & > .container {
+    display: flex;
+    flex-direction: column;
+
+    & > nav > ul {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 7vw;
+      flex-wrap: wrap;
+
+      & > li {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        & > h6 {
+          font-size: 1.2em;
+          color: $text-dark;
+          font-weight: 700;
+        }
+        & > ul {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          & > li,
+          & > li a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            & img[src*='usa'] {
+              width: 2rem;
+              height: 1.5rem;
+              object-fit: cover;
+            }
+          }
+        }
+      }
+    }
+  }
 
   & > * {
-    min-width: 80%;
+    // min-width: 80%;
     // border: 2px solid gray;
   }
   a {
@@ -27,43 +67,6 @@
   &-nav {
     padding-block: 2rem;
   }
-  & > nav > ul {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 7vw;
-    flex-wrap: wrap;
-
-    & > li {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-
-      & > h6 {
-        font-size: 1.2em;
-        color: $text-dark;
-        font-weight: 700;
-      }
-      & > ul {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-
-        & > li,
-        & > li a {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-
-          & img[src*='usa'] {
-            width: 2rem;
-            height: 1.5rem;
-            object-fit: cover;
-          }
-        }
-      }
-    }
-  }
 
   &-bottom {
     display: flex;
@@ -79,8 +82,6 @@
     }
   }
   &-socials {
-    //  font-size: 6rem;
-
     & > * {
       transition: color 0.2s;
     }
