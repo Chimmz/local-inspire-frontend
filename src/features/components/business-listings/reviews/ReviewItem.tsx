@@ -16,7 +16,6 @@ import * as qtyUtils from '../../../utils/quantity-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
-import { FacebookShareButton, TwitterShareButton } from 'react-share';
 import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';

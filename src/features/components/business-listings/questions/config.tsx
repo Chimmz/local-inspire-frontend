@@ -22,15 +22,15 @@ export const newQuestionValidatorsConfig = [
 ];
 
 export const questionReportReasonsConfig = [
-  "It's not a question",
-  "It's a duplicate",
-  "It isn't helpful",
+  'It is not a question',
+  'It is a duplicate',
+  'It is not helpful',
   'Contains threats, lewdness, or hate speach',
-  "It's not specific to this business",
+  'It is not specific to this business',
 ];
 
 export const answerReportReasonsConfig = [
-  'It doesn’t answer the question asked',
+  'It does not answer the question asked',
   'It contains threats, lewdness or hate speech',
   "It violates Local Inspire's privacy standards",
   'It contains promotional material',
