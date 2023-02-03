@@ -11,7 +11,10 @@ import usePaginate from '../../features/hooks/usePaginate';
 // Utils
 import api from '../../features/library/api';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
-import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
+import {
+  postingGuidelinesConfig,
+  questionReportReasonsConfig,
+} from '../../features/components/business-listings/questions/config';
 import cls from 'classnames';
 // Components
 import { Icon } from '@iconify/react';
@@ -272,6 +275,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
           show={!!reportedQueId}
           close={() => setReportedQueId(null)}
           onReport={handleReportQuestion}
+          possibleReasons={questionReportReasonsConfig}
         />
       </Layout>
     </SSRProvider>

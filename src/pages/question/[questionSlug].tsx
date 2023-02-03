@@ -9,7 +9,11 @@ import { Modal, SSRProvider } from 'react-bootstrap';
 import Answer, {
   AnswerProps,
 } from '../../features/components/business-listings/questions/Answer';
-import { postingGuidelinesConfig } from '../../features/components/business-listings/questions/config';
+import {
+  answerReportReasonsConfig,
+  postingGuidelinesConfig,
+  questionReportReasonsConfig,
+} from '../../features/components/business-listings/questions/config';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
 import { reportModalConfig } from '../../features/components/business-listings/reviews/config';
 import PopupInfo from '../../features/components/PopupInfo';
@@ -390,6 +394,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
         {/* Report question modal */}
         <ReportQA
           show={showReportModal}
+          possibleReasons={questionReportReasonsConfig}
           close={setShowReportModal.bind(null, false)}
           onReport={reportQuestion}
         />
@@ -397,6 +402,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
         {/* Report answer modal */}
         <ReportQA
           show={!!answerIdReport}
+          possibleReasons={answerReportReasonsConfig}
           close={() => setAnswerIdReport(null)}
           onReport={reportAnswer}
         />
