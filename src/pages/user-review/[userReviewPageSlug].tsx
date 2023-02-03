@@ -25,6 +25,7 @@ import ReviewLikersModal from '../../features/components/business-listings/revie
 import ReportQA from '../../features/components/ReportQA';
 import Head from 'next/head';
 import { BusinessProps } from '../../features/components/business-results/Business';
+import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL';
@@ -229,6 +230,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
         show={showReportModal}
         onReport={handleReportReview}
         close={setShowReportModal.bind(null, false)}
+        possibleReasons={reviewReportReasonsConfig}
       />
     </SSRProvider>
   );
