@@ -32,3 +32,5 @@ export const UserRoles = {
   BUSINESS_OWNER: 'Business Owner',
   MAIN_ADMIN: 'Administrator',
 };
+
+export const seoKeywords = 'localinspire,recommendations,vacation,vacations,reviews,restaurants,cabins,lodging,trip,travel,local,business,review,vacation,vacations,travel packages,planning,hotel,hotels,motel,bed and breakfast,inn,resorts,popular,plan,airfare,cheap,discount,golf,attractions,advice'

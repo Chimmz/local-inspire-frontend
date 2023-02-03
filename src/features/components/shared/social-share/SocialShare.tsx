@@ -26,8 +26,8 @@ const SocialShareModal: React.FunctionComponent<Props> = function (props) {
   const { heading = 'Share' } = props;
   return (
     <Modal show={props.show} centered onHide={props.close}>
-      <Modal.Header closeButton>
-        <h2>{props.heading || 'Share'}</h2>
+      <Modal.Header className="px-5 pt-4" closeButton>
+        <h2>{heading}</h2>
       </Modal.Header>
 
       <Modal.Body className="p-5">

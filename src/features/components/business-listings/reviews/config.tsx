@@ -1,3 +1,12 @@
+export const reviewReportReasonsConfig = [
+  'Review contains false information',
+  'Review violates guidelines',
+  'Contains threats, lewdness, or hate speach',
+  'Review posted to wrong location',
+  'Review is spam',
+  'I want to report something else',
+];
+
 export const reportModalConfig = {
   heading: <h4 className="text-center w-100 fs-1">Report a problem</h4>,
   body: (

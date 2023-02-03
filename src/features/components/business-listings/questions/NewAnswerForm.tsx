@@ -72,77 +72,73 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
 
   if (!props.show) return <></>;
   return (
-    <>
-      <form
-        className={cls(
-          styles.newAnswerSection,
-          `d-flex align-items-center gap-3 mt-5 ${inputType === 'textarea' && 'flex-wrap'}`,
-        )}
-        ref={formRef}
-        onSubmit={handleSubmit}
-      >
-        {currentUser ? (
-          <Image
-            src={
-              currentUser.isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'
-            }
-            width={30}
-            height={30}
-            objectFit="cover"
-            style={{ borderRadius: '50%' }}
-          />
-        ) : (
-          <small className="d-flex align-items-center gap-2 w-max-content">
-            <Icon icon="mdi:user-circle" width={30} color="#aaa" />{' '}
-          </small>
-        )}
-
-        {inputType === 'textarea' ? <small> You</small> : null}
-
-        <TextInput
-          value={newAnswer}
-          onChange={handleChangeAnswer}
-          className="textfield"
-          placeholder="Write your answer here..."
-          as={inputType}
-          onFocus={setInputType.bind(null, 'textarea')}
+    <form
+      className={cls(
+        styles.newAnswerSection,
+        `d-flex align-items-center gap-3 mt-5 ${inputType === 'textarea' && 'flex-wrap'}`,
+      )}
+      ref={formRef}
+      onSubmit={handleSubmit}
+    >
+      {currentUser ? (
+        <Image
+          src={currentUser.isSignedIn ? currentUser.imgUrl! : '/img/default-profile-pic.jpeg'}
+          width={30}
+          height={30}
+          objectFit="cover"
+          style={{ borderRadius: '50%' }}
         />
-
-        {newAnswer.length ? (
-          <LoadingButton
-            className="btn btn-pry"
-            type="submit"
-            isLoading={isSendingAnswer}
-            textWhileLoading="Posting..."
-          >
-            Save answer
-          </LoadingButton>
-        ) : // <button className="btn btn-pry" type="submit">
-        //   Save answer
-        // </button>
-        null}
-
-        {inputType === 'textarea' && (
-          <button
-            className="btn btn-bg-none ml-auto"
-            type="submit"
-            onClick={setInputType.bind(null, 'input')}
-          >
-            Cancel
-          </button>
-        )}
-
-        <small
-          className={cls(
-            'btn btn-sm text-pry btn-bg-none no-bg-hover ms-auto',
-            inputType === 'textarea' ? 'd-block' : 'd-none',
-          )}
-          onClick={props.showPostingGuidelines}
-        >
-          Posting guidelines
+      ) : (
+        <small className="d-flex align-items-center gap-2 w-max-content">
+          <Icon icon="mdi:user-circle" width={30} color="#aaa" />{' '}
         </small>
-      </form>
-    </>
+      )}
+
+      {inputType === 'textarea' ? <small> You</small> : null}
+
+      <TextInput
+        value={newAnswer}
+        onChange={handleChangeAnswer}
+        className="textfield"
+        placeholder="Write your answer here..."
+        as={inputType}
+        onFocus={setInputType.bind(null, 'textarea')}
+      />
+
+      {newAnswer.length ? (
+        <LoadingButton
+          className="btn btn-pry"
+          type="submit"
+          isLoading={isSendingAnswer}
+          textWhileLoading="Posting..."
+        >
+          Save answer
+        </LoadingButton>
+      ) : // <button className="btn btn-pry" type="submit">
+      //   Save answer
+      // </button>
+      null}
+
+      {inputType === 'textarea' && (
+        <button
+          className="btn btn-bg-none ml-auto"
+          type="submit"
+          onClick={setInputType.bind(null, 'input')}
+        >
+          Cancel
+        </button>
+      )}
+
+      <small
+        className={cls(
+          'btn btn-sm text-pry btn-bg-none no-bg-hover ms-auto',
+          inputType === 'textarea' ? 'd-block' : 'd-none',
+        )}
+        onClick={props.showPostingGuidelines}
+      >
+        Posting guidelines
+      </small>
+    </form>
   );
 };
 

@@ -7,6 +7,7 @@ import TextInput from './shared/text-input/TextInput';
 
 interface ReportQAProps {
   show: boolean;
+  possibleReasons: string[];
   close(): void;
   onReport(reason: string, explanation: string): void;
 }
@@ -66,14 +67,7 @@ const ReportQA = function (props: ReportQAProps) {
 
         <RadioOptions
           as="circle"
-          options={[
-            'Review contains false information',
-            'Review violates guidelines',
-            'Contains threats, lewdness, or hate speach',
-            'Review posted to wrong location',
-            'Review is spam',
-            'I want to report something else',
-          ]}
+          options={props.possibleReasons}
           onChange={handleChangeReason}
           value={reason}
           name="report_reason"

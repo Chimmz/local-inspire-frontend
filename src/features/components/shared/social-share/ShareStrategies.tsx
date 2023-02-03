@@ -27,21 +27,8 @@ const ShareStrategies = function (props: Props) {
       (typeof props.pageUrl === 'string' ? props.pageUrl : props.pageUrl())
     );
   });
-  // const [mounted, setMounted] = useState(false);
-
-  // useEffect(() => {
-  //   setPageUrl(relativeUrl => window.location.origin.concat(relativeUrl));
-  //   setMounted(true);
-  // }, []);
-
   const [userCopiedUrl, setUserCopiedUrl] = useState(false);
 
-  // if (!mounted)
-  //   return (
-  //     <div className={props.className}>
-  //       <Spinner animation="border" style={{ borderWidth: '3px' }} />
-  //     </div>
-  //   );
   return (
     <div className={props.className}>
       <FacebookShareButton url={pageUrl} className="">
@@ -68,7 +55,7 @@ const ShareStrategies = function (props: Props) {
           className="textfield flex-grow-1"
           style={{ flexBasis: '80%' }}
           readonly
-          selectOnFocus
+          onFocusSelect
         />
         <OverlayTrigger
           placement="top"

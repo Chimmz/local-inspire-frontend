@@ -26,6 +26,7 @@ import AdvicesSection from '../../features/components/business-listings/tips/Adv
 import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import styles from '../../styles/sass/pages/BusinessPage.module.scss';
+import Head from 'next/head';
 
 interface Props {
   reviews: {
@@ -63,9 +64,16 @@ const BusinessListings: NextPage<Props> = function (props) {
   const { send: sendRequest, loading } = useRequest({ autoStopLoading: true });
 
   const linkToReviewPage = router.asPath.replace('/v/', '/write-a-review/');
+  const pageDescription = `${props.business.data?.businessName || ''} - ${
+    props.business.data?.stateCode
+  } - ${props.reviews.total} reviews and ${props.questions.total} questions asked`;
 
   return (
     <SSRProvider>
+      <Head>
+        <title>{pageDescription}</title>
+        <meta name="description" content={pageDescription} />
+      </Head>
       <Layout>
         <Spinner pageWide show={loading} />
         <Layout.Nav>

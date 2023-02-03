@@ -4,7 +4,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import useSignedInUser from './useSignedInUser';
 
 export type MiddlewareNext = (...args: []) => any;
-export type AuthMiddlewareNext = (token?: string) => any;
+export type AuthMiddlewareNext = (token: string) => any;
 
 type Middleware = (next: AuthMiddlewareNext) => any;
 
@@ -25,15 +25,16 @@ const useMiddleware = function () {
       nextAction?.(currentUser.accessToken!);
       removeNextAction(); // Reset next action since it is already executed
     }
-  }, [currentUser.isSignedIn]);
+  }, [currentUser.isSignedIn, currentUser.accessToken]);
 
   useEffect(() => {
     // If user closes the auth modal without signing in
     if (!isAuthModalOpen && middlewareType === 'AUTH') removeNextAction();
-  }, [isAuthModalOpen]);
+  }, [isAuthModalOpen, middlewareType]);
 
   const withAuth: Middleware = function (next: AuthMiddlewareNext) {
     setMiddlewareType('AUTH');
+    console.log('In middlw: ', currentUser);
     if (currentUser.isSignedIn) return next(currentUser.accessToken!); // Proceed if logged in
 
     showAuthModal!('login');

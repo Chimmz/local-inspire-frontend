@@ -73,7 +73,8 @@ const Answer: React.FC<Props> = function (props) {
   const handleSelectDropdownAction = useCallback((evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        props.openReportAnswerModal(props._id);
+        withAuth(token => props.openReportAnswerModal(props._id));
+        // withAuth.bind(null, (_?: string) => props.openReportModal(props._id))}
         break;
     }
   }, []);

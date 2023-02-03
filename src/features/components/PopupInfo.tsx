@@ -12,7 +12,11 @@ interface PopupInfoPropsProps {
 const PopupInfo: React.FC<PopupInfoPropsProps> = props => {
   return (
     <Modal show={props.show} centered scrollable onHide={props.close as () => void}>
-      {props.heading ? <Modal.Header closeButton>{props.heading}</Modal.Header> : null}
+      {props.heading ? (
+        <Modal.Header className="pb-4 px-5" closeButton>
+          {props.heading}
+        </Modal.Header>
+      ) : null}
       <Modal.Body className="py-3 px-5">{props.children}</Modal.Body>
     </Modal>
   );

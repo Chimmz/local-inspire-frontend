@@ -14,7 +14,7 @@ import useRequest from '../../../hooks/useRequest';
 import usePaginate from '../../../hooks/usePaginate';
 import useInput from '../../../hooks/useInput';
 // Utils
-import { reportModalConfig } from './config';
+import { reportModalConfig, reviewReportReasonsConfig } from './config';
 import { UserRoles } from '../../../data/constants';
 import * as userUtils from '../../../utils/user-utils';
 import { minLength } from '../../../utils/validators/inputValidators';
@@ -257,6 +257,7 @@ function ReviewsSection(props: Props) {
       {/* The Report modal */}
       <ReportQA
         show={!!reviewReportId}
+        possibleReasons={reviewReportReasonsConfig}
         onReport={handleReportReview}
         close={setReviewReportId.bind(null, null)}
       />

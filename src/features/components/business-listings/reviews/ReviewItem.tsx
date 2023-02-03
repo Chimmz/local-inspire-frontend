@@ -129,9 +129,7 @@ const ReviewItem = function (props: Props) {
           <Dropdown.Menu className="fs-5" style={{ overflowY: 'auto' }}>
             <Dropdown.Item
               eventKey="report"
-              onClick={withAuth.bind(null, (token?: string) =>
-                props.openReportModal(props._id),
-              )}
+              onClick={withAuth.bind(null, (_?: string) => props.openReportModal(props._id))}
             >
               Report
             </Dropdown.Item>

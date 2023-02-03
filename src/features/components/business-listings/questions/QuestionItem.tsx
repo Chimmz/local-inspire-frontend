@@ -21,6 +21,7 @@ import { genQuestionDetailsPageUrl } from '../../../utils/url-utils';
 import * as qtyUtils from '../../../utils/quantity-utils';
 import useMiddleware from '../../../hooks/useMiddleware';
 import ReportQA from '../../ReportQA';
+import { answerReportReasonsConfig } from './config';
 
 export interface QuestionItemProps {
   _id: string;
@@ -53,7 +54,7 @@ const QuestionItem = function (props: Props) {
   const handleSelectDropdownOption = useCallback((evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        props.openReportQuestionModal(question._id);
+        withAuth(token => props.openReportQuestionModal(question._id));
         break;
     }
   }, []);
@@ -74,9 +75,8 @@ const QuestionItem = function (props: Props) {
     return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
   }, [question.answers, mostHelpfulAnswer]);
 
-  const openReportAnswerModal = function (qId: string) {
-    withAuth((token?: string) => setAnswerIdReport(qId));
-  };
+  const openReportAnswerModal = (qid: string) => setAnswerIdReport(qid);
+
   const handleReportAnswer = async function (reason: string, explanation: string) {
     console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
   };
@@ -93,8 +93,6 @@ const QuestionItem = function (props: Props) {
     [],
   );
 
-  // console.log({ mostHelpfulAnswer, lessHelpfulAnswers });
-
   return (
     <section className={cls(styles.question, props.show ? 'd-block' : 'd-none')}>
       <div className={styles.questionHeader}>
@@ -103,7 +101,6 @@ const QuestionItem = function (props: Props) {
             src={question.askedBy.imgUrl}
             layout="fill"
             objectFit="cover"
-            // onError={setImgSrc.bind(null, '/img/default-profile-pic.jpeg')}
             style={{ borderRadius: '50%' }}
           />
         </figure>
@@ -209,6 +206,7 @@ const QuestionItem = function (props: Props) {
 
       <ReportQA
         show={!!answerIdReport}
+        possibleReasons={answerReportReasonsConfig}
         close={() => setAnswerIdReport(null)}
         onReport={handleReportAnswer}
       />

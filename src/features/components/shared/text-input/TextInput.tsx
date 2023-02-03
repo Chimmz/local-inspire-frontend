@@ -13,7 +13,7 @@ interface TextInputProps {
   validationErrors?: ValidationFeedback[];
   label?: string;
   autoFocus?: boolean;
-  selectOnFocus?: boolean;
+  onFocusSelect?: boolean;
   onInput?: React.ChangeEventHandler<HTMLInputElement> | (() => void);
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | (() => void);
   [key: string]: any;
@@ -25,7 +25,7 @@ function TextInput(props: TextInputProps) {
     type = 'text',
     autoFocus,
     readonly,
-    selectOnFocus,
+    onFocusSelect,
     ...nativeProps
   } = props;
   const hasError = !!validationErrors?.length;
@@ -40,7 +40,10 @@ function TextInput(props: TextInputProps) {
         autoFocus={autoFocus}
         onInput={props.onInput || (() => {})}
         onKeyUp={props.onKeyUp || (() => {})}
-        onFocus={ev => selectOnFocus && ev.target.select()}
+        onFocus={ev => {
+          props.onFocus?.();
+          onFocusSelect && ev.target.select();
+        }}
         readOnly={props.readonly}
       />
 

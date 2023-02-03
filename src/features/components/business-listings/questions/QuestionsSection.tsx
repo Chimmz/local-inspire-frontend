@@ -11,7 +11,11 @@ import useSignedInUser from '../../../hooks/useSignedInUser';
 import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 
 import api from '../../../library/api';
-import { postingGuidelinesConfig } from './config';
+import {
+  newQuestionGuidelinesConfig,
+  postingGuidelinesConfig,
+  questionReportReasonsConfig,
+} from './config';
 import { newQuestionValidatorsConfig } from './config';
 import cls from 'classnames';
 import * as domUtils from '../../../utils';
@@ -23,7 +27,10 @@ import Accordion from 'react-bootstrap/Accordion';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
 import { getBusinessQuestionsUrl } from '../../../utils/url-utils';
+
 import GuidelinesPopup from '../../PopupInfo';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import Paginators from '../../shared/pagination/Paginators';
 import usePaginate from '../../../hooks/usePaginate';
 import ReportQA from '../../ReportQA';
@@ -53,13 +60,14 @@ const QuestionsSection = function (props: Props) {
   const { send: sendSubmitQuestionReq, loading: isPostingQuestion } = useRequest({
     autoStopLoading: true,
   });
-
-  const [questionIdReport, setQuestionIdReport] = useState<string | null>(null);
-
-  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
   const btnCloseAccordionRef = useRef<HTMLButtonElement | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+
+  // Modals
+  const [questionIdReport, setQuestionIdReport] = useState<string | null>(null);
+  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
+  const [showNewQuestionGuidelines, setShowNewQuestionGuidelines] = useState(false);
 
   const {
     inputValue: newQuestion,
@@ -96,12 +104,13 @@ const QuestionsSection = function (props: Props) {
   };
 
   const postNewQuestion: MiddlewareNext = async function (token?: string) {
-    const data = await sendSubmitQuestionReq(
+    const res = await sendSubmitQuestionReq(
       api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
     );
-    console.log({ data });
-    if (data?.status) {
-      setQuestions(items => [data.question, ...(items || [])]);
+    console.log({ res });
+    if (res?.status === 'SUCCESS') {
+      setPageData(1, [res.question, ...getPageData(1)!]);
+      setCurrentPage(1);
       clearNewQuestionText();
       btnCloseAccordionRef.current!.click();
     }
@@ -113,9 +122,6 @@ const QuestionsSection = function (props: Props) {
     withAuth(postNewQuestion);
   };
 
-  const openReportQuestionModal = function (qId: string) {
-    withAuth((token?: string) => setQuestionIdReport(qId));
-  };
   const handleReportQuestion = async function (reason: string, explanation: string) {
     console.log(
       `Reported ${questionIdReport} because ${reason}. More details: ${explanation}`,
@@ -195,7 +201,19 @@ const QuestionsSection = function (props: Props) {
             />
             <small className="mb-3 d-block">
               Note: your question will be posted publicly here and on the Questions & Answers
-              page <Icon icon="ic:baseline-info" style={{ marginLeft: '1rem' }} />
+              page{' '}
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="tooltip-tips">Question guidelines</Tooltip>}
+              >
+                <Icon
+                  icon="ic:baseline-info"
+                  style={{ marginLeft: '5px' }}
+                  className="cursor-pointer"
+                  width={18}
+                  onClick={setShowNewQuestionGuidelines.bind(null, true)}
+                />
+              </OverlayTrigger>
             </small>
 
             <div className="d-flex align-items-end gap-3">
@@ -230,7 +248,7 @@ const QuestionsSection = function (props: Props) {
           show={props.show && !!questions?.length}
           key={que._id}
           business={props.business}
-          openReportQuestionModal={openReportQuestionModal}
+          openReportQuestionModal={(qid: string) => setQuestionIdReport(qid)}
           showPostingGuidelines={setShowPostingGuidelines.bind(null, true)}
         />
       ))}
@@ -258,7 +276,7 @@ const QuestionsSection = function (props: Props) {
           className={cls('align-items-center justify-content-between', showWith('d-flex'))}
         >
           <Paginators
-            currentPage={1}
+            currentPage={currentPage}
             onPageChange={handlePageChange}
             pageCount={totalPages}
           />
@@ -274,9 +292,10 @@ const QuestionsSection = function (props: Props) {
 
       {/* The Report question modal */}
       <ReportQA
-        onReport={handleReportQuestion}
         close={() => setQuestionIdReport(null)}
         show={!!questionIdReport}
+        possibleReasons={questionReportReasonsConfig}
+        onReport={handleReportQuestion}
       />
 
       {/* Guidelines on writing a new answer */}
@@ -286,6 +305,15 @@ const QuestionsSection = function (props: Props) {
         heading={postingGuidelinesConfig.heading}
       >
         {postingGuidelinesConfig.body(props.business?.businessName!)}
+      </GuidelinesPopup>
+
+      {/* Guidelines on writing a new answer */}
+      <GuidelinesPopup
+        show={showNewQuestionGuidelines}
+        close={setShowNewQuestionGuidelines.bind(null, false)}
+        heading={newQuestionGuidelinesConfig.heading}
+      >
+        {newQuestionGuidelinesConfig.body(props.business?.businessName!)}
       </GuidelinesPopup>
     </>
   );

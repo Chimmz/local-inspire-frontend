@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import '../styles/sass/main.scss';
 import AuthContextProvider from '../features/contexts/AuthContext';
 import { UserLocationProvider } from '../features/contexts/UserLocationContext';
+import Head from 'next/head';
+import { seoKeywords } from '../features/data/constants';
 // import Script from 'next/script';
 
 interface PageProps {
@@ -20,6 +22,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SessionProvider session={session}>
       <UserLocationProvider>
         <AuthContextProvider>
+          <Head>
+            <meta name="keywords" content={seoKeywords} />
+          </Head>
           <Component {...restPageProps} />
         </AuthContextProvider>
       </UserLocationProvider>
