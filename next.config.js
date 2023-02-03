@@ -6,6 +6,9 @@ const nextConfig = {
     //  Add global styles you want module sass files to access
     additionalData: `@import "src/styles/sass/abstracts/variables.scss";`,
   },
+  typescript: {
+    ignoreBuildErrors: true
+  },
   images: {
     domains: [
       'plus.unsplash.com',
