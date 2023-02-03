@@ -32,7 +32,7 @@ export const questionReportReasonsConfig = [
 export const answerReportReasonsConfig = [
   'It does not answer the question asked',
   'It contains threats, lewdness or hate speech',
-  "It violates Local Inspire's privacy standards",
+  'It violates Local Inspire&apos;s privacy standards',
   'It contains promotional material',
   'It is spam',
   'I want to report something else',
@@ -57,11 +57,11 @@ export const newQuestionGuidelinesConfig = {
         <li className="mb-3">
           Keep your question specific to <strong>{businessName}</strong>&apos;s page. For
           example, &apos;Will the business make menu changes to accommodate dietary
-          restrictions?&apos;
+          restrictions?
         </li>
         <li className="mb-3">
-          Your question will be posted publicly. Please don't submit any personal information
-          you don't want revealed.
+          Your question will be posted publicly. Please don&apos;t submit any personal
+          information you don&apos;t want revealed.
         </li>
         <li className="mb-3">This is NOT a place to vent, keep questions useful.</li>
         <li className="mb-3">
