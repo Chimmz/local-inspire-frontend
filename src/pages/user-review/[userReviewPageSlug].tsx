@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
@@ -97,7 +97,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
               </small>
               <Icon icon="ic:baseline-greater-than" width={10} />
               <small className="">
-                {userFullname ? `${userFullname}s` : 'Loading...'} of{' '}
+                {userFullname ? `${userFullname}'s review of ` : 'Loading...'}
                 {props.business?.businessName}
               </small>
             </nav>
@@ -236,14 +236,14 @@ const UserReviewPage: NextPage<Props> = function (props) {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: true,
-  };
-};
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: true,
+//   };
+// };
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getServerSideProps: GetServerSideProps = async context => {
   try {
     const slug = context.params!.userReviewPageSlug as string;
     const { reviewId } = parseUserReviewPageSlug(slug);
@@ -257,6 +257,7 @@ export const getStaticProps: GetStaticProps = async context => {
 
     return {
       props: { review: res1.review, business: res2.data },
+      // revalidate: 10000
     };
   } catch (err) {
     return { props: { error: err } };
