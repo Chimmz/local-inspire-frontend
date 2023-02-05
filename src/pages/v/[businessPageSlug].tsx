@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 // Types
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
@@ -282,14 +282,14 @@ const BusinessListings: NextPage<Props> = function (props) {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async function (context) {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+// export const getStaticPaths: GetStaticPaths = async function (context) {
+//   return {
+//     paths: [],
+//     fallback: 'blocking',
+//   };
+// };
 
-export const getStaticProps: GetStaticProps = async function (context) {
+export const getServerSideProps: GetServerSideProps = async function (context) {
   const slug = context.params!.businessPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
 

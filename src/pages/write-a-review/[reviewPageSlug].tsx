@@ -46,7 +46,7 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
     autoStopLoading: true,
   });
   const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
-    autoStopLoading: false,
+    autoStopLoading: true,
   });
 
   useEffect(() => {
