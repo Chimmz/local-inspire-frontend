@@ -37,6 +37,7 @@ type Props = AnswerProps & {
 
 const Answer: React.FC<Props> = function (props) {
   const { _id: currentUserId, accessToken } = useSignedInUser();
+  const [isMostHelpfulAnswer, setIsMostHelpfulAnswer] = useState(props.mostHelpful);
 
   const [reactions, setReactions] = useState({
     likes: props.likes,
@@ -63,12 +64,17 @@ const Answer: React.FC<Props> = function (props) {
         ? api.toggleLikeAnswerToBusinessQuestion
         : api.toggleDislikeAnswerToBusinessQuestion;
 
-    const data = await sendReactionReq(
-      handler.bind(api)(props.questionId, props._id, token!),
-    );
+    const req = handler.bind(api)(props.questionId, props._id, token!);
+    const data = (await sendReactionReq(req)) as typeof reactions & {
+      status: 'SUCCESS' | 'FAIL' | 'ERROR';
+    };
+
     console.log({ data });
 
-    data?.status === 'SUCCESS' && setReactions(data as typeof reactions);
+    data?.status === 'SUCCESS' && setReactions(data);
+
+    // If user removed his like and there are no likes now
+    if (reaction === 'like' && !data.likes?.length) setIsMostHelpfulAnswer(false);
   };
 
   const handleSelectDropdownAction = useCallback((evKey: string) => {
@@ -122,7 +128,7 @@ const Answer: React.FC<Props> = function (props) {
               </small>
             </>
           ) : null}
-          {props.mostHelpful ? (
+          {isMostHelpfulAnswer ? (
             <strong className="d-flex align-items-center gap-2">
               • <small className="t-2 d-block">Most helpful answer</small>
             </strong>
