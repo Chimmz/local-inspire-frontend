@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -424,11 +424,11 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   );
 };
 
-// export const getStaticPaths: GetStaticPaths = async context => {
-//   return { paths: [], fallback: 'blocking' };
-// };
+export const getStaticPaths: GetStaticPaths = async context => {
+  return { paths: [], fallback: 'blocking' };
+};
 
-export const getServersideProps: GetServerSideProps = async function (context) {
+export const getStaticProps: GetStaticProps = async function (context) {
   const slug = context.params!.questionSlug as string;
   const [businessName, location, questionText, questionId] = slug.split('_');
 
@@ -451,6 +451,7 @@ export const getServersideProps: GetServerSideProps = async function (context) {
       answers: responses[1],
       mostHelpfulAnswer: responses[2]?.mostHelpfulAnswer,
     },
+    revalidate: 10000,
   };
 };
 
