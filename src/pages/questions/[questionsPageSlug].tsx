@@ -272,7 +272,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
           show={showPostingGuidelines}
           close={setShowPostingGuidelines.bind(null, false)}
         >
-          {postingGuidelinesConfig.body(props.questions.data?.[0].business?.businessName!)}
+          {postingGuidelinesConfig.body(props.questions.data?.[0]?.business?.businessName!)}
         </PopupInfo>
 
         {/* Report question modal */}
