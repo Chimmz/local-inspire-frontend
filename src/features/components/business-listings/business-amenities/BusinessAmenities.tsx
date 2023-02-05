@@ -64,7 +64,7 @@ const BusinessAmenities = function () {
           </p>
         </li>
 
-        <li>
+        {/*<li>
           <strong>House Rules</strong>
           <p>Kid-Friendly</p>
         </li>
@@ -87,7 +87,7 @@ const BusinessAmenities = function () {
           <p>Accessible Bathroom, In-room Accessibility, Ramp</p>
         </li>
 
-        {/* <li>
+         <li>
         <strong>Required at check in</strong>
         <p>Credit card or cash deposit</p>
       </li>

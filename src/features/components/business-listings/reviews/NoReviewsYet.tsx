@@ -14,7 +14,7 @@ interface Props {
 
 const NoReviewsYet = function (props: Props) {
   const router = useRouter();
-  const slug = router.query.businessDetails as string;
+  const slug = router.query.businessPageSlug as string;
 
   const showStyle = props.show ? 'd-block' : 'd-none';
 
