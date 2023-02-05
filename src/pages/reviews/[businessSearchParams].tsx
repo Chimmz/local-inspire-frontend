@@ -196,7 +196,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
 export const getStaticPaths: GetStaticPaths = async function () {
   return {
-    paths: [{ params: { businessSearchParams: 'find=restaurants&location=anchorage-AK' } }],
+    // paths: [{ params: { businessSearchParams: 'find=restaurants&location=anchorage-AK' } }],
+    paths: [],
     fallback: 'blocking',
   };
 };
