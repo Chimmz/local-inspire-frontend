@@ -7,7 +7,7 @@ const nextConfig = {
     additionalData: `@import "src/styles/sass/abstracts/variables.scss";`,
   },
   typescript: {
-    ignoreBuildErrors: true
+    // ignoreBuildErrors: true
   },
   images: {
     domains: [
