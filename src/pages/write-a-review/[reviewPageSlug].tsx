@@ -207,6 +207,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const res = await api.getBusinessReviews(businessId);
   return {
     props: { reviews: res, business, slug },
+    revalidate: 30000,
   };
 };
 

@@ -123,9 +123,9 @@ function Question(props: Props) {
           toggler={<Icon icon="material-symbols:more-vert" width={20} />}
         />
 
-        {/* <Link href={questionDetailsUrl} passHref>
+        <Link href={questionDetailsUrl} passHref>
           <a className={`btn btn-bg-none no-bg-hover text-pry`}>{answersInfo}</a>
-        </Link> */}
+        </Link>
 
         <CustomAccordionToggle
           eventKey="4"
