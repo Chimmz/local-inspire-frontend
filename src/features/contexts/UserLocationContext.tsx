@@ -27,9 +27,6 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
     checkPositiveResponse: (res: Promise<any>) => res && 'features' in res,
   });
 
-  // type MapboxResponseFeature = {
-
-  // }
   const extractLocationData = (mapboxContexts: { [key: string]: string }[]) => {
     console.log('Param: ', mapboxContexts);
     const data = mapboxContexts.reduce(
@@ -76,21 +73,6 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
       );
       console.log('extractedData: ', extractedData);
 
-      // "text": "Anderson County" // --> features[0].context[2].text
-      // "short_code": "US-TX", // --> features[0].context[3].short_code
-
-      // const [cityName, countryName] = [
-      //   data.features[0].context[2].text || data.features[0].context[0].text,
-      //   data.features[0]?.context[4]?.text || data.features[3]?.place_name,
-      // ];
-
-      // const [countryCode, stateCode] = (
-      //   (data.features[0]?.context[3]?.short_code ||
-      //     data.features[0].context[1].short_code) as string
-      // )?.split('-');
-
-      // const city = cityName.concat(', ').concat(stateCode);
-      // const country = countryName.concat(', ').concat(countryCode.toUpperCase());
       const city = [extractedData.cityName, extractedData.stateCode].join(', ');
       setUserLocation(prev => ({ ...prev, ...extractedData, city }));
     } catch (err) {
