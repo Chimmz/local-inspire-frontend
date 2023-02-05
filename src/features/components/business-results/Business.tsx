@@ -44,7 +44,7 @@ export interface BusinessProps {
   claimed: boolean;
 }
 
-interface RatedBusiness extends BusinessProps {
+interface RatedBusiness extends Partial<BusinessProps> {
   userRating?: number;
   photoUrl?: string;
   reviewText?: string[];

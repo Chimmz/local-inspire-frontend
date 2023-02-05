@@ -9,7 +9,7 @@ import styles from './FeaturedBusinesses.module.scss';
 
 interface Props {
   groupName: string;
-  businesses: Partial<BusinessProps & { rating: number }>[];
+  businesses: Partial<BusinessProps>[];
   className?: string;
 }
 
