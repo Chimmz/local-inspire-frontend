@@ -16,12 +16,13 @@ import { QuestionItemProps } from './QuestionItem';
 import useDate from '../../../hooks/useDate';
 import * as qtyUtils from '../../../utils/quantity-utils';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
+import * as domUtils from '../../../utils/dom-utils';
 
 export interface AnswerProps {
   readonly _id: string;
   readonly answeredBy: UserPublicProfile;
   readonly createdAt: string;
-  readonly answerText: string;
+  readonly answerText: string[];
   readonly answeredDate: string;
   readonly likes: string[];
   readonly dislikes: string[];
@@ -136,7 +137,9 @@ const Answer: React.FC<Props> = function (props) {
         />
       </div>
 
-      <small className="parag mb-4 d-block text-black">{props.answerText}</small>
+      <small className="parag mb-4 d-block text-black">
+        {domUtils.renderMultiLineText(props.answerText)}
+      </small>
 
       <div
         className={`d-${

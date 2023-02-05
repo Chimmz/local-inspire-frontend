@@ -15,6 +15,9 @@ import useSignedInUser from '../../hooks/useSignedInUser';
 import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
 import { QuestionItemProps } from '../business-listings/questions/QuestionItem';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useRouter } from 'next/router';
+import navigateTo, { genQuestionDetailsPageUrl } from '../../utils/url-utils';
+import { BusinessProps } from '../business-results/Business';
 
 interface Props {
   className?: string;
@@ -28,7 +31,8 @@ interface Props {
   openSuccessModal?: () => void;
 }
 
-function NewQuestionSection(props: Props) {
+const NewQuestionSection = function (props: Props) {
+  const router = useRouter();
   const {
     inputValue: newQuestion,
     handleChange: handleChangeNewQuestion,
@@ -41,18 +45,30 @@ function NewQuestionSection(props: Props) {
   const { withAuth } = useMiddleware();
 
   const submitQuestion: AuthMiddlewareNext = async (token?: string) => {
+    console.log('Text: ', newQuestion.length);
     const res = await props.sendSubmitReq(
       api.askQuestionAboutBusiness(newQuestion, props.businessId, token!),
     );
     console.log('New question resp: ', res);
     if (res.status !== 'SUCCESS') return;
 
+    const newQue = res.question as QuestionItemProps;
     props.openSuccessModal?.();
     clearNewQuestionText();
 
-    if (!props.pushQuestion) return;
-    props.pushQuestion(res.question as QuestionItemProps);
-    window.scrollTo(0, 0);
+    if (props.pushQuestion) {
+      props.pushQuestion(newQue);
+      return window.scrollTo(0, 0);
+    }
+    // Else
+    window.location.href = genQuestionDetailsPageUrl({
+      businessName: newQue.business?.businessName!,
+      city: newQue.business?.city!,
+      stateCode: newQue.business?.stateCode!,
+      qId: newQue._id!,
+      qText: newQue.questionText.join(' ')!,
+      scrollToAnswerForm: false,
+    });
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = ev => {
@@ -116,5 +132,5 @@ function NewQuestionSection(props: Props) {
       </LoadingButton>
     </form>
   );
-}
+};
 export default NewQuestionSection;

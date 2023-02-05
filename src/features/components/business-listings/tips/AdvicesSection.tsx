@@ -23,15 +23,18 @@ import Paginators from '../../shared/pagination/Paginators';
 import NoReviewsYet from '../reviews/NoReviewsYet';
 import api from '../../../library/api';
 import { BusinessProps } from '../../business-results/Business';
-import * as domUtils from '../../../utils';
+import * as domUtils from '../../../utils/dom-utils';
 import useMiddleware from '../../../hooks/useMiddleware';
 import ReportQA from '../../ReportQA';
+import { reviewReportReasonsConfig } from '../reviews/config';
+import styles from './AdvicesSection.module.scss';
 
 interface AdvicesSectionProps {
   show: boolean;
   tips?: TipProps[] | undefined;
   tipsTotal: number;
   slug: string;
+  business: BusinessProps;
   businessName: string | undefined;
   businessId: string | undefined;
   sendRequest: (req: Promise<any>) => any;
@@ -57,7 +60,6 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       setCurrentPage(newPage);
       return domUtils.scrollToElement(tipsSectionRef.current!);
     }
-
     const req = api.getTipsAboutBusiness(props.businessId!, {
       page: newPage,
       limit: TIPS_PER_PAGE,
@@ -69,12 +71,12 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
     setCurrentPage(newPage);
     domUtils.scrollToElement(tipsSectionRef.current!);
 
-    // In case there are new tips in DB, let it reflect as a change in the number of pages
+    // In case there are new tips in DB, let it alter the number of pages
     if (tipsTotal !== res.total) setTipsTotal(res.total);
   };
 
   const openAdviceReportModal = function (tId: string) {
-    withAuth((token?: string) => setAdviceIdReport(tId));
+    withAuth(_ => setAdviceIdReport(tId));
   };
   const handleReportAdvice = async function (reason: string, explanation: string) {
     console.log(`Reported ${adviceIdReport} because ${reason}. More details: ${explanation}`);
@@ -96,20 +98,19 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
   );
 
   return (
-    <>
-      <section
+    <section className={styles.tipsSection} ref={tipsSectionRef}>
+      <div
         className={cls(
           props.show ? 'd-flex' : 'd-none',
-          'align-items-center justify-content-between flex-wrap',
+          'py-4 px-4 border-bottom align-items-center justify-content-between flex-wrap',
         )}
-        ref={tipsSectionRef}
       >
         <h2>Tips/Advice</h2>
 
         <Link href={reviewPageUrl} passHref>
           <a className="btn btn-pry">Write a review</a>
         </Link>
-      </section>
+      </div>
 
       {/* Each tip in current page */}
       {currentPageData?.map(tip => (
@@ -118,6 +119,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
           show={props.show && !!props.tips?.length}
           key={tip._id}
           slug={props.slug}
+          business={props.business}
           openAdviceReportModal={openAdviceReportModal}
         />
       ))}
@@ -141,10 +143,11 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
 
       <ReportQA
         show={!!adviceIdReport}
+        possibleReasons={reviewReportReasonsConfig}
         close={setAdviceIdReport.bind(null, null)}
         onReport={handleReportAdvice}
       />
-    </>
+    </section>
   );
 };
 

@@ -1,8 +1,16 @@
+.tipsSection {
+  & > * {
+    padding: 15px;
+  }
+  & > *:not(:first-child) {
+    padding: 20px;
+  }
+}
+
 .adviceHeader {
   display: grid;
   grid-template-columns: 50px 1fr auto;
   grid-template-rows: 25px 25px;
-  // row-gap: 5px;
   column-gap: 10px;
   margin-bottom: 2rem;
 

@@ -20,7 +20,7 @@ import {
 } from '../../utils/validators/inputValidators';
 import { toTitleCase } from '../../utils/string-utils';
 import api from '../../library/api';
-import * as domUtils from '../../utils';
+import * as domUtils from '../../utils/dom-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
@@ -75,7 +75,7 @@ function NewReviewForm(props: Props) {
     runValidators: runMainReviewValidators,
     validationErrors: mainReviewValidationErrors,
   } = useInput({
-    init: props.userReview?.review || '',
+    init: props.userReview?.review.join(' ') || '',
     validators: [{ fn: isRequired, params: ['Please enter your review for this business'] }],
   });
 

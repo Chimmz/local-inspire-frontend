@@ -4,7 +4,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Modal, SSRProvider } from 'react-bootstrap';
 import Answer, {
   AnswerProps,
@@ -15,14 +15,12 @@ import {
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
-import { reportModalConfig } from '../../features/components/business-listings/reviews/config';
 import PopupInfo from '../../features/components/PopupInfo';
 import Layout from '../../features/components/layout';
 import PopularQuestions from '../../features/components/question-details-page/PopularQuestions';
 import NewQuestionSection from '../../features/components/questions-page/NewQuestionSection';
 import LoadingButton from '../../features/components/shared/button/Button';
 import AppDropdown from '../../features/components/shared/dropdown/AppDropdown';
-import LabelledCheckbox from '../../features/components/shared/LabelledCheckbox';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import PageSuccess from '../../features/components/shared/success/PageSuccess';
 import TextInput from '../../features/components/shared/text-input/TextInput';
@@ -36,14 +34,20 @@ import { genBusinessPageUrl, getBusinessQuestionsUrl } from '../../features/util
 import { getFullName } from '../../features/utils/user-utils';
 import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
 import ReportQA from '../../features/components/ReportQA';
-import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
 import * as qtyUtils from '../../features/utils/quantity-utils';
 import usePaginate from '../../features/hooks/usePaginate';
 import Paginators from '../../features/components/shared/pagination/Paginators';
+import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
+import * as domUtils from '../../features/utils/dom-utils';
 
 interface Props {
   question?: QuestionItemProps;
-  answers: { data: AnswerProps[] | undefined; total: number; results: number };
+  answers: {
+    data: AnswerProps[] | undefined;
+    total: number;
+    results: number;
+  };
+  mostHelpfulAnswer: AnswerProps | undefined;
   error?: string;
 }
 
@@ -74,7 +78,6 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     autoStopLoading: true,
   });
   const router = useRouter();
-  console.log('Checking: ', router);
 
   const { formatDate } = useDate(undefined, {
     day: '2-digit',
@@ -151,9 +154,10 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       api.addAnswerToBusinessQuestion(props.question!._id, newAnswer, token!),
     );
     if (res.status === 'SUCCESS') {
-      setAnswers(items => [...items!, res.newAnswer]);
+      setAnswers(items => [res.newAnswer, ...items!]);
       setAnswersTotal(n => n + 1);
       clearNewAnswerText();
+      window.scrollTo(0, 0);
     }
   };
 
@@ -169,17 +173,15 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     console.log(reason, explanation);
   };
 
-  const mostHelpfulAnswer = useMemo(() => {
-    if (!question) return undefined;
+  // const mostHelpfulAnswer = useMemo(() => {
+  //   if (!question) return undefined;
 
-    let answer: AnswerProps | undefined = answers?.reduce((acc, ans) => {
-      return ans?.likes.length > acc?.likes.length ? ans : acc;
-    }, answers?.[0]);
+  //   return answers?.reduce((acc, ans) => {
+  //     return ans?.likes.length && ans?.likes.length > acc?.likes.length ? ans : acc;
+  //   }, answers?.[0]);
+  // }, [answers]);
 
-    return answer?.likes.length ? answer : undefined;
-  }, [answers]);
-
-  console.log({ mostHelpfulAnswer });
+  console.log({ mostHelpfulAnswer: props.mostHelpfulAnswer });
 
   const externalUrlParams = {
     businessId: question!.business!._id,
@@ -236,7 +238,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
 
             <header className={styles.header}>
               <h1 className="flex-grow-1" style={{ flexBasis: '90%' }}>
-                {question?.questionText}
+                {domUtils.renderMultiLineText(question?.questionText!)}
               </h1>
               <AppDropdown
                 items={['Report']}
@@ -286,16 +288,27 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             <h3>{answersTotal} Answers</h3>
 
             <ul className={cls(styles.answersList, 'no-bullets mb-5')}>
-              {answers?.map(a => (
+              {props.mostHelpfulAnswer ? (
                 <Answer
-                  {...a}
+                  {...props.mostHelpfulAnswer!}
+                  mostHelpful
                   setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
                   questionId={props.question?._id!}
-                  mostHelpful={a._id === mostHelpfulAnswer?._id}
                   openReportAnswerModal={openReportAnswerModal}
-                  key={a._id}
                 />
-              ))}
+              ) : null}
+              {answers?.map(a => {
+                if (a._id === props.mostHelpfulAnswer?._id) return <></>;
+                return (
+                  <Answer
+                    {...a}
+                    setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
+                    questionId={props.question?._id!}
+                    openReportAnswerModal={openReportAnswerModal}
+                    key={a._id}
+                  />
+                );
+              })}
             </ul>
 
             {/* Pagination */}
@@ -423,11 +436,12 @@ export const getStaticProps: GetStaticProps = async function (context) {
   console.log({ businessName, location, questionText, questionId });
 
   const responses = await Promise.all([
-    api.getQuestion(questionId, {
-      textSearch: questionText.split('-').join(' ').split('?').join(' ').trim().toLowerCase(),
-    }),
+    api.getQuestion(questionId),
     api.getAnswersToQuestion(questionId, { page: 1, limit: 10 }),
+    api.getMostHelpfuAnswerToQuestion(questionId),
   ]);
+
+  console.log('Que response: ', responses[0]);
 
   if (responses[0].status === 'NOT_FOUND') return { notFound: true };
 
@@ -435,7 +449,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
     props: {
       question: responses[0].question,
       answers: responses[1],
-      // params: { questionText: questionText.split('-').join(' ') },
+      mostHelpfulAnswer: responses[2]?.mostHelpfulAnswer,
     },
   };
 };

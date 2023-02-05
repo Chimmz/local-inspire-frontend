@@ -245,7 +245,7 @@ class API {
     token: string,
   ) {
     return this._makeRequest({
-      path: `/businesses/questions/${questionId}/answers/${answerId}/like`,
+      path: `/questions/${questionId}/answers/${answerId}/like`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
@@ -257,7 +257,7 @@ class API {
     token: string,
   ) {
     return this._makeRequest({
-      path: `/businesses/questions/${questionId}/answers/${answerId}/dislike`,
+      path: `/questions/${questionId}/answers/${answerId}/dislike`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
@@ -268,7 +268,7 @@ class API {
     queryStr?: string,
     opts?: { page?: number; limit?: number },
   ) {
-    const url = `/businesses/${businessId}/questions`
+    const url = `/questions/about/${businessId}`
       .concat(queryStr || '')
       .concat(!queryStr ? '?&' : '')
       .concat(opts?.page ? `page=${opts.page}` : '')
@@ -281,11 +281,9 @@ class API {
     });
   }
 
-  async getQuestion(qId: string, opts?: { textSearch: string }) {
+  async getQuestion(qId: string) {
     return this._makeRequest({
-      path: `/questions/${qId}`.concat(
-        opts?.textSearch ? `?textSearch=${opts.textSearch}` : '',
-      ),
+      path: `/questions/${qId}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -296,6 +294,14 @@ class API {
       path: `/questions/${qId}/answers`.concat(
         opts ? `?page=${opts.page}&limit=${opts.limit}` : '',
       ),
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async getMostHelpfuAnswerToQuestion(qId: string) {
+    return this._makeRequest({
+      path: `/questions/${qId}/answers/most-helpful`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

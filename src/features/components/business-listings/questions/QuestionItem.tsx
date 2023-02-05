@@ -22,10 +22,11 @@ import * as qtyUtils from '../../../utils/quantity-utils';
 import useMiddleware from '../../../hooks/useMiddleware';
 import ReportQA from '../../ReportQA';
 import { answerReportReasonsConfig } from './config';
+import * as domUtils from '../../../utils/dom-utils';
 
 export interface QuestionItemProps {
   _id: string;
-  questionText: string;
+  questionText: string[];
   business: BusinessProps | undefined;
   askedBy: UserPublicProfile;
   answers: AnswerProps[];
@@ -86,7 +87,7 @@ const QuestionItem = function (props: Props) {
       genQuestionDetailsPageUrl({
         businessName: props.business!.businessName!,
         qId: props._id,
-        qText: props.questionText,
+        qText: props.questionText.flat().join(' '),
         city: props.business?.city,
         stateCode: props.business?.stateCode,
       }),
@@ -132,8 +133,10 @@ const QuestionItem = function (props: Props) {
 
       {/* Question text content */}
       <div className={cls(styles.questionText, 'text-dark text-hover-dark fs-3')}>
-        <Link href={questionDetailsUrl} className="link">
-          {question.questionText}
+        <Link href={questionDetailsUrl} className="link" passHref>
+          <a className="w-max-content d-block">
+            {domUtils.renderMultiLineText(question.questionText)}
+          </a>
         </Link>
       </div>
 

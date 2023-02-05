@@ -27,6 +27,8 @@ import FeaturedBusinesses from '../../features/components/business-results/Featu
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import styles from '../../styles/sass/pages/BusinessPage.module.scss';
 import Head from 'next/head';
+import Link from 'next/link';
+import BusinessAmenities from '../../features/components/business-listings/business-amenities/BusinessAmenities';
 
 interface Props {
   reviews: {
@@ -146,73 +148,83 @@ const BusinessListings: NextPage<Props> = function (props) {
               </section>
 
               <section className={styles.businessAmenities}>
-                <h2>business Amenities</h2>
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Qui quos fugit nam
+                <div className="d-flex align-items-center justify-content-between pb-3 border-bottom">
+                  <h2 className="">Business Amenities</h2>
+                  <Link href="/" passHref>
+                    <a className="text-pry">
+                      <strong>Improve this listing</strong>
+                    </a>
+                  </Link>
+                </div>
+                <BusinessAmenities />
               </section>
 
-              <nav
-                className={cls(
-                  styles.nav,
-                  'd-flex align-items-center justify-content-between flex-wrap',
-                )}
-              >
-                <button
-                  className="d-flex flex-column gap-3 align-items-center cursor-pointer"
-                  onClick={setActive.bind(null, 'reviews')}
-                  data-active={active === 'reviews'}
+              <section className="d-flex flex-column p-0">
+                <nav
+                  className={cls(
+                    styles.nav,
+                    'd-flex align-items-center justify-content-between flex-wrap',
+                  )}
                 >
-                  <Icon icon="material-symbols:rate-review-outline" width={30} />
-                  <strong>{props.reviews.total || ''} Reviews</strong>
-                </button>
-                <button
-                  className="d-flex flex-column gap-3 align-items-center cursor-pointer"
-                  onClick={setActive.bind(null, 'q&a')}
-                  data-active={active === 'q&a'}
-                >
-                  <Icon icon="bx:chat" width={30} />
-                  <strong>{props.questions.total} Q&A</strong>
-                </button>
-                <button
-                  className="d-flex flex-column gap-3 align-items-center cursor-pointer"
-                  onClick={setActive.bind(null, 'advices')}
-                  data-active={active === 'advices'}
-                >
-                  <Icon icon="material-symbols:tips-and-updates-outline" width={30} />
-                  <strong>{props.tips.total || ''} Tips</strong>
-                </button>
-              </nav>
+                  <button
+                    className="d-flex flex-column gap-3 align-items-center cursor-pointer"
+                    onClick={setActive.bind(null, 'reviews')}
+                    data-active={active === 'reviews'}
+                  >
+                    <Icon icon="material-symbols:rate-review-outline" width={30} />
+                    <strong>{props.reviews.total || ''} Reviews</strong>
+                  </button>
+                  <button
+                    className="d-flex flex-column gap-3 align-items-center cursor-pointer"
+                    onClick={setActive.bind(null, 'q&a')}
+                    data-active={active === 'q&a'}
+                  >
+                    <Icon icon="bx:chat" width={30} />
+                    <strong>{props.questions.total} Q&A</strong>
+                  </button>
+                  <button
+                    className="d-flex flex-column gap-3 align-items-center cursor-pointer"
+                    onClick={setActive.bind(null, 'advices')}
+                    data-active={active === 'advices'}
+                  >
+                    <Icon icon="material-symbols:tips-and-updates-outline" width={30} />
+                    <strong>{props.tips.total || ''} Tips</strong>
+                  </button>
+                </nav>
 
-              <ReviewsSection
-                show={active === 'reviews'}
-                reviews={props.reviews?.data}
-                totalReviewsCount={props.reviews?.total}
-                businessName={props.params.businessName}
-                businessId={props.params.businessId}
-                business={props.business.data}
-                sendRequest={sendRequest}
-                loading={loading}
-              />
+                <ReviewsSection
+                  show={active === 'reviews'}
+                  reviews={props.reviews?.data}
+                  totalReviewsCount={props.reviews?.total}
+                  businessName={props.params.businessName}
+                  businessId={props.params.businessId}
+                  business={props.business.data}
+                  sendRequest={sendRequest}
+                  loading={loading}
+                />
 
-              <QuestionsSection
-                show={active === 'q&a'}
-                questions={props.questions.data}
-                business={props.business.data}
-                slug={props.params.slug}
-                questionsCount={props.questions.total}
-                sendRequest={sendRequest}
-                loading={loading}
-              />
+                <QuestionsSection
+                  show={active === 'q&a'}
+                  questions={props.questions.data}
+                  business={props.business.data}
+                  slug={props.params.slug}
+                  questionsCount={props.questions.total}
+                  sendRequest={sendRequest}
+                  loading={loading}
+                />
 
-              <AdvicesSection
-                show={active === 'advices'}
-                tips={props.tips?.data}
-                tipsTotal={props.tips?.total}
-                slug={props.params.slug}
-                businessName={props.business.data?.businessName}
-                businessId={props.business.data?._id}
-                sendRequest={sendRequest}
-                loading={loading}
-              />
+                <AdvicesSection
+                  show={active === 'advices'}
+                  tips={props.tips?.data}
+                  tipsTotal={props.tips?.total}
+                  slug={props.params.slug}
+                  business={props.business.data!}
+                  businessName={props.business.data?.businessName}
+                  businessId={props.business.data?._id}
+                  sendRequest={sendRequest}
+                  loading={loading}
+                />
+              </section>
             </div>
 
             <Aside business={props.business.data} />

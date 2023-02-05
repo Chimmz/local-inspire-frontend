@@ -17,18 +17,18 @@ interface Props {
 }
 
 function AllBusinesses(props: Props) {
-  const { data, allResults, page } = props;
-  const error = data?.status !== 'SUCCESS';
+  const { allResults, page } = props;
+  const error = props.data?.status !== 'SUCCESS';
 
-  // State that maps a business' id to a logged-in user's review on that business
+  // State that maps business ids to logged-in user's reviews
   const [userReviewLookup, setUserReviewLookup] = useState<{
     [businessId: string]: ReviewProps;
   }>({});
 
+  const loggedInUser = useSignedInUser();
   const { send: sendUserReviewsReq, loading: isGettingUserReviews } = useRequest({
     autoStopLoading: false,
   });
-  const loggedInUser = useSignedInUser();
 
   useEffect(() => {
     if (!loggedInUser.isSignedIn) return;
@@ -36,7 +36,6 @@ function AllBusinesses(props: Props) {
 
     sendUserReviewsReq(api.getReviewsMadeByUser(loggedInUser.accessToken!))
       .then(res => {
-        console.log('Reponse: ', res);
         if (!res || res?.status !== 'SUCCESS') return;
         (res.reviews as ReviewProps[]).forEach(r => {
           normalizedUserReviews[r.business] = r;
@@ -46,7 +45,7 @@ function AllBusinesses(props: Props) {
       .catch(console.log);
   }, [loggedInUser.isSignedIn]);
 
-  if (!data)
+  if (!props.data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         <Spinner colors={['#0084ff', '#e87525']} />
@@ -60,7 +59,7 @@ function AllBusinesses(props: Props) {
       </div>
     );
 
-  if (!data.businesses.length)
+  if (!props.data.businesses.length)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         No results. Try searching for something else
@@ -72,9 +71,9 @@ function AllBusinesses(props: Props) {
   return (
     <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
       <small className={styles.totalResults}>{allResults} results</small>
-      {(data.businesses as BusinessProps[])?.map((b, i) => {
-        const reviewedByUser = b._id in userReviewLookup;
 
+      {(props.data.businesses as BusinessProps[])?.map((b, i) => {
+        const reviewedByUser = b._id in userReviewLookup;
         return (
           <Business
             {...b}

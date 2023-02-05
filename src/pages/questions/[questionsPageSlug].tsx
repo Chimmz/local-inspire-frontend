@@ -39,10 +39,12 @@ interface QuestionsPageProps {
   };
   params: { businessName: string; businessId: string; location: string; slug: string };
 }
+
 type FilterName = 'Most Answered' | 'Most Recent' | 'Oldest' | 'Page' | string;
 const questionFilterNames: FilterName[] = ['Most Answered', 'Most Recent', 'Oldest'];
 
 const QUESTIONS_PER_PAGE = 10;
+const MAX_POPULAR_QUESTIONS = 6;
 
 const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const { businessId, businessName } = props.params;
@@ -69,7 +71,6 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const [reportedQueId, setReportedQueId] = useState<null | string>(null);
 
   const filterQuestions = async (queryStr: string, page?: number) => {
-    console.log('onBuild running');
     const res = await sendFilterReq(
       api.getQuestionsAskedAboutBusiness(props.params.businessId, queryStr, {
         page: page || currentPage,
@@ -85,6 +86,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   const { addNewFilterName, removeFilterName, filterNames, queryStr } =
     useUrlQueryBuilder<FilterName>({
+      initFilters: ['Most Recent'],
       autoBuild: true,
       onBuild: filterQuestions,
       filtersConfig: new Map([
@@ -172,6 +174,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
           </button>
         </Modal.Body>
       </Modal>
+
       <Layout>
         <Layout.Nav></Layout.Nav>
         <Layout.Main className={cls(styles.main, 'page-main')}>
@@ -242,14 +245,16 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
               </small>
             </section>
 
-            <aside className={styles.popularQuestions}>
-              <h3 className="mb-4">Popular Questions on {props.params.businessName}</h3>
-              <ul className="no-bullets">
-                {popularQuestions?.map(q => (
-                  <PopularQuestion {...q} {...props.params} key={q._id} />
-                ))}
-              </ul>
-            </aside>
+            {popularQuestions?.length ? (
+              <aside className={styles.popularQuestions}>
+                <h3 className="mb-4">Popular Questions on {props.params.businessName}</h3>
+                <ul className="no-bullets">
+                  {popularQuestions?.slice(0, MAX_POPULAR_QUESTIONS)?.map(q => (
+                    <PopularQuestion {...q} {...props.params} key={q._id} />
+                  ))}
+                </ul>
+              </aside>
+            ) : null}
 
             <NewQuestionSection
               {...props.params}
@@ -300,7 +305,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
       titleCase: true,
     });
     // console.log({ businessName, location, businessId });
-    const res = await api.getQuestionsAskedAboutBusiness(businessId);
+    const res = await api.getQuestionsAskedAboutBusiness(businessId, '?sort=-createdAt');
     console.log({ res });
 
     // If business not found

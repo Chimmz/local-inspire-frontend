@@ -23,6 +23,7 @@ import LabelledCheckbox from '../shared/LabelledCheckbox';
 import TextInput from '../shared/text-input/TextInput';
 
 import styles from './styles.module.scss';
+import * as domUtils from '../../utils/dom-utils';
 
 type Props = QuestionItemProps & {
   businessId: string;
@@ -92,7 +93,7 @@ function Question(props: Props) {
   const questionDetailsUrl = genQuestionDetailsPageUrl({
     qId: props._id,
     businessName: props.businessName,
-    qText: props.questionText,
+    qText: props.questionText.join(' '),
     location: props.location,
   });
 
@@ -104,7 +105,9 @@ function Question(props: Props) {
     <li>
       <Accordion className={cls('d-flex align-items-start gap-5 flex-wrap')}>
         <div className="flex-grow-1" style={{ flexBasis: '82%' }}>
-          <p className="parag text-dark fs-4 mb-0">{props.questionText}</p>
+          <p className="parag text-dark fs-4 mb-0">
+            {domUtils.renderMultiLineText(props.questionText)}
+          </p>
           <small className="fs-5 text-light">
             Asked by{' '}
             <strong>
@@ -120,11 +123,9 @@ function Question(props: Props) {
           toggler={<Icon icon="material-symbols:more-vert" width={20} />}
         />
 
-        <Link href={questionDetailsUrl} passHref>
-          <a className={`btn btn-bg-none no-bg-hover ${props.answersCount && 'text-pry'}`}>
-            {answersInfo}
-          </a>
-        </Link>
+        {/* <Link href={questionDetailsUrl} passHref>
+          <a className={`btn btn-bg-none no-bg-hover text-pry`}>{answersInfo}</a>
+        </Link> */}
 
         <CustomAccordionToggle
           eventKey="4"

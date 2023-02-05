@@ -1,0 +1,55 @@
+.amenities {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(auto-fill, max-content);
+  grid-auto-rows: min-content;
+  column-gap: 2rem;
+  // grid-auto-flow: column;
+
+  & > *:nth-child(2n) {
+    border-left: 1px solid $line-color;
+    padding-left: 1.5rem;
+  }
+}
+
+.nav {
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  margin-bottom: 4rem;
+
+  & > * {
+    all: unset;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    padding: 1.5rem 3rem;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 100%;
+      transform: translateY(-50%);
+      height: 5px;
+      width: 100%;
+      background-color: transparent;
+    }
+
+    &[data-active='true'] {
+      font-weight: bold;
+      border-top-color: #292929;
+      border-top-width: 2px;
+
+      &::after {
+        background-color: white;
+      }
+    }
+  }
+}
+
+ul.roomFeatures {
+  display: grid !important;
+  grid-template-columns: max-content 1fr;
+  column-gap: 15rem;
+  row-gap: 1.5rem;
+}

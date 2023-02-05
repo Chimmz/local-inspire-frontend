@@ -44,18 +44,16 @@ export interface BusinessProps {
   claimed: boolean;
 }
 
-type Props = Partial<BusinessProps> & {
-  featured?: boolean;
-  // For the non-featured properties
-  index?: number;
-  // If logged in user reviewed the business
+interface RatedBusiness extends BusinessProps {
   userRating?: number;
   photoUrl?: string;
-  reviewText?: string;
+  reviewText?: string[];
   reviewedByCurrentUser?: boolean;
-};
+}
 
-const Business: FC<Props> = function (props) {
+const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = function (
+  props,
+) {
   const router = useRouter();
   const rand = Math.floor(Math.random() * 9);
   const { businessName, address, featured = false, index } = props;
@@ -130,7 +128,7 @@ const Business: FC<Props> = function (props) {
 
           <StarRating
             starSize={featured ? 'sm' : 'md'}
-            initialValue={props.avgRating}
+            initialValue={props.userRating}
             ratingValue={props.avgRating}
             renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
             showRatingCaption

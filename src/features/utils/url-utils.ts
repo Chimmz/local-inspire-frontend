@@ -138,12 +138,16 @@ export const getBusinessQuestionsUrl = function <T>(
 
 export const genQuestionDetailsPageUrl = (params: QuestionDetailsPageUrlParams) => {
   let url: string;
-
+  console.log('URL Params: ', params);
   if ('slug' in params) url = `/question/${params.slug}`;
   else {
     let { businessName, qText, qId } = params;
     businessName = businessName.split(' ').join('-').toLowerCase().trim();
-    qText = qText.split(' ').join('-').toLowerCase().replaceAll?.('?', '');
+
+    qText = qText.split(' ').join('-').toLowerCase();
+    while (qText.includes('?')) qText = qText.replace('?', '');
+
+    console.log('Q-Text: ', qText);
 
     const location =
       'location' in params

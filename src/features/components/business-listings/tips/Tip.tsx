@@ -7,9 +7,13 @@ import cls from 'classnames';
 import { UserPublicProfile } from '../../../types';
 import { getFullName } from '../../../utils/user-utils';
 import useDate from '../../../hooks/useDate';
-import navigateTo, { genRecommendBusinessPageUrl } from '../../../utils/url-utils';
+import navigateTo, {
+  genRecommendBusinessPageUrl,
+  genUserReviewPageUrl,
+} from '../../../utils/url-utils';
 import { useRouter } from 'next/router';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
+import { BusinessProps } from '../../business-results/Business';
 
 export interface TipProps {
   _id: string;
@@ -20,6 +24,7 @@ export interface TipProps {
 type Props = TipProps & {
   show: boolean;
   slug: string;
+  business: BusinessProps;
   openAdviceReportModal: (id: string) => void;
 };
 
@@ -77,7 +82,10 @@ const Tip = function (props: Props) {
         <p>{props.adviceToFutureVisitors}</p>
 
         <small className="link text-pry">
-          <Link href={'/'} className="btn">
+          <Link
+            href={genUserReviewPageUrl({ ...props.business!, reviewId: props._id })}
+            className="btn"
+          >
             Read full review...
           </Link>
         </small>

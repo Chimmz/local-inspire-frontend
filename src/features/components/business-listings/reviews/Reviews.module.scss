@@ -1,3 +1,16 @@
+.reviewsSection {
+  & > * {
+    padding: 15px;
+  }
+  & > *:not(:first-child) {
+    padding: 20px 15px;
+  }
+}
+
+.reviewsSectionHeader {
+  border-bottom: 1px solid $line-color;
+}
+
 .reviews {
   & > *:not(:last-child) {
     margin-bottom: 2rem;

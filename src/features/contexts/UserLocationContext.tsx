@@ -27,6 +27,38 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
     checkPositiveResponse: (res: Promise<any>) => res && 'features' in res,
   });
 
+  // type MapboxResponseFeature = {
+
+  // }
+  const extractLocationData = (mapboxContexts: { [key: string]: string }[]) => {
+    console.log('Param: ', mapboxContexts);
+    const data = mapboxContexts.reduce(
+      (accum, context) => {
+        if (!context) return accum;
+        // Find state code
+        if (context.short_code?.length === 5 && context.short_code.includes('-')) {
+          if (accum.stateCode.length) return accum;
+          return { ...accum, stateCode: context.short_code.split('-')[1] };
+        }
+
+        // Country name
+        if (!accum.country.length && context.id?.includes('country') && context.text.length)
+          return { ...accum, country: context.text };
+
+        if (accum.cityName.length) return accum;
+        // Find city name
+        if (context.id?.includes('region') && context.text?.length) {
+          return { ...accum, cityName: context.text };
+        } else if (context.id?.includes('place') && context.text?.length) {
+          return { ...accum, cityName: context.text };
+        }
+        return accum;
+      },
+      { cityName: '', stateCode: '', country: '' },
+    );
+    return data;
+  };
+
   const doReverseDecoding = async (coords: GeolocationCoordinates) => {
     const { longitude: long, latitude: lat } = coords;
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${long},${lat}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`;
@@ -37,22 +69,30 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
 
       if (!data?.features) throw Error('Something went wrong');
 
+      const extractedData = extractLocationData(
+        (data.features as { context: { [key: string]: string } }[])
+          .map(f => f.context)
+          .flat(),
+      );
+      console.log('extractedData: ', extractedData);
+
       // "text": "Anderson County" // --> features[0].context[2].text
       // "short_code": "US-TX", // --> features[0].context[3].short_code
 
-      const [cityName, countryName] = [
-        data.features[0].context[2].text || data.features[0].context[0].text,
-        data.features[0]?.context[4]?.text || data.features[3]?.place_name,
-      ];
+      // const [cityName, countryName] = [
+      //   data.features[0].context[2].text || data.features[0].context[0].text,
+      //   data.features[0]?.context[4]?.text || data.features[3]?.place_name,
+      // ];
 
-      const [countryCode, stateCode] = (
-        (data.features[0]?.context[3]?.short_code ||
-          data.features[0].context[1].short_code) as string
-      )?.split('-');
+      // const [countryCode, stateCode] = (
+      //   (data.features[0]?.context[3]?.short_code ||
+      //     data.features[0].context[1].short_code) as string
+      // )?.split('-');
 
-      const city = cityName.concat(', ').concat(stateCode);
-      const country = countryName.concat(', ').concat(countryCode.toUpperCase());
-      setUserLocation(prev => ({ ...prev, city, cityName, stateCode, country }));
+      // const city = cityName.concat(', ').concat(stateCode);
+      // const country = countryName.concat(', ').concat(countryCode.toUpperCase());
+      const city = [extractedData.cityName, extractedData.stateCode].join(', ');
+      setUserLocation(prev => ({ ...prev, ...extractedData, city }));
     } catch (err) {
       console.log('Error: ', err);
     }

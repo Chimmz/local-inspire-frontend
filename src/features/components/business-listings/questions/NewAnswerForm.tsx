@@ -3,7 +3,6 @@ import useInput from '../../../hooks/useInput';
 
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import styles from './QuestionsSection.module.scss';
 import TextInput from '../../shared/text-input/TextInput';
 import LoadingButton from '../../shared/button/Button';
 import useRequest from '../../../hooks/useRequest';
@@ -13,6 +12,7 @@ import { QuestionItemProps } from './QuestionItem';
 import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 import Image from 'next/image';
 import GuidelinesPopup from '../../PopupInfo';
+import styles from './QuestionsSection.module.scss';
 
 interface NewAnswerFormProps {
   show: boolean;
@@ -114,10 +114,7 @@ const NewAnswerForm: React.FC<NewAnswerFormProps> = props => {
         >
           Save answer
         </LoadingButton>
-      ) : // <button className="btn btn-pry" type="submit">
-      //   Save answer
-      // </button>
-      null}
+      ) : null}
 
       {inputType === 'textarea' && (
         <button

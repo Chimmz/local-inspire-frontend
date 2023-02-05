@@ -13,7 +13,7 @@ const PopupInfo: React.FC<PopupInfoPropsProps> = props => {
   return (
     <Modal show={props.show} centered scrollable onHide={props.close as () => void}>
       {props.heading ? (
-        <Modal.Header className="pb-4 px-5" closeButton>
+        <Modal.Header className="pb-4 px-3" closeButton>
           {props.heading}
         </Modal.Header>
       ) : null}

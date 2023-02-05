@@ -3,17 +3,16 @@
 
   .container {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
+    grid-template-columns: 66.667% 33.33%;
+    gap: 30px;
     align-items: start;
-    // padding: 3rem max(5.2rem, 5.2vw);
     padding: 3rem 0;
 
     & > header {
       grid-column: 1 / -1;
       background-color: #fff;
       border: 1px solid #e6e6e6;
-      padding: 3rem;
+      padding: 1.5rem 1rem;
       border-radius: 4px;
     }
 
@@ -32,7 +31,7 @@
       margin: 0;
       background-color: #fff;
       border: 1px solid #e6e6e6;
-      padding: 2rem;
+      padding: 1.5rem 1rem;
       border-radius: 4px;
 
       &:not(:last-child) {
@@ -52,6 +51,11 @@
       border: 0.5px solid #d8d8d8;
       border-top: 3px solid transparent;
       min-width: 150px;
+      border-right: none;
+
+      &:first-child {
+        border-left: none;
+      }
 
       &[data-active*='true'] {
         border-top-color: #3d3d3d;

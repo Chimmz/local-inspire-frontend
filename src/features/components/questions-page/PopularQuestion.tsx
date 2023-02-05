@@ -19,7 +19,7 @@ const PopularQuestion = function (props: Props) {
       genQuestionDetailsPageUrl({
         businessName: props.businessName,
         qId: props._id,
-        qText: props.questionText,
+        qText: props.questionText.flat().join(' '),
         location: props.location,
       }),
     [],

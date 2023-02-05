@@ -23,6 +23,7 @@ import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle'
 import styles from './Reviews.module.scss';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
+import * as domUtils from '../../../utils/dom-utils';
 
 type Props = ReviewProps & {
   show: boolean;
@@ -105,17 +106,16 @@ const ReviewItem = function (props: Props) {
           height={40}
           objectFit="cover"
           style={{ borderRadius: '50%' }}
-          // onError={setSrc.bind(null, '/img/default-profile-pic.jpeg')}
         />
         <small className="">
           <span className="text-black">{reviewerName}.</span> wrote a review on {reviewDate}
         </small>
 
         <small className={styles.location}>
-          {props.reviewedBy.location?.city ? (
+          {props.reviewedBy?.city ? (
             <>
               <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />{' '}
-              props.reviewedBy.location.city •
+              {props.reviewedBy.city} •{' '}
             </>
           ) : null}
           {props.reviewedBy.contributions?.length || 0} contributions
@@ -152,7 +152,7 @@ const ReviewItem = function (props: Props) {
           readonly
           className="mb-5"
         />
-        <p className="parag w-max-content">{props.review}</p>
+        <p className="parag w-max-content">{domUtils.renderMultiLineText(props.review)}</p>
       </div>
 
       <Accordion>

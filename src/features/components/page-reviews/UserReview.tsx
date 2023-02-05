@@ -16,7 +16,7 @@ export interface ReviewProps {
   recommends: boolean;
   businessRating: number;
   reviewTitle: string;
-  review: string;
+  review: string[];
   visitType: string;
   featureRatings: { feature: string; rating: number; _id: string }[];
   adviceToFutureVisitors: string;

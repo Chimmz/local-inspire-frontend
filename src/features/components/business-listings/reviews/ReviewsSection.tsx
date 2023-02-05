@@ -6,41 +6,29 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import Image from 'next/image';
 // Types
 import { ReviewProps } from '../../page-reviews/UserReview';
 // Hooks
 import useRequest from '../../../hooks/useRequest';
 import usePaginate from '../../../hooks/usePaginate';
-import useInput from '../../../hooks/useInput';
 // Utils
-import { reportModalConfig, reviewReportReasonsConfig } from './config';
-import { UserRoles } from '../../../data/constants';
-import * as userUtils from '../../../utils/user-utils';
-import { minLength } from '../../../utils/validators/inputValidators';
-import { quantitize } from '../../../utils/quantity-utils';
+import { reviewReportReasonsConfig } from './config';
 import api from '../../../library/api';
 import cls from 'classnames';
 // Components
-import { Icon } from '@iconify/react';
-import { Modal } from 'react-bootstrap';
 import LabelledCheckbox from '../../shared/LabelledCheckbox';
 import ReviewItem from './ReviewItem';
 import Spinner from '../../shared/spinner/Spinner';
 import NoReviewsYet from './NoReviewsYet';
-import Link from 'next/link';
 import { UserPublicProfile } from '../../../types';
 import Paginators from '../../shared/pagination/Paginators';
-import PopupInfo from '../../PopupInfo';
 import ReportQA from '../../ReportQA';
-import TextInput from '../../shared/text-input/TextInput';
-import useMiddleware from '../../../hooks/useMiddleware';
 import SocialShareModal from '../../shared/social-share/SocialShare';
 import styles from './Reviews.module.scss';
 import ReviewLikersModal from './ReviewLikersModal';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
-import * as domUtils from '../../../utils';
+import * as domUtils from '../../../utils/dom-utils';
 
 type ReviewFilter =
   | 'Excellent'
@@ -94,7 +82,7 @@ function ReviewsSection(props: Props) {
     likers: UserPublicProfile[];
     reviewerName: string;
   }>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
     autoStopLoading: true,
@@ -198,10 +186,12 @@ function ReviewsSection(props: Props) {
   );
 
   return (
-    <>
-      <section
-        className={cls(showWith((props.reviews?.length && 'd-block') || ''))}
-        ref={sectionRef}
+    <section className={styles.reviewsSection} ref={sectionRef}>
+      <div
+        className={cls(
+          styles.reviewsSectionHeader,
+          showWith((props.reviews?.length && 'd-block') || ''),
+        )}
       >
         <h2>Reviews</h2>
         <hr />
@@ -219,7 +209,7 @@ function ReviewsSection(props: Props) {
           ))}
         </section>
         <Spinner show={isFilteringReviews} pageWide />
-      </section>
+      </div>
 
       {/* All reviews. Paginated and filtered */}
       {reviews?.map(r => (
@@ -277,7 +267,7 @@ function ReviewsSection(props: Props) {
         show={!!reviewShareId}
         close={setReviewShareId.bind(null, null)}
       />
-    </>
+    </section>
   );
 }
 

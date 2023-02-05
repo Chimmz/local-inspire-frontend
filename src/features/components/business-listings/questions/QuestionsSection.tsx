@@ -18,7 +18,7 @@ import {
 } from './config';
 import { newQuestionValidatorsConfig } from './config';
 import cls from 'classnames';
-import * as domUtils from '../../../utils';
+import * as domUtils from '../../../utils/dom-utils';
 
 import { Icon } from '@iconify/react';
 import LoadingButton from '../../shared/button/Button';
@@ -147,7 +147,7 @@ const QuestionsSection = function (props: Props) {
 
   return (
     // This is the Q&A header section containing the Ask question accordion
-    <>
+    <section className={styles.questionSection}>
       <Accordion
         defaultActiveKey="0"
         className={cls(styles.queSectionHeading, showWith('d-grid'))}
@@ -273,7 +273,10 @@ const QuestionsSection = function (props: Props) {
       {/* Pagination */}
       {currentPageData?.length ? (
         <div
-          className={cls('align-items-center justify-content-between', showWith('d-flex'))}
+          className={cls(
+            'bg-white align-items-center justify-content-between',
+            showWith('d-flex'),
+          )}
         >
           <Paginators
             currentPage={currentPage}
@@ -315,7 +318,7 @@ const QuestionsSection = function (props: Props) {
       >
         {newQuestionGuidelinesConfig.body(props.business?.businessName!)}
       </GuidelinesPopup>
-    </>
+    </section>
   );
 };
 

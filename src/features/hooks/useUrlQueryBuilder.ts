@@ -7,6 +7,7 @@ interface QueryProperties {
 }
 
 interface Params {
+  initFilters?: string[];
   filtersConfig: Map<string, { [key: string]: string | number }>;
   autoBuild: boolean;
   onBuild?: (query: string) => void;
@@ -14,7 +15,7 @@ interface Params {
 
 const useUrlQueryBuilder = function <T extends string>(params: Params) {
   const [queryStr, setQueryStr] = useState('');
-  const [filterNames, setFilterNames] = useState<string[]>([]);
+  const [filterNames, setFilterNames] = useState<string[]>(params.initFilters || []);
 
   const addNewFilterName = useCallback(
     (filter: T) => setFilterNames(filters => [filter, ...filters]),
