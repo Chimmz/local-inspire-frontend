@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -424,11 +424,11 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async context => {
-  return { paths: [], fallback: 'blocking' };
-};
+// export const getStaticPaths: GetStaticPaths = async context => {
+//   return { paths: [], fallback: 'blocking' };
+// };
 
-export const getStaticProps: GetStaticProps = async function (context) {
+export const getServersideProps: GetServerSideProps = async function (context) {
   const slug = context.params!.questionSlug as string;
   const [businessName, location, questionText, questionId] = slug.split('_');
 
