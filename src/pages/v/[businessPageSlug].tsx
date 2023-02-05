@@ -241,7 +241,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
                   city: props.params.city,
                   stateCode: props.params.stateCode,
-                  rating: 3,
+                  avgRating: 3,
                 },
                 {
                   _id: (Math.random() + Math.random()).toString(),
@@ -251,7 +251,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
                   city: props.params.city,
                   stateCode: props.params.stateCode,
-                  rating: 3,
+                  avgRating: 3,
                 },
                 {
                   _id: (Math.random() + Math.random()).toString(),
@@ -261,7 +261,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
                   city: props.params.city,
                   stateCode: props.params.stateCode,
-                  rating: 3,
+                  avgRating: 3,
                 },
                 {
                   _id: (Math.random() + Math.random()).toString(),
@@ -271,7 +271,7 @@ const BusinessListings: NextPage<Props> = function (props) {
                   SIC4: 'Chicken Restaurants Restaurants Restaurants & Bars',
                   city: props.params.city,
                   stateCode: props.params.stateCode,
-                  rating: 3,
+                  avgRating: 3,
                 },
               ]}
             />
