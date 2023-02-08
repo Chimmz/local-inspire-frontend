@@ -1,26 +1,18 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
 
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
 import { Modal } from 'react-bootstrap';
-import { InputGroup, SSRProvider } from 'react-bootstrap';
-import { FacebookShareButton, TwitterShareButton } from 'react-share';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import TextInput from '../text-input/TextInput';
 import styles from './SocialShare.module.scss';
-import ShareStrategies from './ShareStrategies';
+import ShareStrategies, { ShareStrategiesProps } from './ShareStrategies';
 
-interface Props {
+type Props = {
   show: boolean;
-  url: string | (() => string);
   heading?: ReactNode;
   close(): void;
-}
+} & Pick<ShareStrategiesProps, 'title' | 'pageUrl' | 'imgUrl'>;
 
 const SocialShareModal: React.FunctionComponent<Props> = function (props) {
   const { heading = 'Share' } = props;
@@ -31,7 +23,12 @@ const SocialShareModal: React.FunctionComponent<Props> = function (props) {
       </Modal.Header>
 
       <Modal.Body className="p-5">
-        <ShareStrategies className={styles.bodyLayout} pageUrl={props.url} />
+        <ShareStrategies
+          className={styles.bodyLayout}
+          pageUrl={props.pageUrl}
+          imgUrl={props.imgUrl}
+          title={props.title}
+        />
       </Modal.Body>
     </Modal>
   );

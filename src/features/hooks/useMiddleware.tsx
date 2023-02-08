@@ -34,11 +34,14 @@ const useMiddleware = function () {
 
   const withAuth: Middleware = function (next: AuthMiddlewareNext) {
     setMiddlewareType('AUTH');
-    console.log('In middlw: ', currentUser);
-    if (currentUser.isSignedIn) return next(currentUser.accessToken!); // Proceed if logged in
+    console.log('Is signed in: ', currentUser.isSignedIn);
 
-    showAuthModal!('login');
-    setNextAction(() => next); // Cache the next function that will be run once user signs in
+    if (!currentUser.isSignedIn) {
+      showAuthModal!('login');
+      return setNextAction(() => next); // Cache the next function that will be run once user signs in
+    }
+    // Proceed if logged in
+    next(currentUser.accessToken!);
   };
 
   // const withApiAuthErrorHandler = async (req: Promise<any>) => {

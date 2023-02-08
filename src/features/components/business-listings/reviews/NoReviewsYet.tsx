@@ -5,7 +5,7 @@ import { genRecommendBusinessPageUrl } from '../../../utils/url-utils';
 
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import styles from './Reviews.module.scss';
+import styles from './ReviewsSection.module.scss';
 
 interface Props {
   businessName?: string;

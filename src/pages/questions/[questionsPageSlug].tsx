@@ -12,6 +12,7 @@ import usePaginate from '../../features/hooks/usePaginate';
 import api from '../../features/library/api';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
 import {
+  newQuestionGuidelinesConfig,
   postingGuidelinesConfig,
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
@@ -41,7 +42,7 @@ interface QuestionsPageProps {
 }
 
 type FilterName = 'Most Answered' | 'Most Recent' | 'Oldest' | 'Page' | string;
-const questionFilterNames: FilterName[] = ['Most Answered', 'Most Recent', 'Oldest'];
+const questionFilterNames: FilterName[] = ['Most Recent', 'Most Answered', 'Oldest'];
 
 const QUESTIONS_PER_PAGE = 10;
 const MAX_POPULAR_QUESTIONS = 6;
@@ -115,11 +116,17 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
     (filterNames.includes(filter) ? removeFilterName : addNewFilterName)(filter);
 
     switch (filter) {
+      case 'Most Answered':
+        removeFilterName('Oldest');
+        removeFilterName('Most Recent');
+        break;
       case 'Most Recent':
         removeFilterName('Oldest');
+        removeFilterName('Most Answered');
         break;
       case 'Oldest':
         removeFilterName('Most Recent');
+        removeFilterName('Most Answered');
         break;
     }
   };
@@ -262,25 +269,28 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
               submitting={submittingNewQuestion!}
               pushQuestion={(q: QuestionItemProps) => setQuestions(items => [q, ...items])}
               openGuidelinesModal={setShowPostingGuidelines.bind(null, true)}
+              withUserPhoto
             />
           </div>
         </Layout.Main>
 
         {/* Posting guidelines modal */}
         <PopupInfo
-          heading={postingGuidelinesConfig.heading}
+          heading={newQuestionGuidelinesConfig.heading}
           show={showPostingGuidelines}
           close={setShowPostingGuidelines.bind(null, false)}
         >
-          {postingGuidelinesConfig.body(props.questions.data?.[0]?.business?.businessName!)}
+          {newQuestionGuidelinesConfig.body(props.params.businessName)}
         </PopupInfo>
 
         {/* Report question modal */}
         <ReportQA
           show={!!reportedQueId}
-          close={() => setReportedQueId(null)}
+          reportType="question"
+          reportObjectId={reportedQueId!}
           onReport={handleReportQuestion}
           possibleReasons={questionReportReasonsConfig}
+          close={() => setReportedQueId(null)}
         />
       </Layout>
     </SSRProvider>

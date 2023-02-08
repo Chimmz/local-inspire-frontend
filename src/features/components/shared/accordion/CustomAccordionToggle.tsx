@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, CSSProperties } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 import useToggle from '../../../hooks/useToggle';
 
@@ -8,6 +8,7 @@ interface Props {
   children: React.ReactNode;
   contentOnExpand?: React.ReactNode;
   classNameOnExpand?: string;
+  style?: CSSProperties;
 }
 
 const CustomAccordionToggle = function (props: Props) {
@@ -20,6 +21,7 @@ const CustomAccordionToggle = function (props: Props) {
   return (
     <button
       type="button"
+      style={props.style}
       className={expanded ? props.classNameOnExpand || props.className : props.className}
       onClick={decoratedOnClick}
     >

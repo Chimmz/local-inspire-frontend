@@ -18,6 +18,7 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import navigateTo, { genQuestionDetailsPageUrl } from '../../utils/url-utils';
 import { BusinessProps } from '../business-results/Business';
+import AppTooltip from '../AppTooltip';
 
 interface Props {
   className?: string;
@@ -27,12 +28,11 @@ interface Props {
   submitting: boolean;
   sendSubmitReq: (req: Promise<any>) => Promise<any>;
   pushQuestion?: (q: QuestionItemProps) => void;
-  openGuidelinesModal: () => void;
+  openGuidelinesModal(): void;
   openSuccessModal?: () => void;
 }
 
 const NewQuestionSection = function (props: Props) {
-  const router = useRouter();
   const {
     inputValue: newQuestion,
     handleChange: handleChangeNewQuestion,
@@ -108,20 +108,17 @@ const NewQuestionSection = function (props: Props) {
       </div>
 
       <small
-        className="mb-3 d-flex align-items-center gap-4"
+        className="mb-1 d-flex align-items-center gap-4"
         style={{ marginLeft: props.withUserPhoto ? '45px' : '0' }}
       >
-        Note: your question will be posted publicly on this page{' '}
-        <OverlayTrigger
-          key="top-placement"
-          placement="top"
-          overlay={<Tooltip id={`tooltip-guidelines`}>Posting guidelines</Tooltip>}
-        >
+        Note: your question will be posted publicly on this page
+        <AppTooltip text="Posting guidelines">
           <span onClick={props.openGuidelinesModal}>
-            <Icon icon="material-symbols:info" width={17} />
+            <Icon icon="material-symbols:info" width={15} />
           </span>
-        </OverlayTrigger>
+        </AppTooltip>
       </small>
+
       <LoadingButton
         className="btn btn-pry mt-3"
         type="submit"

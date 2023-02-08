@@ -11,5 +11,9 @@ export interface UserPublicProfile {
   role: 'USER' | 'CITY_MANAGER' | 'BUSINESS_OWNER' | 'MAIN_ADMIN';
   city: string;
   location: { city: string; cityName: string; stateCode: string };
-  contributions: [object];
+  contributions: {
+    _id: string;
+    contribution: string;
+    model: 'BusinessReview' | 'BusinessQuestion' | 'BusinessAnswer';
+  }[];
 }

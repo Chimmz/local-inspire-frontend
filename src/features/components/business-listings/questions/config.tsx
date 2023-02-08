@@ -32,7 +32,7 @@ export const questionReportReasonsConfig = [
 export const answerReportReasonsConfig = [
   'It does not answer the question asked',
   'It contains threats, lewdness or hate speech',
-  'It violates Local Inspire&apos;s privacy standards',
+  "It violates Local Inspire's privacy standards",
   'It contains promotional material',
   'It is spam',
   'I want to report something else',

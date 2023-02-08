@@ -1,9 +1,23 @@
 .tipsSection {
+  border-top: none !important;
   & > * {
     padding: 15px;
-  }
-  & > *:not(:first-child) {
-    padding: 20px;
+    background-color: #fff;
+    border: 1px solid $line-color;
+
+    // Section Header
+    &:first-child {
+      border-top: none !important;
+    }
+
+    &:not(:first-child) {
+      padding: 20px;
+    }
+
+    // Not pagination block
+    &:not(:last-child) {
+      margin-bottom: 3rem;
+    }
   }
 }
 

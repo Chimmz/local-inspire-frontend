@@ -1,16 +1,16 @@
+import { useCallback, useMemo, useState, Dispatch, SetStateAction, memo } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { Modal, SSRProvider } from 'react-bootstrap';
 import Answer, {
   AnswerProps,
 } from '../../features/components/business-listings/questions/Answer';
 import {
   answerReportReasonsConfig,
+  newQuestionGuidelinesConfig,
   postingGuidelinesConfig,
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
@@ -37,8 +37,8 @@ import ReportQA from '../../features/components/ReportQA';
 import * as qtyUtils from '../../features/utils/quantity-utils';
 import usePaginate from '../../features/hooks/usePaginate';
 import Paginators from '../../features/components/shared/pagination/Paginators';
-import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
 import * as domUtils from '../../features/utils/dom-utils';
+import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
 
 interface Props {
   question?: QuestionItemProps;
@@ -46,8 +46,9 @@ interface Props {
     data: AnswerProps[] | undefined;
     total: number;
     results: number;
+    mostHelpfulAnswerId: string | null;
   };
-  mostHelpfulAnswer: AnswerProps | undefined;
+  // mostHelpfulAnswer: AnswerProps | undefined;
   error?: string;
 }
 
@@ -57,19 +58,23 @@ const ANSWERS_PER_PAGE = 10;
 
 const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   const [question, setQuestion] = useState<QuestionItemProps | undefined>(props.question);
-
   const [answers, setAnswers] = useState<AnswerProps[] | undefined>(props.answers.data);
+  const [answersTotal, setAnswersTotal] = useState(props.answers.total);
+
+  const [mostHelpfulAnswerId, setMostHelpfulAnswerId] = useState(
+    props.answers.mostHelpfulAnswerId,
+  );
+
   const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
     AnswerProps[]
   >({ init: { 1: props.answers.data } });
 
-  const [answersTotal, setAnswersTotal] = useState(props.answers.total);
-  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
-
   const { isSignedIn, ...currentUser } = useSignedInUser();
   const { withAuth } = useMiddleware();
+
   // Modals
   const [showNewQuestionSuccessModal, setShowNewQuestionSuccessModal] = useState(false);
+  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
   const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
@@ -77,7 +82,6 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest({
     autoStopLoading: true,
   });
-  const router = useRouter();
 
   const { formatDate } = useDate(undefined, {
     day: '2-digit',
@@ -114,31 +118,37 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     ],
   });
 
-  const handlePageChange = async (newPage: number) => {
-    setCurrentPage(newPage);
-    const res = await sendPageReq(
-      api.getAnswersToQuestion(props.question?._id!, {
-        page: newPage,
-        limit: ANSWERS_PER_PAGE,
-      }),
-    );
-    setAnswers(res.data);
-    setAnswersTotal(res.total);
-    window.scrollTo(0, 0);
-  };
+  const handlePageChange = useCallback(
+    async (newPage: number) => {
+      setCurrentPage(newPage);
+      const res = await sendPageReq(
+        api.getAnswersToQuestion(props.question?._id!, {
+          page: newPage,
+          limit: ANSWERS_PER_PAGE,
+        }),
+      );
+      setAnswers(res.data);
+      setAnswersTotal(res.total);
+      window.scrollTo(0, 0);
+    },
+    [setCurrentPage, sendPageReq, api.getAnswersToQuestion, setAnswers, setAnswersTotal],
+  );
 
   const pageCount = useMemo(
     () => Math.ceil(answersTotal! / ANSWERS_PER_PAGE),
-    [answersTotal],
+    [answersTotal, Math.ceil, ANSWERS_PER_PAGE],
   );
 
-  const handleSelectDropdownOption = (evKey: string) => {
-    switch (evKey as 'report') {
-      case 'report':
-        withAuth(setShowReportModal.bind(null, true));
-        break;
-    }
-  };
+  const handleSelectDropdownOption = useCallback(
+    (evKey: string) => {
+      switch (evKey as 'report') {
+        case 'report':
+          withAuth(setShowReportModal.bind(null, true));
+          break;
+      }
+    },
+    [withAuth, setShowReportModal],
+  );
 
   const handleClickProvideNewAnswer = async () => {
     const textarea = await new Promise<HTMLTextAreaElement>(resolve => {
@@ -161,40 +171,41 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     }
   };
 
-  const openReportAnswerModal = function (qId: string) {
-    withAuth((token?: string) => setAnswerIdReport(qId));
-  };
-
-  const reportAnswer = async function (reason: string, explanation: string) {
-    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
-  };
-
   const reportQuestion = (reason: string, explanation: string) => {
     console.log(reason, explanation);
   };
 
-  // const mostHelpfulAnswer = useMemo(() => {
-  //   if (!question) return undefined;
+  const reportAnswer = useCallback(async function (reason: string, explanation: string) {
+    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
+  }, []);
 
-  //   return answers?.reduce((acc, ans) => {
-  //     return ans?.likes.length && ans?.likes.length > acc?.likes.length ? ans : acc;
-  //   }, answers?.[0]);
-  // }, [answers]);
+  const externalUrlParams = useMemo(
+    () => ({
+      businessId: question!.business!._id,
+      businessName: question!.business!.businessName,
+      city: question!.business!.city,
+      stateCode: question!.business!.stateCode,
+    }),
+    [
+      question?.business?._id,
+      question?.business?.businessName,
+      question?.business?.city,
+      question?.business?.stateCode,
+    ],
+  );
 
-  console.log({ mostHelpfulAnswer: props.mostHelpfulAnswer });
-
-  const externalUrlParams = {
-    businessId: question!.business!._id,
-    businessName: question!.business!.businessName,
-    city: question!.business!.city,
-    stateCode: question!.business!.stateCode,
-  };
-
-  const businessUrl = useMemo(() => genBusinessPageUrl(externalUrlParams), []);
+  const businessUrl = useMemo(
+    () => genBusinessPageUrl(externalUrlParams),
+    [genBusinessPageUrl, externalUrlParams],
+  );
   const questionsUrl = useMemo(
     () => getBusinessQuestionsUrl({ ...externalUrlParams, promptNewQuestion: true }),
-    [],
+    [getBusinessQuestionsUrl, externalUrlParams],
   );
+
+  const mostHelpfulAnswer = useMemo(() => {
+    return props.answers.data?.find(a => a._id === mostHelpfulAnswerId) || null;
+  }, [props.answers, mostHelpfulAnswerId]);
 
   return (
     <SSRProvider>
@@ -288,23 +299,27 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             <h3>{answersTotal} Answers</h3>
 
             <ul className={cls(styles.answersList, 'no-bullets mb-5')}>
-              {props.mostHelpfulAnswer ? (
+              {mostHelpfulAnswer ? (
                 <Answer
-                  {...props.mostHelpfulAnswer!}
+                  {...mostHelpfulAnswer!}
                   mostHelpful
                   setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
+                  setMostHelpfulAnswerId={setMostHelpfulAnswerId}
                   questionId={props.question?._id!}
-                  openReportAnswerModal={openReportAnswerModal}
+                  openReportAnswerModal={setAnswerIdReport}
+                  key={String(mostHelpfulAnswerId)}
                 />
               ) : null}
+
               {answers?.map(a => {
-                if (a._id === props.mostHelpfulAnswer?._id) return <></>;
+                if (a._id === mostHelpfulAnswerId) return null;
                 return (
                   <Answer
                     {...a}
                     setQuestion={setQuestion as Dispatch<SetStateAction<QuestionItemProps>>}
+                    setMostHelpfulAnswerId={setMostHelpfulAnswerId}
                     questionId={props.question?._id!}
-                    openReportAnswerModal={openReportAnswerModal}
+                    openReportAnswerModal={setAnswerIdReport}
                     key={a._id}
                   />
                 );
@@ -395,26 +410,30 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
           </div>
         </Layout.Main>
 
-        {/* Guidelines modal */}
+        {/* New question Guidelines modal */}
         <PopupInfo
-          heading={postingGuidelinesConfig.heading}
+          heading={newQuestionGuidelinesConfig.heading}
           show={showPostingGuidelines}
           close={setShowPostingGuidelines.bind(null, false)}
         >
-          {postingGuidelinesConfig.body(props.question?.business?.businessName!)}
+          {newQuestionGuidelinesConfig.body(props.question?.business?.businessName!)}
         </PopupInfo>
 
         {/* Report question modal */}
         <ReportQA
           show={showReportModal}
+          reportType="question"
+          reportObjectId={props.question?._id!}
           possibleReasons={questionReportReasonsConfig}
-          close={setShowReportModal.bind(null, false)}
           onReport={reportQuestion}
+          close={setShowReportModal.bind(null, false)}
         />
 
         {/* Report answer modal */}
         <ReportQA
           show={!!answerIdReport}
+          reportObjectId={answerIdReport!}
+          reportType="answer"
           possibleReasons={answerReportReasonsConfig}
           close={() => setAnswerIdReport(null)}
           onReport={reportAnswer}
@@ -423,10 +442,6 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     </SSRProvider>
   );
 };
-
-// export const getStaticPaths: GetStaticPaths = async context => {
-//   return { paths: [], fallback: 'blocking' };
-// };
 
 export const getServerSideProps: GetServerSideProps = async function (context) {
   const slug = context.params!.questionSlug as string;
@@ -438,7 +453,6 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   const responses = await Promise.all([
     api.getQuestion(questionId),
     api.getAnswersToQuestion(questionId, { page: 1, limit: 10 }),
-    api.getMostHelpfuAnswerToQuestion(questionId),
   ]);
 
   console.log('Que response: ', responses[0]);
@@ -449,7 +463,6 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     props: {
       question: responses[0].question,
       answers: responses[1],
-      mostHelpfulAnswer: responses[2]?.mostHelpfulAnswer,
     },
   };
 };

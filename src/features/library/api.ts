@@ -316,6 +316,15 @@ class API {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+  
+  async report(body: object, token: string) {
+    return this._makeRequest({
+      path: '/report',
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

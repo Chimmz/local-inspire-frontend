@@ -7,7 +7,7 @@ import { Modal } from 'react-bootstrap';
 import { UserPublicProfile } from '../../../types';
 import { quantitize } from '../../../utils/quantity-utils';
 import { getFullName } from '../../../utils/user-utils';
-import styles from './Reviews.module.scss';
+import styles from './ReviewsSection.module.scss';
 
 interface Props {
   show: boolean;

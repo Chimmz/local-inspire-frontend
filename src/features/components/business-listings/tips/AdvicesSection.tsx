@@ -47,9 +47,10 @@ const MAX_ITEMS = MAX_PAGES * TIPS_PER_PAGE; // 15
 
 const AdvicesSection = function (props: AdvicesSectionProps) {
   const [tipsTotal, setTipsTotal] = useState(props.tipsTotal);
+  const [adviceIdReport, setAdviceIdReport] = useState<string | null>(null);
+
   const tipsSectionRef = useRef<HTMLElement | null>(null);
   const { withAuth } = useMiddleware();
-  const [adviceIdReport, setAdviceIdReport] = useState<string | null>(null);
 
   const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
     usePaginate<TipProps[]>({ init: { 1: props.tips! } });
@@ -98,13 +99,8 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
   );
 
   return (
-    <section className={styles.tipsSection} ref={tipsSectionRef}>
-      <div
-        className={cls(
-          props.show ? 'd-flex' : 'd-none',
-          'py-4 px-4 border-bottom align-items-center justify-content-between flex-wrap',
-        )}
-      >
+    <section className={cls(styles.tipsSection, showWith('d-block'))} ref={tipsSectionRef}>
+      <div className="d-flex align-items-center justify-content-between flex-wrap py-4 px-4 border-bottom">
         <h2>Tips/Advice</h2>
 
         <Link href={reviewPageUrl} passHref>
@@ -143,6 +139,8 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
 
       <ReportQA
         show={!!adviceIdReport}
+        reportObjectId={adviceIdReport!}
+        reportType="advice"
         possibleReasons={reviewReportReasonsConfig}
         close={setAdviceIdReport.bind(null, null)}
         onReport={handleReportAdvice}

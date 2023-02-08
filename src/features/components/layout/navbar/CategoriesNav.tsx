@@ -16,11 +16,6 @@ interface CategoriesNavProps {
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
   const { userLocation } = useUserLocationContext();
 
-  const {
-    city: currentCity = userLocation?.cityName,
-    stateCode: currentStateCode = userLocation?.stateCode,
-  } = props.searchParams;
-
   const popularCategories = [
     'Hotels and motels',
     'Restaurants',
@@ -37,8 +32,8 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
           {popularCategories.map(categ => {
             const href = urlUtils.getBusinessSearchResultsUrl({
               category: categ,
-              city: currentCity || '',
-              stateCode: currentStateCode || '',
+              city: userLocation?.cityName || '',
+              stateCode: userLocation?.stateCode || '',
             });
             return (
               <li key={categ}>

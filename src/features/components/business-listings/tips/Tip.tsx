@@ -14,6 +14,7 @@ import navigateTo, {
 import { useRouter } from 'next/router';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
 import { BusinessProps } from '../../business-results/Business';
+import { quantitize } from '../../../utils/quantity-utils';
 
 export interface TipProps {
   _id: string;
@@ -64,7 +65,11 @@ const Tip = function (props: Props) {
 
         <small className={styles.location}>
           <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-          Terrell, TX • 5 contributions
+          {props.reviewedBy.city} •{' '}
+          {quantitize(props.reviewedBy.contributions.length, [
+            'contribution',
+            'contributions',
+          ])}
         </small>
 
         {/* <button className={styles.flag}>

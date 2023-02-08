@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 
 import useDate from '../../features/hooks/useDate';
@@ -23,9 +25,9 @@ import styles from '../../styles/sass/pages/UserReviewPage.module.scss';
 import TextInput from '../../features/components/shared/text-input/TextInput';
 import ReviewLikersModal from '../../features/components/business-listings/reviews/ReviewLikersModal';
 import ReportQA from '../../features/components/ReportQA';
-import Head from 'next/head';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
+import ShareStrategies from '../../features/components/shared/social-share/ShareStrategies';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL';
@@ -73,9 +75,8 @@ const UserReviewPage: NextPage<Props> = function (props) {
     <SSRProvider>
       <Head>
         <title>
-          {`Favorite Restaurant - Reviews for ${props.business?.businessName
-            .concat(', ')
-            .concat(props.business?.stateCode)} | Localinspire`}
+          {`${props.review?.reviewTitle} - Reviews for ${props.business?.businessName},
+            ${props.business?.stateCode}`}
         </title>
       </Head>
       <Layout>
@@ -122,7 +123,14 @@ const UserReviewPage: NextPage<Props> = function (props) {
             <aside>
               <h3 className="mb-5">Share this review</h3>
               <section className={styles.share}>
-                <FacebookShareButton url={pageUrl} className="w-100">
+                <ShareStrategies
+                  className={styles.shareStrategies}
+                  pageUrl={pageUrl}
+                  title={review?.reviewTitle!}
+                  imgUrl={review?.images[0].photoUrl}
+                  layout="grid"
+                />
+                {/* <FacebookShareButton url={pageUrl} className="w-100">
                   <button
                     className="btn btn-pry btn--lg w-100 mb-3"
                     style={{ backgroundColor: '#3b5998' }}
@@ -176,7 +184,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
                   <small className="d-block">
                     Want to link to it instead? Copy the above URL!
                   </small>
-                </InputGroup>
+                </InputGroup> */}
 
                 <h2 className="mb-4">Crystals Cabin</h2>
 
@@ -228,6 +236,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
       {/* The Report modal */}
       <ReportQA
         show={showReportModal}
+        whatToReport="review"
         onReport={handleReportReview}
         close={setShowReportModal.bind(null, false)}
         possibleReasons={reviewReportReasonsConfig}

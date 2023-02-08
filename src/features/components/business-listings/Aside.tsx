@@ -14,6 +14,9 @@ import api from '../../library/api';
 import { BusinessProps } from '../business-results/Business';
 import useSignedInUser from '../../hooks/useSignedInUser';
 import LoadingButton from '../shared/button/Button';
+import Link from 'next/link';
+import { genQuestionDetailsPageUrl } from '../../utils/url-utils';
+import { QuestionItemProps } from './questions/QuestionItem';
 
 const MIN_QUE_LENGTH = 10;
 
@@ -23,6 +26,8 @@ interface Props {
 
 function Aside(props: Props) {
   const [submittedQuestion, setSubmittedQuestion] = useState(false);
+  const [newQuestionUrl, setNewQuestionUrl] = useState('');
+
   const {
     inputValue: question,
     handleChange,
@@ -51,11 +56,18 @@ function Aside(props: Props) {
 
       sendSubmitReq(req)
         .then(res => {
-          if (res.status === 'SUCCESS') {
-            setSubmittedQuestion(true);
-            clearQuestion();
-            setTimeout(setSubmittedQuestion.bind(null, false), 4000);
-          }
+          if (res?.status !== 'SUCCESS') return;
+          const question = res.question as QuestionItemProps;
+          setNewQuestionUrl(
+            genQuestionDetailsPageUrl({
+              ...question.business!,
+              qText: question.questionText.join(' '),
+              qId: question._id,
+            }),
+          );
+          setSubmittedQuestion(true);
+          clearQuestion();
+          setTimeout(setSubmittedQuestion.bind(null, false), 10000);
         })
         .catch(console.log);
     });
@@ -104,7 +116,12 @@ function Aside(props: Props) {
       </section>
 
       {submittedQuestion ? (
-        <PageSuccess description="Your question has been submitted" />
+        <div>
+          <PageSuccess description="Your question has been submitted" className="mb-3" />
+          <Link href={newQuestionUrl} passHref>
+            <a className="btn btn-gray">See more</a>
+          </Link>
+        </div>
       ) : (
         <form className={styles.askNewQuestion} onSubmit={handleSubmitQuestion}>
           <h2 className="mb-4">Ask a question</h2>

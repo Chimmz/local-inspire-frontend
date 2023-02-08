@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch, SetStateAction, useCallback } from 'react';
+import React, { useState, useMemo, Dispatch, SetStateAction, useCallback } from 'react';
 import Image from 'next/image';
 import { UserPublicProfile } from '../../../types';
 
@@ -17,21 +17,23 @@ import useDate from '../../../hooks/useDate';
 import * as qtyUtils from '../../../utils/quantity-utils';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
 import * as domUtils from '../../../utils/dom-utils';
+import AppTooltip from '../../AppTooltip';
 
 export interface AnswerProps {
-  readonly _id: string;
-  readonly answeredBy: UserPublicProfile;
-  readonly createdAt: string;
-  readonly answerText: string[];
-  readonly answeredDate: string;
-  readonly likes: string[];
-  readonly dislikes: string[];
-  readonly mostHelpful: boolean;
+  _id: string;
+  answeredBy: UserPublicProfile;
+  createdAt: string;
+  answerText: string[];
+  answeredDate: string;
+  likes: string[];
+  dislikes: string[];
+  mostHelpful: boolean;
 }
 
 type Props = AnswerProps & {
   questionId: string;
   setQuestion: Dispatch<SetStateAction<QuestionItemProps>>;
+  setMostHelpfulAnswerId?: Dispatch<SetStateAction<string | null>>;
   openReportAnswerModal: (id: string) => void;
 };
 
@@ -55,36 +57,36 @@ const Answer: React.FC<Props> = function (props) {
 
   // const allowReaction = currentUserId !== props.answeredBy._id;
   const allowReaction = true;
-  const userLikes = reactions.likes.includes(currentUserId!);
-  const userDislikes = reactions.dislikes.includes(currentUserId!);
+  const userLikesAnswer = reactions.likes.includes(currentUserId!);
+  const userDislikesAnswer = reactions.dislikes.includes(currentUserId!);
 
-  const reactToAnswer = async (reaction: 'like' | 'dislike', token: string) => {
+  const reactToAnswer = async function (reaction: 'like' | 'dislike', token: string) {
     const handler =
       reaction === 'like'
         ? api.toggleLikeAnswerToBusinessQuestion
         : api.toggleDislikeAnswerToBusinessQuestion;
 
     const req = handler.bind(api)(props.questionId, props._id, token!);
-    const data = (await sendReactionReq(req)) as typeof reactions & {
+
+    const res = (await sendReactionReq(req)) as typeof reactions & {
       status: 'SUCCESS' | 'FAIL' | 'ERROR';
+      mostHelpfulAnswerId: string | null;
     };
+    console.log({ res });
 
-    console.log({ data });
-
-    data?.status === 'SUCCESS' && setReactions(data);
-
-    // If user removed his like and there are no likes now
-    if (reaction === 'like' && !data.likes?.length) setIsMostHelpfulAnswer(false);
+    if (res?.status === 'SUCCESS') {
+      setIsMostHelpfulAnswer(res.mostHelpfulAnswerId === props._id);
+      setReactions(res);
+    }
   };
 
-  const handleSelectDropdownAction = useCallback((evKey: string) => {
-    switch (evKey as 'report') {
-      case 'report':
-        withAuth(token => props.openReportAnswerModal(props._id));
-        // withAuth.bind(null, (_?: string) => props.openReportModal(props._id))}
-        break;
-    }
+  const userReviewedBusiness = useMemo(() => {
+    return props.answeredBy.contributions.some(
+      c => c.model === 'BusinessReview' && c.contribution === props._id,
+    );
   }, []);
+
+  // console.log(`${props.answerText} - ${props.answeredBy.lastName} - ${userReviewedBusiness}`);
 
   return (
     <div className={styles.answer}>
@@ -117,30 +119,31 @@ const Answer: React.FC<Props> = function (props) {
         >
           <small>
             {props.answeredBy.role === 'BUSINESS_OWNER'
-              ? 'Business Representative'
-              : 'Reviewed Business'}
+              ? '• Business Representative'
+              : userReviewedBusiness
+              ? '• Reviewed Business'
+              : ''}
           </small>
           {reactions.likes.length ? (
-            <>
-              •
-              <small>
-                {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
-              </small>
-            </>
+            <small>
+              {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
+            </small>
           ) : null}
           {isMostHelpfulAnswer ? (
             <strong className="d-flex align-items-center gap-2">
               • <small className="t-2 d-block">Most helpful answer</small>
             </strong>
           ) : null}
+          |{/* Report flag */}
+          <AppTooltip text="Problem with this answer?">
+            <small
+              className="cursor-pointer"
+              onClick={() => withAuth(props.openReportAnswerModal.bind(null, props._id))}
+            >
+              <Icon icon="fa6-solid:flag" width={10} />
+            </small>
+          </AppTooltip>
         </small>
-
-        <AppDropdown
-          items={['Report']}
-          onSelect={handleSelectDropdownAction}
-          toggler={<Icon icon="material-symbols:more-vert" width={20} />}
-          className={styles.options}
-        />
       </div>
 
       <small className="parag mb-4 d-block text-black">
@@ -157,8 +160,10 @@ const Answer: React.FC<Props> = function (props) {
           disabled={isReactingToAnswer}
           onClick={withAuth.bind(null, (token?: string) => reactToAnswer('like', token!))}
         >
-          {/* <Icon icon={`mdi:like${userLikes ? '' : '-outline'}`} width={20} color="gray" />{' '} */}
-          <Icon icon={`ant-design:like-${userLikes ? 'filled' : 'outlined'}`} width={18} />
+          <Icon
+            icon={`ant-design:like-${userLikesAnswer ? 'filled' : 'outlined'}`}
+            width={18}
+          />
           <small> Helpful ({reactions.likes.length})</small>
         </button>
 
@@ -169,7 +174,7 @@ const Answer: React.FC<Props> = function (props) {
           onClick={withAuth.bind(null, (token?: string) => reactToAnswer('dislike', token!))}
         >
           <Icon
-            icon={`ant-design:dislike-${userDislikes ? 'filled' : 'outlined'}`}
+            icon={`ant-design:dislike-${userDislikesAnswer ? 'filled' : 'outlined'}`}
             width={18}
           />
           <small> Not helpful ({reactions.dislikes.length})</small>
@@ -180,3 +185,6 @@ const Answer: React.FC<Props> = function (props) {
 };
 
 export default Answer;
+
+// I wish I could visit this eatery every weekend. They're special in a kind of way.
+// Just have a first visit and you will become addicted to their tasty meals.

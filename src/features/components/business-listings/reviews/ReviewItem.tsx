@@ -20,18 +20,18 @@ import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
-import styles from './Reviews.module.scss';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
 import * as domUtils from '../../../utils/dom-utils';
+import styles from './ReviewsSection.module.scss';
 
 type Props = ReviewProps & {
   show: boolean;
   businessName: string;
   businessData: BusinessProps;
-  openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
   openReportModal: (arg: any) => void;
   openShareModal?: (arg: any) => void;
+  openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
 };
 
 const ReviewItem = function (props: Props) {
@@ -39,18 +39,21 @@ const ReviewItem = function (props: Props) {
 
   const { withAuth } = useMiddleware();
   const currentUser = useSignedInUser();
-  const { date: reviewDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
+  const { date: reviewDate } = useDate(props.createdAt, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
 
   const handleToggleLikeReview: AuthMiddlewareNext = useCallback(
     async (token?: string) => {
-      const data = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
-      console.log({ data });
+      const res = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
+      if (res.status !== 'SUCCESS') return;
 
-      if (data.status !== 'SUCCESS') return;
-      setLikes(data?.likes as { user: UserPublicProfile }[]);
+      setLikes(res?.likes as { user: UserPublicProfile }[]);
     },
     [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken],
   );
@@ -60,17 +63,15 @@ const ReviewItem = function (props: Props) {
     [likes, currentUser?._id],
   );
 
-  const recommendStatusText: React.ReactNode = useMemo(
-    () =>
-      props.recommends ? (
-        <>
-          <Icon icon="mdi:cards-heart" color="red" /> recommends
-        </>
-      ) : (
-        ' ' + 'does not recommend'
-      ),
-    [props.recommends],
-  );
+  const recommendStatusText: React.ReactNode = useMemo(() => {
+    return props.recommends ? (
+      <>
+        <Icon icon="mdi:cards-heart" color="red" /> recommends
+      </>
+    ) : (
+      ' '.concat('does not recommend')
+    );
+  }, [props.recommends]);
 
   const btnLike = useMemo(
     () => (

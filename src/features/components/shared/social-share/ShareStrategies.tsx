@@ -14,13 +14,16 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import TextInput from '../text-input/TextInput';
 import styles from './SocialShare.module.scss';
 
-interface Props {
+export interface ShareStrategiesProps {
   heading?: ReactNode;
-  pageUrl: string | (() => string);
   className?: string;
+  title: string;
+  pageUrl: string | (() => string);
+  imgUrl?: string;
+  layout?: 'grid' | 'column';
 }
 
-const ShareStrategies = function (props: Props) {
+const ShareStrategies = function (props: ShareStrategiesProps) {
   const [pageUrl, setPageUrl] = useState(() => {
     return (
       window.location.origin +
@@ -29,18 +32,25 @@ const ShareStrategies = function (props: Props) {
   });
   const [userCopiedUrl, setUserCopiedUrl] = useState(false);
 
+  const layouts = useMemo(
+    () => ({
+      grid: styles.gridLayout,
+    }),
+    [],
+  );
+
   return (
-    <div className={props.className}>
-      <FacebookShareButton url={pageUrl} className="">
+    <div className={props.className || (props.layout === 'grid' ? layouts.grid : '')}>
+      <FacebookShareButton url={pageUrl} quote={props.title}>
         <button
-          className="btn btn-pry btn--lg w-100 mb-3"
+          className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
           style={{ backgroundColor: '#3b5998' }}
         >
           Share on Facebook
         </button>
       </FacebookShareButton>
 
-      <TwitterShareButton url={pageUrl} className="">
+      <TwitterShareButton url={pageUrl} title={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 color-white mb-3"
           style={{ backgroundColor: '#1da1f2' }}

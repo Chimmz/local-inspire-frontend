@@ -24,7 +24,7 @@ import { UserPublicProfile } from '../../../types';
 import Paginators from '../../shared/pagination/Paginators';
 import ReportQA from '../../ReportQA';
 import SocialShareModal from '../../shared/social-share/SocialShare';
-import styles from './Reviews.module.scss';
+import styles from './ReviewsSection.module.scss';
 import ReviewLikersModal from './ReviewLikersModal';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
@@ -198,7 +198,7 @@ function ReviewsSection(props: Props) {
         <small className="d-block my-4">Filter for better results</small>
 
         {/* Checkbox filters section in header */}
-        <section className={styles.filters}>
+        <section className={cls(styles.filters, props.reviews?.length ? 'd-flex' : 'd-none')}>
           {Array.from(filterToQueryMap.keys()).map(filterName => (
             <LabelledCheckbox
               key={filterName}
@@ -247,8 +247,9 @@ function ReviewsSection(props: Props) {
       {/* The Report modal */}
       <ReportQA
         show={!!reviewReportId}
+        reportObjectId={reviewReportId as string}
+        reportType="review"
         possibleReasons={reviewReportReasonsConfig}
-        onReport={handleReportReview}
         close={setReviewReportId.bind(null, null)}
       />
 
@@ -263,9 +264,10 @@ function ReviewsSection(props: Props) {
       {/* Share review */}
       <SocialShareModal
         heading="Share Review"
-        url={genUserReviewPageUrl({ ...props.business!, reviewId: reviewShareId! })}
+        pageUrl={genUserReviewPageUrl({ ...props.business!, reviewId: reviewShareId! })}
         show={!!reviewShareId}
         close={setReviewShareId.bind(null, null)}
+        title={reviews?.find(r => r._id === reviewShareId)?.reviewTitle!}
       />
     </section>
   );

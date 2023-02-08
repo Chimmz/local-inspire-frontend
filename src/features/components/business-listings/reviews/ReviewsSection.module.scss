@@ -2,18 +2,17 @@
   & > * {
     padding: 15px;
   }
-  & > *:not(:first-child) {
-    padding: 20px 15px;
-  }
 }
 
 .reviewsSectionHeader {
-  border-bottom: 1px solid $line-color;
-}
-
-.reviews {
-  & > *:not(:last-child) {
-    margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  border-top: none !important;
+  &,
+  // All review items and pagination block
+  & ~ * {
+    background-color: #fff;
+    border: 1px solid $line-color;
+    padding: 20px 15px;
   }
 }
 
@@ -29,7 +28,6 @@
   grid-template-columns: auto 1fr;
   column-gap: 10px;
   row-gap: 10px;
-  // margin-bottom: 1rem;
   font-size: 16px;
 
   & > .options {
@@ -53,7 +51,6 @@
   }
 
   & > .location {
-    // grid-row: 1 / 2;
     grid-column: 2 / -1;
     display: flex;
     align-items: center;
@@ -74,6 +71,10 @@
 
 .review {
   overflow: hidden;
+
+  &:not(:last-of-type) {
+    margin-bottom: 3rem;
+  }
 
   & [class*='dropdown-toggle'] {
     background-color: none !important;

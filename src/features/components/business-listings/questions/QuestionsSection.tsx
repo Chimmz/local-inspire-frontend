@@ -146,10 +146,9 @@ const QuestionsSection = function (props: Props) {
   );
 
   return (
-    // This is the Q&A header section containing the Ask question accordion
     <section className={styles.questionSection}>
+      {/* This is the Q&A header section containing the Ask question accordion */}
       <Accordion
-        defaultActiveKey="0"
         className={cls(styles.queSectionHeading, showWith('d-grid'))}
         ref={sectionRef}
       >
@@ -295,10 +294,11 @@ const QuestionsSection = function (props: Props) {
 
       {/* The Report question modal */}
       <ReportQA
-        close={() => setQuestionIdReport(null)}
-        show={!!questionIdReport}
+        reportType="question"
+        reportObjectId={questionIdReport as string}
         possibleReasons={questionReportReasonsConfig}
-        onReport={handleReportQuestion}
+        show={!!questionIdReport}
+        close={() => setQuestionIdReport(null)}
       />
 
       {/* Guidelines on writing a new answer */}

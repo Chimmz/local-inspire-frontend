@@ -159,7 +159,10 @@ const BusinessListings: NextPage<Props> = function (props) {
                 <BusinessAmenities />
               </section>
 
-              <section className="d-flex flex-column p-0">
+              <section
+                className="d-flex flex-column p-0"
+                style={{ backgroundColor: 'transparent', border: 'none' }}
+              >
                 <nav
                   className={cls(
                     styles.nav,

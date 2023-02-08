@@ -42,6 +42,7 @@ type Props = QuestionItemProps & {
 
 const QuestionItem = function (props: Props) {
   const [question, setQuestion] = useState<QuestionItemProps>(props);
+  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
 
   const { withAuth } = useMiddleware();
   const { date: askedDate } = useDate(question.createdAt, {
@@ -49,8 +50,6 @@ const QuestionItem = function (props: Props) {
     day: '2-digit',
     year: 'numeric',
   });
-
-  const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
 
   const handleSelectDropdownOption = useCallback((evKey: string) => {
     switch (evKey as 'report') {
@@ -73,7 +72,10 @@ const QuestionItem = function (props: Props) {
 
   const lessHelpfulAnswers = useMemo(() => {
     if (!mostHelpfulAnswer) return question.answers;
-    return question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
+
+    const items = question.answers.filter(a => a._id !== mostHelpfulAnswer?._id);
+    items.sort((prev, next) => +new Date(next.createdAt) - +new Date(prev.createdAt)); // Sort by newest first
+    return items;
   }, [question.answers, mostHelpfulAnswer]);
 
   const openReportAnswerModal = (qid: string) => setAnswerIdReport(qid);
@@ -208,10 +210,11 @@ const QuestionItem = function (props: Props) {
       />
 
       <ReportQA
-        show={!!answerIdReport}
+        reportType="answer"
+        reportObjectId={answerIdReport!}
         possibleReasons={answerReportReasonsConfig}
+        show={!!answerIdReport}
         close={() => setAnswerIdReport(null)}
-        onReport={handleReportAnswer}
       />
     </section>
   );
