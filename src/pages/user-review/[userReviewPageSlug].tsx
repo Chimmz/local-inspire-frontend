@@ -236,8 +236,8 @@ const UserReviewPage: NextPage<Props> = function (props) {
       {/* The Report modal */}
       <ReportQA
         show={showReportModal}
-        whatToReport="review"
-        onReport={handleReportReview}
+        reportType="review"
+        reportObjectId={review?._id!}
         close={setShowReportModal.bind(null, false)}
         possibleReasons={reviewReportReasonsConfig}
       />
