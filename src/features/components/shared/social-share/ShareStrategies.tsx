@@ -41,19 +41,17 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
 
   return (
     <div className={props.className || (props.layout === 'grid' ? layouts.grid : '')}>
-      <FacebookShareButton url={pageUrl} quote={props.title}>
+      {/* <FacebookShareButton url={pageUrl} quote={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
           style={{ backgroundColor: '#3b5998' }}
         >
           Share on Facebook
         </button>
-      </FacebookShareButton>
+      </FacebookShareButton> */}
 
-      {/* <Link
-        href={`https://www.facebook.com/sharer.php?u=${pageUrl}
-      `}
-        // ?imageurl=${props.imgUrl}}
+      <Link
+        href={`https://www.facebook.com/sharer.php?u=${pageUrl}&imageurl=${props.imgUrl}}`}
         passHref
       >
         <a
@@ -63,14 +61,10 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
         >
           Share on Facebook
         </a>
-      </Link> */}
+      </Link>
 
       <Link
-        href={`https://twitter.com/intent/tweet?text=${
-          props.title
-        }&url=${'https://localinspire.vercel.app/user-review/chicken-express_terrell-TX_63e102b6090035205ba36b48'}?imageurl=${
-          props.imgUrl
-        }`}
+        href={`https://twitter.com/intent/tweet?text=${props.title}&url=${pageUrl}?imageurl=${props.imgUrl}`}
         passHref
       >
         <a
