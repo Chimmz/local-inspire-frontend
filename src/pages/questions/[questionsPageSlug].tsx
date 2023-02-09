@@ -72,13 +72,11 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const [reportedQueId, setReportedQueId] = useState<null | string>(null);
 
   const filterQuestions = async (queryStr: string, page?: number) => {
-    const res = await sendFilterReq(
-      api.getQuestionsAskedAboutBusiness(props.params.businessId, queryStr, {
-        page: page || currentPage,
-        limit: QUESTIONS_PER_PAGE,
-      }),
-    );
-
+    const req = api.getQuestionsAskedAboutBusiness(props.params.businessId, queryStr, {
+      page: page || currentPage,
+      limit: QUESTIONS_PER_PAGE,
+    });
+    const res = await sendFilterReq(req);
     if (res.status !== 'SUCCESS') return;
     setQuestions(res.data);
     setQuestionsCount(res.total); // If there are new questions in DB, it will reflect in the number of pages
@@ -114,7 +112,6 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   const handleClickFilterName = (filter: FilterName) => {
     (filterNames.includes(filter) ? removeFilterName : addNewFilterName)(filter);
-
     switch (filter) {
       case 'Most Answered':
         removeFilterName('Oldest');

@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import { BusinessProps } from '../business-results/Business';
 
@@ -15,6 +16,7 @@ import { Icon } from '@iconify/react';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 import PhotoGallery from '../shared/img-gallery/PhotoGallery';
+import SocialShareModal from '../shared/social-share/SocialShare';
 
 interface Props {
   businessName: string;
@@ -22,11 +24,14 @@ interface Props {
   business: Partial<BusinessProps> | undefined;
   reviewImages: Array<{ photoUrl: string; description: string; _id: string }> | undefined;
   slug: string;
+  pageDescription: string;
 }
 
 function Header(props: Props) {
-  const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const router = useRouter();
 
+  const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
   const reviewPageUrl = useMemo(
     () => genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null }),
     [],
@@ -85,7 +90,11 @@ function Header(props: Props) {
               <Icon icon="material-symbols:bookmark" width={18} />
               Save
             </button>
-            <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+            <button
+              className="btn btn-bg-none"
+              style={{ color: '#6a6a6a' }}
+              onClick={setShowShareModal.bind(null, true)}
+            >
               <Icon icon="mdi:share" width={21} />
               Share
             </button>
@@ -161,6 +170,12 @@ function Header(props: Props) {
         </div>
       </header>
 
+      <SocialShareModal
+        show={showShareModal}
+        pageUrl={router.asPath}
+        title={props.pageDescription}
+        close={setShowShareModal.bind(null, false)}
+      />
       {/* <PhotoGallery /> */}
     </>
   );

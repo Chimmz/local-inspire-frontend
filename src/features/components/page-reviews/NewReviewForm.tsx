@@ -33,6 +33,7 @@ import PhotoUploadsWithDescription from '../shared/photo-uploads-with-descriptio
 import PageSuccess from '../shared/success/PageSuccess';
 import styles from './NewReviewForm.module.scss';
 import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
+import ShareStrategies from '../shared/social-share/ShareStrategies';
 
 interface Props {
   userReview: ReviewProps | null;
@@ -164,7 +165,7 @@ function NewReviewForm(props: Props) {
     return true;
   };
 
-  const submitReview: AuthMiddlewareNext = async (token?: string) => {
+  const submitReview: AuthMiddlewareNext = async (token: string) => {
     if (props.readonly) return;
     if (!validateFields()) return;
 
@@ -184,7 +185,7 @@ function NewReviewForm(props: Props) {
     formData.append('photoDescriptions', JSON.stringify(photoDescriptions));
 
     const res = await props.sendReviewRequest(
-      api.reviewBusiness({ businessId, token: token!, formData }),
+      api.reviewBusiness({ businessId, token, formData }),
     );
     console.log(res);
     if (res?.status === 'SUCCESS') setSubmitted(true);
@@ -203,6 +204,8 @@ function NewReviewForm(props: Props) {
             <Link href={urlUtils.genBusinessPageUrl<string>({ slug: props.slug })} passHref>
               <a className="btn btn--lg btn-pry">Continue</a>
             </Link>
+            {/* <ShareStrategies
+            /> */}
             <button className="btn btn--lg btn-gray">Share on Facebook</button>
             <button className="btn btn--lg btn-gray">Share on Twitter</button>
           </div>

@@ -60,7 +60,7 @@ interface Props {
   };
 }
 
-const BusinessListings: NextPage<Props> = function (props) {
+const BusinessPage: NextPage<Props> = function (props) {
   const router = useRouter();
   const [active, setActive] = useState<'reviews' | 'q&a' | 'advices'>('reviews');
   const { send: sendRequest, loading } = useRequest({ autoStopLoading: true });
@@ -90,6 +90,7 @@ const BusinessListings: NextPage<Props> = function (props) {
               reviewsCount={props.reviews?.total}
               reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
               slug={props.params.slug}
+              pageDescription={pageDescription}
             />
             <div className={styles.left}>
               <section
@@ -333,4 +334,4 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   };
 };
 
-export default BusinessListings;
+export default BusinessPage;

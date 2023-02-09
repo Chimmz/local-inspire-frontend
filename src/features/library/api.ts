@@ -271,7 +271,7 @@ class API {
     const url = `/questions/about/${businessId}`
       .concat(queryStr || '')
       .concat(!queryStr ? '?&' : '')
-      .concat(opts?.page ? `page=${opts.page}` : '')
+      .concat(opts?.page ? `&page=${opts.page}` : '')
       .concat(opts?.limit ? `&limit=${opts.limit}` : '');
 
     return this._makeRequest({
@@ -316,7 +316,7 @@ class API {
       headers: { 'Content-Type': 'application/json' },
     });
   }
-  
+
   async report(body: object, token: string) {
     return this._makeRequest({
       path: '/report',

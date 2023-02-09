@@ -39,19 +39,14 @@ interface Props {
 const UserReviewPage: NextPage<Props> = function (props) {
   const [review, setReview] = useState<ReviewProps | undefined>(undefined);
 
+  // Modals
   const [showLikersModal, setShowLikersModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [pageUrl, setPageUrl] = useState('');
-  const [userCopiedUrl, setUserCopiedUrl] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (props.review) setReview(props.review);
   }, [props.review]);
-
-  useEffect(() => {
-    setPageUrl(window.location.origin.concat(router.asPath));
-  }, []);
 
   const userFullname = useMemo(() => {
     return review?.reviewedBy
@@ -66,10 +61,6 @@ const UserReviewPage: NextPage<Props> = function (props) {
         : '',
     [props.business],
   );
-
-  const handleReportReview = async (reviewId: string) => {
-    console.log('Reporting review: ', reviewId);
-  };
 
   return (
     <SSRProvider>
@@ -125,67 +116,11 @@ const UserReviewPage: NextPage<Props> = function (props) {
               <section className={styles.share}>
                 <ShareStrategies
                   className={styles.shareStrategies}
-                  pageUrl={pageUrl}
+                  pageUrl={router.asPath}
                   title={review?.reviewTitle!}
                   imgUrl={review?.images[0].photoUrl}
                   layout="grid"
                 />
-                {/* <FacebookShareButton url={pageUrl} className="w-100">
-                  <button
-                    className="btn btn-pry btn--lg w-100 mb-3"
-                    style={{ backgroundColor: '#3b5998' }}
-                  >
-                    Share on Facebook
-                  </button>
-                </FacebookShareButton>
-
-                <TwitterShareButton url={pageUrl} className="w-100">
-                  <button
-                    className="btn btn-pry btn--lg w-100 color-white mb-3"
-                    style={{ backgroundColor: '#1da1f2' }}
-                  >
-                    Share on Twitter
-                  </button>
-                </TwitterShareButton>
-
-                <InputGroup className="mb-5">
-                  <TextInput
-                    value={pageUrl}
-                    className="textfield flex-grow-1"
-                    style={{ flexBasis: '80%' }}
-                    readonly
-                    selectOnFocus
-                  />
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={
-                      <Tooltip id="tooltip-copy-url">
-                        {!userCopiedUrl ? 'Copy URL' : 'Copied!'}
-                      </Tooltip>
-                    }
-                  >
-                    <CopyToClipboard
-                      text={pageUrl}
-                      onCopy={setUserCopiedUrl.bind(null, true)}
-                    >
-                      <button
-                        className="btn btn-outline"
-                        onMouseLeave={setTimeout.bind(
-                          null,
-                          setUserCopiedUrl.bind(null, false),
-                          100,
-                        )}
-                      >
-                        <Icon icon="material-symbols:content-copy" width={16} />
-                      </button>
-                    </CopyToClipboard>
-                  </OverlayTrigger>
-
-                  <small className="d-block">
-                    Want to link to it instead? Copy the above URL!
-                  </small>
-                </InputGroup> */}
-
                 <h2 className="mb-4">Crystals Cabin</h2>
 
                 <ul
@@ -244,13 +179,6 @@ const UserReviewPage: NextPage<Props> = function (props) {
     </SSRProvider>
   );
 };
-
-// export const getStaticPaths: GetStaticPaths = async () => {
-//   return {
-//     paths: [],
-//     fallback: true,
-//   };
-// };
 
 export const getServerSideProps: GetServerSideProps = async context => {
   try {

@@ -21,23 +21,23 @@ export interface ShareStrategiesProps {
   pageUrl: string | (() => string);
   imgUrl?: string;
   layout?: 'grid' | 'column';
+  urlCopyOption?: boolean;
 }
 
 const ShareStrategies = function (props: ShareStrategiesProps) {
-  const [pageUrl, setPageUrl] = useState(() => {
-    return (
-      window.location.origin +
-      (typeof props.pageUrl === 'string' ? props.pageUrl : props.pageUrl())
-    );
-  });
-  const [userCopiedUrl, setUserCopiedUrl] = useState(false);
+  const { urlCopyOption = true } = props;
 
-  const layouts = useMemo(
-    () => ({
-      grid: styles.gridLayout,
-    }),
-    [],
+  const [pageUrl, setPageUrl] = useState(
+    typeof props.pageUrl === 'string' ? props.pageUrl : props.pageUrl(),
   );
+  const [userCopiedUrl, setUserCopiedUrl] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const layouts = useMemo(() => ({ grid: styles.gridLayout }), []);
+
+  useEffect(() => {
+    setPageUrl(window.location.origin + pageUrl);
+  }, []);
 
   return (
     <div className={props.className || (props.layout === 'grid' ? layouts.grid : '')}>
@@ -50,16 +50,48 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
         </button>
       </FacebookShareButton>
 
-      <TwitterShareButton url={pageUrl} title={props.title}>
+      {/* <Link
+        href={`https://www.facebook.com/sharer.php?u=${pageUrl}
+      `}
+        // ?imageurl=${props.imgUrl}}
+        passHref
+      >
+        <a
+          target="_blank"
+          className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
+          rel="noopener noreferrer"
+        >
+          Share on Facebook
+        </a>
+      </Link> */}
+
+      <Link
+        href={`https://twitter.com/intent/tweet?text=${
+          props.title
+        }&url=${'https://localinspire.vercel.app/user-review/chicken-express_terrell-TX_63e102b6090035205ba36b48'}?imageurl=${
+          props.imgUrl
+        }`}
+        passHref
+      >
+        <a
+          target="_blank"
+          className="btn btn-pry btn--lg w-100 color-white mb-3"
+          style={{ backgroundColor: '#1da1f2' }}
+        >
+          Share on Twitter
+        </a>
+      </Link>
+
+      {/* <TwitterShareButton url={pageUrl} title={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 color-white mb-3"
           style={{ backgroundColor: '#1da1f2' }}
         >
           Share on Twitter
         </button>
-      </TwitterShareButton>
+      </TwitterShareButton> */}
 
-      <InputGroup className="mb-5">
+      <InputGroup className={cls('mb-5', !urlCopyOption && 'd-none')}>
         <TextInput
           value={pageUrl}
           className="textfield flex-grow-1"
