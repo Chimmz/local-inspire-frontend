@@ -41,16 +41,16 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
 
   return (
     <div className={props.className || (props.layout === 'grid' ? layouts.grid : '')}>
-      {/* <FacebookShareButton url={pageUrl} quote={props.title}>
+      <FacebookShareButton url={pageUrl} quote={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
           style={{ backgroundColor: '#3b5998' }}
         >
           Share on Facebook
         </button>
-      </FacebookShareButton> */}
+      </FacebookShareButton>
 
-      <Link
+      {/* <Link
         href={`https://www.facebook.com/sharer.php?u=${pageUrl}&imageurl=${props.imgUrl}}`}
         passHref
       >
@@ -74,16 +74,16 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
         >
           Share on Twitter
         </a>
-      </Link>
+      </Link> */}
 
-      {/* <TwitterShareButton url={pageUrl} title={props.title}>
+      <TwitterShareButton url={pageUrl} title={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 color-white mb-3"
           style={{ backgroundColor: '#1da1f2' }}
         >
           Share on Twitter
         </button>
-      </TwitterShareButton> */}
+      </TwitterShareButton>
 
       <InputGroup className={cls('mb-5', !urlCopyOption && 'd-none')}>
         <TextInput
