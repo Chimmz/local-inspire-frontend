@@ -147,9 +147,14 @@ const UserCollectionsModal = (props: Props) => {
         </div>
       </Modal.Header>
 
-      <Modal.Body className={cls('py-5', mode === 'add-to-collection' ? 'px-4' : 'px-5')}>
+      <Modal.Body
+        className={cls(
+          'py-5 position-relative',
+          mode === 'add-to-collection' ? 'px-4' : 'px-5',
+        )}
+      >
         {fetchingCollections || isAddingToCollection ? (
-          <div className="w-100 xy-center">
+          <div className="w-100 xy-center position-absolute">
             <Spinner animation="border" className="mx-auto" style={{ borderWidth: '1px' }} />
           </div>
         ) : null}
