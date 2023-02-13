@@ -138,7 +138,11 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
 
           <StarRating
             starSize={featured ? 'sm' : 'md'}
-            initialValue={props.userRating}
+            initialValue={
+              props.userRating || typeof props.avgRating === 'number'
+                ? Math.floor(props.avgRating!)
+                : 0
+            }
             readonly
           />
 
