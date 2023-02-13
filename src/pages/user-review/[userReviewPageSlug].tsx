@@ -66,7 +66,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
     <SSRProvider>
       <Head>
         <title>
-          {`${props.review?.reviewTitle} - Reviews for ${props.business?.businessName},
+          {`${props.review?.reviewTitle} - Reviews for ${props.business?.businessName}, ${props.business?.city}, 
             ${props.business?.stateCode}`}
         </title>
       </Head>
@@ -121,7 +121,9 @@ const UserReviewPage: NextPage<Props> = function (props) {
                   imgUrl={review?.images[0].photoUrl}
                   layout="grid"
                 />
-                <h2 className="mb-4">Crystals Cabin</h2>
+                <h2 className="mb-4">
+                  {`${props.business?.businessName}, ${props.business?.city} ${props.business?.stateCode}`}{' '}
+                </h2>
 
                 <ul
                   className={cls(styles.businessInfo, 'no-bullets d-flex flex-column gap-3')}

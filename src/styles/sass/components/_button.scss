@@ -200,6 +200,11 @@
     display: grid;
     place-items: center;
 
+    &--sm {
+      width: 2rem;
+      height: 2rem;
+    }
+
     &:hover {
       background-color: #f8f8f8 !important;
     }

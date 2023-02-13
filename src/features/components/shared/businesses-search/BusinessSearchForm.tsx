@@ -17,7 +17,7 @@ import styles from './BusinessSearchForm.module.scss';
 import { UserLocationContext } from '../../../contexts/UserLocationContext';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
-const MIN_CHARS_FOR_CITY_SEARCH = 1;
+const MIN_CHARS_FOR_CITY_SEARCH = 2;
 
 interface BusinessSearchFormProps {
   promptUserInput: boolean;
@@ -81,7 +81,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   });
   const searchCitiesDelayed = useDelayActionUponTextInput({
     action: searchCities,
-    delay: 100,
+    delay: 250,
   });
 
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
@@ -116,6 +116,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       field: string;
       value: string;
     };
+    console.log(field, value);
 
     switch (field) {
       case 'category':
@@ -127,6 +128,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       case 'city':
         setCityValue(value);
         hideCategoryResults();
+        hideCityResults();
         setHasSelectedCity(true);
         break;
     }
@@ -172,10 +174,18 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   if (userLocation?.city?.length) {
     locationSuggestions.unshift({
       label: (
-        <>
-          <Icon icon="material-symbols:location-on" color="#0955a1" width="22" height="20" />{' '}
-          {userLocation?.city}
-        </>
+        <div
+          className="d-flex align-items-center gap-2 text-pry"
+          // style={{ fontWeight: '400' }}
+        >
+          <Icon
+            icon="material-symbols:location-on-outline"
+            color="#0955a1"
+            width="22"
+            height="20"
+          />
+          Current Location
+        </div>
       ),
       value: userLocation?.city,
     });

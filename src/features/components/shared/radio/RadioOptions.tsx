@@ -8,14 +8,17 @@ interface RadioProps {
   as: 'circle' | 'btn';
   options: Array<string | { label: ReactNode; value: string | number }>;
   layout?: 'block' | 'inline';
+  className?: string;
+  gap: string;
   name: string;
+  label?: string;
   value: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   readonly?: boolean;
   validationError?: string;
 }
 
-function Radio(props: RadioProps) {
+function RadioOptions(props: RadioProps) {
   const { options, layout = 'inline' } = props;
   const parentClassMap = { btn: styles.btnRadioOptions, circle: styles.circleRadioOptions };
 
@@ -24,7 +27,10 @@ function Radio(props: RadioProps) {
       <Form.Control.Feedback type="invalid" className="d-block mb-2">
         {props.validationError}
       </Form.Control.Feedback>
-      <div className={cls(parentClassMap[props.as], styles[layout])}>
+      <div
+        className={cls(parentClassMap[props.as], styles[layout], props.className)}
+        style={{ gap: props.gap || (props.layout === 'inline' ? '1.5rem' : '1rem') }}
+      >
         {options.map(optn => {
           const label = typeof optn === 'string' ? optn : optn.label;
           const value = typeof optn === 'string' ? optn : optn.value;
@@ -36,6 +42,7 @@ function Radio(props: RadioProps) {
 
           return (
             <label htmlFor={String(value)} key={uuidv4()}>
+              {props.label}
               <input
                 type="radio"
                 id={String(value)}
@@ -60,4 +67,4 @@ function Radio(props: RadioProps) {
   );
 }
 
-export default Radio;
+export default RadioOptions;

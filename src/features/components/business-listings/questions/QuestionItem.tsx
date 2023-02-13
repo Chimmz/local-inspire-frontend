@@ -23,6 +23,7 @@ import useMiddleware from '../../../hooks/useMiddleware';
 import ReportQA from '../../ReportQA';
 import { answerReportReasonsConfig } from './config';
 import * as domUtils from '../../../utils/dom-utils';
+import { useBusinessPageContext } from '../../../contexts/BusinessPageContext';
 
 export interface QuestionItemProps {
   _id: string;
@@ -51,13 +52,13 @@ const QuestionItem = function (props: Props) {
     year: 'numeric',
   });
 
-  const handleSelectDropdownOption = useCallback((evKey: string) => {
+  const handleSelectDropdownOption = (evKey: string) => {
     switch (evKey as 'report') {
       case 'report':
-        withAuth(token => props.openReportQuestionModal(question._id));
+        withAuth(props.openReportQuestionModal.bind(null, question._id));
         break;
     }
-  }, []);
+  };
 
   const mostHelpfulAnswer = useMemo(() => {
     if (!question) return null;
@@ -78,11 +79,12 @@ const QuestionItem = function (props: Props) {
     return items;
   }, [question.answers, mostHelpfulAnswer]);
 
-  const openReportAnswerModal = (qid: string) => setAnswerIdReport(qid);
+  const businessReviewersSet = useMemo(() => {
+    if (props.business?.reviewers?.length) return new Set(props.business.reviewers);
+    return null;
+  }, [props.business?.reviewers]);
 
-  const handleReportAnswer = async function (reason: string, explanation: string) {
-    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
-  };
+  const openReportAnswerModal = (qid: string) => setAnswerIdReport(qid);
 
   const questionDetailsUrl = useMemo(
     () =>
@@ -150,6 +152,7 @@ const QuestionItem = function (props: Props) {
           mostHelpful
           setQuestion={setQuestion}
           openReportAnswerModal={openReportAnswerModal}
+          businessReviewersSet={businessReviewersSet}
         />
       ) : null}
 
@@ -165,6 +168,7 @@ const QuestionItem = function (props: Props) {
                 mostHelpful={false}
                 setQuestion={setQuestion}
                 openReportAnswerModal={openReportAnswerModal}
+                businessReviewersSet={businessReviewersSet}
               />
             ))}
           </ul>
@@ -193,6 +197,7 @@ const QuestionItem = function (props: Props) {
                     mostHelpful={a._id === mostHelpfulAnswer._id}
                     setQuestion={setQuestion}
                     openReportAnswerModal={openReportAnswerModal}
+                    businessReviewersSet={businessReviewersSet}
                   />
                 ))}
               </ul>

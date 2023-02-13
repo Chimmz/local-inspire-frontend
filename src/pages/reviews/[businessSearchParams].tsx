@@ -117,7 +117,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     <Layout>
       {pageLoading && <Spinner pageWide />}
       <Head>
-        <title>{`${categoryTitle} in ${cityTitle} | Local Inspire`}</title>
+        <title>{`Top ${categoryTitle} in ${cityTitle}, ${props.pageSearchParams?.stateCode} – Updated regularly | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
       <Layout.Nav bg="#003366" lightLogo position="sticky">
@@ -135,7 +135,6 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           </h1>
           <aside className={styles.aside}>
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
-              {/* <Image src="/img/map-img.jpg" layout="fill" /> */}
               <MapView
                 shown
                 closeMap={useCallback(setShowGoogleMap.bind(null, false), [setShowGoogleMap])}

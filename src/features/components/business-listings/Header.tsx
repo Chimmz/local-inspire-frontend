@@ -17,6 +17,7 @@ import StarRating from '../shared/star-rating/StarRating';
 import styles from './Header.module.scss';
 import PhotoGallery from '../shared/img-gallery/PhotoGallery';
 import SocialShareModal from '../shared/social-share/SocialShare';
+import UserCollectionsModal from './modals/UserCollectionsModal';
 
 interface Props {
   businessName: string;
@@ -29,6 +30,7 @@ interface Props {
 
 function Header(props: Props) {
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showCollectionsModal, setShowCollectionsModal] = useState(false);
   const router = useRouter();
 
   const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
@@ -52,14 +54,17 @@ function Header(props: Props) {
           <h1 className="mb-3">{props.business?.businessName}</h1>
           <StarRating
             readonly
-            initialValue={props.business?.avgRating}
+            initialValue={Math.floor(props.business?.avgRating!)}
             ratingValue={props.reviewsCount}
             showRatingCaption
             starSize="xlg"
             renderReviewsCount={n => `${n} reviews`}
             className="mb-4"
           />
-          <span>{props.business?.address}</span>
+          <span>
+            {props.business?.address?.concat(', ')} {props.business?.city}{' '}
+            {props.business?.stateCode}
+          </span>
 
           <ul className="d-flex align-items-center gap-2 no-bullets">
             <li>{props.business?.SIC4}</li>
@@ -86,7 +91,11 @@ function Header(props: Props) {
 
         <div className={cls(styles.headerRight, 'd-flex', 'flex-column')}>
           <div className="d-flex justify-content-between mb-4">
-            <button className="btn btn-bg-none" style={{ color: '#6a6a6a' }}>
+            <button
+              className="btn btn-bg-none"
+              style={{ color: '#6a6a6a' }}
+              onClick={setShowCollectionsModal.bind(null, true)}
+            >
               <Icon icon="material-symbols:bookmark" width={18} />
               Save
             </button>
@@ -169,6 +178,13 @@ function Header(props: Props) {
           )}
         </div>
       </header>
+
+      <UserCollectionsModal
+        show={showCollectionsModal}
+        close={setShowCollectionsModal.bind(null, false)}
+        initMode="add-to-collection"
+        itemToSave={{ model: 'Business', item: props.business?._id! }}
+      />
 
       <SocialShareModal
         show={showShareModal}

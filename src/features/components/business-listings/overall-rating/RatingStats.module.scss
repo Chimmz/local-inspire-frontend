@@ -1,0 +1,47 @@
+.ratingStats {
+  display: grid;
+  grid-template-columns: 1fr 40%;
+  grid-template-rows: auto auto;
+  background-color: transparent !important;
+  padding: 0 !important;
+  // border: none !important;
+
+  & > * {
+    border: 1px solid $line-color;
+    background-color: #fff;
+    padding: 1.5rem 1.5rem;
+  }
+
+  & > .overallRatings {
+    background-color: transparent;
+  }
+
+  & > .location {
+    grid-column: 2 / 3;
+    grid-row: 1 / -1;
+  }
+
+  & > .featureRatings {
+    // grid
+  }
+
+  @media screen and (max-width: 56.25em) {
+    grid-template-columns: 1fr;
+
+    & > * {
+      grid-column: 1 / 2 !important;
+    }
+  }
+}
+
+.mapbox {
+  max-width: 100% !important;
+  // height: 15rem;
+  height: 35%;
+  border-radius: 4px;
+  overflow: hidden;
+
+  & [class*='mapboxgl-ctrl mapboxgl-ctrl-attrib mapboxgl-compact'] {
+    display: none;
+  }
+}

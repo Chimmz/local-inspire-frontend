@@ -119,7 +119,9 @@ function Aside(props: Props) {
         <div>
           <PageSuccess description="Your question has been submitted" className="mb-3" />
           <Link href={newQuestionUrl} passHref>
-            <a className="btn btn-gray">See more</a>
+            <a className="btn btn-gray" target="_blank">
+              See question
+            </a>
           </Link>
         </div>
       ) : (

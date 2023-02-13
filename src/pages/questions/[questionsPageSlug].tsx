@@ -13,7 +13,7 @@ import api from '../../features/library/api';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
 import {
   newQuestionGuidelinesConfig,
-  postingGuidelinesConfig,
+  newAnswersGuidelinesConfig,
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
 import cls from 'classnames';
@@ -30,6 +30,7 @@ import Layout from '../../features/components/layout';
 import PopupInfo from '../../features/components/PopupInfo';
 import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
+import Head from 'next/head';
 
 interface QuestionsPageProps {
   questions: {
@@ -159,8 +160,20 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
     [],
   );
 
+  // Chicken Express - Questions & Answers Community in Terrell, Tx | Localinspire
+  const pageDescription = useMemo(() => {
+    return `${
+      props.params.businessName
+    } - Questions & Answers Community in ${props.params.location
+      .split('-')
+      .join(' ')} | Localinspire`;
+  }, []);
+
   return (
     <SSRProvider>
+      <Head>
+        <title>{pageDescription}</title>
+      </Head>
       <Spinner show={submittingNewQuestion || isFiltering || submittingNewAnswer} pageWide />
       <Modal show={showAnswerSuccessModal}>
         <Modal.Body className="py-5">

@@ -11,7 +11,7 @@ import Answer, {
 import {
   answerReportReasonsConfig,
   newQuestionGuidelinesConfig,
-  postingGuidelinesConfig,
+  newAnswersGuidelinesConfig,
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
@@ -39,9 +39,16 @@ import usePaginate from '../../features/hooks/usePaginate';
 import Paginators from '../../features/components/shared/pagination/Paginators';
 import * as domUtils from '../../features/utils/dom-utils';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
+import { BusinessProps } from '../../features/components/business-results/Business';
+import Head from 'next/head';
 
 interface Props {
-  question?: QuestionItemProps;
+  question?: QuestionItemProps & {
+    business: Pick<
+      BusinessProps,
+      '_id' | 'businessName' | 'city' | 'stateCode' | 'reviewers'
+    >;
+  };
   answers: {
     data: AnswerProps[] | undefined;
     total: number;
@@ -207,8 +214,23 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     return props.answers.data?.find(a => a._id === mostHelpfulAnswerId) || null;
   }, [props.answers, mostHelpfulAnswerId]);
 
+  const businessReviewersSet = useMemo(() => {
+    const b = props.question?.business;
+    return b?.reviewers?.length ? new Set(b.reviewers) : null;
+  }, [props.question?.business?.reviewers]);
+
+  // Have they got roasted beef? – Chicken Express in Terrell, Tx
+  const pageDescription = useMemo(() => {
+    const q = props.question;
+    return `${q?.questionText} - ${q?.business.businessName} in ${q?.business.city},
+      ${q?.business.stateCode} | Localinspire`;
+  }, []);
+
   return (
     <SSRProvider>
+      <Head>
+        <title>{pageDescription}</title>
+      </Head>
       <Spinner show={isPaginating || submittingAnswer} pageWide />
       <Modal show={showNewQuestionSuccessModal}>
         <Modal.Body className="py-5">
@@ -278,7 +300,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                   {props.question?.askedBy.city ? (
                     <>
                       <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />
-                      {props.question?.askedBy.city} •
+                      {props.question?.askedBy.city} •{' '}
                     </>
                   ) : null}
                   {qtyUtils.quantitize(props.question?.askedBy?.contributions?.length! || 0, [
@@ -307,6 +329,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                   setMostHelpfulAnswerId={setMostHelpfulAnswerId}
                   questionId={props.question?._id!}
                   openReportAnswerModal={setAnswerIdReport}
+                  businessReviewersSet={businessReviewersSet}
                   key={String(mostHelpfulAnswerId)}
                 />
               ) : null}
@@ -320,6 +343,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                     setMostHelpfulAnswerId={setMostHelpfulAnswerId}
                     questionId={props.question?._id!}
                     openReportAnswerModal={setAnswerIdReport}
+                    businessReviewersSet={businessReviewersSet}
                     key={a._id}
                   />
                 );
@@ -412,11 +436,11 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
 
         {/* New question Guidelines modal */}
         <PopupInfo
-          heading={newQuestionGuidelinesConfig.heading}
+          heading={newAnswersGuidelinesConfig.heading}
           show={showPostingGuidelines}
           close={setShowPostingGuidelines.bind(null, false)}
         >
-          {newQuestionGuidelinesConfig.body(props.question?.business?.businessName!)}
+          {newAnswersGuidelinesConfig.body(props.question?.business?.businessName!)}
         </PopupInfo>
 
         {/* Report question modal */}

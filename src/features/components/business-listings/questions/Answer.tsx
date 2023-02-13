@@ -34,6 +34,7 @@ type Props = AnswerProps & {
   questionId: string;
   setQuestion: Dispatch<SetStateAction<QuestionItemProps>>;
   setMostHelpfulAnswerId?: Dispatch<SetStateAction<string | null>>;
+  businessReviewersSet?: Set<string> | null;
   openReportAnswerModal: (id: string) => void;
 };
 
@@ -81,12 +82,8 @@ const Answer: React.FC<Props> = function (props) {
   };
 
   const userReviewedBusiness = useMemo(() => {
-    return props.answeredBy.contributions.some(
-      c => c.model === 'BusinessReview' && c.contribution === props._id,
-    );
-  }, []);
-
-  // console.log(`${props.answerText} - ${props.answeredBy.lastName} - ${userReviewedBusiness}`);
+    return props.businessReviewersSet?.has(props.answeredBy._id);
+  }, [props.businessReviewersSet, props.answeredBy._id]);
 
   return (
     <div className={styles.answer}>
@@ -119,14 +116,14 @@ const Answer: React.FC<Props> = function (props) {
         >
           <small>
             {props.answeredBy.role === 'BUSINESS_OWNER'
-              ? '• Business Representative'
+              ? 'Business Representative'
               : userReviewedBusiness
-              ? '• Reviewed Business'
+              ? 'Reviewed Business'
               : ''}
           </small>
           {reactions.likes.length ? (
             <small>
-              {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
+              {'•'} {qtyUtils.getPeopleQuantity(reactions.likes.length)} found this helpful
             </small>
           ) : null}
           {isMostHelpfulAnswer ? (

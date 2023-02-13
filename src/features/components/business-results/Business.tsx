@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -40,6 +40,9 @@ export interface BusinessProps {
   SIC: string;
   NAICS: string;
   industry: string;
+
+  reviewers?: Array<string>;
+  images: { _id: string; imgUrl: string; approvedByBusinessOwner: boolean }[];
   avgRating?: number;
   claimed: boolean;
 }
@@ -72,7 +75,6 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
 
   useEffect(() => {
     if (!isSignedIn || userRecommends === null) return;
-
     // Go to review page once user signs in
     const url = urlUtils.genRecommendBusinessPageUrl({
       businessId,
@@ -85,12 +87,20 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
     navigateTo(url, router);
   }, [isSignedIn, userRecommends]); // Watch for anytime user signs in
 
+  const renderReviewText = useCallback(() => {
+    const words = props.reviewText!.join(' ').split(' ');
+    const first20Words = words.slice(0, 20);
+    if (words?.length > 20) return first20Words.join(' ').concat('...');
+    return first20Words.join(' ');
+  }, [props.reviewText]);
+
   return (
     <li className={cls(styles.business, featured && styles.featured)} key={rand}>
       <figure>
         <Image
           // src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
-          src={props.photoUrl || '/img/business-img-default.jpeg'}
+          // src={props.photoUrl || '/img/business-img-default.jpeg'}
+          src={props.images?.[0]?.imgUrl || '/img/business-img-default.jpeg'}
           alt={`${props.SIC8 || ''} photo of ${businessName}`}
           layout="fill"
           objectFit="cover"
@@ -129,9 +139,6 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
           <StarRating
             starSize={featured ? 'sm' : 'md'}
             initialValue={props.userRating}
-            ratingValue={props.avgRating}
-            renderReviewsCount={!featured ? n => `${n} reviews` : undefined}
-            showRatingCaption
             readonly
           />
 
@@ -143,7 +150,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
         </div>
 
         {!featured && props.reviewedByCurrentUser ? (
-          <div className={styles.userComment}>{props.reviewText}</div>
+          <div className={styles.userComment}>{renderReviewText()}</div>
         ) : null}
 
         {!featured && !props.reviewedByCurrentUser ? (

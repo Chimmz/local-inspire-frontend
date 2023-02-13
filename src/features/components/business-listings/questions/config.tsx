@@ -40,7 +40,7 @@ export const answerReportReasonsConfig = [
 
 export const newQuestionGuidelinesConfig = {
   heading: (
-    <h2 className="">
+    <h2 className="pt-3">
       <Icon icon="mdi:question-mark-circle" /> Tips for submitting a good question
     </h2>
   ),
@@ -86,7 +86,7 @@ export const newQuestionGuidelinesConfig = {
   ),
 };
 
-export const postingGuidelinesConfig = {
+export const newAnswersGuidelinesConfig = {
   heading: <h2 className="">Q&A Posting Guidelines</h2>,
   body: (businessName: string | null) => (
     <>

@@ -13,7 +13,7 @@ import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 import api from '../../../library/api';
 import {
   newQuestionGuidelinesConfig,
-  postingGuidelinesConfig,
+  newAnswersGuidelinesConfig,
   questionReportReasonsConfig,
 } from './config';
 import { newQuestionValidatorsConfig } from './config';
@@ -305,9 +305,9 @@ const QuestionsSection = function (props: Props) {
       <GuidelinesPopup
         show={showPostingGuidelines}
         close={setShowPostingGuidelines.bind(null, false)}
-        heading={postingGuidelinesConfig.heading}
+        heading={newAnswersGuidelinesConfig.heading}
       >
-        {postingGuidelinesConfig.body(props.business?.businessName!)}
+        {newAnswersGuidelinesConfig.body(props.business?.businessName!)}
       </GuidelinesPopup>
 
       {/* Guidelines on writing a new answer */}

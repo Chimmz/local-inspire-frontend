@@ -16,4 +16,23 @@ export interface UserPublicProfile {
     contribution: string;
     model: 'BusinessReview' | 'BusinessQuestion' | 'BusinessAnswer';
   }[];
+  collections: Array<{
+    name: string;
+    isPrivate: boolean;
+    coverPhotoUrl: string;
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+    items: { item: string; model: 'Business'; _id: string }[];
+  }>;
+}
+
+export interface UserCollection {
+  name: string;
+  isPrivate: boolean;
+  coverPhotoUrl: string;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  items: { item: string; model: 'Business'; _id: string }[];
 }

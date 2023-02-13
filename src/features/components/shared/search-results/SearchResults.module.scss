@@ -31,12 +31,12 @@
     }
 
     & a {
-      font-size: 16px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       gap: 5px;
       color: #000;
-      font-weight: 600;
+      // font-weight: 600;
       padding: 8px 20px;
       border-radius: 4px;
       transition: color 0.3s, background-color 0.3s;
@@ -46,15 +46,15 @@
         transition: color 0.3s;
       }
       &:hover svg {
-        color: #fff !important;
+        // color: #fff !important;
       }
     }
 
     &:hover a {
-      background-color: $color-pry;
-      color: #ffffff;
+      background-color: #dddddd;
+      // color: #ffffff;
       & > svg {
-        color: #ffffff;
+        // color: #ffffff;
       }
     }
   }

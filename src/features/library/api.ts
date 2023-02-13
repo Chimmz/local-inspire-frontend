@@ -189,6 +189,14 @@ class API {
     });
   }
 
+  async getBusinessOverallRating(businessId: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/overall-rating`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async getUserReviewOnBusiness(businessId: string, token: string) {
     return this._makeRequest({
       path: `/reviews/on/${businessId}/by-user`,
@@ -321,6 +329,32 @@ class API {
     return this._makeRequest({
       path: '/report',
       method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getUserCollections(token: string) {
+    return this._makeRequest({
+      path: '/users/collections',
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async addItemToCollection(collectionId: string, item: object, token: string) {
+    return this._makeRequest({
+      path: `/users/collections/${collectionId}/add`,
+      method: 'PATCH',
+      body: JSON.stringify(item),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async createCollection(body: object, token: string) {
+    return this._makeRequest({
+      path: '/users/collections',
+      method: 'PATCH',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });

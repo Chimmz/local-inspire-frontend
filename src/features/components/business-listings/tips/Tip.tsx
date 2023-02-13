@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Icon } from '@iconify/react';
 import styles from './AdvicesSection.module.scss';
 import Link from 'next/link';
@@ -19,15 +19,16 @@ import { quantitize } from '../../../utils/quantity-utils';
 export interface TipProps {
   _id: string;
   reviewedBy: UserPublicProfile;
+  reviewTitle: string;
   adviceToFutureVisitors: string;
   createdAt: string;
 }
-type Props = TipProps & {
+interface Props extends TipProps {
   show: boolean;
   slug: string;
   business: BusinessProps;
   openAdviceReportModal: (id: string) => void;
-};
+}
 
 const Tip = function (props: Props) {
   const router = useRouter();
@@ -72,9 +73,6 @@ const Tip = function (props: Props) {
           ])}
         </small>
 
-        {/* <button className={styles.flag}>
-          <Icon icon="ic:round-flag" width={25} />
-        </button> */}
         <AppDropdown
           items={['Report']}
           onSelect={handleSelectDropdownItem}
@@ -88,7 +86,19 @@ const Tip = function (props: Props) {
 
         <small className="link text-pry">
           <Link
-            href={genUserReviewPageUrl({ ...props.business!, reviewId: props._id })}
+            href={genUserReviewPageUrl({
+              ...props.business!,
+              reviewId: props._id,
+              reviewTitle: props.reviewTitle,
+            })}
+            // href={useMemo(() => {
+            //   if (!props.business || !props._id || !props.reviewTitle) return '';
+            //   return genUserReviewPageUrl({
+            //     ...props.business!,
+            //     reviewId: props._id,
+            //     reviewTitle: props.reviewTitle,
+            //   });
+            // }, [props.business, props._id, props.reviewTitle])}
             className="btn"
           >
             Read full review...

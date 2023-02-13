@@ -1,4 +1,5 @@
 export const toTitleCase = (str: string, divider = ' ') => {
+  if (!str) return str;
   return str
     .toLowerCase()
     .split(divider)
@@ -7,6 +8,7 @@ export const toTitleCase = (str: string, divider = ' ') => {
 };
 
 export const toCamelCase = (str: string, divider = ' ') => {
+  if (!str) return str;
   return str
     .toLowerCase()
     .split(divider)
@@ -18,6 +20,7 @@ export const toCamelCase = (str: string, divider = ' ') => {
 };
 
 export const toLowerSnakeCase = (str: string) => {
+  if (!str) return str;
   return str.toLowerCase().split(' ').join('_');
 };
 

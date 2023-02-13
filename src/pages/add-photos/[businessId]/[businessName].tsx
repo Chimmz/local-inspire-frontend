@@ -38,6 +38,7 @@ const AddPhotosPage: NextPage<Props> = function (props) {
   const { send: sendSubmitReq, loading: submittingPhotos } = useRequest({
     autoStopLoading: true,
   });
+  const router = useRouter();
 
   const handleUploadImages = async (token?: string) => {
     const formData = new FormData();
@@ -54,8 +55,10 @@ const AddPhotosPage: NextPage<Props> = function (props) {
     const res = await sendSubmitReq(req);
     console.log(res);
 
-    if (res.status === 'SUCCESS')
+    if (res.status === 'SUCCESS') {
       setSubmitStatus(res.status.toLowerCase() as 'success' | 'fail');
+      router.back();
+    }
   };
 
   const uploadMsg = useMemo(() => {

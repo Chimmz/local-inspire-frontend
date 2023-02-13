@@ -24,11 +24,11 @@ import { UserPublicProfile } from '../../../types';
 import Paginators from '../../shared/pagination/Paginators';
 import ReportQA from '../../ReportQA';
 import SocialShareModal from '../../shared/social-share/SocialShare';
-import styles from './ReviewsSection.module.scss';
 import ReviewLikersModal from './ReviewLikersModal';
 import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
 import * as domUtils from '../../../utils/dom-utils';
+import styles from './ReviewsSection.module.scss';
 
 type ReviewFilter =
   | 'Excellent'
@@ -77,7 +77,10 @@ function ReviewsSection(props: Props) {
   const [queryStr, setQueryString] = useState('');
 
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
-  const [reviewShareId, setReviewShareId] = useState<string | null>(null);
+  const [reviewToShare, setReviewToShare] = useState<{
+    _id: string;
+    reviewTitle: string;
+  } | null>(null);
   const [reviewLikers, setReviewLikers] = useState<null | {
     likers: UserPublicProfile[];
     reviewerName: string;
@@ -195,7 +198,9 @@ function ReviewsSection(props: Props) {
       >
         <h2>Reviews</h2>
         <hr />
-        <small className="d-block my-4">Filter for better results</small>
+        {props.reviews?.length ? (
+          <small className="d-block my-4">Filter for better results</small>
+        ) : null}
 
         {/* Checkbox filters section in header */}
         <section className={cls(styles.filters, props.reviews?.length ? 'd-flex' : 'd-none')}>
@@ -220,7 +225,9 @@ function ReviewsSection(props: Props) {
           businessData={props.business!}
           openReviewLikers={openReviewLikers}
           openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
-          openShareModal={(reviewId: string) => setReviewShareId(reviewId)}
+          openShareModal={(reviewId: string, reviewTitle: string) =>
+            setReviewToShare({ _id: reviewId, reviewTitle })
+          }
           key={r._id}
         />
       ))}
@@ -264,10 +271,18 @@ function ReviewsSection(props: Props) {
       {/* Share review */}
       <SocialShareModal
         heading="Share Review"
-        pageUrl={genUserReviewPageUrl({ ...props.business!, reviewId: reviewShareId! })}
-        show={!!reviewShareId}
-        close={setReviewShareId.bind(null, null)}
-        title={reviews?.find(r => r._id === reviewShareId)?.reviewTitle!}
+        pageUrl={() => {
+          if (props.business && reviewToShare)
+            return genUserReviewPageUrl({
+              ...props.business!,
+              reviewId: reviewToShare?._id!,
+              reviewTitle: reviewToShare?.reviewTitle!,
+            });
+          return '';
+        }}
+        show={!!reviewToShare}
+        close={setReviewToShare.bind(null, null)}
+        title={reviewToShare?.reviewTitle!}
       />
     </section>
   );

@@ -36,7 +36,7 @@ function AllBusinesses(props: Props) {
 
     sendUserReviewsReq(api.getReviewsMadeByUser(loggedInUser.accessToken!))
       .then(res => {
-        if (!res || res?.status !== 'SUCCESS') return;
+        if (res?.status !== 'SUCCESS') return;
         (res.reviews as ReviewProps[]).forEach(r => {
           normalizedUserReviews[r.business] = r;
         });

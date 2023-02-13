@@ -9,7 +9,7 @@ interface Props {
   features: RateableFeatures;
   ratings: number[];
   starSize?: Size;
-  onRate?(feat: string, rat: number): void;
+  onRate?(feat: string, rating: number): void;
   readonly?: boolean;
   grid?: boolean;
 }

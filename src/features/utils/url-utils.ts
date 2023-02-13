@@ -23,7 +23,13 @@ type QuestionDetailsPageUrlParams = (
 
 type UserReviewPageUrlParams =
   | { slug: string }
-  | { businessName: string; city: string; stateCode?: string; reviewId: string };
+  | {
+      reviewTitle: string;
+      businessName: string;
+      city: string;
+      stateCode?: string;
+      reviewId: string;
+    };
 
 const navigateTo = function (path: string, router: NextRouter) {
   router.push(path);
@@ -165,12 +171,23 @@ export const genAddPhotosPageUrl = (businessId: string, businessName: string) =>
 // chicken-express_TX_63d6f2e02a4c348418afdb16
 export const genUserReviewPageUrl = (args: UserReviewPageUrlParams) => {
   if ('slug' in args) return `/user-review/${args.slug}`;
-  const { businessName, location } = transformBusinessUrlParams(args);
 
-  return `/user-review/${businessName}_${location}_${args.reviewId}`;
+  const { businessName, location } = transformBusinessUrlParams(args);
+  let reviewTitle = args.reviewTitle?.toLowerCase();
+
+  while (['?', '_'].some(ch => reviewTitle.includes(ch))) {
+    if (reviewTitle.includes('?')) reviewTitle = reviewTitle.replace('?', '');
+    if (reviewTitle.includes('_')) reviewTitle = reviewTitle.replace('_', '');
+  }
+
+  reviewTitle = reviewTitle?.split(' ')?.join('-');
+  return `/user-review/${reviewTitle}_${businessName}_${location}_${args.reviewId}`;
 };
+
 export const parseUserReviewPageSlug = (slug: string) => {
-  const [businessName, stateCode, reviewId] = slug.split('_').map(param => param.trim());
+  const [reviewTitle, businessName, stateCode, reviewId] = slug
+    .split('_')
+    .map(param => param.trim());
   return { businessName, stateCode, reviewId };
 };
 

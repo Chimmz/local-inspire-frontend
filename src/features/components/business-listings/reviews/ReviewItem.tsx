@@ -30,7 +30,7 @@ type Props = ReviewProps & {
   businessName: string;
   businessData: BusinessProps;
   openReportModal: (arg: any) => void;
-  openShareModal?: (arg: any) => void;
+  openShareModal?: (...args: [string, string]) => void;
   openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
 };
 
@@ -94,6 +94,22 @@ const ReviewItem = function (props: Props) {
     '.',
     '',
   );
+  const reviewUrl = useMemo(() => {
+    try {
+      const url = genUserReviewPageUrl({
+        ...props.businessData!,
+        reviewId: props._id,
+        reviewTitle: props.reviewTitle,
+      });
+      console.log('ReviewItem URL: ', url);
+      // props.businessData &&
+      // props._id &&
+      // props.reviewTitle &&
+    } catch (err) {
+      console.log(err);
+      return '';
+    }
+  }, [props.businessData, props._id, props.reviewTitle]);
 
   return (
     <section
@@ -140,7 +156,11 @@ const ReviewItem = function (props: Props) {
       <div className={styles.reviewText}>
         <h4 className="fs-3 mb-3 text-dark text-hover-dark text-hover-underline">
           <Link
-            href={genUserReviewPageUrl({ ...props.businessData!, reviewId: props._id })}
+            href={genUserReviewPageUrl({
+              ...props.businessData!,
+              reviewId: props._id,
+              reviewTitle: props.reviewTitle,
+            })}
             className="link"
           >
             {props.reviewTitle}
@@ -211,7 +231,7 @@ const ReviewItem = function (props: Props) {
 
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
-          onClick={props.openShareModal?.bind?.(null, props._id)}
+          onClick={props.openShareModal?.bind?.(null, props._id, props.reviewTitle)}
         >
           <Icon icon="fluent:share-48-regular" width={20} /> Share
         </button>

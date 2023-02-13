@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { ValidationFeedback } from '../../../utils/validators/types';
 import { Form } from 'react-bootstrap';
+import cls from 'classnames';
 
 interface TextInputProps {
   as?: 'input' | 'textarea';
@@ -16,6 +17,7 @@ interface TextInputProps {
   onFocusSelect?: boolean;
   onInput?: React.ChangeEventHandler<HTMLInputElement> | (() => void);
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement> | (() => void);
+  className?: string;
   [key: string]: any;
 }
 
@@ -45,6 +47,7 @@ function TextInput(props: TextInputProps) {
           onFocusSelect && ev.target.select();
         }}
         readOnly={props.readonly}
+        className={cls('textfield', props.className)}
       />
 
       {validationErrors ? (
