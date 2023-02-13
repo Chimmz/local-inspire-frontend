@@ -9,7 +9,7 @@ interface RadioProps {
   options: Array<string | { label: ReactNode; value: string | number }>;
   layout?: 'block' | 'inline';
   className?: string;
-  gap: string;
+  gap?: string;
   name: string;
   label?: string;
   value: string;

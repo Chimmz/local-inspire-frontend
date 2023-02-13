@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { BusinessProps } from '../../business-results/Business';
 import { Overlay, Popover } from 'react-bootstrap';
 import MapView from '../../business-results/MapView';
-import { getPeopleQuantity, quantitize } from '../../../utils/quantity-utils';
+import { getPeopleQuantity } from '../../../utils/quantity-utils';
 
 interface Props {
   business: BusinessProps | undefined;
