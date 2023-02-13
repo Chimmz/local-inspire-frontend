@@ -60,7 +60,7 @@ const RatingStats = function (props: Props) {
         </div>
         <strong className="fs-4">What goes into this rating?</strong>
         <p className="parag">
-          This rating is based on how many people recommend or don't recommend the page.
+          This rating is based on how many people recommend or don&apos;t recommend the page.
         </p>
       </section>
 
