@@ -7,18 +7,20 @@ import { BusinessProps } from '../../business-results/Business';
 
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
+import usePaginate from '../../../hooks/usePaginate';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
 
 import api from '../../../library/api';
+import { getBusinessQuestionsUrl } from '../../../utils/url-utils';
 import {
   newQuestionGuidelinesConfig,
   newAnswersGuidelinesConfig,
   questionReportReasonsConfig,
 } from './config';
 import { newQuestionValidatorsConfig } from './config';
-import cls from 'classnames';
 import * as domUtils from '../../../utils/dom-utils';
+import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
 import LoadingButton from '../../shared/button/Button';
@@ -26,13 +28,11 @@ import TextInput from '../../shared/text-input/TextInput';
 import Accordion from 'react-bootstrap/Accordion';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import QuestionItem, { QuestionItemProps } from './QuestionItem';
-import { getBusinessQuestionsUrl } from '../../../utils/url-utils';
 
 import GuidelinesPopup from '../../PopupInfo';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Paginators from '../../shared/pagination/Paginators';
-import usePaginate from '../../../hooks/usePaginate';
 import ReportQA from '../../ReportQA';
 import styles from './QuestionsSection.module.scss';
 
@@ -310,7 +310,7 @@ const QuestionsSection = function (props: Props) {
         {newAnswersGuidelinesConfig.body(props.business?.businessName!)}
       </GuidelinesPopup>
 
-      {/* Guidelines on writing a new answer */}
+      {/* Guidelines on writing a new questions */}
       <GuidelinesPopup
         show={showNewQuestionGuidelines}
         close={setShowNewQuestionGuidelines.bind(null, false)}

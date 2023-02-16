@@ -69,7 +69,8 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   // Modals
   const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
-  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
+  const [showQuestionGuidelines, setNewQuestionGuidelines] = useState(false);
+  const [showAnswerGuidelines, setShowNewAnswerGuidelines] = useState(false);
   const [reportedQueId, setReportedQueId] = useState<null | string>(null);
 
   const filterQuestions = async (queryStr: string, page?: number) => {
@@ -241,8 +242,8 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
                   submittingNewAnswer={submittingNewAnswer}
                   onAnswerSuccess={setShowAnswerSuccessModal.bind(null, true)}
                   successModalShown={showAnswerSuccessModal}
-                  guidelinesModalShown={showPostingGuidelines}
-                  triggerGuidelinesModalOpen={setShowPostingGuidelines.bind(null, true)}
+                  guidelinesModalShown={showQuestionGuidelines}
+                  triggerGuidelinesModalOpen={setShowNewAnswerGuidelines.bind(null, true)}
                   setReportedQueId={setReportedQueId}
                   key={que._id}
                 />
@@ -278,19 +279,28 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
               sendSubmitReq={sendSubmitQuestionReq}
               submitting={submittingNewQuestion!}
               pushQuestion={(q: QuestionItemProps) => setQuestions(items => [q, ...items])}
-              openGuidelinesModal={setShowPostingGuidelines.bind(null, true)}
+              openGuidelinesModal={setNewQuestionGuidelines.bind(null, true)}
               withUserPhoto
             />
           </div>
         </Layout.Main>
 
-        {/* Posting guidelines modal */}
+        {/* New question guidelines modal */}
         <PopupInfo
           heading={newQuestionGuidelinesConfig.heading}
-          show={showPostingGuidelines}
-          close={setShowPostingGuidelines.bind(null, false)}
+          show={showQuestionGuidelines}
+          close={setNewQuestionGuidelines.bind(null, false)}
         >
           {newQuestionGuidelinesConfig.body(props.params.businessName)}
+        </PopupInfo>
+
+        {/* New answer to question guidelines modal */}
+        <PopupInfo
+          heading={newAnswersGuidelinesConfig.heading}
+          show={showAnswerGuidelines}
+          close={setShowNewAnswerGuidelines.bind(null, false)}
+        >
+          {newAnswersGuidelinesConfig.body(props.params.businessName)}
         </PopupInfo>
 
         {/* Report question modal */}

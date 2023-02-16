@@ -117,7 +117,8 @@ const RatingStats = function (props: Props) {
               getOverallRatingFor('Service'),
               getOverallRatingFor('Atmosphere'),
             ]}
-            starSize="md"
+            starSize="sm"
+            rowGap=".7rem"
             readonly
           />
         ) : null}

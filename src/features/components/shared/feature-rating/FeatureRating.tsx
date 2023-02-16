@@ -12,13 +12,17 @@ interface Props {
   onRate?(feat: string, rating: number): void;
   readonly?: boolean;
   grid?: boolean;
+  rowGap?: string;
 }
 
 const FeatureRating = function (props: Props) {
-  const { features, ratings, starSize = 'md' } = props;
+  const { features, ratings, starSize = 'md', rowGap = '1.5rem' } = props;
 
   return (
-    <ul className={cls(styles.featureRating, props.grid && styles.grid)}>
+    <ul
+      className={cls(styles.featureRating, props.grid && styles.grid, 'no-bullets')}
+      style={{ rowGap }}
+    >
       {features.map((f, i) => {
         const hasIcon = typeof f === 'object';
 

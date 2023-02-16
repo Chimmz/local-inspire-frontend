@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -18,34 +18,62 @@ import styles from './Header.module.scss';
 import PhotoGallery from '../shared/img-gallery/PhotoGallery';
 import SocialShareModal from '../shared/social-share/SocialShare';
 import UserCollectionsModal from './modals/UserCollectionsModal';
+import { UserCollection } from '../../types';
+import useSignedInUser from '../../hooks/useSignedInUser';
+import useRequest from '../../hooks/useRequest';
+import api from '../../library/api';
 
 interface Props {
   businessName: string;
   reviewsCount: number | undefined;
   business: Partial<BusinessProps> | undefined;
   reviewImages: Array<{ photoUrl: string; description: string; _id: string }> | undefined;
+  userCollections?: UserCollection[];
   slug: string;
   pageDescription: string;
 }
 
 function Header(props: Props) {
+  const [userCollections, setUserCollections] = useState<UserCollection[] | undefined>(
+    props.userCollections,
+  );
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCollectionsModal, setShowCollectionsModal] = useState(false);
+
   const router = useRouter();
+  const { isSignedIn, accessToken } = useSignedInUser();
+  const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest({
+    autoStopLoading: true,
+  });
+
+  const loadUserCollections = useCallback(async () => {
+    const res = await sendCollectionsReq(api.getUserCollections(accessToken!));
+    if (res?.status === 'SUCCESS') setUserCollections(res.collections);
+  }, [accessToken, sendCollectionsReq, api.getUserCollections]);
+
+  useEffect(() => {
+    if ('userCollections' in props) return;
+    if (isSignedIn) loadUserCollections();
+  }, [loadUserCollections, isSignedIn]);
 
   const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
-  const reviewPageUrl = useMemo(
-    () => genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null }),
-    [],
-  );
-  const questionsPageUrl = useMemo(
-    () =>
-      getBusinessQuestionsUrl<string>({
-        slug: props.slug,
-        promptNewQuestion: true,
-      }),
-    [],
-  );
+
+  const userPreviouslySavedBusiness = useMemo(() => {
+    return userCollections?.some(collec =>
+      collec.items.some(({ item }) => item === props.business?._id),
+    );
+  }, []);
+
+  const reviewPageUrl = useMemo(() => {
+    return genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null });
+  }, []);
+
+  const questionsPageUrl = useMemo(() => {
+    return getBusinessQuestionsUrl<string>({
+      slug: props.slug,
+      promptNewQuestion: true,
+    });
+  }, []);
 
   return (
     <>
@@ -62,7 +90,7 @@ function Header(props: Props) {
             className="mb-4"
           />
           <span>
-            {props.business?.address?.concat(', ')} {props.business?.city}{' '}
+            {props.business?.address?.concat(', ')} {props.business?.city} ,
             {props.business?.stateCode}
           </span>
 
@@ -93,11 +121,18 @@ function Header(props: Props) {
           <div className="d-flex justify-content-between mb-4">
             <button
               className="btn btn-bg-none"
-              style={{ color: '#6a6a6a' }}
               onClick={setShowCollectionsModal.bind(null, true)}
             >
-              <Icon icon="material-symbols:bookmark" width={18} />
-              Save
+              <Icon
+                icon="material-symbols:bookmark"
+                color={userPreviouslySavedBusiness ? '#0955a1' : 'gray'}
+                width={18}
+              />
+              {userPreviouslySavedBusiness ? (
+                <em className="font-italic text-pry">Saved</em>
+              ) : (
+                <span style={{ color: '#6a6a6a' }}>Save</span>
+              )}
             </button>
             <button
               className="btn btn-bg-none"
@@ -153,7 +188,7 @@ function Header(props: Props) {
               {props.reviewImages?.[1] ? (
                 <figure className="position-relative d-block">
                   <Image
-                    src={props.reviewImages?.[1].photoUrl}
+                    src={props.reviewImages?.[1]?.photoUrl}
                     layout="fill"
                     objectFit="cover"
                     style={{ borderRadius: '3px' }}

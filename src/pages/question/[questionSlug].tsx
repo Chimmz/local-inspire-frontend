@@ -82,7 +82,8 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   // Modals
   const [showNewQuestionSuccessModal, setShowNewQuestionSuccessModal] = useState(false);
   const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
-  const [showPostingGuidelines, setShowPostingGuidelines] = useState(false);
+  const [showQuestionGuidelines, setShowQuestionGuidelinesModal] = useState(false);
+  const [showAnswerGuidelines, setShowAnswerGuidelinesModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
   const { send: sendPageReq, loading: isPaginating } = useRequest({ autoStopLoading: true });
@@ -402,7 +403,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                 </LoadingButton>
                 <small
                   className="cursor-pointer text-pry"
-                  onClick={setShowPostingGuidelines.bind(null, true)}
+                  onClick={setShowAnswerGuidelinesModal.bind(null, true)}
                 >
                   Posting guidelines
                 </small>
@@ -418,7 +419,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
                 businessName={props.question?.business?.businessName!}
                 sendSubmitReq={sendSubmitQuestionReq}
                 submitting={submittingNewQuestion!}
-                openGuidelinesModal={setShowPostingGuidelines.bind(null, true)}
+                openGuidelinesModal={setShowQuestionGuidelinesModal.bind(null, true)}
                 className="mb-5"
                 withUserPhoto={false}
                 openSuccessModal={setShowNewQuestionSuccessModal.bind(null, true)}
@@ -436,9 +437,17 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
 
         {/* New question Guidelines modal */}
         <PopupInfo
+          heading={newQuestionGuidelinesConfig.heading}
+          show={showQuestionGuidelines}
+          close={setShowQuestionGuidelinesModal.bind(null, false)}
+        >
+          {newQuestionGuidelinesConfig.body(props.question?.business?.businessName!)}
+        </PopupInfo>
+
+        <PopupInfo
           heading={newAnswersGuidelinesConfig.heading}
-          show={showPostingGuidelines}
-          close={setShowPostingGuidelines.bind(null, false)}
+          show={showAnswerGuidelines}
+          close={setShowAnswerGuidelinesModal.bind(null, false)}
         >
           {newAnswersGuidelinesConfig.body(props.question?.business?.businessName!)}
         </PopupInfo>

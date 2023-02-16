@@ -143,7 +143,7 @@ const Answer: React.FC<Props> = function (props) {
         </small>
       </div>
 
-      <small className="parag mb-4 d-block text-black">
+      <small className="parag mb-4 d-block">
         {domUtils.renderMultiLineText(props.answerText)}
       </small>
 

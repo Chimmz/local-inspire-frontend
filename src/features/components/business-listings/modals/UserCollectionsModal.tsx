@@ -12,7 +12,6 @@ import { isRequired, maxLength } from '../../../utils/validators/inputValidators
 import RadioOptions from '../../shared/radio/RadioOptions';
 import cls from 'classnames';
 import AppTooltip from '../../AppTooltip';
-import { simulateRequest } from '../../../utils/async-utils';
 import PageSuccess from '../../shared/success/PageSuccess';
 import LoadingButton from '../../shared/button/Button';
 
@@ -24,15 +23,16 @@ interface Props {
   close: () => void;
 }
 
-const MAX_LEN_FOR_NEW_COLLECTION_NAME = 40;
-const MAX_LEN_FOR_NEW_COLLECTION_DESCRIPTION = 300;
+const MAXLEN_FOR_NEW_COLLECTION_NAME = 40;
+const MAXLEN_FOR_NEW_COLLECTION_DESCRIPTION = 300;
 
 const UserCollectionsModal = (props: Props) => {
   const [collections, setCollections] = useState<UserCollection[]>(props.collections || []);
 
-  const [mode, setMode] = useState<'new-collection' | 'add-to-collection' | 'success'>(
-    props.initMode || 'add-to-collection',
-  );
+  const [mode, setMode] = useState<
+    'new-collection' | 'add-to-collection' | 'save-success' | 'delete-success'
+  >(props.initMode || 'add-to-collection');
+
   const { accessToken } = useSignedInUser();
   const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest({
     autoStopLoading: true,
@@ -55,7 +55,7 @@ const UserCollectionsModal = (props: Props) => {
     init: '',
     validators: [
       { fn: isRequired, params: [] },
-      { fn: maxLength, params: [MAX_LEN_FOR_NEW_COLLECTION_NAME] },
+      { fn: maxLength, params: [MAXLEN_FOR_NEW_COLLECTION_NAME] },
     ],
   });
 
@@ -70,7 +70,7 @@ const UserCollectionsModal = (props: Props) => {
     init: '',
     validators: [
       { fn: isRequired, params: [] },
-      { fn: maxLength, params: [MAX_LEN_FOR_NEW_COLLECTION_DESCRIPTION] },
+      { fn: maxLength, params: [MAXLEN_FOR_NEW_COLLECTION_DESCRIPTION] },
     ],
   });
 
@@ -86,22 +86,42 @@ const UserCollectionsModal = (props: Props) => {
     validators: [{ fn: isRequired, params: [] }],
   });
 
-  const handleSaveToCollection = async (collectionId: string) => {
+  const loadCollections = async () => {
+    const res = await sendCollectionsReq(api.getUserCollections(accessToken!));
+    if (res?.status === 'SUCCESS') setCollections(res.collections);
+  };
+
+  useEffect(() => {
+    if (!props.show) return;
+    loadCollections();
+    setMode(props.initMode || 'add-to-collection');
+    clearNewNameInput();
+    clearNewDescriptionInput();
+    clearNewVisibilityInput();
+    clearNewDescriptionErrors();
+    clearNewNameErrors();
+    clearNewVisibilityErrors();
+  }, [props.show, collections.length]);
+
+  const addItemToCollection = async (collectionId: string) => {
     if (!props.itemToSave) return;
     const res = await sendAddToCollectionReq(
       api.addItemToCollection(collectionId, props.itemToSave, accessToken!),
     );
-    if (res?.status === 'SUCCESS') return setMode('success');
+    if (res?.status === 'SUCCESS')
+      setMode(res.msg.toLowerCase() === 'deleted' ? 'delete-success' : 'save-success');
   };
 
   const createCollectionAndSaveItem: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
-    const results = [
-      runNewNameValidationErrors(),
-      runNewDescriptionValidationErrors(),
-      runNewVisibilityValidationErrors(),
-    ];
-    if (results.some(result => result.errorExists)) return;
+    if (
+      [
+        runNewNameValidationErrors(),
+        runNewDescriptionValidationErrors(),
+        runNewVisibilityValidationErrors(),
+      ].some(result => result.errorExists)
+    )
+      return;
 
     const newCollection = {
       name: newName,
@@ -112,27 +132,8 @@ const UserCollectionsModal = (props: Props) => {
       api.createCollection(newCollection, accessToken!),
     );
     if (res?.status !== 'SUCCESS') return;
-    await handleSaveToCollection(res.newCollectionId);
+    await addItemToCollection(res.newCollectionId);
   };
-
-  const loadCollections = async () => {
-    const res = await sendCollectionsReq(api.getUserCollections(accessToken!));
-    if (res?.status === 'SUCCESS') setCollections(res.collections);
-  };
-
-  useEffect(() => {
-    if (!props.show) return;
-
-    loadCollections();
-    setMode(props.initMode || 'add-to-collection');
-    clearNewNameInput();
-    clearNewDescriptionInput();
-    clearNewVisibilityInput();
-    clearNewDescriptionErrors();
-    clearNewNameErrors();
-    clearNewVisibilityErrors();
-  }, [props.show, collections.length]);
-  // Places with the worst experience Collection to store the worst places I've visited
 
   return (
     <Modal show={props.show} size="lg" centered onHide={props.close}>
@@ -160,9 +161,14 @@ const UserCollectionsModal = (props: Props) => {
         ) : null}
 
         <PageSuccess
-          className={cls(mode !== 'success' ? 'd-none' : 'd-block', 'text-center')}
-          title="Saved!"
-          description="Your item has been saved successfully"
+          className={cls(
+            ['save-success', 'delete-success'].includes(mode) ? 'd-block' : 'd-none',
+            'text-center',
+          )}
+          title={mode === 'save-success' ? 'Successfully saved!' : 'Successfully removed!'}
+          description={`Your item has been ${
+            mode === 'save-success' ? 'saved' : 'removed'
+          } successfully`}
         />
 
         <ul
@@ -190,17 +196,17 @@ const UserCollectionsModal = (props: Props) => {
                     backgroundColor: c.isPrivate ? 'green' : 'transparent',
                     color: c.isPrivate ? '#fff' : '',
                   }}
+                  title={`You made this ${c.isPrivate ? 'private' : 'public'}`}
                 >
-                  {c.isPrivate ? (
-                    <Icon icon="oi:lock-locked" width={13} />
-                  ) : (
-                    <Icon icon="mdi:unlocked-variant" width={13} />
-                  )}
+                  <Icon
+                    icon={c.isPrivate ? 'oi:lock-locked' : 'mdi:unlocked-variant'}
+                    width={13}
+                  />
                 </span>
                 <h4>{c.name}</h4>
                 <button
                   className="btn btn-outline btn--sm ms-auto"
-                  onClick={handleSaveToCollection.bind(null, c._id)}
+                  onClick={addItemToCollection.bind(null, c._id)}
                   disabled={isAddingToCollection}
                 >
                   <Icon

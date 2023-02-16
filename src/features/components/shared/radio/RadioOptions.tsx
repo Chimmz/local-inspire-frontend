@@ -48,7 +48,6 @@ function RadioOptions(props: RadioProps) {
                 id={String(value)}
                 className={styles.radioInput}
                 checked={props.value?.toLowerCase() === String(value).toLowerCase()}
-                // checked
                 name={props.name}
                 value={value}
                 onChange={!props.readonly ? props.onChange : () => {}}

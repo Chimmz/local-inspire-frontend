@@ -28,6 +28,7 @@ import ReportQA from '../../features/components/ReportQA';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 import ShareStrategies from '../../features/components/shared/social-share/ShareStrategies';
+import SocialShareModal from '../../features/components/shared/social-share/SocialShare';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL';
@@ -42,6 +43,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
   // Modals
   const [showLikersModal, setShowLikersModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -105,6 +107,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
                 businessName={'Business Name'}
                 openReviewLikers={setShowLikersModal.bind(null, true)}
                 openReportModal={() => setShowReportModal(true)}
+                openShareModal={setShowShareModal.bind(null, true)}
                 show
               />
             ) : (
@@ -121,16 +124,15 @@ const UserReviewPage: NextPage<Props> = function (props) {
                   imgUrl={review?.images[0].photoUrl}
                   layout="grid"
                 />
-                <h2 className="mb-4">
-                  {`${props.business?.businessName}, ${props.business?.city} ${props.business?.stateCode}`}{' '}
-                </h2>
+                <h2 className="mb-4">{props.business?.businessName}</h2>
 
                 <ul
                   className={cls(styles.businessInfo, 'no-bullets d-flex flex-column gap-3')}
                 >
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="ic:outline-location-on" width={19} />
-                    {props.business?.address}
+                    {props.business?.address}, {props.business?.city},{' '}
+                    {props.business?.stateCode}
                   </li>
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="ri:direction-line" width={19} />
@@ -161,6 +163,14 @@ const UserReviewPage: NextPage<Props> = function (props) {
           </div>
         </Layout.Main>
       </Layout>
+
+      <SocialShareModal
+        heading="Share Review"
+        pageUrl={router.asPath}
+        show={showShareModal}
+        close={() => setShowShareModal(false)}
+        title={review?.reviewTitle!}
+      />
 
       {/* Modal showing likers of a review */}
       <ReviewLikersModal

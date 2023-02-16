@@ -35,6 +35,9 @@ import {
   useBusinessPageContext,
 } from '../../features/contexts/BusinessPageContext';
 import RatingStats from '../../features/components/business-listings/overall-rating/RatingStats';
+import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
+import { UserCollection } from '../../features/types';
 
 interface Props {
   reviews: {
@@ -61,6 +64,7 @@ interface Props {
       doesNotRecommend: number;
     };
   };
+  userCollections?: UserCollection[];
 
   business: {
     data: BusinessProps | undefined;
@@ -80,6 +84,7 @@ const BusinessPage: NextPage<Props> = function (props) {
   const { send: sendRequest, loading } = useRequest({ autoStopLoading: true });
 
   const linkToReviewPage = router.asPath.replace('/v/', '/write-a-review/');
+
   const pageDescription = `${props.business.data?.businessName || ''} - ${
     props.business.data?.city || ''
   }, ${props.business.data?.stateCode} - ${props.reviews.total} reviews and ${
@@ -106,6 +111,7 @@ const BusinessPage: NextPage<Props> = function (props) {
                 businessName={props.params.businessName}
                 reviewsCount={props.reviews?.total}
                 reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
+                userCollections={props.userCollections}
                 slug={props.params.slug}
                 pageDescription={pageDescription}
               />
@@ -305,43 +311,57 @@ const BusinessPage: NextPage<Props> = function (props) {
 export const getServerSideProps: GetServerSideProps = async function (context) {
   const slug = context.params!.businessPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions as NextAuthOptions,
+  );
 
   console.log({ businessName, location, businessId });
 
-  const responses = await Promise.allSettled([
-    api.getBusinessById(businessId),
-    api.getBusinessReviews(businessId, undefined, { page: 1, limit: 3 }),
+  const reqs = [
+    api.getBusinessById(businessId), // 0
+    api.getBusinessReviews(businessId, undefined, { page: 1, limit: 3 }), // 1
     api.getQuestionsAskedAboutBusiness(businessId, '?sort=-createdAt&', {
+      // 2
       page: 1,
       limit: 5,
     }),
-    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }),
-    api.getBusinessOverallRating(businessId),
-  ]);
+    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
+    api.getBusinessOverallRating(businessId), // 4
+  ];
+  if (session) reqs.push(api.getUserCollections(session.user.accessToken)); // 5
 
-  console.log('Business page responses: ', responses);
+  const responses = await Promise.allSettled(reqs);
+  // console.log('Business page responses: ', responses);
+  console.log('Collections response: ', responses[5]);
 
   const [business, reviews, questions, tips, businessReviewStats] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
 
+  const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
+
   const loc = location.split('-');
-  return {
-    props: {
-      business: business || {},
-      reviews: reviews || {},
-      questions: questions || {},
-      tips: tips || {},
-      businessReviewStats: businessReviewStats || {},
-      params: {
-        businessName: toTitleCase(businessName.replace('-', ' ')),
-        stateCode: loc.pop(),
-        city: toTitleCase(loc.join(' ')),
-        businessId,
-        slug,
-      },
+  const props: { userCollections?: []; [key: string]: any } = {
+    business: business || {},
+    reviews: reviews || {},
+    questions: questions || {},
+    tips: tips || {},
+    businessReviewStats: businessReviewStats || {},
+
+    params: {
+      businessName: toTitleCase(businessName.replace('-', ' ')),
+      stateCode: loc.pop(),
+      city: toTitleCase(loc.join(' ')),
+      businessId,
+      slug,
     },
   };
+
+  if (collectionsResponse?.value.collections)
+    props.userCollections = collectionsResponse?.value.collections;
+  return { props };
 };
 
 export default BusinessPage;

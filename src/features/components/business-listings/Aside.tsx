@@ -17,8 +17,11 @@ import LoadingButton from '../shared/button/Button';
 import Link from 'next/link';
 import { genQuestionDetailsPageUrl } from '../../utils/url-utils';
 import { QuestionItemProps } from './questions/QuestionItem';
+import AppTooltip from '../AppTooltip';
+import PopupInfo from '../PopupInfo';
+import { newQuestionGuidelinesConfig } from './questions/config';
 
-const MIN_QUE_LENGTH = 10;
+const MIN_QUE_LENGTH = 7;
 
 interface Props {
   business: Partial<BusinessProps> | undefined;
@@ -26,10 +29,14 @@ interface Props {
 
 function Aside(props: Props) {
   const [submittedQuestion, setSubmittedQuestion] = useState(false);
+  const [showNewQuestionGuidelines, setShowNewQuestionGuidelines] = useState(false);
+
   const [newQuestionUrl, setNewQuestionUrl] = useState('');
+  const { withAuth } = useMiddleware();
+  const { send: sendSubmitReq, loading: submitting } = useRequest({ autoStopLoading: true });
 
   const {
-    inputValue: question,
+    inputValue: newQuestion,
     handleChange,
     validationErrors,
     runValidators: runQuestionValidators,
@@ -44,32 +51,26 @@ function Aside(props: Props) {
     ],
   });
 
-  const { withAuth } = useMiddleware();
-  const { send: sendSubmitReq, loading: submitting } = useRequest({ autoStopLoading: true });
-
   const handleSubmitQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
     if (runQuestionValidators().errorExists) return;
 
-    withAuth((token?: string) => {
-      const req = api.askQuestionAboutBusiness(question, props.business?._id!, token!);
+    withAuth(async (token?: string) => {
+      const req = api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!);
+      const res = await sendSubmitReq(req);
+      if (res?.status !== 'SUCCESS') return;
+      const question = res.question as QuestionItemProps;
 
-      sendSubmitReq(req)
-        .then(res => {
-          if (res?.status !== 'SUCCESS') return;
-          const question = res.question as QuestionItemProps;
-          setNewQuestionUrl(
-            genQuestionDetailsPageUrl({
-              ...question.business!,
-              qText: question.questionText.join(' '),
-              qId: question._id,
-            }),
-          );
-          setSubmittedQuestion(true);
-          clearQuestion();
-          setTimeout(setSubmittedQuestion.bind(null, false), 10000);
-        })
-        .catch(console.log);
+      setNewQuestionUrl(
+        genQuestionDetailsPageUrl({
+          ...question.business!,
+          qText: question.questionText.join(' '),
+          qId: question._id,
+        }),
+      );
+      setSubmittedQuestion(true);
+      clearQuestion();
+      setTimeout(setSubmittedQuestion.bind(null, false), 10000);
     });
   };
 
@@ -133,22 +134,41 @@ function Aside(props: Props) {
 
           <TextInput
             as="textarea"
-            value={question}
+            value={newQuestion}
             className="textfield w-100"
             onChange={handleChange}
             validationErrors={validationErrors}
           />
 
-          <LoadingButton
-            isLoading={submitting}
-            className={`btn btn${!question.length ? '-outline' : ''}-pry d-block w-100 mt-3`}
-            type="submit"
-            textWhileLoading={'Submitting...'}
-          >
-            Post question
-          </LoadingButton>
+          <div className="d-flex align-items-center justify-content-between">
+            <LoadingButton
+              isLoading={submitting}
+              className={`btn btn${!newQuestion.length ? '-outline' : ''}-pry d-block mt-3`}
+              type="submit"
+              textWhileLoading={'Submitting...'}
+            >
+              Post question
+            </LoadingButton>
+            <AppTooltip text="Question guidelines">
+              <Icon
+                icon="ic:baseline-info"
+                className="cursor-pointer"
+                width={16}
+                onClick={setShowNewQuestionGuidelines.bind(null, true)}
+              />
+            </AppTooltip>
+          </div>
         </form>
       )}
+
+      {/* Guidelines on writing a new questions */}
+      <PopupInfo
+        show={showNewQuestionGuidelines}
+        close={setShowNewQuestionGuidelines.bind(null, false)}
+        heading={newQuestionGuidelinesConfig.heading}
+      >
+        {newQuestionGuidelinesConfig.body(props.business?.businessName!)}
+      </PopupInfo>
     </aside>
   );
 }
