@@ -41,7 +41,7 @@ const ReviewLikersModal = (props: Props) => {
       <Modal.Body className="px-5">
         <ul className={styles.reviewLikersList}>
           {props.likers?.map(user => (
-            <Liker user={user} />
+            <Liker user={user} key={user._id} />
           ))}
         </ul>
       </Modal.Body>
