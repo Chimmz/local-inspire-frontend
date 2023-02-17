@@ -22,12 +22,13 @@ import { UserCollection } from '../../types';
 import useSignedInUser from '../../hooks/useSignedInUser';
 import useRequest from '../../hooks/useRequest';
 import api from '../../library/api';
+import { ReviewProps } from '../page-reviews/UserReview';
 
 interface Props {
   businessName: string;
   reviewsCount: number | undefined;
   business: Partial<BusinessProps> | undefined;
-  reviewImages: Array<{ photoUrl: string; description: string; _id: string }> | undefined;
+  userReview?: ReviewProps;
   userCollections?: UserCollection[];
   slug: string;
   pageDescription: string;
@@ -56,23 +57,29 @@ function Header(props: Props) {
     if (isSignedIn) loadUserCollections();
   }, [loadUserCollections, isSignedIn]);
 
-  const undisplayedPhotos = useMemo(() => props.reviewImages?.slice(3), [props.reviewImages]);
-
   const userPreviouslySavedBusiness = useMemo(() => {
     return userCollections?.some(collec =>
-      collec.items.some(({ item }) => item === props.business?._id),
+      collec.items.some(i => i.item === props.business?._id),
     );
-  }, []);
+  }, [userCollections]);
+
+  const userReviewImages = useMemo(
+    () => props.userReview?.images,
+    [props.userReview?.images],
+  );
+
+  const [businessImages, morePhotosCount] = useMemo(() => {
+    return [
+      props.business?.images,
+      userReviewImages ? props.business?.images?.slice(userReviewImages.length).length : [],
+    ];
+  }, [props.business?.images]);
 
   const reviewPageUrl = useMemo(() => {
     return genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null });
   }, []);
-
   const questionsPageUrl = useMemo(() => {
-    return getBusinessQuestionsUrl<string>({
-      slug: props.slug,
-      promptNewQuestion: true,
-    });
+    return getBusinessQuestionsUrl<string>({ slug: props.slug, promptNewQuestion: true });
   }, []);
 
   return (
@@ -90,7 +97,7 @@ function Header(props: Props) {
             className="mb-4"
           />
           <span>
-            {props.business?.address?.concat(', ')} {props.business?.city} ,
+            {props.business?.address?.concat(', ')} {props.business?.city?.concat(', ')}
             {props.business?.stateCode}
           </span>
 
@@ -128,11 +135,9 @@ function Header(props: Props) {
                 color={userPreviouslySavedBusiness ? '#0955a1' : 'gray'}
                 width={18}
               />
-              {userPreviouslySavedBusiness ? (
-                <em className="font-italic text-pry">Saved</em>
-              ) : (
-                <span style={{ color: '#6a6a6a' }}>Save</span>
-              )}
+              <span style={{ color: userPreviouslySavedBusiness ? '#0955a1' : 'inherit' }}>
+                {userPreviouslySavedBusiness ? 'Saved' : 'Save'}
+              </span>
             </button>
             <button
               className="btn btn-bg-none"
@@ -153,12 +158,10 @@ function Header(props: Props) {
             </Link>
           </div>
 
-          {!props.reviewImages?.length ? (
+          {!userReviewImages?.length ? (
             <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
               <Icon icon="ic:outline-camera-alt" width={35} />
               <h4 className="text-center">Enhance this page - Upload photos</h4>
-              {/* <button className="btn btn-pry">Add photos</button> */}
-
               <Link
                 href={genAddPhotosPageUrl(
                   props.business?._id!,
@@ -174,10 +177,37 @@ function Header(props: Props) {
             </div>
           ) : (
             <div className={cls(styles.headerImages, 'flex-grow-1')}>
-              {props.reviewImages?.[0] ? (
+              {userReviewImages.map((img, i) => {
+                let className = 'position-relative d-block';
+                const isFirstImage = i === 0;
+                const isLastImage = i === userReviewImages.length - 1;
+
+                if (isFirstImage) className = className.concat(' m-0');
+
+                const imgUI = (
+                  <Image
+                    src={img.photoUrl}
+                    layout="fill"
+                    objectFit="cover"
+                    style={{ borderRadius: '3px' }}
+                  />
+                );
+
+                if (!isLastImage) return <figure className={className}>{imgUI}</figure>;
+
+                return (
+                  <figure
+                    className={className}
+                    data-remaining-count={'+' + (morePhotosCount || 0)}
+                  >
+                    {imgUI}
+                  </figure>
+                );
+              })}
+              {/* {userReviewImages?.[0] ? (
                 <figure className="position-relative d-block m-0">
                   <Image
-                    src={props.reviewImages[0].photoUrl}
+                    src={userReviewImages?.[0].photoUrl}
                     layout="fill"
                     objectFit="cover"
                     style={{ borderRadius: '3px' }}
@@ -185,10 +215,10 @@ function Header(props: Props) {
                 </figure>
               ) : null}
 
-              {props.reviewImages?.[1] ? (
+              {userReviewImages?.[1] ? (
                 <figure className="position-relative d-block">
                   <Image
-                    src={props.reviewImages?.[1]?.photoUrl}
+                    src={userReviewImages?.[1]?.photoUrl}
                     layout="fill"
                     objectFit="cover"
                     style={{ borderRadius: '3px' }}
@@ -196,19 +226,19 @@ function Header(props: Props) {
                 </figure>
               ) : null}
 
-              {props.reviewImages?.[2] ? (
+              {userReviewImages?.[2] ? (
                 <figure
                   className="position-relative d-block"
-                  data-remaining-count={'+' + (undisplayedPhotos?.length || 0)}
+                  data-remaining-count={'+' + (morePhotosCount || 0)}
                 >
                   <Image
-                    src={props.reviewImages?.[2].photoUrl}
+                    src={userReviewImages?.[2].photoUrl}
                     layout="fill"
                     objectFit="cover"
                     style={{ borderRadius: '3px' }}
                   />
                 </figure>
-              ) : null}
+              ) : null} */}
             </div>
           )}
         </div>
@@ -227,7 +257,8 @@ function Header(props: Props) {
         title={props.pageDescription}
         close={setShowShareModal.bind(null, false)}
       />
-      {/* <PhotoGallery /> */}
+
+      {/* <PhotoGallery images={businessImages}/> */}
     </>
   );
 }

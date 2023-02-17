@@ -10,7 +10,7 @@ interface Props {
 const AppTooltip: React.FC<Props> = function (props) {
   return (
     <OverlayTrigger placement="top" overlay={<Tooltip id={uuidv4()}>{props.text}</Tooltip>}>
-      {props.children as React.ReactElement}
+      <>{props.children as React.ReactElement}</>
     </OverlayTrigger>
   );
 };

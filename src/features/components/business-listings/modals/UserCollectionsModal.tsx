@@ -87,13 +87,14 @@ const UserCollectionsModal = (props: Props) => {
   });
 
   const loadCollections = async () => {
+    if (!accessToken) return;
     const res = await sendCollectionsReq(api.getUserCollections(accessToken!));
     if (res?.status === 'SUCCESS') setCollections(res.collections);
   };
 
   useEffect(() => {
     if (!props.show) return;
-    loadCollections();
+    // loadCollections();
     setMode(props.initMode || 'add-to-collection');
     clearNewNameInput();
     clearNewDescriptionInput();
@@ -136,7 +137,13 @@ const UserCollectionsModal = (props: Props) => {
   };
 
   return (
-    <Modal show={props.show} size="lg" centered onHide={props.close}>
+    <Modal
+      show={props.show}
+      size="lg"
+      centered
+      onHide={props.close}
+      onEntering={loadCollections}
+    >
       <Modal.Header className="pt-4" closeButton>
         <div className="d-flex gap-2">
           {mode === 'add-to-collection' ? (

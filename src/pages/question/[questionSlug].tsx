@@ -41,6 +41,7 @@ import * as domUtils from '../../features/utils/dom-utils';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import Head from 'next/head';
+import { toTitleCase } from '../../features/utils/string-utils';
 
 interface Props {
   question?: QuestionItemProps & {
@@ -223,9 +224,11 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   // Have they got roasted beef? – Chicken Express in Terrell, Tx
   const pageDescription = useMemo(() => {
     const q = props.question;
-    return `${q?.questionText} - ${q?.business.businessName} in ${q?.business.city},
+    return `${q?.questionText} - ${q?.business.businessName} in ${toTitleCase(
+      q?.business.city || '',
+    )},
       ${q?.business.stateCode} | Localinspire`;
-  }, []);
+  }, [props.question]);
 
   return (
     <SSRProvider>

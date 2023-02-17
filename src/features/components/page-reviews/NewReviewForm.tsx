@@ -1,5 +1,4 @@
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -34,6 +33,7 @@ import PageSuccess from '../shared/success/PageSuccess';
 import styles from './NewReviewForm.module.scss';
 import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
 import ShareStrategies from '../shared/social-share/ShareStrategies';
+import { useAuthModalContext } from '../../contexts/AuthContext';
 
 interface Props {
   userReview: ReviewProps | null;
@@ -46,18 +46,20 @@ interface Props {
   slug: string;
 }
 
+const AUTH_MODAL_TITLE = "You're almost done!";
+const AUTH_MODAL_SUBTITLE = 'Choose how you want to post your review.';
+
 function NewReviewForm(props: Props) {
   const { businessId, businessName } = props;
   const [submitted, setSubmitted] = useState(false);
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
   const [mainRating, setMainRating] = useState(0);
+  const { setAuthTitle, setAuthSubtitle } = useAuthModalContext();
 
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
     featuresToRate.map(f => (typeof f === 'string' ? f : f.label)),
   );
   const past12Months = useMemo(getPast12MonthsWithYear.bind(null), []);
-
-  const router = useRouter();
   const { withAuth } = useMiddleware();
 
   const {
@@ -145,6 +147,16 @@ function NewReviewForm(props: Props) {
       description: upl.description,
     })),
   );
+
+  useEffect(() => {
+    setAuthTitle!(AUTH_MODAL_TITLE);
+    setAuthSubtitle!(AUTH_MODAL_SUBTITLE);
+    // On unmount
+    return () => {
+      setAuthTitle!('');
+      setAuthSubtitle!('');
+    };
+  }, []);
 
   const validateFields = function () {
     const validationResults = [

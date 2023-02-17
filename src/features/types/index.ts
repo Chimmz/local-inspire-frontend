@@ -27,4 +27,5 @@ export interface UserPublicProfile {
     model: 'BusinessReview' | 'BusinessQuestion' | 'BusinessAnswer';
   }[];
   collections: Array<UserCollection>;
+  followers: string[];
 }

@@ -359,6 +359,14 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
+  async followUser(userId: string, token: string) {
+    return this._makeRequest({
+      path: `/users/${userId}/follow`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

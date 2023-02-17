@@ -138,7 +138,7 @@ const RatingStats = function (props: Props) {
             container={ref}
             containerPadding={20}
           >
-            <Popover id="popover-contained" className="w-max-content  p-3">
+            <Popover id="popover-trigger-hover-focus" className="w-max-content p-3">
               <Popover.Body className="fs-4 d-flex gap-5">
                 <div className="">
                   <strong className="w-max-content d-block mb-3">Recommended</strong>
@@ -155,7 +155,7 @@ const RatingStats = function (props: Props) {
                   <div className="d-flex align-items-center gap-2">
                     <Icon icon="mi:circle-error" color="red" width={24} />
                     <span className="fs-3">
-                      {props.recommendationStats?.doesNotRecommend}
+                      {props.recommendationStats?.doesNotRecommend || 0}
                     </span>
                   </div>
                 </div>

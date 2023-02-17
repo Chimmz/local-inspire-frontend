@@ -70,7 +70,7 @@ function Aside(props: Props) {
       );
       setSubmittedQuestion(true);
       clearQuestion();
-      setTimeout(setSubmittedQuestion.bind(null, false), 10000);
+      // setTimeout(setSubmittedQuestion.bind(null, false), 30000);
     });
   };
 

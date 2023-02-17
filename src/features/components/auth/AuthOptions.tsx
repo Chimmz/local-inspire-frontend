@@ -14,6 +14,7 @@ import { AuthType } from '../layout/navbar/Navbar';
 import { Spinner } from 'react-bootstrap';
 import AuthContentWrapper from './AuthContentWrapper';
 import useRequest from '../../hooks/useRequest';
+import { useAuthModalContext } from '../../contexts/AuthContext';
 
 export interface AuthOptionsProps {
   authType: AuthType;
@@ -26,6 +27,7 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
   const isLoginAuthType = props.authType === 'login';
   const [fbAccessToken, setFbAccessToken] = useState<string | null>(null);
   const [fbProfile, setFbProfile] = useState<null | object>(null);
+  const { authTitle, authSubtitle } = useAuthModalContext();
 
   const {
     send: sendGoogleSignInRequest,
@@ -79,7 +81,7 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
   }, [fbAccessToken, fbProfile]);
 
   return (
-    <AuthContentWrapper contentTitle="Welcome!">
+    <AuthContentWrapper contentTitle={authTitle || 'Welcome!'} subtitle={authSubtitle}>
       <FacebookLogin
         appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!}
         onSuccess={resp => setFbAccessToken(resp!.accessToken)}
@@ -142,29 +144,6 @@ const AuthOptions: React.FC<AuthOptionsProps> = function (props) {
         <MailLockIcon fontSize="large" />
         <span className="text">Continue with email and password</span>
       </button>
-      {/* <LoadingButton
-        type="button"
-        className={cls('btn btn-outline btn-outline-gray', styles.btnSocial)}
-        data-provider="twitter"
-        onClick={signInWith3rdParty}
-        // isLoading={authRequestLoading}
-        data-action-text="Continue with Twitter"
-        isLoading={false}
-        disabled={isAuthenticating}
-      >
-        <TwitterIcon fontSize="large" />
-        <span className="text">Continue with Twitter</span>
-        <Spinner
-          animation="border"
-          size="sm"
-          style={{
-            width: '20px',
-            height: '20px',
-            display: 'none',
-            color: '#0955a1',
-          }}
-        />
-      </LoadingButton> */}
     </AuthContentWrapper>
   );
 };

@@ -9,7 +9,7 @@ import SignupForm from './signup/SignupForm';
 import MoreSignupDetails from './signup/MoreSignupDetails';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthModalContext } from '../../contexts/AuthContext';
 
 interface AuthProps {
   show: boolean;
@@ -17,7 +17,7 @@ interface AuthProps {
   onExit?: () => any;
 }
 
-const enum PossibleContent {
+const enum ContentTypes {
   authOptions = 'Login strategies content',
   loginForm = 'Credentials form content',
   signupForm = 'Signup content',
@@ -26,29 +26,27 @@ const enum PossibleContent {
 }
 
 type Content =
-  | PossibleContent.authOptions
-  | PossibleContent.loginForm
-  | PossibleContent.forgotPassword
-  | PossibleContent.signupForm
-  | PossibleContent.moreSignupDetails;
+  | ContentTypes.authOptions
+  | ContentTypes.loginForm
+  | ContentTypes.forgotPassword
+  | ContentTypes.signupForm
+  | ContentTypes.moreSignupDetails;
 
 const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
-  const authData = useAuthContext();
-  const [content, setContent] = useState<Content>(PossibleContent.authOptions);
+  const authData = useAuthModalContext();
+  const [content, setContent] = useState<Content>(ContentTypes.authOptions);
 
-  const switchToAuthOptions = () => setContent(PossibleContent.authOptions);
-  const switchToLogin = () => setContent(PossibleContent.loginForm);
-  const switchToSignup = () => setContent(PossibleContent.signupForm);
-  const switchToMoreSignupDetails = () => setContent(PossibleContent.moreSignupDetails);
-  const switchToForgotPassword = () => setContent(PossibleContent.forgotPassword);
+  const switchToAuthOptions = () => setContent(ContentTypes.authOptions);
+  const switchToLogin = () => setContent(ContentTypes.loginForm);
+  const switchToSignup = () => setContent(ContentTypes.signupForm);
+  const switchToMoreSignupDetails = () => setContent(ContentTypes.moreSignupDetails);
+  const switchToForgotPassword = () => setContent(ContentTypes.forgotPassword);
 
-  const getContent = function () {
+  const getBodyContent = function () {
     switch (content) {
-      case PossibleContent.authOptions:
+      case ContentTypes.authOptions:
         return (
-          <GoogleOAuthProvider
-            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}
-          >
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}>
             <AuthOptions
               authType={authType}
               goToSignup={switchToSignup}
@@ -58,7 +56,7 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
           </GoogleOAuthProvider>
         );
 
-      case PossibleContent.loginForm:
+      case ContentTypes.loginForm:
         return (
           <LoginForm
             show
@@ -69,10 +67,10 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
           />
         );
 
-      case PossibleContent.forgotPassword:
+      case ContentTypes.forgotPassword:
         return <ForgotPassword goBack={switchToLogin} />;
 
-      case PossibleContent.signupForm:
+      case ContentTypes.signupForm:
         return (
           <SignupForm
             goBack={switchToAuthOptions}
@@ -81,12 +79,9 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
           />
         );
 
-      case PossibleContent.moreSignupDetails:
+      case ContentTypes.moreSignupDetails:
         return (
-          <MoreSignupDetails
-            closeModal={authData?.closeAuthModal!}
-            goBack={switchToSignup}
-          />
+          <MoreSignupDetails closeModal={authData?.closeAuthModal!} goBack={switchToSignup} />
         );
     }
   };
@@ -110,12 +105,12 @@ const Auth: React.FC<AuthProps> = function ({ show, authType, onExit }) {
         </div>
       </Modal.Header>
 
-      <Modal.Body className="modal-body p-5 text-center">{getContent()}</Modal.Body>
+      <Modal.Body className="modal-body p-5 text-center">{getBodyContent()}</Modal.Body>
 
       <Modal.Footer className="text-center" style={{ fontSize: '13px' }}>
         <small style={{ margin: '0 auto', maxWidth: '60ch' }}>
-          By proceeding, you agree to our Terms of Use and confirm you have read our
-          Privacy Policy.
+          By proceeding, you agree to our Terms of Use and confirm you have read our Privacy
+          Policy.
         </small>
       </Modal.Footer>
     </Modal>

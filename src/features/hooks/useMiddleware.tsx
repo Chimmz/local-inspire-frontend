@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthModalContext } from '../contexts/AuthContext';
 import useSignedInUser from './useSignedInUser';
 
 export type MiddlewareNext = (...args: []) => any;
@@ -10,7 +10,7 @@ type Middleware = (next: AuthMiddlewareNext) => any;
 
 const useMiddleware = function () {
   const currentUser = useSignedInUser();
-  const { showAuthModal, isAuthModalOpen } = useAuthContext();
+  const { showAuthModal, isAuthModalOpen } = useAuthModalContext();
 
   const [nextAction, setNextAction] = useState<AuthMiddlewareNext | undefined>(undefined);
   const [middlewareType, setMiddlewareType] = useState<'AUTH' | null>(null);

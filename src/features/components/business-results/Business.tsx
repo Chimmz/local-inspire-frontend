@@ -14,7 +14,7 @@ import { Icon } from '@iconify/react';
 import Auth from '../auth/Auth';
 import cls from 'classnames';
 import styles from './Business.module.scss';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthModalContext } from '../../contexts/AuthContext';
 import Spinner from '../shared/spinner/Spinner';
 import LoadingButton from '../shared/button/Button';
 
@@ -64,7 +64,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
 
   const [userRecommends, setUserRecommends] = useState<boolean | null>(null);
   const { isSignedIn, ...user } = useSignedInUser({});
-  const { showAuthModal } = useAuthContext();
+  const { showAuthModal } = useAuthModalContext();
 
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 

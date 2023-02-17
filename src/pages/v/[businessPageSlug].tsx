@@ -65,6 +65,7 @@ interface Props {
     };
   };
   userCollections?: UserCollection[];
+  userReview?: ReviewProps;
 
   business: {
     data: BusinessProps | undefined;
@@ -110,7 +111,7 @@ const BusinessPage: NextPage<Props> = function (props) {
                 business={props.business.data}
                 businessName={props.params.businessName}
                 reviewsCount={props.reviews?.total}
-                reviewImages={props.reviews.data?.map(rev => rev.images).flat()}
+                userReview={props.userReview}
                 userCollections={props.userCollections}
                 slug={props.params.slug}
                 pageDescription={pageDescription}
@@ -330,20 +331,29 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
     api.getBusinessOverallRating(businessId), // 4
   ];
-  if (session) reqs.push(api.getUserCollections(session.user.accessToken)); // 5
+
+  if (session)
+    reqs.push(
+      api.getUserCollections(session.user.accessToken), // 5
+      api.getUserReviewOnBusiness(businessId, session.user.accessToken), // 6
+    );
 
   const responses = await Promise.allSettled(reqs);
   // console.log('Business page responses: ', responses);
-  console.log('Collections response: ', responses[5]);
+  console.log('getUserReviewOnBusiness response: ', responses[6]);
 
   const [business, reviews, questions, tips, businessReviewStats] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
 
   const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
+  const userReviewResponse = responses[6] as {
+    status: string;
+    value: { review: ReviewProps };
+  };
 
   const loc = location.split('-');
-  const props: { userCollections?: []; [key: string]: any } = {
+  const props: any = {
     business: business || {},
     reviews: reviews || {},
     questions: questions || {},
@@ -359,8 +369,11 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     },
   };
 
-  if (collectionsResponse?.value.collections)
+  if (collectionsResponse?.value?.collections) {
     props.userCollections = collectionsResponse?.value.collections;
+  }
+  if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
+
   return { props };
 };
 

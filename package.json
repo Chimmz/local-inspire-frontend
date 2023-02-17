@@ -36,6 +36,7 @@
     "react-paginate": "^8.1.4",
     "react-share": "^4.4.1",
     "react-simple-star-rating": "^5.1.7",
+    "read-more-react": "^1.0.10",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

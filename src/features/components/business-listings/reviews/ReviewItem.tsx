@@ -16,7 +16,8 @@ import * as qtyUtils from '../../../utils/quantity-utils';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
-import { Accordion, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Accordion, Dropdown } from 'react-bootstrap';
+import ReadmoreText from 'read-more-react';
 import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
@@ -173,13 +174,21 @@ const ReviewItem = function (props: Props) {
           readonly
           className="mb-5"
         />
-        <p className="parag w-max-content">{domUtils.renderMultiLineText(props.review)}</p>
+        <ReadmoreText
+          text={props.review.join(' ')}
+          readMoreText={<small className="cursor-pointer text-light">Read more...</small>}
+          min={50}
+          ideal={200}
+          max={200}
+        />
+
+        {/* <p className="parag w-max-content">{domUtils.renderMultiLineText(props.review)}</p> */}
       </div>
 
       <Accordion>
         <CustomAccordionToggle
           eventKey="1"
-          className="btn btn-bg-none no-bg-hover text-pry"
+          className="btn btn-bg-none no-bg-hover text-pry mt-4"
           contentOnExpand={
             <>
               <Icon icon="material-symbols:expand-less-rounded" height={20} /> See less

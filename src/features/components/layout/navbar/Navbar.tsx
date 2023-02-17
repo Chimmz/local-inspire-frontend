@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 
 import { useRouter } from 'next/router';
 import useRequest from '../../../hooks/useRequest';
-import { useAuthContext } from '../../../contexts/AuthContext';
+import { useAuthModalContext } from '../../../contexts/AuthContext';
 import { NewRegistrationContextProvider } from '../../../contexts/NewRegistrationContext';
 
 import * as urlUtils from '../../../utils/url-utils';
@@ -34,7 +34,7 @@ export type AuthType = 'login' | 'register';
 function Navbar(props: NavbarProps) {
   const { bg = '#003366', position, lightLogo = true, withSearchForm = true } = props;
 
-  const authData = useAuthContext();
+  const authData = useAuthModalContext();
   const [searchModalOpen, setSearchOpen] = useState(false);
   const router = useRouter();
 

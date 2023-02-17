@@ -31,6 +31,7 @@ import PopupInfo from '../../features/components/PopupInfo';
 import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
 import Head from 'next/head';
+import { toTitleCase } from '../../features/utils/string-utils';
 
 interface QuestionsPageProps {
   questions: {
@@ -163,11 +164,10 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   // Chicken Express - Questions & Answers Community in Terrell, Tx | Localinspire
   const pageDescription = useMemo(() => {
-    return `${
-      props.params.businessName
-    } - Questions & Answers Community in ${props.params.location
-      .split('-')
-      .join(' ')} | Localinspire`;
+    const [city, stateCode] = props.params.location.split('-');
+    return `${props.params.businessName} - Questions & Answers Community in ${toTitleCase(
+      city,
+    )}, ${stateCode.toUpperCase()} | Localinspire`;
   }, []);
 
   return (
