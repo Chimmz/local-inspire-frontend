@@ -7,6 +7,7 @@ import * as userUtils from '../../utils/user-utils';
 import { BusinessProps } from '../business-results/Business';
 import StarRating from '../shared/star-rating/StarRating';
 import styles from './Review.module.scss';
+import ReadmoreText from 'read-more-react';
 
 export interface ReviewProps {
   _id: string;
@@ -56,7 +57,15 @@ const UserReview: React.FC<ReviewProps> = function (props) {
       />
       <small className={styles.reviewDate}>{reviewDate}</small>
 
-      <p className={cls('parag')}>{props.review}.</p>
+      <ReadmoreText
+        text={props.review.join(' ')}
+        readMoreText={<small className="cursor-pointer text-light">Read more...</small>}
+        min={50}
+        ideal={200}
+        max={200}
+      />
+
+      {/* <p className={cls('parag')}>{props.review}.</p> */}
     </article>
   );
 };

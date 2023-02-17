@@ -46,7 +46,7 @@ interface Props {
   slug: string;
 }
 
-const AUTH_MODAL_TITLE = "You're almost done!";
+const AUTH_MODAL_TITLE = 'You are almost done!';
 const AUTH_MODAL_SUBTITLE = 'Choose how you want to post your review.';
 
 function NewReviewForm(props: Props) {
