@@ -48,7 +48,7 @@ const RatingStats = function (props: Props) {
   return (
     <section className={styles.ratingStats}>
       <section className={styles.overallRatings}>
-        <h3 className="mb-4">Overall Ratings</h3>
+        <h3 className="mb-4">Overall Visitor Ratings</h3>
         <div className="d-flex align-items-center gap-3 mb-4">
           <Icon icon="octicon:feed-star-16" color="#024180" inline width={50} />
           <div className="">
@@ -128,6 +128,7 @@ const RatingStats = function (props: Props) {
             className="btn btn-bg-none no-bg-hover btn--lg text-pry"
             onClick={handleClick}
           >
+            <Icon icon="nimbus:stats" />
             <strong>Overall rating stats</strong>
           </button>
 
@@ -144,7 +145,7 @@ const RatingStats = function (props: Props) {
                   <strong className="w-max-content d-block mb-3">Recommended</strong>
                   <div className="d-flex align-items-center gap-2">
                     <Icon icon="mdi:success-circle-outline" color="00cc00" width={24} />
-                    <span className="fs-3">{props.recommendationStats?.recommends}</span>
+                    <span className="fs-3">{props.recommendationStats?.recommends || 0}</span>
                   </div>
                 </div>
 
