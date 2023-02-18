@@ -56,7 +56,7 @@ const ReviewItem = function (props: Props) {
 
       setLikes(res?.likes as { user: UserPublicProfile }[]);
     },
-    [sendLikeReq, api.toggleBusinessReviewHelpful, props._id, currentUser.accessToken],
+    [sendLikeReq, props._id],
   );
 
   const isLikedByCurrentUser = useMemo(

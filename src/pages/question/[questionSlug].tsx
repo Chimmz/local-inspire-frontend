@@ -140,12 +140,12 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       setAnswersTotal(res.total);
       window.scrollTo(0, 0);
     },
-    [setCurrentPage, sendPageReq, api.getAnswersToQuestion, setAnswers, setAnswersTotal],
+    [setCurrentPage, props.question?._id, sendPageReq, setAnswers, setAnswersTotal],
   );
 
   const pageCount = useMemo(
     () => Math.ceil(answersTotal! / ANSWERS_PER_PAGE),
-    [answersTotal, Math.ceil, ANSWERS_PER_PAGE],
+    [answersTotal],
   );
 
   const handleSelectDropdownOption = useCallback(
@@ -184,10 +184,6 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     console.log(reason, explanation);
   };
 
-  const reportAnswer = useCallback(async function (reason: string, explanation: string) {
-    console.log(`Reported ${answerIdReport} because ${reason}. More details: ${explanation}`);
-  }, []);
-
   const externalUrlParams = useMemo(
     () => ({
       businessId: question!.business!._id,
@@ -196,6 +192,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       stateCode: question!.business!.stateCode,
     }),
     [
+      question,
       question?.business?._id,
       question?.business?.businessName,
       question?.business?.city,
@@ -472,7 +469,6 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
           reportType="answer"
           possibleReasons={answerReportReasonsConfig}
           close={() => setAnswerIdReport(null)}
-          onReport={reportAnswer}
         />
       </Layout>
     </SSRProvider>
