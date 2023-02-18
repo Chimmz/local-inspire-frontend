@@ -10,9 +10,20 @@ const BusinessAmenities = function () {
   );
 
   return (
-    <>
-      <ul className={cls(styles.amenities, 'mt-4 no-bullets')}>
-        <li>
+    <div className={cls(styles.tableContent, 'd-flex gap-5')}>
+      <article className="about mt-4" style={{ flex: '40%' }}>
+        <section className={styles.about}>
+          <p className="parag mb-3 mt-3">
+            At Crystals Cabin we strive on comfort, cleanliness, and an all around good time.
+            We welcome you to join us for a weekend getaway.
+          </p>
+          <p className="parag mb-5">
+            <strong> Fannies BBQ</strong> was established in 1985.
+          </p>
+        </section>
+      </article>
+      <ul className={cls(styles.amenities, 'ps-4 no-bullets border-left')}>
+        <li className="mt-4">
           <strong>Arriving</strong>
           <p>3:00 PM</p>
         </li>
@@ -47,7 +58,7 @@ const BusinessAmenities = function () {
           <p>Indoor Wood, Outdoor Wood</p>
         </li>
 
-        <li>
+        {/* <li>
           <strong>Grills</strong>
           <p>Charcoal</p>
         </li>
@@ -62,7 +73,14 @@ const BusinessAmenities = function () {
           <p>
             TV, Elevator/Lift Access, Pool, Pool Table, Firepit, Covered Breezeway, Skiing
           </p>
-        </li>
+        </li> */}
+
+        <button
+          className="btn btn-bg-none d-block text-pry text-center"
+          onClick={setShowModal.bind(null, true)}
+        >
+          <strong> See more</strong>
+        </button>
 
         {/*<li>
           <strong>House Rules</strong>
@@ -130,12 +148,6 @@ const BusinessAmenities = function () {
         <p>1</p>
       </li> */}
       </ul>
-      <button
-        className="btn btn-bg-none d-block text-pry text-center"
-        onClick={setShowModal.bind(null, true)}
-      >
-        <strong> See more</strong>
-      </button>
 
       <Modal show={showModal} onHide={setShowModal.bind(null, false)} centered size="lg">
         <Modal.Body className="p-5">
@@ -184,7 +196,7 @@ const BusinessAmenities = function () {
           <div className={cls(modalCurrentTab === 'types' ? 'd-block' : 'd-none')}></div>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 

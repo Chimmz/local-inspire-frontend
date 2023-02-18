@@ -165,7 +165,7 @@ const BusinessPage: NextPage<Props> = function (props) {
 
                 <section className={styles.businessAmenities}>
                   <div className="d-flex align-items-center justify-content-between pb-3 border-bottom">
-                    <h2 className="">Business Amenities</h2>
+                    <h2 className="">About</h2>
                     <Link href="/" passHref>
                       <a className="text-pry">
                         <strong>Improve this listing</strong>

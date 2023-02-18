@@ -192,7 +192,6 @@ function Header(props: Props) {
                     style={{ borderRadius: '3px' }}
                   />
                 );
-
                 if (!isLastImage) return <figure className={className}>{imgUI}</figure>;
 
                 return (
