@@ -199,6 +199,7 @@ function Header(props: Props) {
                   <figure
                     className={className}
                     data-remaining-count={'+' + (morePhotosCount || 0)}
+                    key={img._id}
                   >
                     {imgUI}
                   </figure>
