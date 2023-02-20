@@ -119,9 +119,6 @@ const ReviewItem = function (props: Props) {
         reviewTitle: props.reviewTitle,
       });
       console.log('ReviewItem URL: ', url);
-      // props.businessData &&
-      // props._id &&
-      // props.reviewTitle &&
     } catch (err) {
       console.log(err);
       return '';
@@ -212,12 +209,12 @@ const ReviewItem = function (props: Props) {
           style={{ marginTop: '-7px' }}
           contentOnExpand={
             <>
-              <Icon icon="material-symbols:expand-less-rounded" height={20} /> See less
+              <Icon icon="material-symbols:expand-less-rounded" height={20} /> Show less
             </>
           }
           onClick={toggleShowFullReviewText}
         >
-          <Icon icon="material-symbols:expand-more-rounded" height={20} /> See more
+          <Icon icon="material-symbols:expand-more-rounded" height={20} /> Show more
         </CustomAccordionToggle>
         <Accordion.Collapse eventKey="1">
           <div className={styles.hiddenContent}>
