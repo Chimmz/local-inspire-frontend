@@ -25,6 +25,7 @@ import { BusinessProps } from '../../business-results/Business';
 import { genUserReviewPageUrl } from '../../../utils/url-utils';
 import * as domUtils from '../../../utils/dom-utils';
 import styles from './ReviewsSection.module.scss';
+import useToggle from '../../../hooks/useToggle';
 
 type Props = ReviewProps & {
   show: boolean;
@@ -37,6 +38,8 @@ type Props = ReviewProps & {
 
 const ReviewItem = function (props: Props) {
   const [likes, setLikes] = useState(props.likes);
+  const { state: isShowingFullReviewText, toggle: toggleShowFullReviewText } =
+    useToggle(false);
 
   const { withAuth } = useMiddleware();
   const currentUser = useSignedInUser();
@@ -48,6 +51,19 @@ const ReviewItem = function (props: Props) {
   const { send: sendLikeReq, loading: isLiking } = useRequest({
     autoStopLoading: true,
   });
+
+  const getPartialReviewText = useCallback(() => {
+    if (props.review.length > 1) return props.review.slice(0, props.review.length / 2 + 1); // Show half array
+
+    const strlen = props.review.join('').length;
+    const lengthOfPortionToShow = Math.round(0.75 * strlen);
+    return [
+      props.review
+        .join('')
+        .slice(0, lengthOfPortionToShow)
+        .concat(strlen > lengthOfPortionToShow ? '...' : ''),
+    ];
+  }, [props.review]);
 
   const handleToggleLikeReview: AuthMiddlewareNext = useCallback(
     async (token?: string) => {
@@ -174,26 +190,32 @@ const ReviewItem = function (props: Props) {
           readonly
           className="mb-5"
         />
-        <ReadmoreText
+        {/* <ReadmoreText
           text={props.review.join(' ')}
           readMoreText={<small className="cursor-pointer text-light">Read more...</small>}
           min={50}
           ideal={200}
           max={200}
-        />
+        /> */}
 
-        {/* <p className="parag w-max-content">{domUtils.renderMultiLineText(props.review)}</p> */}
+        <div>
+          {domUtils.renderMultiLineText(
+            !isShowingFullReviewText ? getPartialReviewText() : props.review,
+          )}
+        </div>
       </div>
 
       <Accordion>
         <CustomAccordionToggle
           eventKey="1"
-          className="btn btn-bg-none no-bg-hover text-pry mt-4"
+          className="btn btn-bg-none no-bg-hover text-pry"
+          style={{ marginTop: '-7px' }}
           contentOnExpand={
             <>
               <Icon icon="material-symbols:expand-less-rounded" height={20} /> See less
             </>
           }
+          onClick={toggleShowFullReviewText}
         >
           <Icon icon="material-symbols:expand-more-rounded" height={20} /> See more
         </CustomAccordionToggle>

@@ -9,6 +9,7 @@ interface Props {
   contentOnExpand?: React.ReactNode;
   classNameOnExpand?: string;
   style?: CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLButtonElement> | (() => void);
 }
 
 const CustomAccordionToggle = function (props: Props) {
@@ -23,7 +24,10 @@ const CustomAccordionToggle = function (props: Props) {
       type="button"
       style={props.style}
       className={expanded ? props.classNameOnExpand || props.className : props.className}
-      onClick={decoratedOnClick}
+      onClick={ev => {
+        decoratedOnClick(ev);
+        props.onClick?.(ev);
+      }}
     >
       {btnContent}
     </button>

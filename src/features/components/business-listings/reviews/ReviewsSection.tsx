@@ -135,6 +135,7 @@ function ReviewsSection(props: Props) {
     const res = await props.sendRequest(sendFilterReq(req));
 
     if (res?.status === 'SUCCESS') {
+      console.log({ 'res.data': res.data });
       setReviews(res.data);
       setTotalReviewsCount(res.total); // In case there are new reviews in the DB
       domUtils.scrollToElement(sectionRef.current!);

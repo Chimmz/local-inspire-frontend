@@ -322,7 +322,7 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
 
   const reqs = [
     api.getBusinessById(businessId), // 0
-    api.getBusinessReviews(businessId, undefined, { page: 1, limit: 3 }), // 1
+    api.getBusinessReviews(businessId, '?sort=-createdAt', { page: 1, limit: 3 }), // 1
     api.getQuestionsAskedAboutBusiness(businessId, '?sort=-createdAt&', {
       // 2
       page: 1,
