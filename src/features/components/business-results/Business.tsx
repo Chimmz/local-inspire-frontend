@@ -68,24 +68,37 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
 
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 
-  const handleClickYesOrNo = (val: 'yes' | 'no') => {
-    if (!isSignedIn) return showAuthModal!('register');
-    setUserRecommends(val === 'yes');
-  };
+  // const handleClickYesOrNo = (val: 'yes' | 'no') => {
+  //   if (!isSignedIn) return showAuthModal!('register');
+  //   setUserRecommends(val === 'yes');
+  // };
 
-  useEffect(() => {
-    if (!isSignedIn || userRecommends === null) return;
-    // Go to review page once user signs in
-    const url = urlUtils.genRecommendBusinessPageUrl({
-      businessId,
-      businessName: businessName!,
-      city,
-      stateCode,
-      recommends: !!userRecommends,
-    });
-    console.log({ url });
-    navigateTo(url, router);
-  }, [isSignedIn, userRecommends]); // Watch for anytime user signs in
+  // useEffect(() => {
+  //   if (!isSignedIn || userRecommends === null) return;
+  //   // Go to review page once user signs in
+  //   const url = urlUtils.genRecommendBusinessPageUrl({
+  //     businessId,
+  //     businessName: businessName!,
+  //     city,
+  //     stateCode,
+  //     recommends: !!userRecommends,
+  //   });
+  //   console.log({ url });
+  //   navigateTo(url, router);
+  // }, [isSignedIn, userRecommends]); // Watch for anytime user signs in
+
+  const genRecommendUrl = useCallback(
+    (recommends: boolean) => {
+      return urlUtils.genRecommendBusinessPageUrl({
+        businessId,
+        businessName,
+        city,
+        stateCode,
+        recommends,
+      });
+    },
+    [businessId, businessName, city, stateCode],
+  );
 
   const renderReviewText = useCallback(() => {
     const words = props.reviewText!.join(' ').split(' ');
@@ -98,8 +111,6 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
     <li className={cls(styles.business, featured && styles.featured)} key={rand}>
       <figure>
         <Image
-          // src={dummyImgs[rand % 10] || dummyImgs[rand % 8]}
-          // src={props.photoUrl || '/img/business-img-default.jpeg'}
           src={props.images?.[0]?.imgUrl || '/img/business-img-default.jpeg'}
           alt={`${props.SIC8 || ''} photo of ${businessName}`}
           layout="fill"
@@ -160,7 +171,13 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
         {!featured && !props.reviewedByCurrentUser ? (
           <div className={cls(styles.question, 'd-flex gap-2')}>
             <p className="me-3">Been here before? Would you recommend?</p>
-            <LoadingButton
+            <Link href={genRecommendUrl(true)} passHref>
+              <a className="btn btn-gray btn--sm flex-grow-1">Yes</a>
+            </Link>
+            <Link href={genRecommendUrl(false)} passHref>
+              <a className="btn btn-gray btn--sm flex-grow-1">No</a>
+            </Link>
+            {/* <LoadingButton
               isLoading={userRecommends! && isSignedIn}
               className="btn btn-gray btn--sm"
               onClick={handleClickYesOrNo.bind(null, 'yes')}
@@ -176,7 +193,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
               withSpinner
             >
               No
-            </LoadingButton>
+            </LoadingButton> */}
           </div>
         ) : null}
       </div>

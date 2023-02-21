@@ -5,21 +5,15 @@ import Link from 'next/link';
 import { ReviewProps } from './UserReview';
 
 import useInput from '../../hooks/useInput';
-import useSignedInUser from '../../hooks/useSignedInUser';
 import useFeatureRatings from '../../hooks/useFeatureRatings';
 import useFileUploadsWithDescription from '../../hooks/useFileUploadsWithDescription';
 
-import { featuresToRate } from './config';
-import navigateTo, * as urlUtils from '../../utils/url-utils';
-import { getPast12MonthsWithYear } from '../../utils/date-utils';
-import {
-  isRequired,
-  mustBeSameAs,
-  mustNotBeSameAs,
-} from '../../utils/validators/inputValidators';
-import { toTitleCase } from '../../utils/string-utils';
-import api from '../../library/api';
+import * as urlUtils from '../../utils/url-utils';
 import * as domUtils from '../../utils/dom-utils';
+import { getPast12MonthsWithYear } from '../../utils/date-utils';
+import { isRequired, mustBeSameAs } from '../../utils/validators/inputValidators';
+import api from '../../library/api';
+import * as config from './config';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
@@ -57,7 +51,7 @@ function NewReviewForm(props: Props) {
   const { setAuthTitle, setAuthSubtitle } = useAuthModalContext();
 
   const { ratingMap, changeFeatureRating } = useFeatureRatings(
-    featuresToRate.map(f => (typeof f === 'string' ? f : f.label)),
+    config.featuresToRate.map(f => (typeof f === 'string' ? f : f.label)),
   );
   const past12Months = useMemo(getPast12MonthsWithYear.bind(null), []);
   const { withAuth } = useMiddleware();
@@ -101,13 +95,7 @@ function NewReviewForm(props: Props) {
     init: props.readonly
       ? [props.userReview?.visitedWhen.month, props.userReview?.visitedWhen.year].join(' ')
       : 'Please select',
-    validators: [
-      { fn: isRequired, params: [`Please specify when you visited ${businessName}`] },
-      {
-        fn: mustNotBeSameAs,
-        params: ['Please select', `Please specify when you visited ${businessName}`],
-      },
-    ],
+    validators: [...config.getVisitedPeriodValidators(businessName)],
   });
 
   const {
@@ -178,9 +166,6 @@ function NewReviewForm(props: Props) {
   };
 
   const submitReview: AuthMiddlewareNext = async (token: string) => {
-    if (props.readonly) return;
-    if (!validateFields()) return;
-
     const rawFiles = uploads.map(item => item.img.rawFile) as File[];
     const photoDescriptions = uploads.map(item => item.description) as string[];
     const formData = new FormData();
@@ -228,6 +213,7 @@ function NewReviewForm(props: Props) {
         className={styles.form}
         onSubmit={ev => {
           ev.preventDefault();
+          if (props.readonly || !validateFields()) return;
           withAuth(submitReview);
         }}
       >
@@ -311,7 +297,7 @@ function NewReviewForm(props: Props) {
         <div className="que-group">
           <label className="mb-5">Click to select a rating</label>
           <FeatureRating
-            features={featuresToRate}
+            features={config.featuresToRate}
             ratings={
               props.userReview?.featureRatings.map(obj => obj.rating) ||
               Object.values(ratingMap)

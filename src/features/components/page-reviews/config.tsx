@@ -1,5 +1,6 @@
 import { RateableFeatures } from '../shared/feature-rating/types';
 import { Icon } from '@iconify/react';
+import { isRequired, mustNotBeSameAs } from '../../utils/validators/inputValidators';
 
 export const featuresToRate: RateableFeatures = [
   {
@@ -10,18 +11,22 @@ export const featuresToRate: RateableFeatures = [
   {
     label: 'Location',
     icon: (
-      <Icon
-        icon="typcn:location-arrow"
-        color="#2e2e2e"
-        style={{ transform: 'scale(1.5)' }}
-      />
+      <Icon icon="typcn:location-arrow" color="#2e2e2e" style={{ transform: 'scale(1.5)' }} />
     ),
   },
   {
     label: 'Service',
-    icon: (
-      <Icon icon="material-symbols:room-service-rounded" color="#2e2e2e" width={20} />
-    ),
+    icon: <Icon icon="material-symbols:room-service-rounded" color="#2e2e2e" width={20} />,
   },
   { label: 'Atmosphere', icon: <Icon icon="mdi:spa" color="#2e2e2e" width={20} /> },
 ];
+
+export const getVisitedPeriodValidators = (businessName: string) => {
+  return [
+    { fn: isRequired, params: [`Please specify when you visited ${businessName}`] },
+    {
+      fn: mustNotBeSameAs,
+      params: ['Please select', `Please specify when you visited ${businessName}`],
+    },
+  ];
+};

@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
-import { authOptions } from '../api/auth/[...nextauth]';
 
 // Types
 import Review, { ReviewProps } from '../../features/components/page-reviews/UserReview';
@@ -20,13 +18,13 @@ import api from '../../features/library/api';
 // Classes, styles, and external components
 import cls from 'classnames';
 import { Icon } from '@iconify/react';
-import Layout from '../../features/components/layout';
-import NewReviewForm from '../../features/components/page-reviews/NewReviewForm';
-import Spinner from '../../features/components/shared/spinner/Spinner';
-import Alert from 'react-bootstrap/Alert';
-import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
 import { SSRProvider } from 'react-bootstrap';
 import { BusinessProps } from '../../features/components/business-results/Business';
+import Spinner from '../../features/components/shared/spinner/Spinner';
+import Alert from 'react-bootstrap/Alert';
+import Layout from '../../features/components/layout';
+import NewReviewForm from '../../features/components/page-reviews/NewReviewForm';
+import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
 
 interface Props {
   reviews: { status: 'SUCCESS' | 'FAIL' | 'ERROR'; data: ReviewProps[] | undefined };
@@ -72,7 +70,7 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
   const userRecommendYes = router.query.recommend === 'yes';
   const userIsNeutral = !router.query.recommend;
   const [businessName, location, businessId] = useMemo(
-    () => (router.query.reviewPageSlug as string).split('_'),
+    () => (router.query.newReviewSlug as string).split('_'),
     [],
   );
 
@@ -102,10 +100,10 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
               {userIsNeutral ? (
                 <section className={styles.wouldYouRecommend}>
                   <strong className="me-auto fs-3">Do you recommend Chicken Express?</strong>
-                  <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=yes`}>
+                  <Link href={`/write-a-review/${router.query.newReviewSlug}?recommend=yes`}>
                     <span className="btn btn-outline">Yes</span>
                   </Link>
-                  <Link href={`/write-a-review/${router.query.reviewPageSlug}?recommend=no`}>
+                  <Link href={`/write-a-review/${router.query.newReviewSlug}?recommend=no`}>
                     <span className="btn btn-outline">No</span>
                   </Link>
                 </section>
@@ -149,7 +147,7 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
                 </section>
               )}
 
-              {attemptedUserReviewFetch ? (
+              {!currentUserReview ? (
                 <NewReviewForm
                   userRecommends={userRecommendYes}
                   userReview={currentUserReview}
@@ -189,9 +187,8 @@ export const getStaticPaths: GetStaticPaths = async function (context) {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const slug = params!.reviewPageSlug as string;
+  const slug = params!.newReviewSlug as string;
   const [businessName, location, businessId] = slug.split('_');
-
   const business = (await api.getBusinessById(businessId)) as {
     data: Partial<BusinessProps>;
   };
