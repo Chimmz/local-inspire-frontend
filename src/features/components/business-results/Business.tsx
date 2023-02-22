@@ -174,5 +174,4 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
     </li>
   );
 };
-
 export default Business;
