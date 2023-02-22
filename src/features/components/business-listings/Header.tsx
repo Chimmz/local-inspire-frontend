@@ -23,6 +23,7 @@ import useSignedInUser from '../../hooks/useSignedInUser';
 import useRequest from '../../hooks/useRequest';
 import api from '../../library/api';
 import { ReviewProps } from '../page-reviews/UserReview';
+import useMiddleware from '../../hooks/useMiddleware';
 
 interface Props {
   businessName: string;
@@ -43,6 +44,7 @@ function Header(props: Props) {
 
   const router = useRouter();
   const { isSignedIn, accessToken } = useSignedInUser();
+  const { withAuth } = useMiddleware();
   const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest({
     autoStopLoading: true,
   });
@@ -128,7 +130,7 @@ function Header(props: Props) {
           <div className="d-flex justify-content-between mb-4">
             <button
               className="btn btn-bg-none"
-              onClick={setShowCollectionsModal.bind(null, true)}
+              onClick={withAuth.bind(null, setShowCollectionsModal.bind(null, true))}
             >
               <Icon
                 icon="material-symbols:bookmark"

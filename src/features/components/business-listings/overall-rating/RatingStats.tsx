@@ -52,7 +52,7 @@ const RatingStats = function (props: Props) {
         <div className="d-flex align-items-center gap-3 mb-4">
           <Icon icon="octicon:feed-star-16" color="#024180" inline width={50} />
           <div className="">
-            <h6 className="fs-2">{Math.round(props.business?.avgRating!)} out of 5</h6>
+            <h6 className="fs-2">{Math.floor(props.business?.avgRating!)} out of 5</h6>
             <span className="fs-5">
               Based off the recommendation of {getPeopleQuantity(props.reviewsCount)}
             </span>

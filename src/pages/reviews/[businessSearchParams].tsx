@@ -163,7 +163,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
               />
             ))}
             <AllBusinesses
-              data={currentPageData as { [key: string]: any }}
+              data={currentPageData}
               allResults={propsData.allResults!}
               page={currentPage}
             />

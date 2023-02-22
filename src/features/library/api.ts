@@ -205,6 +205,15 @@ class API {
     });
   }
 
+  async getWhatPeopleSayAboutBusinesses(businessIds: string[]) {
+    return this._makeRequest({
+      path: `/reviews/businesses/what-people-say`,
+      method: 'POST',
+      body: JSON.stringify({ businesses: businessIds }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async getReviewsMadeByUser(token: string) {
     return this._makeRequest({
       path: `/reviews/made-by-user`,

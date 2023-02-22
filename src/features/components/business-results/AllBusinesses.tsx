@@ -4,13 +4,16 @@ import Business, { BusinessProps } from './Business';
 import styles from './AllBusinesses.module.scss';
 import { v4 as uuid } from 'uuid';
 import useRequest from '../../hooks/useRequest';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReviewProps } from '../page-reviews/UserReview';
 import useSignedInUser from '../../hooks/useSignedInUser';
 import api from '../../library/api';
 
 interface Props {
-  data: { [key: string]: any };
+  data?: {
+    status: string;
+    businesses: BusinessProps[];
+  };
   page: number;
   allResults?: number;
   type?: string;
@@ -18,16 +21,21 @@ interface Props {
 
 function AllBusinesses(props: Props) {
   const { allResults, page } = props;
-  const error = props.data?.status !== 'SUCCESS';
 
   // State that maps business ids to logged-in user's reviews
   const [userReviewLookup, setUserReviewLookup] = useState<{
     [businessId: string]: ReviewProps;
   }>({});
+  const [peoplesOpinionsAboutBusinesses, setPeoplesOpinionsAboutBusinesses] = useState<{
+    [businessId: string]: Array<string[]>;
+  }>({});
 
   const loggedInUser = useSignedInUser();
   const { send: sendUserReviewsReq, loading: isGettingUserReviews } = useRequest({
-    autoStopLoading: false,
+    autoStopLoading: true,
+  });
+  const { send: sendOpinionsRequest, loading: isGettingOpinions } = useRequest({
+    autoStopLoading: true,
   });
 
   useEffect(() => {
@@ -45,6 +53,32 @@ function AllBusinesses(props: Props) {
       .catch(console.log);
   }, [loggedInUser.isSignedIn]);
 
+  useEffect(() => {
+    if (Object.keys(peoplesOpinionsAboutBusinesses).length) return; // If opinions have been fetched
+
+    const businessIds = props.data?.businesses.map(b => b._id);
+    if (!businessIds?.length) return;
+
+    const handleResponse = function (
+      res: Array<{ _id: string; whatPeopleSay: Array<string[]> }> | undefined,
+    ) {
+      console.log(res);
+      if (!Array.isArray(res)) return;
+      const normalizedOpinions: { [businessId: string]: Array<string[]> } = {};
+
+      res.forEach(({ _id: businessId, whatPeopleSay }) => {
+        normalizedOpinions[businessId] = whatPeopleSay;
+      });
+      setPeoplesOpinionsAboutBusinesses(normalizedOpinions);
+    };
+
+    sendOpinionsRequest(api.getWhatPeopleSayAboutBusinesses(businessIds))
+      .then(handleResponse)
+      .catch(console.log);
+  }, [props.data?.businesses]);
+
+  const error = useMemo(() => props.data?.status !== 'SUCCESS', [props.data?.status]);
+
   if (!props.data)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
@@ -59,14 +93,12 @@ function AllBusinesses(props: Props) {
       </div>
     );
 
-  if (!props.data.businesses.length)
+  if (!props.data?.businesses.length)
     return (
       <div className={cls(styles.businesses, styles.noResults)}>
         No results. Try searching for something else
       </div>
     );
-
-  const getBusinessSerialNumber = (i: number) => (page - 1) * 20 + i + 1;
 
   return (
     <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
@@ -76,14 +108,15 @@ function AllBusinesses(props: Props) {
         const reviewedByUser = b._id in userReviewLookup;
         return (
           <Business
-            {...b}
             key={b._id}
+            {...b}
             featured={false}
-            index={getBusinessSerialNumber(i)}
+            serialNo={(page - 1) * 20 + i + 1}
             reviewedByCurrentUser={reviewedByUser}
             photoUrl={reviewedByUser ? userReviewLookup[b._id].images[0].photoUrl : undefined}
             userRating={reviewedByUser ? userReviewLookup[b._id].businessRating : undefined}
-            reviewText={reviewedByUser ? userReviewLookup[b._id].review : undefined}
+            // reviewText={reviewedByUser ? userReviewLookup[b._id].review : undefined}
+            whatPeopleSay={peoplesOpinionsAboutBusinesses[b._id]}
           />
         );
       })}

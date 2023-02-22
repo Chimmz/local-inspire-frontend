@@ -80,20 +80,24 @@
       }
     }
 
-    & > .userComment {
-      position: relative;
-      font-size: 12px;
-      padding-left: 1.5rem;
+    & > .userOpinions {
+      & > * {
+        position: relative;
+        font-size: 12px;
+        padding-left: 1.5rem;
 
-      &::before {
-        content: '“';
-        font-family: serif;
-        font-weight: bold;
-        position: absolute;
-        top: -5px;
-        left: -3px;
-        font-size: 3rem;
-        opacity: 0.4;
+        &::before {
+          content: '“';
+          // display: flex;
+          // align-items: start;
+          font-family: serif;
+          font-weight: bold;
+          position: absolute;
+          top: -10px;
+          left: 0;
+          font-size: 2.5rem;
+          opacity: 0.4;
+        }
       }
     }
 

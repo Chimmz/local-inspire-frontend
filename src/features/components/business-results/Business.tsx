@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -17,6 +17,7 @@ import styles from './Business.module.scss';
 import { useAuthModalContext } from '../../contexts/AuthContext';
 import Spinner from '../shared/spinner/Spinner';
 import LoadingButton from '../shared/button/Button';
+import { renderMultiLineText } from '../../utils/dom-utils';
 
 export interface BusinessProps {
   _id: string;
@@ -50,42 +51,19 @@ export interface BusinessProps {
 interface RatedBusiness extends Partial<BusinessProps> {
   userRating?: number;
   photoUrl?: string;
-  reviewText?: string[];
+  whatPeopleSay?: string[][] | undefined;
   reviewedByCurrentUser?: boolean;
 }
 
-const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = function (
+const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = function (
   props,
 ) {
-  const router = useRouter();
-  const rand = Math.floor(Math.random() * 9);
-  const { businessName, address, featured = false, index } = props;
+  const { businessName, address, featured = false, serialNo } = props;
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
-  const [userRecommends, setUserRecommends] = useState<boolean | null>(null);
   const { isSignedIn, ...user } = useSignedInUser({});
-  const { showAuthModal } = useAuthModalContext();
 
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
-
-  // const handleClickYesOrNo = (val: 'yes' | 'no') => {
-  //   if (!isSignedIn) return showAuthModal!('register');
-  //   setUserRecommends(val === 'yes');
-  // };
-
-  // useEffect(() => {
-  //   if (!isSignedIn || userRecommends === null) return;
-  //   // Go to review page once user signs in
-  //   const url = urlUtils.genRecommendBusinessPageUrl({
-  //     businessId,
-  //     businessName: businessName!,
-  //     city,
-  //     stateCode,
-  //     recommends: !!userRecommends,
-  //   });
-  //   console.log({ url });
-  //   navigateTo(url, router);
-  // }, [isSignedIn, userRecommends]); // Watch for anytime user signs in
 
   const genRecommendUrl = useCallback(
     (recommends: boolean) => {
@@ -100,15 +78,19 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
     [businessId, businessName, city, stateCode],
   );
 
-  const renderReviewText = useCallback(() => {
-    const words = props.reviewText!.join(' ').split(' ');
-    const first20Words = words.slice(0, 20);
-    if (words?.length > 20) return first20Words.join(' ').concat('...');
-    return first20Words.join(' ');
-  }, [props.reviewText]);
+  const peoplesOpinions = useMemo(() => {
+    if (!props.whatPeopleSay) return null;
+
+    return props.whatPeopleSay.slice(0, 2).map(reviewText => {
+      const reviewStr = reviewText.join(' ');
+      const first7Words = reviewStr.split(' ').slice(0, 7).join(' ');
+
+      return first7Words.length < reviewStr.length ? first7Words.concat('...') : first7Words;
+    });
+  }, [props.whatPeopleSay]);
 
   return (
-    <li className={cls(styles.business, featured && styles.featured)} key={rand}>
+    <li className={cls(styles.business, featured && styles.featured)} key={props._id}>
       <figure>
         <Image
           src={props.images?.[0]?.imgUrl || '/img/business-img-default.jpeg'}
@@ -130,7 +112,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
                   stateCode,
                 })}
               >
-                {(index ? index + '.' : '').concat(' ').concat(businessName!)}
+                {(serialNo ? serialNo + '.' : '').concat(' ').concat(businessName!)}
               </Link>
             </h4>
 
@@ -164,36 +146,28 @@ const Business: FC<RatedBusiness & { featured?: boolean; index?: number }> = fun
           ) : null}
         </div>
 
-        {!featured && props.reviewedByCurrentUser ? (
-          <div className={styles.userComment}>{renderReviewText()}</div>
+        {/* {!featured && props.reviewedByCurrentUser ? (
+          <div className={styles.userComment}>{renderWhatPeopleSay()}</div>
+        ) : null} */}
+
+        {!featured && peoplesOpinions ? (
+          <div className={styles.userOpinions}>{renderMultiLineText(peoplesOpinions)}</div>
         ) : null}
 
         {!featured && !props.reviewedByCurrentUser ? (
           <div className={cls(styles.question, 'd-flex gap-2')}>
             <p className="me-3">Been here before? Would you recommend?</p>
+
             <Link href={genRecommendUrl(true)} passHref>
-              <a className="btn btn-gray btn--sm flex-grow-1">Yes</a>
+              <a className="btn btn-gray btn--sm" style={{ minWidth: '100px' }}>
+                Yes
+              </a>
             </Link>
             <Link href={genRecommendUrl(false)} passHref>
-              <a className="btn btn-gray btn--sm flex-grow-1">No</a>
+              <a className="btn btn-gray btn--sm" style={{ minWidth: '100px' }}>
+                No
+              </a>
             </Link>
-            {/* <LoadingButton
-              isLoading={userRecommends! && isSignedIn}
-              className="btn btn-gray btn--sm"
-              onClick={handleClickYesOrNo.bind(null, 'yes')}
-              withSpinner
-            >
-              Yes
-            </LoadingButton>
-
-            <LoadingButton
-              isLoading={userRecommends === false && isSignedIn}
-              className="btn btn-gray btn--sm"
-              onClick={handleClickYesOrNo.bind(null, 'no')}
-              withSpinner
-            >
-              No
-            </LoadingButton> */}
           </div>
         ) : null}
       </div>
