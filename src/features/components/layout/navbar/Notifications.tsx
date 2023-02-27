@@ -105,7 +105,7 @@ const Notifications = (props: Props) => {
         // align="end"
       >
         {messages.map(msg => (
-          <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
+          <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3" key={msg._id}>
             {getFullName(msg.from, { lastNameInitial: true })} sent a message on{' '}
             {formatDate(msg.createdAt)}{' '}
             <span className="text-black"> {msg.text.slice(0, 20).concat('...')}</span>

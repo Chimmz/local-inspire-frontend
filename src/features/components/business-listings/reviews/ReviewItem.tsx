@@ -248,6 +248,7 @@ const ReviewItem = function (props: Props) {
             >
               {props.images.map(img => (
                 <Image
+                  key={img._id}
                   src={img.photoUrl}
                   width={REVIEW_IMG_WIDTH}
                   height={120}
