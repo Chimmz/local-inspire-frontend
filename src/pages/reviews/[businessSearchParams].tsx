@@ -91,7 +91,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
     setPropsData(props);
     setPageData(1, props as any);
-  }, [props, setPropsData, props.pageId]);
+  }, [props, setPropsData, setCurrentPage, setPageData, props.pageId]);
 
   const handlePageChange = async (newPage: number) => {
     setCurrentPage(newPage);
@@ -137,7 +137,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
               <MapView
                 shown
-                closeMap={useCallback(setShowGoogleMap.bind(null, false), [setShowGoogleMap])}
+                closeMap={useCallback(() => setShowGoogleMap(false), [setShowGoogleMap])}
                 coords={propsData.businesses?.[0]?.coordinates as string}
                 withModal={false}
                 scrollZoom={false}

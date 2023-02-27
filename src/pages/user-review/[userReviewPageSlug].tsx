@@ -54,7 +54,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
     return review?.reviewedBy
       ? getFullName(review?.reviewedBy, { lastNameInitial: true })
       : '';
-  }, [review?.reviewedBy, getFullName]);
+  }, [review?.reviewedBy]);
 
   const businessUrl = useMemo(
     () =>

@@ -111,7 +111,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
       };
       scrollToAndFocusTextarea();
     }
-  }, []);
+  }, [router.query]);
 
   const handleClickFilterName = (filter: FilterName) => {
     (filterNames.includes(filter) ? removeFilterName : addNewFilterName)(filter);
@@ -149,7 +149,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   const recordsShown = useMemo(() => {
     if (pageCount > currentPage) return QUESTIONS_PER_PAGE * currentPage;
     return props.questions.total;
-  }, [pageCount, currentPage, questionsCount]);
+  }, [pageCount, currentPage, questionsCount, props.questions.total]);
 
   const popularQuestions = useMemo(() => {
     const items = props.questions.data?.filter(q => q.answersCount > 0);
@@ -159,7 +159,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
 
   const businessUrl = useMemo(
     () => genBusinessPageUrl<string>({ slug: props.params.slug }),
-    [],
+    [props.params.slug],
   );
 
   // Chicken Express - Questions & Answers Community in Terrell, Tx | Localinspire

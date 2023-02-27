@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from './styles.module.scss';
 import { UserPublicProfile } from '../../types';
 import useSignedInUser from '../../hooks/useSignedInUser';
 import useRequest from '../../hooks/useRequest';
@@ -13,6 +12,7 @@ import { getFullName } from '../../utils/user-utils';
 import LoadingButton from '../shared/button/Button';
 import { Spinner } from 'react-bootstrap';
 import NewMessageModal from './NewMessageModal';
+import styles from './styles.module.scss';
 
 interface Props {
   user: UserPublicProfile | undefined;
@@ -62,7 +62,9 @@ function ProfileHeader({ user, followingCount }: Props) {
         />
         <div className="flex-grow-1">
           <h1>{userName}</h1>
-          <p className="parag mb-5">"Do unto others as you would have them do unto you."</p>
+          <p className="parag mb-5">
+            &ldquo;Do unto others as you would have them do unto you.&rdquo;
+          </p>
           <ul className="d-flex gap-5 align-items-start no-bullets">
             <li>
               <span className="text-uppercase text-light fs-5">Contributions</span>

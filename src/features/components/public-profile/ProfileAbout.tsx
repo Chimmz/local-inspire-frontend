@@ -36,7 +36,7 @@ const ProfileAbout = (props: Props) => {
       <article>
         <span className="text-black">About Me</span>
         <br />
-        <span>"I am a wild one running free."</span>
+        <span>&ldquo;I am a wild one running free.&rdquo;</span>
       </article>
 
       <hr className="my-4" style={{ borderColor: '#ccc' }} />

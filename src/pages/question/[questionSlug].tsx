@@ -191,13 +191,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       city: question!.business!.city,
       stateCode: question!.business!.stateCode,
     }),
-    [
-      question,
-      question?.business?._id,
-      question?.business?.businessName,
-      question?.business?.city,
-      question?.business?.stateCode,
-    ],
+    [question],
   );
 
   const businessUrl = useMemo(
@@ -206,7 +200,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   );
   const questionsUrl = useMemo(
     () => getBusinessQuestionsUrl({ ...externalUrlParams, promptNewQuestion: true }),
-    [getBusinessQuestionsUrl, externalUrlParams],
+    [externalUrlParams],
   );
 
   const mostHelpfulAnswer = useMemo(() => {
