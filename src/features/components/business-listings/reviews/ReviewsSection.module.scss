@@ -71,9 +71,10 @@
 
 .review {
   overflow: hidden;
+  background-color: #fff;
 
   &:not(:last-of-type) {
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
   }
 
   & [class*='dropdown-toggle'] {

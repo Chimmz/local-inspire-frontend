@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -22,24 +22,28 @@ import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import { BusinessProps } from '../../business-results/Business';
-import { genUserReviewPageUrl } from '../../../utils/url-utils';
+import { genUserReviewPageUrl, UserReviewPageUrlParams } from '../../../utils/url-utils';
 import * as domUtils from '../../../utils/dom-utils';
 import styles from './ReviewsSection.module.scss';
 import useToggle from '../../../hooks/useToggle';
 
 type Props = ReviewProps & {
   show: boolean;
+  hideLocation?: boolean;
   businessName: string;
-  businessData: BusinessProps;
+  businessData: Partial<BusinessProps>;
   openReportModal: (arg: any) => void;
   openShareModal?: (...args: [string, string]) => void;
   openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
 };
 
+const REVIEW_IMG_WIDTH = 120;
+
 const ReviewItem = function (props: Props) {
   const [likes, setLikes] = useState(props.likes);
   const { state: isShowingFullReviewText, toggle: toggleShowFullReviewText } =
     useToggle(false);
+  const imgsContianerRef = useRef<HTMLDivElement | null>(null);
 
   const { withAuth } = useMiddleware();
   const currentUser = useSignedInUser();
@@ -111,19 +115,12 @@ const ReviewItem = function (props: Props) {
     '.',
     '',
   );
-  const reviewUrl = useMemo(() => {
-    try {
-      const url = genUserReviewPageUrl({
-        ...props.businessData!,
-        reviewId: props._id,
-        reviewTitle: props.reviewTitle,
-      });
-      console.log('ReviewItem URL: ', url);
-    } catch (err) {
-      console.log(err);
-      return '';
-    }
-  }, [props.businessData, props._id, props.reviewTitle]);
+
+  const imgsToShowTotal = useMemo(() => {
+    const box = imgsContianerRef.current;
+    if (!box) return undefined;
+    return Math.floor(+box.style.width / REVIEW_IMG_WIDTH);
+  }, []);
 
   return (
     <section
@@ -142,7 +139,7 @@ const ReviewItem = function (props: Props) {
           <span className="text-black">{reviewerName}.</span> wrote a review on {reviewDate}
         </small>
 
-        <small className={styles.location}>
+        <small className={cls(styles.location, props.hideLocation && 'd-none')}>
           {props.reviewedBy?.city ? (
             <>
               <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />{' '}
@@ -168,13 +165,13 @@ const ReviewItem = function (props: Props) {
       </div>
 
       <div className={styles.reviewText}>
-        <h4 className="fs-3 mb-3 text-dark text-hover-dark text-hover-underline">
+        <h4 className="fs-3 mt-3 mb-3 text-dark w-max-content text-hover-dark text-hover-underline">
           <Link
             href={genUserReviewPageUrl({
               ...props.businessData!,
-              reviewId: props._id,
-              reviewTitle: props.reviewTitle,
-            })}
+              reviewId: props._id!,
+              reviewTitle: props.reviewTitle!,
+            } as UserReviewPageUrlParams)}
             className="link"
           >
             {props.reviewTitle}
@@ -187,13 +184,6 @@ const ReviewItem = function (props: Props) {
           readonly
           className="mb-5"
         />
-        {/* <ReadmoreText
-          text={props.review.join(' ')}
-          readMoreText={<small className="cursor-pointer text-light">Read more...</small>}
-          min={50}
-          ideal={200}
-          max={200}
-        /> */}
 
         <div>
           {domUtils.renderMultiLineText(
@@ -247,6 +237,23 @@ const ReviewItem = function (props: Props) {
                 readonly
                 grid
               />
+            </div>
+
+            <div
+              className={cls(
+                styles.reviewImages,
+                'd-flex align-items-center flex-wrap gap-2',
+              )}
+              ref={imgsContianerRef}
+            >
+              {props.images.map(img => (
+                <Image
+                  src={img.photoUrl}
+                  width={REVIEW_IMG_WIDTH}
+                  height={120}
+                  objectFit="cover"
+                />
+              ))}
             </div>
           </div>
         </Accordion.Collapse>

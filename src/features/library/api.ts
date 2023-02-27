@@ -9,15 +9,16 @@ interface RequestConfig {
 }
 
 class API {
+  _baseUrl =
+    process.env.NODE_ENV === 'development'
+      ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
+      : process.env.NEXT_PUBLIC_API_BASE_URL_RENDER;
+
   async _makeRequest({ path, ...config }: RequestConfig) {
     const isApiCall = path.startsWith('/');
-    const api =
-      process.env.NODE_ENV === 'development'
-        ? process.env.NEXT_PUBLIC_API_BASE_URL_REMOTE
-        : process.env.NEXT_PUBLIC_API_BASE_URL_RENDER;
 
     try {
-      const fullUrl = isApiCall ? api!.concat(path) : path;
+      const fullUrl = isApiCall ? this._baseUrl!.concat(path) : path;
       const res = await fetch(fullUrl, { ...config } as RequestInit);
       return await res.json();
     } catch (err) {
@@ -373,6 +374,32 @@ class API {
     return this._makeRequest({
       path: `/users/${userId}/follow`,
       method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getUserPublicProfile(userId: string) {
+    return this._makeRequest({
+      path: `/users/${userId}/profile`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async sendMessage(msgText: string, recipientId: string, token: string) {
+    return this._makeRequest({
+      path: `/messages/to/${recipientId}`,
+      method: 'POST',
+      body: JSON.stringify({ text: msgText }),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getUnreadMsgs(token: string, url: string) {
+    console.log({ url, token });
+    return this._makeRequest({
+      path: url,
+      method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }

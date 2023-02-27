@@ -312,12 +312,6 @@ const BusinessPage: NextPage<Props> = function (props) {
 export const getServerSideProps: GetServerSideProps = async function (context) {
   const slug = context.params!.businessPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions as NextAuthOptions,
-  );
-
   console.log({ businessName, location, businessId });
 
   const reqs = [
@@ -332,6 +326,12 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     api.getBusinessOverallRating(businessId), // 4
   ];
 
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions as NextAuthOptions,
+  );
+
   if (session)
     reqs.push(
       api.getUserCollections(session.user.accessToken), // 5
@@ -345,6 +345,8 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
   const [business, reviews, questions, tips, businessReviewStats] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
+
+  // if (!business?.businessName ) return { notFound: true };
 
   const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
   const userReviewResponse = responses[6] as {

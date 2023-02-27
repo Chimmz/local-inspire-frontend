@@ -1,3 +1,12 @@
+// @mixin circle($diameter, $bg) {
+//   width: $diameter;
+//   height: $diameter;
+//   background-color: $bg;
+//   border-radius: 50%;
+//   display: grid;
+//   place-items: center;
+// }
+
 @mixin thin-scrollbar {
   &::-webkit-scrollbar {
     height: 5px; // for horizontal scrollbars
@@ -22,9 +31,4 @@
   &::-webkit-scrollbar-thumb:hover {
     background-color: #666666;
   }
-}
-
-@mixin circle {
-  border-radius: 50%;
-  aspect-ratio: 1 /1;
 }

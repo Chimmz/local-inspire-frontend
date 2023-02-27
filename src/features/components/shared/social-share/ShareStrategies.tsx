@@ -31,16 +31,18 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
     typeof props.pageUrl === 'string' ? props.pageUrl : props.pageUrl(),
   );
   const [userCopiedUrl, setUserCopiedUrl] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  const layouts = useMemo(() => ({ grid: styles.gridLayout }), []);
+  const layouts = useMemo(
+    () => ({ grid: styles.gridLayout, column: styles.columnLayout }),
+    [],
+  );
 
   useEffect(() => {
     setPageUrl(window.location.origin + pageUrl);
-  }, []);
+  }, [setPageUrl]);
 
   return (
-    <div className={props.className || (props.layout === 'grid' ? layouts.grid : '')}>
+    <div className={cls(props.className, props.layout && layouts[props.layout])}>
       <FacebookShareButton url={pageUrl} quote={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"

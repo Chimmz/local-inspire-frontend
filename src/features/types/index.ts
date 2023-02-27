@@ -28,4 +28,5 @@ export interface UserPublicProfile {
   }[];
   collections: Array<UserCollection>;
   followers: string[];
+  createdAt: string;
 }

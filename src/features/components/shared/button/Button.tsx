@@ -28,8 +28,12 @@ function LoadingButton(props: ButtonProps) {
     >
       {isLoading ? (
         <>
-          {withSpinner ? <Spinner animation="border" role="status" /> : null}
-          <span>{textWhileLoading || 'Loading...'}</span>
+          {withSpinner ? (
+            <Spinner animation="border" style={{ borderWidth: '2px' }} role="status" />
+          ) : null}
+          <span className="d-flex align-items-center gap-2">
+            {textWhileLoading || 'Loading...'}
+          </span>
         </>
       ) : (
         children

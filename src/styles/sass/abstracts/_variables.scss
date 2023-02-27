@@ -17,3 +17,13 @@ $text-dark: #242629;
 $line-color: #e7eaf3;
 
 $default-fsize: 1.4rem;
+
+@mixin circle($diameter, $bg, $color) {
+  width: $diameter;
+  height: $diameter;
+  display: grid;
+  place-items: center;
+  background-color: $bg;
+  color: $color;
+  border-radius: 50%;
+}

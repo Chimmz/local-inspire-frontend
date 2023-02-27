@@ -47,32 +47,30 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
     autoStopLoading: true,
   });
 
+  const router = useRouter();
+  const userRecommendYes = router.query.recommend === 'yes';
+  const userIsNeutral = !router.query.recommend;
+
+  const [businessName, location, businessId] = useMemo(() => {
+    return (router.query.newReviewSlug as string).split('_');
+  }, []);
+
   useEffect(() => {
     if (!isSignedIn) return;
     const req = api.getUserReviewOnBusiness(businessId, currentUser.accessToken!);
 
     sendUserReviewReq(req)
       .then(res => {
-        if (res.status === 'SUCCESS' && res.review !== null) {
-          setCurrentUserReview(res.review);
-          setShowReviewedBeforeAlert(true);
-        }
+        if (res.status !== 'SUCCESS' || !res.review) return;
+        setCurrentUserReview(res.review);
+        setShowReviewedBeforeAlert(true);
       })
       .finally(setAttemptedUserReviewFetch.bind(null, true));
-  }, [isSignedIn, currentUser.accessToken]);
+  }, [isSignedIn, currentUser.accessToken, businessId]);
 
   useEffect(() => {
-    if (!props.reviews?.data?.length) return;
-    setReviews(props.reviews.data);
+    if (props.reviews?.data?.length) setReviews(props.reviews.data);
   }, [props?.reviews]);
-
-  const router = useRouter();
-  const userRecommendYes = router.query.recommend === 'yes';
-  const userIsNeutral = !router.query.recommend;
-  const [businessName, location, businessId] = useMemo(
-    () => (router.query.newReviewSlug as string).split('_'),
-    [],
-  );
 
   return (
     <SSRProvider>
@@ -147,18 +145,16 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
                 </section>
               )}
 
-              {!currentUserReview ? (
-                <NewReviewForm
-                  userRecommends={userRecommendYes}
-                  userReview={currentUserReview}
-                  businessId={props.business.data?._id!}
-                  businessName={props.business.data?.businessName!}
-                  sendReviewRequest={sendReviewRequest}
-                  submitting={isSubmittingReview}
-                  readonly={Boolean(currentUserReview)}
-                  slug={props.slug}
-                />
-              ) : null}
+              <NewReviewForm
+                userRecommends={userRecommendYes}
+                userReview={currentUserReview}
+                businessId={props.business.data?._id!}
+                businessName={props.business.data?.businessName!}
+                sendReviewRequest={sendReviewRequest}
+                submitting={isSubmittingReview}
+                readonly={Boolean(currentUserReview)}
+                slug={props.slug}
+              />
             </div>
 
             {/* Recent reviews */}
@@ -204,7 +200,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const res = await api.getBusinessReviews(businessId);
   return {
     props: { reviews: res, business, slug },
-    revalidate: 30000,
+    revalidate: 60000,
   };
 };
 

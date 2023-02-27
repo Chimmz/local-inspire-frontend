@@ -9,8 +9,8 @@ import useRequest from '../../../hooks/useRequest';
 import useSignedInUser from '../../../hooks/useSignedInUser';
 import api from '../../../library/api';
 import { UserPublicProfile } from '../../../types';
-import { simulateRequest } from '../../../utils/async-utils';
 import { quantitize } from '../../../utils/quantity-utils';
+import { genUserProfileUrl } from '../../../utils/url-utils';
 import { getFullName } from '../../../utils/user-utils';
 import LoadingButton from '../../shared/button/Button';
 import styles from './ReviewsSection.module.scss';
@@ -57,17 +57,12 @@ function Liker({ user }: { user: UserPublicProfile }) {
   const { send: sendFollowReq, loading } = useRequest({ autoStopLoading: true });
   const { withAuth } = useMiddleware();
 
-  // const isFollowedByMe = useMemo(() => {
-  //   return isSignedIn ? user.followers.includes(myId!) : false
-  // }, [isSignedIn, myId, user.followers])
-  // : MiddlewareNext
   const handleToggleFollow = async (token: string) => {
-    // await simulateRequest(5, sendFollowReq);
     const res = await sendFollowReq(api.followUser(user._id, token));
     if (res.status === 'SUCCESS') setIsFollowedByMe(res.following);
   };
 
-  const icon = useMemo(
+  const icon: React.ReactNode = useMemo(
     () => (
       <Icon
         icon={`material-symbols:person-${!isFollowedByMe ? 'add' : 'remove'}`}
@@ -90,6 +85,7 @@ function Liker({ user }: { user: UserPublicProfile }) {
           style={{ borderRadius: '50%' }}
         />
       </figure>
+
       <div className="flex-grow-1">
         <h4>
           <strong>{getFullName(user, { lastNameInitial: true })}</strong>
@@ -99,7 +95,14 @@ function Liker({ user }: { user: UserPublicProfile }) {
           Followers
         </small>
       </div>
-      <LoadingButton
+
+      <Link href={genUserProfileUrl(user)} passHref>
+        <a className="btn btn-outline-pry btn--sm">
+          {icon} {!isFollowedByMe ? 'Follow' : 'Unfollow'}
+        </a>
+      </Link>
+
+      {/* <LoadingButton
         className="btn btn-outline-pry btn--sm"
         onClick={() => withAuth(handleToggleFollow)}
         isLoading={loading}
@@ -112,7 +115,7 @@ function Liker({ user }: { user: UserPublicProfile }) {
       >
         {icon}
         {!isFollowedByMe ? 'Follow' : 'Unfollow'}
-      </LoadingButton>
+      </LoadingButton> */}
     </li>
   );
 }

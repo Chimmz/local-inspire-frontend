@@ -37,6 +37,7 @@
     "react-share": "^4.4.1",
     "react-simple-star-rating": "^5.1.7",
     "read-more-react": "^1.0.10",
+    "swr": "^2.0.4",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

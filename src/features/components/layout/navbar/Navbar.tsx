@@ -18,6 +18,8 @@ import SignedInUser from './SignedInUser';
 import MobileBusinessSearchForm from '../../shared/businesses-search/MobileBusinessSearchForm';
 import BusinessSearchForm from '../../shared/businesses-search/BusinessSearchForm';
 import styles from './Navbar.module.scss';
+import useSignedInUser from '../../../hooks/useSignedInUser';
+import Notifications from './Notifications';
 
 export interface NavbarProps {
   bg?: string;
@@ -38,11 +40,8 @@ function Navbar(props: NavbarProps) {
   const [searchModalOpen, setSearchOpen] = useState(false);
   const router = useRouter();
 
-  const { data: authSession } = useSession({
-    required: false,
-    onUnauthenticated() {
-      authData?.showAuthModal?.('login');
-    },
+  const { isSignedIn } = useSignedInUser({
+    onSignOut: authData?.showAuthModal?.bind(null, 'login'),
   });
 
   const {
@@ -134,53 +133,10 @@ function Navbar(props: NavbarProps) {
           <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
         ) : null}
 
-        {authSession ? (
-          <div
-            className={cls(
-              styles.icons,
-              props.justifyIconsRight && 'flex-grow-1 justify-content-end',
-            )}
-          >
-            <NavDropdown
-              className={styles.notifToggler}
-              color="white"
-              title={<Icon icon="ic:baseline-notifications" color="#fff" width={20} />}
-              // align="end"
-            >
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-            </NavDropdown>
-
-            <NavDropdown
-              className={styles.notifToggler}
-              color="white"
-              title={<Icon icon="ic:round-message" color="#fff" width={20} />}
-              // align="end"
-            >
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...
-              </NavDropdown.Item>
-            </NavDropdown>
-          </div>
-        ) : null}
+        <Notifications />
 
         <div className={styles['nav-auth']}>
-          {!authSession ? (
+          {!isSignedIn ? (
             <>
               <button
                 className="btn btn-outline-transp btn--sm"
@@ -196,7 +152,7 @@ function Navbar(props: NavbarProps) {
               </button>
             </>
           ) : null}
-          {authSession ? <SignedInUser /> : null}
+          {isSignedIn ? <SignedInUser /> : null}
         </div>
 
         <div className={styles['nav-breadcrumb']}>

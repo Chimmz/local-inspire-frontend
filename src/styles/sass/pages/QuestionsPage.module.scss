@@ -24,7 +24,6 @@ $row-gap: 2rem;
 
     &:where(ul.questionsList) {
       grid-column: 1 / 2;
-      // margin-bottom: 7rem !important;
 
       & > * {
         padding-block: $row-gap;

@@ -173,10 +173,6 @@ function ReviewsSection(props: Props) {
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
 
-  const handleReportReview = async (reason: string, explanation: string) => {
-    console.log(`Reported ${reviewReportId} because ${reason}. More details: ${explanation}`);
-  };
-
   const openReviewLikers = useCallback(
     function (likers: UserPublicProfile[], reviewerName: string) {
       setReviewLikers({ likers, reviewerName });
@@ -220,6 +216,7 @@ function ReviewsSection(props: Props) {
       {/* All reviews. Paginated and filtered */}
       {reviews?.map(r => (
         <ReviewItem
+          key={r._id}
           {...r}
           show={!!props.reviews?.length && props.show}
           businessName={props.businessName}
@@ -229,7 +226,6 @@ function ReviewsSection(props: Props) {
           openShareModal={(reviewId: string, reviewTitle: string) =>
             setReviewToShare({ _id: reviewId, reviewTitle })
           }
-          key={r._id}
         />
       ))}
 

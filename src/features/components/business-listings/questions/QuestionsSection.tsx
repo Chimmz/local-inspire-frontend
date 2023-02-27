@@ -323,25 +323,3 @@ const QuestionsSection = function (props: Props) {
 };
 
 export default QuestionsSection;
-
-// #include <stdio.h>
-
-// int isDaphneNumber(int n) {
-//     if (n < 0) return 0;
-
-//     int minFactor = NULL, maxFactor=NULL;
-//     int factorsCount = 0;
-//     int i;
-//     for (int i=2; i < n; i++) {
-//         if (n % i != 0) continue;
-//         maxFactor = i;
-//         if (minFactor == NULL) minFactor = i;
-//     }
-//     // Here, both factors will be 0, 0 if n is prime.
-//     if (!minFactor || !maxFactor) return 0;
-
-//     int diff = maxFactor - minFactor;
-//     if (diff * diff < n) return 1;
-
-//     return 0;
-// }

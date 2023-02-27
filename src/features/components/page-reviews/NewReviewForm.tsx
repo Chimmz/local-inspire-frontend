@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -28,6 +28,7 @@ import styles from './NewReviewForm.module.scss';
 import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
 import ShareStrategies from '../shared/social-share/ShareStrategies';
 import { useAuthModalContext } from '../../contexts/AuthContext';
+import { BusinessProps } from '../business-results/Business';
 
 interface Props {
   userReview: ReviewProps | null;
@@ -45,7 +46,9 @@ const AUTH_MODAL_SUBTITLE = 'Choose how you want to post your review.';
 
 function NewReviewForm(props: Props) {
   const { businessId, businessName } = props;
-  const [submitted, setSubmitted] = useState(false);
+  const [submittedReview, setSubmittedReview] = useState<
+    (ReviewProps & { business: Partial<BusinessProps> }) | null
+  >(null);
   const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
   const [mainRating, setMainRating] = useState(0);
   const { setAuthTitle, setAuthSubtitle } = useAuthModalContext();
@@ -56,11 +59,23 @@ function NewReviewForm(props: Props) {
   const past12Months = useMemo(getPast12MonthsWithYear.bind(null), []);
   const { withAuth } = useMiddleware();
 
+  const getUrlToSubmittedReview = useCallback(() => {
+    if (!submittedReview) return '';
+    return urlUtils.genUserReviewPageUrl({
+      reviewTitle,
+      businessName: submittedReview.business.businessName!,
+      city: submittedReview.business.city!,
+      stateCode: submittedReview.business.stateCode!,
+      reviewId: submittedReview._id,
+    });
+  }, [submittedReview]);
+
   const {
     inputValue: reviewTitle,
     handleChange: handleChangeReviewTitle,
     runValidators: runReviewTitleValidators,
     validationErrors: reviewTitleValidationErrors,
+    setInputValue: setReviewTitle,
   } = useInput({
     init: props.userReview?.reviewTitle || '',
     validators: [{ fn: isRequired, params: ['Please enter a brief title'] }],
@@ -71,6 +86,7 @@ function NewReviewForm(props: Props) {
     handleChange: handleChangeMainReview,
     runValidators: runMainReviewValidators,
     validationErrors: mainReviewValidationErrors,
+    setInputValue: setMainReview,
   } = useInput({
     init: props.userReview?.review.join(' ') || '',
     validators: [{ fn: isRequired, params: ['Please enter your review for this business'] }],
@@ -89,6 +105,7 @@ function NewReviewForm(props: Props) {
   const {
     inputValue: visitedWhen,
     handleChange: handleChangeVisitedWhen,
+    setInputValue: setVisitedWhen,
     runValidators: runVisitedWhenValidators,
     validationErrors: visitedWhenValidationErrors,
   } = useInput({
@@ -103,6 +120,7 @@ function NewReviewForm(props: Props) {
     handleChange: handleChangeAdvice,
     runValidators: runAdviceValidators,
     validationErrors: adviceValidationErrors,
+    setInputValue: setAdvice,
   } = useInput({
     init: props.userReview?.adviceToFutureVisitors || '',
     validators: [{ fn: isRequired, params: ['Please enter a brief title'] }],
@@ -144,7 +162,17 @@ function NewReviewForm(props: Props) {
       setAuthTitle!('');
       setAuthSubtitle!('');
     };
-  }, []);
+  }, [setAuthTitle, setAuthSubtitle]);
+
+  useEffect(() => {
+    if (!props.userReview) return;
+    setReviewTitle(props.userReview.reviewTitle);
+    setMainReview(props.userReview.review.join('\n'));
+    setAdvice(props.userReview.adviceToFutureVisitors);
+    setVisitedWhen(
+      props.userReview.visitedWhen.month.concat(' ' + props.userReview.visitedWhen.year),
+    );
+  }, [props.userReview]);
 
   const validateFields = function () {
     const validationResults = [
@@ -166,9 +194,9 @@ function NewReviewForm(props: Props) {
   };
 
   const submitReview: AuthMiddlewareNext = async (token: string) => {
-    const rawFiles = uploads.map(item => item.img.rawFile) as File[];
-    const photoDescriptions = uploads.map(item => item.description) as string[];
     const formData = new FormData();
+    const rawFiles = uploads.map(item => item.img.rawFile!);
+    const photoDescriptions = uploads.map(item => item.description) as string[];
 
     formData.append('businessRating', String(mainRating));
     formData.append('recommends', props.userRecommends ? 'yes' : 'no');
@@ -185,12 +213,13 @@ function NewReviewForm(props: Props) {
       api.reviewBusiness({ businessId, token, formData }),
     );
     console.log(res);
-    if (res?.status === 'SUCCESS') setSubmitted(true);
+    if (res?.status === 'SUCCESS')
+      setSubmittedReview(res.review as ReviewProps & { business: Partial<BusinessProps> });
   };
 
   return (
     <>
-      <Modal show={submitted} centered backdrop="static">
+      <Modal show={!!submittedReview} centered backdrop="static" size="sm">
         <Modal.Body>
           <PageSuccess
             title="Thank you."
@@ -199,12 +228,16 @@ function NewReviewForm(props: Props) {
           />
           <div className="success-actions d-flex flex-column mx-auto gap-3 px-4 pb-4">
             <Link href={urlUtils.genBusinessPageUrl<string>({ slug: props.slug })} passHref>
-              <a className="btn btn--lg btn-pry">Continue</a>
+              <a className="btn btn--lg btn-gray">Continue</a>
             </Link>
-            {/* <ShareStrategies
-            /> */}
-            <button className="btn btn--lg btn-gray">Share on Facebook</button>
-            <button className="btn btn--lg btn-gray">Share on Twitter</button>
+            <ShareStrategies
+              layout="grid"
+              urlCopyOption={false}
+              pageUrl={getUrlToSubmittedReview()}
+              title={reviewTitle}
+            />
+            {/* <button className="btn btn--lg btn-gray">Share on Facebook</button>
+            <button className="btn btn--lg btn-gray">Share on Twitter</button> */}
           </div>
         </Modal.Body>
       </Modal>

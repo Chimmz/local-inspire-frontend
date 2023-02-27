@@ -135,6 +135,18 @@
         &::after {
           display: none;
         }
+        & > .iconBox:not([data-count='0']) {
+          position: relative;
+
+          &::before {
+            content: attr(data-count);
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            font-weight: bold;
+            @include circle(17px, red, #fff);
+          }
+        }
       }
       & > [class*='dropdown-menu'] {
         max-width: 40vw;

@@ -10,10 +10,7 @@ import useSignedInUser from '../../hooks/useSignedInUser';
 import api from '../../library/api';
 
 interface Props {
-  data?: {
-    status: string;
-    businesses: BusinessProps[];
-  };
+  data?: { status: string; businesses: BusinessProps[] };
   page: number;
   allResults?: number;
   type?: string;
@@ -45,9 +42,7 @@ function AllBusinesses(props: Props) {
     sendUserReviewsReq(api.getReviewsMadeByUser(loggedInUser.accessToken!))
       .then(res => {
         if (res?.status !== 'SUCCESS') return;
-        (res.reviews as ReviewProps[]).forEach(r => {
-          normalizedUserReviews[r.business] = r;
-        });
+        for (const r of res.reviews as ReviewProps[]) normalizedUserReviews[r.business] = r;
         setUserReviewLookup(normalizedUserReviews);
       })
       .catch(console.log);
@@ -55,25 +50,20 @@ function AllBusinesses(props: Props) {
 
   useEffect(() => {
     if (Object.keys(peoplesOpinionsAboutBusinesses).length) return; // If opinions have been fetched
+    if (!props.data?.businesses) return;
 
     const businessIds = props.data?.businesses.map(b => b._id);
+    console.log({ businessIds });
     if (!businessIds?.length) return;
 
-    const handleResponse = function (
-      res: Array<{ _id: string; whatPeopleSay: Array<string[]> }> | undefined,
-    ) {
-      console.log(res);
-      if (!Array.isArray(res)) return;
-      const normalizedOpinions: { [businessId: string]: Array<string[]> } = {};
-
-      res.forEach(({ _id: businessId, whatPeopleSay }) => {
-        normalizedOpinions[businessId] = whatPeopleSay;
-      });
-      setPeoplesOpinionsAboutBusinesses(normalizedOpinions);
-    };
-
     sendOpinionsRequest(api.getWhatPeopleSayAboutBusinesses(businessIds))
-      .then(handleResponse)
+      .then((res: { _id: string; whatPeopleSay: string[][] }[] | undefined) => {
+        if (!Array.isArray(res)) return;
+
+        const normalizedOpinions: { [businessId: string]: Array<string[]> } = {};
+        for (const item of res) normalizedOpinions[item._id] = item.whatPeopleSay;
+        setPeoplesOpinionsAboutBusinesses(normalizedOpinions);
+      })
       .catch(console.log);
   }, [props.data?.businesses]);
 
@@ -115,7 +105,6 @@ function AllBusinesses(props: Props) {
             reviewedByCurrentUser={reviewedByUser}
             photoUrl={reviewedByUser ? userReviewLookup[b._id].images[0].photoUrl : undefined}
             userRating={reviewedByUser ? userReviewLookup[b._id].businessRating : undefined}
-            // reviewText={reviewedByUser ? userReviewLookup[b._id].review : undefined}
             whatPeopleSay={peoplesOpinionsAboutBusinesses[b._id]}
           />
         );

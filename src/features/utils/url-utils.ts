@@ -1,4 +1,5 @@
 import { NextRouter } from 'next/router';
+import { UserPublicProfile } from '../types';
 import { toTitleCase } from './string-utils';
 
 type BusinessPageUrlParams<T> = T extends string
@@ -21,7 +22,7 @@ type QuestionDetailsPageUrlParams = (
     }
 ) & { scrollToAnswerForm?: boolean };
 
-type UserReviewPageUrlParams =
+export type UserReviewPageUrlParams =
   | { slug: string }
   | {
       reviewTitle: string;
@@ -189,6 +190,13 @@ export const parseUserReviewPageSlug = (slug: string) => {
     .split('_')
     .map(param => param.trim());
   return { businessName, stateCode, reviewId };
+};
+
+export const genUserProfileUrl = (
+  u: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>,
+) => {
+  const slug = [u.firstName, u.lastName].join('-').toLowerCase().concat('_', u._id);
+  return `/user/${slug}`;
 };
 
 export default navigateTo;

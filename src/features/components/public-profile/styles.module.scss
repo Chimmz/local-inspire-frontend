@@ -1,0 +1,32 @@
+.profileStats {
+  li {
+    display: grid;
+    grid-template-columns: 25ch auto;
+    gap: 2rem;
+
+    &:not(:last-of-type) {
+      margin-bottom: 2rem;
+    }
+
+    & > a {
+      display: grid;
+      grid-template-columns: 40px auto;
+      // gap: 1.5rem;
+    }
+  }
+}
+header.header {
+  grid-column: 1 / -1;
+  grid-row: 1 / 2;
+}
+
+aside.profile {
+}
+
+section.about {
+  grid-row: 3 / 4;
+  grid-column: 1 / 2;
+}
+
+aside.ads {
+}
