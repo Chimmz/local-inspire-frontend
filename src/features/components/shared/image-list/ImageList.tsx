@@ -11,12 +11,11 @@ interface Props {
 }
 
 const ImageList = (props: Props) => {
-  if (!Array.isArray(props.images)) return <></>;
-
   const undisplayedPhotosCount = useMemo(() => {
     return props.images.length - props.displayLimit;
   }, [props.images, props.displayLimit]);
 
+  if (!Array.isArray(props.images)) return <></>;
   return (
     <>
       {props.images.slice(0, props.displayLimit + 1).map((img, i) => {
