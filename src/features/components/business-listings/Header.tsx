@@ -60,10 +60,11 @@ function Header(props: Props) {
   }, [loadUserCollections, isSignedIn]);
 
   const userPreviouslySavedBusiness = useMemo(() => {
+    if (!isSignedIn) return false;
     return userCollections?.some(collec =>
       collec.items.some(i => i.item === props.business?._id),
     );
-  }, [userCollections]);
+  }, [userCollections, isSignedIn]);
 
   const userReviewImages = useMemo(
     () => props.userReview?.images,
@@ -184,7 +185,7 @@ function Header(props: Props) {
                 const isFirstImage = i === 0;
                 const isLastImage = i === userReviewImages.length - 1;
 
-                if (isFirstImage) className = className.concat(' m-0');
+                if (isFirstImage) className = className.concat('m-0');
 
                 const imgUI = (
                   <Image
@@ -206,41 +207,6 @@ function Header(props: Props) {
                   </figure>
                 );
               })}
-              {/* {userReviewImages?.[0] ? (
-                <figure className="position-relative d-block m-0">
-                  <Image
-                    src={userReviewImages?.[0].photoUrl}
-                    layout="fill"
-                    objectFit="cover"
-                    style={{ borderRadius: '3px' }}
-                  />
-                </figure>
-              ) : null}
-
-              {userReviewImages?.[1] ? (
-                <figure className="position-relative d-block">
-                  <Image
-                    src={userReviewImages?.[1]?.photoUrl}
-                    layout="fill"
-                    objectFit="cover"
-                    style={{ borderRadius: '3px' }}
-                  />
-                </figure>
-              ) : null}
-
-              {userReviewImages?.[2] ? (
-                <figure
-                  className="position-relative d-block"
-                  data-remaining-count={'+' + (morePhotosCount || 0)}
-                >
-                  <Image
-                    src={userReviewImages?.[2].photoUrl}
-                    layout="fill"
-                    objectFit="cover"
-                    style={{ borderRadius: '3px' }}
-                  />
-                </figure>
-              ) : null} */}
             </div>
           )}
         </div>

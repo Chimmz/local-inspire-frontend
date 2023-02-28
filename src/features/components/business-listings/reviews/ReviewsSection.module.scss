@@ -91,6 +91,17 @@
     }
   }
 
+  & > .reviewImages {
+    gap: 17px;
+
+    & > .picture {
+      width: 100px;
+      height: 100px;
+      outline: 1px solid #ccc;
+      outline-offset: 5px;
+    }
+  }
+
   & > .reviewFooter {
     display: flex;
     align-items: center;

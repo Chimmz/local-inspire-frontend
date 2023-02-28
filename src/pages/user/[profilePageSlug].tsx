@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage } from 'next';
@@ -43,6 +43,7 @@ interface PageProps {
 
 const UserProfilePage: NextPage<PageProps> = function (props) {
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
+  const [views, setViews] = useState({ updated: false, total: props.user?.profileViews });
 
   const [reviewToShare, setReviewToShare] = useState<{
     _id: string;
@@ -66,6 +67,14 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
     [props.user],
   );
 
+  useEffect(() => {
+    if (!views.updated || !props.user) return;
+
+    api.updateUserProfileViews(props.user._id).then(res => {
+      res?.status !== 'SUCCESS' && setViews({ updated: true, total: res.profileViews });
+    });
+  }, [props.user, views, setViews]);
+
   return (
     <SSRProvider>
       <Head>
@@ -82,6 +91,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               photosUploadedTotal={props.reviews?.data.map(r => r.images)?.length}
               totalReviewsMade={props.reviews?.total}
               followingCount={props.following!}
+              profileViews={views.total}
             />
 
             <Layout.Main className={reviewsSectionStyles.reviewsSection}>

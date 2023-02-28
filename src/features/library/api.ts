@@ -403,6 +403,14 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
+  async updateUserProfileViews(userId: string) {
+    return this._makeRequest({
+      path: `/users/${userId}/profile/views`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', from: 'localinpire_client' },
+    });
+  }
 }
 
 export default new API();

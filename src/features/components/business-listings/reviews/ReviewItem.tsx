@@ -26,6 +26,7 @@ import { genUserReviewPageUrl, UserReviewPageUrlParams } from '../../../utils/ur
 import * as domUtils from '../../../utils/dom-utils';
 import styles from './ReviewsSection.module.scss';
 import useToggle from '../../../hooks/useToggle';
+import ImageList from '../../shared/image-list/ImageList';
 
 type Props = ReviewProps & {
   show: boolean;
@@ -192,7 +193,7 @@ const ReviewItem = function (props: Props) {
         </div>
       </div>
 
-      <Accordion>
+      <Accordion className="mb-5">
         <CustomAccordionToggle
           eventKey="1"
           className="btn btn-bg-none no-bg-hover text-pry"
@@ -238,27 +239,30 @@ const ReviewItem = function (props: Props) {
                 grid
               />
             </div>
-
-            <div
-              className={cls(
-                styles.reviewImages,
-                'd-flex align-items-center flex-wrap gap-2',
-              )}
-              ref={imgsContianerRef}
-            >
-              {props.images.map(img => (
-                <Image
-                  key={img._id}
-                  src={img.photoUrl}
-                  width={REVIEW_IMG_WIDTH}
-                  height={120}
-                  objectFit="cover"
-                />
-              ))}
-            </div>
           </div>
         </Accordion.Collapse>
       </Accordion>
+
+      <div
+        className={cls(styles.reviewImages, 'd-flex align-items-center flex-wrap')}
+        ref={imgsContianerRef}
+      >
+        <ImageList
+          images={props.images.map(img => ({ ...img, src: img.photoUrl }))}
+          displayLimit={4}
+          imageProps={{ layout: 'fill', objectFit: 'cover' }}
+          pictureClassName={styles.picture}
+        />
+        {/* {props.images.map(img => (
+          <Image
+            key={img._id}
+            src={img.photoUrl}
+            width={REVIEW_IMG_WIDTH}
+            height={120}
+            objectFit="cover"
+          />
+        ))} */}
+      </div>
 
       <hr />
 

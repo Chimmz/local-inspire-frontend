@@ -15,6 +15,7 @@ interface Props {
   totalReviewsMade?: number;
   photosUploadedTotal?: number;
   followingCount?: number;
+  profileViews: number | undefined;
 }
 
 const ProfileStats = (props: Props) => {
@@ -78,15 +79,18 @@ const ProfileStats = (props: Props) => {
           {props.followingCount}
         </li>
 
-        <li className="">
-          <Link href={''} passHref>
-            <a className="w-max-content">
-              <Icon icon="ic:baseline-remove-red-eye" width={20} />
-              Profile Views
-            </a>
-          </Link>
-          31
-        </li>
+        {(props.profileViews && props.profileViews >= 0 && (
+          <li className="">
+            <Link href={''} passHref>
+              <a className="w-max-content">
+                <Icon icon="ic:baseline-remove-red-eye" width={20} />
+                Profile Views
+              </a>
+            </Link>
+            {props.profileViews}
+          </li>
+        )) ||
+          null}
       </ul>
     </aside>
   );

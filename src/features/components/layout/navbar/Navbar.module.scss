@@ -124,8 +124,12 @@
     & > * {
       cursor: pointer;
 
+      & svg {
+        transition: color 0.2s;
+      }
+
       &:hover svg {
-        color: $color-sec !important;
+        color: #aaa !important;
       }
     }
     & > .notifToggler {

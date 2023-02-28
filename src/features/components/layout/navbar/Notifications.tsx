@@ -34,10 +34,10 @@ interface MessagesResponse {
 }
 
 const msgsFetcher: Fetcher<MessagesResponse, string> = async function (
-  this: { token: string },
+  this: { token: string; removeMessagesAlert(): void },
   url,
 ) {
-  if (!this.token) return;
+  if (!this.token) return this.removeMessagesAlert();
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -55,7 +55,7 @@ const Notifications = (props: Props) => {
 
   const { data: msgsData, error } = useSWR(
     api._baseUrl?.concat('/messages/unread'),
-    msgsFetcher.bind({ token: accessToken }),
+    msgsFetcher.bind({ token: accessToken, removeMessagesAlert: setMessages.bind(null, []) }),
     { refreshInterval: 30000 },
   );
 
@@ -63,6 +63,10 @@ const Notifications = (props: Props) => {
     console.log('useSWR data changed: ', msgsData);
     if (msgsData?.status === 'SUCCESS') setMessages(msgsData.messages);
   }, [msgsData?.total]);
+
+  useEffect(() => {
+    if (!isSignedIn) setMessages([]);
+  }, [isSignedIn]);
 
   return (
     <div
@@ -98,7 +102,7 @@ const Notifications = (props: Props) => {
         className={styles.notifToggler}
         color="white"
         title={
-          <span className={styles.iconBox} data-count={msgsData?.total || 0}>
+          <span className={styles.iconBox} data-count={messages.length || 0}>
             <Icon icon="ic:round-message" color="#fff" width={20} />
           </span>
         }
