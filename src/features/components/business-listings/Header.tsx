@@ -24,6 +24,7 @@ import useRequest from '../../hooks/useRequest';
 import api from '../../library/api';
 import { ReviewProps } from '../page-reviews/UserReview';
 import useMiddleware from '../../hooks/useMiddleware';
+import ImageList from '../shared/image-list/ImageList';
 
 interface Props {
   businessName: string;
@@ -180,7 +181,12 @@ function Header(props: Props) {
             </div>
           ) : (
             <div className={cls(styles.headerImages, 'flex-grow-1')}>
-              {userReviewImages.map((img, i) => {
+              <ImageList
+                images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
+                displayLimit={4}
+                imageProps={{ layout: 'fill', objectFit: 'cover' }}
+              />
+              {/* {businessImages?.slice(0, 4)?.map((img, i) => {
                 let className = 'position-relative d-block';
                 const isFirstImage = i === 0;
                 const isLastImage = i === userReviewImages.length - 1;
@@ -189,7 +195,7 @@ function Header(props: Props) {
 
                 const imgUI = (
                   <Image
-                    src={img.photoUrl}
+                    src={img.imgUrl}
                     layout="fill"
                     objectFit="cover"
                     style={{ borderRadius: '3px' }}
@@ -200,13 +206,15 @@ function Header(props: Props) {
                 return (
                   <figure
                     className={className}
-                    data-remaining-count={'+' + (morePhotosCount || 0)}
+                    data-remaining-count={
+                      '+' + (businessImages.length - 4 > 0 ? businessImages.length - 4 : 0)
+                    }
                     key={img._id}
                   >
                     {imgUI}
                   </figure>
                 );
-              })}
+              })} */}
             </div>
           )}
         </div>
