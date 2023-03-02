@@ -302,42 +302,21 @@ const BusinessPage: NextPage<Props> = function (props) {
   );
 };
 
-// export const getStaticPaths: GetStaticPaths = async function (context) {
-//   return {
-//     paths: [],
-//     fallback: 'blocking',
-//   };
-// };
-
-export const getServerSideProps: GetServerSideProps = async function (context) {
+export const getStaticProps: GetStaticProps = async function (context) {
   const slug = context.params!.businessPageSlug as string;
   const [businessName, location, businessId] = slug.split('_');
   console.log({ businessName, location, businessId });
 
   const reqs = [
-    api.getBusinessById(businessId), // 0
-    api.getBusinessReviews(businessId, '?sort=-createdAt', { page: 1, limit: 3 }), // 1
+    api.getBusinessById(businessId),
+    api.getBusinessReviews(businessId, '?sort=-createdAt', { page: 1, limit: 3 }),
     api.getQuestionsAskedAboutBusiness(businessId, '?sort=-createdAt&', {
-      // 2
       page: 1,
       limit: 5,
     }),
-    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
-    api.getBusinessOverallRating(businessId), // 4
+    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }),
+    api.getBusinessOverallRating(businessId),
   ];
-
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions as NextAuthOptions,
-  );
-
-  if (session)
-    reqs.push(
-      api.getUserCollections(session.user.accessToken), // 5
-      api.getUserReviewOnBusiness(businessId, session.user.accessToken), // 6
-    );
-
   const responses = await Promise.allSettled(reqs);
   // console.log('Business page responses: ', responses);
   console.log('getUserReviewOnBusiness response: ', responses[6]);
@@ -347,12 +326,6 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     .map(res => res.status === 'fulfilled' && res.value);
 
   // if (!business?.businessName ) return { notFound: true };
-
-  const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
-  const userReviewResponse = responses[6] as {
-    status: string;
-    value: { review: ReviewProps };
-  };
 
   const loc = location.split('-');
   const props: any = {
@@ -371,12 +344,84 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     },
   };
 
-  if (collectionsResponse?.value?.collections) {
-    props.userCollections = collectionsResponse?.value.collections;
-  }
-  if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
-
   return { props };
 };
+
+export const getStaticPaths: GetStaticPaths = context => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+// export const getServerSideProps: GetServerSideProps = async function (context) {
+//   const slug = context.params!.businessPageSlug as string;
+//   const [businessName, location, businessId] = slug.split('_');
+//   console.log({ businessName, location, businessId });
+
+//   const reqs = [
+//     api.getBusinessById(businessId), // 0
+//     api.getBusinessReviews(businessId, '?sort=-createdAt', { page: 1, limit: 3 }), // 1
+//     api.getQuestionsAskedAboutBusiness(businessId, '?sort=-createdAt&', {
+//       // 2
+//       page: 1,
+//       limit: 5,
+//     }),
+//     api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
+//     api.getBusinessOverallRating(businessId), // 4
+//   ];
+
+//   const session = await unstable_getServerSession(
+//     context.req,
+//     context.res,
+//     authOptions as NextAuthOptions,
+//   );
+
+//   if (session)
+//     reqs.push(
+//       api.getUserCollections(session.user.accessToken), // 5
+//       api.getUserReviewOnBusiness(businessId, session.user.accessToken), // 6
+//     );
+
+//   const responses = await Promise.allSettled(reqs);
+//   // console.log('Business page responses: ', responses);
+//   console.log('getUserReviewOnBusiness response: ', responses[6]);
+
+//   const [business, reviews, questions, tips, businessReviewStats] = responses
+//     .filter(res => res.status === 'fulfilled' && res.value)
+//     .map(res => res.status === 'fulfilled' && res.value);
+
+//   // if (!business?.businessName ) return { notFound: true };
+
+//   const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
+//   const userReviewResponse = responses[6] as {
+//     status: string;
+//     value: { review: ReviewProps };
+//   };
+
+//   const loc = location.split('-');
+//   const props: any = {
+//     business: business || {},
+//     reviews: reviews || {},
+//     questions: questions || {},
+//     tips: tips || {},
+//     businessReviewStats: businessReviewStats || {},
+
+//     params: {
+//       businessName: toTitleCase(businessName.replace('-', ' ')),
+//       stateCode: loc.pop(),
+//       city: toTitleCase(loc.join(' ')),
+//       businessId,
+//       slug,
+//     },
+//   };
+
+//   if (collectionsResponse?.value?.collections) {
+//     props.userCollections = collectionsResponse?.value.collections;
+//   }
+//   if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
+
+//   return { props };
+// };
 
 export default BusinessPage;

@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import useToggle from './useToggle';
 
 interface Params<ExpectedResponse> {
   startLoadingInitially?: boolean;
@@ -8,12 +9,14 @@ interface Params<ExpectedResponse> {
 
 function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
   const { autoStopLoading = true, startLoadingInitially = false } = props;
+  const {
+    state: loading,
+    setOn: startLoading,
+    setOff: stopLoading,
+  } = useToggle(startLoadingInitially);
 
-  const [loading, setLoading] = useState(startLoadingInitially);
+  const [loaded, setLoaded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
-
-  const startLoading = useCallback(() => setLoading(true), [setLoading]);
-  const stopLoading = useCallback(() => setLoading(false), [setLoading]);
 
   const send = useCallback(
     async (req: Promise<any>, maxRetries?: number | '~'): Promise<any> => {
@@ -40,12 +43,13 @@ function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
         console.log('Error in useRequest: ', err);
       } finally {
         autoStopLoading && stopLoading();
+        setLoaded(true);
       }
     },
     [startLoading, stopLoading, setIsRetrying],
   );
 
-  return { send, loading, startLoading, stopLoading, isRetrying };
+  return { send, loading, startLoading, stopLoading, loaded, isRetrying };
 }
 
 export default useRequest;

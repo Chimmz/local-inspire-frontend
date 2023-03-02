@@ -40,25 +40,44 @@ function Header(props: Props) {
   const [userCollections, setUserCollections] = useState<UserCollection[] | undefined>(
     props.userCollections,
   );
+  const [userReviewImages, setUserReviewImages] =
+    useState<Array<{ photoUrl: string; description: string; _id: string }>>();
+
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCollectionsModal, setShowCollectionsModal] = useState(false);
 
   const router = useRouter();
-  const { isSignedIn, accessToken } = useSignedInUser();
+  const { isSignedIn, accessToken: token } = useSignedInUser();
   const { withAuth } = useMiddleware();
   const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest({
     autoStopLoading: true,
   });
+  const {
+    send: sendReviewReq,
+    loading: fetchingReviews,
+    loaded: userReviewRequested,
+  } = useRequest({
+    autoStopLoading: true,
+  });
 
   const loadUserCollections = useCallback(async () => {
-    const res = await sendCollectionsReq(api.getUserCollections(accessToken!));
+    const res = await sendCollectionsReq(api.getUserCollections(token!));
     if (res?.status === 'SUCCESS') setUserCollections(res.collections);
-  }, [accessToken, sendCollectionsReq, api.getUserCollections]);
+  }, [token, sendCollectionsReq]);
+
+  const loadUserReview = useCallback(async () => {
+    const req = sendReviewReq(api.getUserReviewOnBusiness(props.business!._id!, token!));
+    req.then(res => res?.status === 'SUCCESS' && setUserReviewImages(res.review.images));
+  }, [isSignedIn, token, props.business?._id]);
 
   useEffect(() => {
-    if ('userCollections' in props) return;
     if (isSignedIn) loadUserCollections();
-  }, [loadUserCollections, isSignedIn]);
+  }, [isSignedIn, loadUserCollections]);
+
+  useEffect(() => {
+    if (!isSignedIn) return setUserReviewImages(undefined); // If user logs out
+    if (props.business?._id) loadUserReview();
+  }, [isSignedIn, props.business?._id]);
 
   const userPreviouslySavedBusiness = useMemo(() => {
     if (!isSignedIn) return false;
@@ -67,17 +86,59 @@ function Header(props: Props) {
     );
   }, [userCollections, isSignedIn]);
 
-  const userReviewImages = useMemo(
-    () => props.userReview?.images,
-    [props.userReview?.images],
-  );
-
   const [businessImages, morePhotosCount] = useMemo(() => {
     return [
       props.business?.images,
-      userReviewImages ? props.business?.images?.slice(userReviewImages.length).length : [],
+      userReviewImages ? props.business?.images?.length! - userReviewImages?.length : 0,
     ];
   }, [props.business?.images]);
+
+  const getImagesToDisplay = useCallback(() => {
+    if (isSignedIn && (fetchingReviews || !userReviewRequested)) return <>Loading...</>;
+
+    if (userReviewImages?.length)
+      return (
+        <div className={cls(styles.headerImages, 'flex-grow-1')}>
+          <ImageList
+            images={userReviewImages?.map(img => ({ ...img, src: img.photoUrl })) || []}
+            limit={4}
+            imageProps={{ layout: 'fill', objectFit: 'cover' }}
+          />
+        </div>
+      );
+    if (props.business?.images)
+      return (
+        <div className={cls(styles.headerImages, 'flex-grow-1')}>
+          <ImageList
+            images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
+            limit={4}
+            imageProps={{ layout: 'fill', objectFit: 'cover' }}
+          />
+        </div>
+      );
+    return (
+      <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
+        <Icon icon="ic:outline-camera-alt" width={35} />
+        <h4 className="text-center">Enhance this page - Upload photos</h4>
+        <Link
+          href={genAddPhotosPageUrl(props.business?._id!, props.business?.businessName!)}
+          passHref
+        >
+          <a href="" className="btn btn-pry mt-3" style={{ color: '#6a6a6a' }}>
+            <Icon icon="material-symbols:photo-camera" width={19} />
+            Add photo
+          </a>
+        </Link>
+      </div>
+    );
+  }, [
+    isSignedIn,
+    fetchingReviews,
+    userReviewRequested,
+    userReviewImages,
+    props.business,
+    props.business?.businessName,
+  ]);
 
   const reviewPageUrl = useMemo(() => {
     return genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null });
@@ -162,7 +223,9 @@ function Header(props: Props) {
             </Link>
           </div>
 
-          {!userReviewImages?.length ? (
+          {getImagesToDisplay()}
+
+          {/* {!businessImages?.length && !userReviewImages?.length ? (
             <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
               <Icon icon="ic:outline-camera-alt" width={35} />
               <h4 className="text-center">Enhance this page - Upload photos</h4>
@@ -181,42 +244,21 @@ function Header(props: Props) {
             </div>
           ) : (
             <div className={cls(styles.headerImages, 'flex-grow-1')}>
-              <ImageList
-                images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
-                displayLimit={4}
-                imageProps={{ layout: 'fill', objectFit: 'cover' }}
-              />
-              {/* {businessImages?.slice(0, 4)?.map((img, i) => {
-                let className = 'position-relative d-block';
-                const isFirstImage = i === 0;
-                const isLastImage = i === userReviewImages.length - 1;
-
-                if (isFirstImage) className = className.concat('m-0');
-
-                const imgUI = (
-                  <Image
-                    src={img.imgUrl}
-                    layout="fill"
-                    objectFit="cover"
-                    style={{ borderRadius: '3px' }}
-                  />
-                );
-                if (!isLastImage) return <figure className={className}>{imgUI}</figure>;
-
-                return (
-                  <figure
-                    className={className}
-                    data-remaining-count={
-                      '+' + (businessImages.length - 4 > 0 ? businessImages.length - 4 : 0)
-                    }
-                    key={img._id}
-                  >
-                    {imgUI}
-                  </figure>
-                );
-              })} */}
-            </div>
-          )}
+              {userReviewImages ? (
+                <ImageList
+                  images={userReviewImages?.map(img => ({ ...img, src: img.photoUrl })) || []}
+                  limit={4}
+                  imageProps={{ layout: 'fill', objectFit: 'cover' }}
+                />
+              ) : (
+                <ImageList
+                  images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
+                  limit={4}
+                  imageProps={{ layout: 'fill', objectFit: 'cover' }}
+                />
+              )}
+            </div> 
+          )}*/}
         </div>
       </header>
 

@@ -1,23 +1,11 @@
-import React, {
-  ChangeEventHandler,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import Image from 'next/image';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import usePaginate from '../../../hooks/usePaginate';
 
 import cls from 'classnames';
 import Tip, { TipProps } from './Tip';
-import navigateTo, {
-  genBusinessPageUrl,
-  genRecommendBusinessPageUrl,
-} from '../../../utils/url-utils';
+import { genRecommendBusinessPageUrl } from '../../../utils/url-utils';
 
 import Paginators from '../../shared/pagination/Paginators';
 import NoReviewsYet from '../reviews/NoReviewsYet';

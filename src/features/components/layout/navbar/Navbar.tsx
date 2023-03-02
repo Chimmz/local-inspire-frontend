@@ -34,6 +34,8 @@ export interface NavbarProps {
 export type AuthType = 'login' | 'register';
 
 function Navbar(props: NavbarProps) {
+  console.log('Evaluating Navbar');
+
   const { bg = '#003366', position, lightLogo = true, withSearchForm = true } = props;
 
   const authData = useAuthModalContext();
@@ -133,7 +135,7 @@ function Navbar(props: NavbarProps) {
           <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
         ) : null}
 
-        <Notifications />
+        {/* <Notifications /> */}
 
         <div className={styles['nav-auth']}>
           {!isSignedIn ? (

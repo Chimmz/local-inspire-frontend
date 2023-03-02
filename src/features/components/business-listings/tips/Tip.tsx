@@ -9,6 +9,7 @@ import { getFullName } from '../../../utils/user-utils';
 import useDate from '../../../hooks/useDate';
 import navigateTo, {
   genRecommendBusinessPageUrl,
+  genUserProfileUrl,
   genUserReviewPageUrl,
 } from '../../../utils/url-utils';
 import { useRouter } from 'next/router';
@@ -60,9 +61,14 @@ const Tip = function (props: Props) {
             style={{ borderRadius: '50%' }}
           />
         </figure>
-        <small className={cls(styles.reviwer, 'fs-4')}>
-          <span className="text-black"> {userName}</span> wrote a review on {reviewDate}
-        </small>
+        <span className={cls(styles.reviewer)}>
+          <Link href={genUserProfileUrl(props.reviewedBy)} passHref>
+            <a className="text-black link">
+              {getFullName(props.reviewedBy, { lastNameInitial: true })}
+            </a>
+          </Link>{' '}
+          wrote a review on {reviewDate}
+        </span>
 
         <small className={styles.location}>
           <Icon icon="material-symbols:location-on" width={15} color="#2c2c2c" />

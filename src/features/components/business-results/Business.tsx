@@ -3,20 +3,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import useSignedInUser from '../../hooks/useSignedInUser';
-import { useRouter } from 'next/router';
-import { NewRegistrationContextProvider } from '../../contexts/NewRegistrationContext';
-import navigateTo, * as urlUtils from '../../utils/url-utils';
-
-import dummyImgs from './dummy-imgs';
+import * as urlUtils from '../../utils/url-utils';
 
 import StarRating from '../shared/star-rating/StarRating';
 import { Icon } from '@iconify/react';
-import Auth from '../auth/Auth';
 import cls from 'classnames';
 import styles from './Business.module.scss';
-import { useAuthModalContext } from '../../contexts/AuthContext';
-import Spinner from '../shared/spinner/Spinner';
-import LoadingButton from '../shared/button/Button';
 import { renderMultiLineText } from '../../utils/dom-utils';
 
 export interface BusinessProps {

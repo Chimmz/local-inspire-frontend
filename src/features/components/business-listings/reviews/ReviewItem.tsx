@@ -22,7 +22,12 @@ import FeatureRating from '../../shared/feature-rating/FeatureRating';
 import StarRating from '../../shared/star-rating/StarRating';
 import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle';
 import { BusinessProps } from '../../business-results/Business';
-import { genUserReviewPageUrl, UserReviewPageUrlParams } from '../../../utils/url-utils';
+import {
+  genBusinessPageUrl,
+  genUserProfileUrl,
+  genUserReviewPageUrl,
+  UserReviewPageUrlParams,
+} from '../../../utils/url-utils';
 import * as domUtils from '../../../utils/dom-utils';
 import styles from './ReviewsSection.module.scss';
 import useToggle from '../../../hooks/useToggle';
@@ -36,6 +41,7 @@ type Props = ReviewProps & {
   openReportModal: (arg: any) => void;
   openShareModal?: (...args: [string, string]) => void;
   openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
+  useNativeLinkToProfile?: boolean;
 };
 
 const REVIEW_IMG_WIDTH = 120;
@@ -136,9 +142,18 @@ const ReviewItem = function (props: Props) {
           objectFit="cover"
           style={{ borderRadius: '50%' }}
         />
-        <small className="">
-          <span className="text-black">{reviewerName}.</span> wrote a review on {reviewDate}
-        </small>
+        <span>
+          {props.useNativeLinkToProfile ? (
+            <a href={genUserProfileUrl(props.reviewedBy)} className="text-black link">
+              {reviewerName}
+            </a>
+          ) : (
+            <Link href={genUserProfileUrl(props.reviewedBy)} passHref>
+              <a className="text-black link">{reviewerName}</a>
+            </Link>
+          )}{' '}
+          wrote a review on {reviewDate}
+        </span>
 
         <small className={cls(styles.location, props.hideLocation && 'd-none')}>
           {props.reviewedBy?.city ? (
@@ -227,8 +242,15 @@ const ReviewItem = function (props: Props) {
             </div>
             <span>
               <small className="text-black">{props.reviewedBy.firstName} </small>
-              {recommendStatusText}
-              <small className="text-black"> {props.businessName}</small>
+              {recommendStatusText}{' '}
+              <Link
+                href={genBusinessPageUrl({
+                  ...props.businessData,
+                  businessId: props.businessData._id,
+                })}
+              >
+                <a className="text-black link">{props.businessData.businessName}</a>
+              </Link>
             </span>
 
             <div className={cls(styles.featureRatings, 'my-5', 'no-bullets')}>
@@ -248,20 +270,14 @@ const ReviewItem = function (props: Props) {
         ref={imgsContianerRef}
       >
         <ImageList
-          images={props.images.map(img => ({ ...img, src: img.photoUrl }))}
-          displayLimit={4}
+          images={useMemo(
+            () => props.images.map(img => ({ ...img, src: img.photoUrl })),
+            [props.images],
+          )}
+          limit={4}
           imageProps={{ layout: 'fill', objectFit: 'cover' }}
           pictureClassName={styles.picture}
         />
-        {/* {props.images.map(img => (
-          <Image
-            key={img._id}
-            src={img.photoUrl}
-            width={REVIEW_IMG_WIDTH}
-            height={120}
-            objectFit="cover"
-          />
-        ))} */}
       </div>
 
       <hr />
@@ -279,11 +295,11 @@ const ReviewItem = function (props: Props) {
         <button
           className="btn bg-none"
           onClick={() => {
-            if (!likes.length) return;
-            props.openReviewLikers(
-              likes.map(like => ({ ...like.user })),
-              reviewerName!,
-            );
+            likes.length &&
+              props.openReviewLikers(
+                likes.map(like => ({ ...like.user })),
+                reviewerName!,
+              );
           }}
         >
           {likes.length

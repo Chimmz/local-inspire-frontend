@@ -66,7 +66,7 @@ const Notifications = (props: Props) => {
 
   useEffect(() => {
     if (!isSignedIn) setMessages([]);
-  }, [isSignedIn]);
+  }, [isSignedIn, setMessages]);
 
   return (
     <div

@@ -68,12 +68,14 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   );
 
   useEffect(() => {
-    if (!views.updated || !props.user) return;
-
-    api.updateUserProfileViews(props.user._id).then(res => {
-      res?.status !== 'SUCCESS' && setViews({ updated: true, total: res.profileViews });
-    });
-  }, [props.user, views, setViews]);
+    // On unmount
+    return () => {
+      if (!props.user) return;
+      api.updateUserProfileViews(props.user._id).then(res => {
+        res?.status === 'SUCCESS' && setViews({ updated: true, total: res.profileViews });
+      });
+    };
+  }, []);
 
   return (
     <SSRProvider>
@@ -108,6 +110,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
                     setReviewToShare({ _id: reviewId, reviewTitle })
                   }
                   hideLocation
+                  useNativeLinkToProfile
                 />
               ))}
             </Layout.Main>
@@ -129,6 +132,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               closeModal={setReviewLikers.bind(null, null)}
               likers={reviewLikers?.likers}
               reviewerName={reviewLikers?.reviewerName}
+              useNativeLinkToProfile
             />
 
             {/* Share review */}

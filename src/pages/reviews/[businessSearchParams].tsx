@@ -87,11 +87,11 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   useEffect(() => {
     setCurrentPage(1);
     const paginators = document.querySelector("[class*='paginators']");
-    const previousActivePaginator = paginators?.querySelector('li.selected');
+    // const previousActivePaginator = paginators?.querySelector('li.selected');
 
     setPropsData(props);
     setPageData(1, props as any);
-  }, [props, setPropsData, setCurrentPage, setPageData, props.pageId]);
+  }, [props, setPropsData, props.pageId]); // Never include setCurrentPage, setPageData in this list
 
   const handlePageChange = async (newPage: number) => {
     setCurrentPage(newPage);

@@ -17,7 +17,7 @@ import CustomAccordionToggle from '../../shared/accordion/CustomAccordionToggle'
 import styles from './QuestionsSection.module.scss';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
 import { BusinessProps } from '../../business-results/Business';
-import { genQuestionDetailsPageUrl } from '../../../utils/url-utils';
+import { genQuestionDetailsPageUrl, genUserProfileUrl } from '../../../utils/url-utils';
 import * as qtyUtils from '../../../utils/quantity-utils';
 import useMiddleware from '../../../hooks/useMiddleware';
 import ReportQA from '../../ReportQA';
@@ -111,9 +111,11 @@ const QuestionItem = function (props: Props) {
         </figure>
 
         <small className="">
-          <span className="text-black">
-            {getFullName(question.askedBy, { lastNameInitial: true })}
-          </span>{' '}
+          <Link href={genUserProfileUrl(question.askedBy)} passHref>
+            <a className="text-black link">
+              {getFullName(question.askedBy, { lastNameInitial: true })}
+            </a>
+          </Link>{' '}
           asked a question on {askedDate}
         </small>
 

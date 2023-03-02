@@ -104,7 +104,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
               <ReviewItem
                 {...review}
                 businessData={props.business!}
-                businessName={'Business Name'}
+                businessName={props.business?.businessName || ''}
                 openReviewLikers={setShowLikersModal.bind(null, true)}
                 openReportModal={() => setShowReportModal(true)}
                 openShareModal={setShowShareModal.bind(null, true)}
@@ -195,17 +195,17 @@ const UserReviewPage: NextPage<Props> = function (props) {
 export const getServerSideProps: GetServerSideProps = async context => {
   try {
     const slug = context.params!.userReviewPageSlug as string;
-    const { reviewId } = parseUserReviewPageSlug(slug);
+    const { reviewId, businessName } = parseUserReviewPageSlug(slug);
 
-    const res1 = await api.getReviewById(reviewId);
-    console.log('res1: ', res1);
-    if (res1.status === 'NOT_FOUND') return { notFound: true };
+    const reviewRes = await api.getReviewById(reviewId);
+    console.log('reviewRes: ', reviewRes);
+    if (reviewRes.status === 'NOT_FOUND') return { notFound: true };
 
-    const res2 = await api.getBusinessById(res1.review.business as string);
-    console.log('res2: ', res2);
+    const businessResponse = await api.getBusinessById(reviewRes.review.business as string);
+    console.log('businessResponse: ', businessResponse);
 
     return {
-      props: { review: res1.review, business: res2.data },
+      props: { review: reviewRes.review, business: businessResponse.data, businessName },
       // revalidate: 10000
     };
   } catch (err) {

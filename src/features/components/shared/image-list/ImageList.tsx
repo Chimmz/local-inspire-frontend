@@ -6,38 +6,41 @@ import styles from './ImageList.module.scss';
 interface Props {
   images: { _id: string; src: string }[];
   imageProps?: Omit<ImageProps, 'src'>;
-  displayLimit: number;
+  limit: number;
   pictureClassName?: string;
 }
 
 const ImageList = (props: Props) => {
   const undisplayedPhotosCount = useMemo(() => {
-    return props.images.length - props.displayLimit;
-  }, [props.images, props.displayLimit]);
+    return props.limit > props.images.length ? 0 : props.images.length - props.limit;
+  }, [props.images, props.limit]);
 
-  if (!Array.isArray(props.images)) return <></>;
+  const imgsToDisplay = useMemo(
+    () => props.images.slice(0, props.limit),
+    [props.images, props.limit],
+  );
+
+  if (!Array.isArray(props.images)) return null;
   return (
     <>
-      {props.images.slice(0, props.displayLimit + 1).map((img, i) => {
+      {imgsToDisplay.map((img, i) => {
         const isFirstImage = i === 0;
-        const isLastImage = i === props.images.length - 1;
+        const isLastImage = i === imgsToDisplay.length - 1;
 
         let pictureClassName = cls(
           'position-relative d-block',
           props.pictureClassName,
-          undisplayedPhotosCount && isLastImage && styles.lastPicture,
+          styles.lastPicture,
         );
 
         if (isFirstImage) pictureClassName = pictureClassName.concat('m-0');
 
         const imgUI = (
           <Image src={img.src} {...props.imageProps} style={{ borderRadius: '3px' }} />
-          // layout="fill" objectFit="cover"
         );
 
         if (!isLastImage) {
           if (props.imageProps?.layout !== 'fill') return imgUI;
-
           return (
             <figure key={img._id} className={pictureClassName}>
               {imgUI}
@@ -46,7 +49,6 @@ const ImageList = (props: Props) => {
         }
 
         if (props.imageProps?.layout !== 'fill') return imgUI;
-
         return (
           <figure
             className={pictureClassName}

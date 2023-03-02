@@ -12,6 +12,7 @@ import api from '../../library/api';
 import {
   genQuestionDetailsPageUrl,
   genRecommendBusinessPageUrl,
+  genUserProfileUrl,
 } from '../../utils/url-utils';
 import { getFullName } from '../../utils/user-utils';
 import { isRequired, minLength } from '../../utils/validators/inputValidators';
@@ -116,7 +117,7 @@ function Question(props: Props) {
           <small className="fs-5 text-light">
             Asked by{' '}
             <strong>
-              <Link href={'/'}>{askedBy}</Link>
+              <Link href={genUserProfileUrl(props.askedBy)}>{askedBy}</Link>
             </strong>{' '}
             on {askedDate}
           </small>

@@ -20,9 +20,12 @@ interface Props {
   likers: UserPublicProfile[] | undefined;
   reviewerName: string | undefined | null;
   closeModal: () => void;
+  useNativeLinkToProfile?: boolean;
 }
 
 const ReviewLikersModal = (props: Props) => {
+  const { isSignedIn, _id: currentUserId } = useSignedInUser();
+
   return (
     <Modal centered scrollable show={props.show} onHide={props.closeModal}>
       <Modal.Header
@@ -40,84 +43,62 @@ const ReviewLikersModal = (props: Props) => {
       </Modal.Header>
       <Modal.Body className="px-5">
         <ul className={styles.reviewLikersList}>
-          {props.likers?.map(user => (
-            <Liker user={user} key={user._id} />
-          ))}
+          {props.likers?.map(user => {
+            const following = isSignedIn ? user.followers.includes(currentUserId!) : false;
+            const icon = (
+              <Icon
+                icon={`material-symbols:person-${!following ? 'add' : 'remove'}`}
+                width={20}
+              />
+            );
+            return (
+              <li
+                className={cls(styles.liker, 'd-flex align-items-center gap-3 py-4')}
+                key={user._id || Math.random() + Math.random()}
+              >
+                <figure
+                  className="position-relative"
+                  style={{ width: '50px', height: '50px' }}
+                >
+                  <Image
+                    src={user.imgUrl}
+                    layout="fill"
+                    objectFit="cover"
+                    style={{ borderRadius: '50%' }}
+                  />
+                </figure>
+
+                <div className="flex-grow-1">
+                  <h4>
+                    <strong>{getFullName(user, { lastNameInitial: true })}</strong>
+                  </h4>
+                  <small>
+                    {quantitize(user.contributions?.length || 0, [
+                      'contribution',
+                      'contributions',
+                    ])}{' '}
+                    • {quantitize(user.followers.length, ['follower', 'followers'])}
+                  </small>
+                </div>
+
+                {props.useNativeLinkToProfile ? (
+                  <a href={genUserProfileUrl(user)} className="btn btn-outline-pry btn--sm">
+                    {icon} {!following ? 'Follow' : 'Unfollow'}
+                  </a>
+                ) : (
+                  <Link href={genUserProfileUrl(user)} passHref>
+                    <a className="btn btn-outline-pry btn--sm">
+                      {icon} {!following ? 'Follow' : 'Unfollow'}
+                    </a>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </Modal.Body>
     </Modal>
   );
 };
-
-function Liker({ user }: { user: UserPublicProfile }) {
-  const [isFollowedByMe, setIsFollowedByMe] = useState(() => {
-    return isSignedIn ? user.followers.includes(myId!) : false;
-  });
-  const { isSignedIn, _id: myId } = useSignedInUser();
-  const { send: sendFollowReq, loading } = useRequest({ autoStopLoading: true });
-  const { withAuth } = useMiddleware();
-
-  const handleToggleFollow = async (token: string) => {
-    const res = await sendFollowReq(api.followUser(user._id, token));
-    if (res.status === 'SUCCESS') setIsFollowedByMe(res.following);
-  };
-
-  const icon: React.ReactNode = useMemo(
-    () => (
-      <Icon
-        icon={`material-symbols:person-${!isFollowedByMe ? 'add' : 'remove'}`}
-        width={20}
-      />
-    ),
-    [isFollowedByMe],
-  );
-
-  return (
-    <li
-      className={cls(styles.liker, 'd-flex align-items-center gap-3 py-4')}
-      key={user._id || Math.random() + Math.random()}
-    >
-      <figure className="position-relative" style={{ width: '50px', height: '50px' }}>
-        <Image
-          src={user.imgUrl}
-          layout="fill"
-          objectFit="cover"
-          style={{ borderRadius: '50%' }}
-        />
-      </figure>
-
-      <div className="flex-grow-1">
-        <h4>
-          <strong>{getFullName(user, { lastNameInitial: true })}</strong>
-        </h4>
-        <small>
-          {quantitize(user.contributions?.length || 0, ['contribution', 'contributions'])} • 0
-          Followers
-        </small>
-      </div>
-
-      <Link href={genUserProfileUrl(user)} passHref>
-        <a className="btn btn-outline-pry btn--sm">
-          {icon} {!isFollowedByMe ? 'Follow' : 'Unfollow'}
-        </a>
-      </Link>
-
-      {/* <LoadingButton
-        className="btn btn-outline-pry btn--sm"
-        onClick={() => withAuth(handleToggleFollow)}
-        isLoading={loading}
-        textWhileLoading={
-          <div className="d-flex gap-4 align-items-center">
-            {icon}
-            <Spinner animation="border" size="sm" style={{ borderWidth: '1px' }} />
-          </div>
-        }
-      >
-        {icon}
-        {!isFollowedByMe ? 'Follow' : 'Unfollow'}
-      </LoadingButton> */}
-    </li>
-  );
-}
 
 export default ReviewLikersModal;

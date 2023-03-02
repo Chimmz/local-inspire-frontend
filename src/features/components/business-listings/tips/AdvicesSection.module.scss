@@ -1,5 +1,6 @@
 .tipsSection {
   border-top: none !important;
+
   & > * {
     padding: 15px;
     background-color: #fff;
@@ -16,15 +17,15 @@
 
     // Not pagination block
     &:not(:last-child) {
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
   }
 }
 
 .adviceHeader {
   display: grid;
-  grid-template-columns: 50px 1fr auto;
-  grid-template-rows: 25px 25px;
+  grid-template-columns: 40px 1fr auto;
+  grid-template-rows: 20px 20px;
   column-gap: 10px;
   margin-bottom: 2rem;
 
@@ -36,7 +37,7 @@
     width: 100%;
   }
 
-  & > .reviwer {
+  & > .reviewer {
     grid-column: 2 / 3;
   }
 

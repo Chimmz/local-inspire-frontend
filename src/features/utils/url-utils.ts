@@ -4,7 +4,13 @@ import { toTitleCase } from './string-utils';
 
 type BusinessPageUrlParams<T> = T extends string
   ? { slug: string }
-  : { businessId?: string; businessName?: string; city?: string; stateCode?: string };
+  : {
+      businessId?: string;
+      businessName?: string;
+      city?: string;
+      stateCode?: string;
+      _id?: string;
+    };
 
 type ParseBusinessSlugOptions = {
   titleCase: boolean;
@@ -89,6 +95,7 @@ const transformBusinessUrlParams = (args: BusinessPageUrlParams<{}>) => {
 
   return {
     ...args,
+    _id: args.businessId || args._id,
     businessName: args.businessName?.toLowerCase().split(' ').join('-'),
     city,
     stateCode,
@@ -103,13 +110,8 @@ export function genRecommendBusinessPageUrl<T>(
     args.recommends !== null ? `?recommend=${args.recommends ? 'yes' : 'no'}` : '';
 
   if ('slug' in args) return `/write-a-review/${args.slug}`.concat(queryStr);
-  const {
-    businessName: name,
-    city,
-    stateCode,
-    businessId: id,
-  } = transformBusinessUrlParams(args);
-  return `/write-a-review/${name}_${city}-${stateCode}_${id}`.concat(queryStr);
+  const { businessName: name, city, stateCode, _id } = transformBusinessUrlParams(args);
+  return `/write-a-review/${name}_${city}-${stateCode}_${_id}`.concat(queryStr);
 }
 
 export function genBusinessPageUrl<T>(
@@ -195,7 +197,10 @@ export const parseUserReviewPageSlug = (slug: string) => {
 export const genUserProfileUrl = (
   u: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>,
 ) => {
-  const slug = [u.firstName, u.lastName].join('-').toLowerCase().concat('_', u._id);
+  const slug = [u.firstName.trim(), u.lastName.trim()]
+    .join('-')
+    .toLowerCase()
+    .concat('_', u._id);
   return `/user/${slug}`;
 };
 

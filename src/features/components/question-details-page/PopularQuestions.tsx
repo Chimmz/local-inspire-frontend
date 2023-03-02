@@ -3,7 +3,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import useDate from '../../hooks/useDate';
 import api from '../../library/api';
 import { renderMultiLineText } from '../../utils/dom-utils';
-import { genQuestionDetailsPageUrl, getBusinessQuestionsUrl } from '../../utils/url-utils';
+import {
+  genQuestionDetailsPageUrl,
+  genUserProfileUrl,
+  getBusinessQuestionsUrl,
+} from '../../utils/url-utils';
 import { getFullName } from '../../utils/user-utils';
 import { QuestionItemProps } from '../business-listings/questions/QuestionItem';
 import { BusinessProps } from '../business-results/Business';
@@ -63,8 +67,10 @@ const PopularQuestions = function (props: Props) {
             </small>
             <small className="d-block mb-3 text-light" style={{ fontSize: '12px' }}>
               Asked by{' '}
-              <Link href={'/'} passHref>
-                <a>{getFullName(q.askedBy, { lastNameInitial: true })}</a>
+              <Link href={genUserProfileUrl(q.askedBy)} passHref>
+                <a className="text-dark link">
+                  {getFullName(q.askedBy, { lastNameInitial: true })}
+                </a>
               </Link>{' '}
               {formatDate(q.createdAt)}
             </small>

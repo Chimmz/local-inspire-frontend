@@ -30,7 +30,11 @@ import useInput from '../../features/hooks/useInput';
 import useRequest from '../../features/hooks/useRequest';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
 import api from '../../features/library/api';
-import { genBusinessPageUrl, getBusinessQuestionsUrl } from '../../features/utils/url-utils';
+import {
+  genBusinessPageUrl,
+  genUserProfileUrl,
+  getBusinessQuestionsUrl,
+} from '../../features/utils/url-utils';
 import { getFullName } from '../../features/utils/user-utils';
 import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
 import ReportQA from '../../features/components/ReportQA';
@@ -68,18 +72,14 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
   const [question, setQuestion] = useState<QuestionItemProps | undefined>(props.question);
   const [answers, setAnswers] = useState<AnswerProps[] | undefined>(props.answers.data);
   const [answersTotal, setAnswersTotal] = useState(props.answers.total);
-
   const [mostHelpfulAnswerId, setMostHelpfulAnswerId] = useState(
     props.answers.mostHelpfulAnswerId,
   );
-
-  const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
-    AnswerProps[]
-  >({ init: { 1: props.answers.data } });
-
+  const { currentPage, setCurrentPage } = usePaginate<AnswerProps[]>({
+    init: { 1: props.answers.data },
+  });
   const { isSignedIn, ...currentUser } = useSignedInUser();
   const { withAuth } = useMiddleware();
-
   // Modals
   const [showNewQuestionSuccessModal, setShowNewQuestionSuccessModal] = useState(false);
   const [answerIdReport, setAnswerIdReport] = useState<string | null>(null);
@@ -286,9 +286,11 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
 
               <div className="" style={{ flexBasis: '80%' }}>
                 <small className="d-block">
-                  <span className="text-black">
-                    {getFullName(question?.askedBy, { lastNameInitial: true })}
-                  </span>{' '}
+                  <Link href={genUserProfileUrl(question!.askedBy)} passHref>
+                    <a className="text-black">
+                      {getFullName(question?.askedBy, { lastNameInitial: true })}
+                    </a>
+                  </Link>{' '}
                   asked a question on {formatDate(question?.createdAt)}
                 </small>
                 <small className={styles.location}>
@@ -313,7 +315,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             </header>
 
             {/* <h3>2 Answers sorted by most helpful</h3> */}
-            <h3>{answersTotal} Answers</h3>
+            <h3>{qtyUtils.quantitize(answersTotal, ['Answer', 'Answers'])} </h3>
 
             <ul className={cls(styles.answersList, 'no-bullets mb-5')}>
               {mostHelpfulAnswer ? (

@@ -18,6 +18,8 @@ import * as qtyUtils from '../../../utils/quantity-utils';
 import AppDropdown from '../../shared/dropdown/AppDropdown';
 import * as domUtils from '../../../utils/dom-utils';
 import AppTooltip from '../../AppTooltip';
+import Link from 'next/link';
+import { genUserProfileUrl } from '../../../utils/url-utils';
 
 export interface AnswerProps {
   _id: string;
@@ -98,11 +100,12 @@ const Answer: React.FC<Props> = function (props) {
         </figure>
         <small className={cls(styles.authorAndDate, 'd-block')}>
           <small>
-            Answer from
-            <span className="text-black">
-              {' '}
-              {getFullName(props.answeredBy, { lastNameInitial: true })}
-            </span>{' '}
+            Answer from{' '}
+            <Link href={genUserProfileUrl(props.answeredBy)} passHref>
+              <a className="text-black link">
+                {getFullName(props.answeredBy, { lastNameInitial: true })}
+              </a>
+            </Link>{' '}
             on {answeredDate}
           </small>
         </small>
