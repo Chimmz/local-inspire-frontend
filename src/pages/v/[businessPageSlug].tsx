@@ -344,7 +344,7 @@ export const getStaticProps: GetStaticProps = async function (context) {
     },
   };
 
-  return { props };
+  return { props, revalidate: 60000 };
 };
 
 export const getStaticPaths: GetStaticPaths = context => {
