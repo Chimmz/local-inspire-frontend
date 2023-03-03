@@ -48,8 +48,7 @@ const REVIEW_IMG_WIDTH = 120;
 
 const ReviewItem = function (props: Props) {
   const [likes, setLikes] = useState(props.likes);
-  const { state: isShowingFullReviewText, toggle: toggleShowFullReviewText } =
-    useToggle(false);
+  const { state: isShowingFullReviewText, toggle: toggleShowFullReviewText } = useToggle(false);
   const imgsContianerRef = useRef<HTMLDivElement | null>(null);
 
   const { withAuth } = useMiddleware();
@@ -76,15 +75,11 @@ const ReviewItem = function (props: Props) {
     ];
   }, [props.review]);
 
-  const handleToggleLikeReview: AuthMiddlewareNext = useCallback(
-    async (token?: string) => {
-      const res = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
-      if (res.status !== 'SUCCESS') return;
-
-      setLikes(res?.likes as { user: UserPublicProfile }[]);
-    },
-    [sendLikeReq, props._id],
-  );
+  const handleToggleLikeReview: AuthMiddlewareNext = async (token?: string) => {
+    const res = await sendLikeReq(api.toggleBusinessReviewHelpful(props._id, token!));
+    if (res.status !== 'SUCCESS') return;
+    setLikes(res?.likes as { user: UserPublicProfile }[]);
+  };
 
   const isLikedByCurrentUser = useMemo(
     () => likes.some(({ user }) => user._id === currentUser?._id!),
@@ -105,7 +100,7 @@ const ReviewItem = function (props: Props) {
     () => (
       <button
         className="btn btn-transp d-flex align-items-center gap-2"
-        onClick={withAuth.bind(null, handleToggleLikeReview)}
+        onClick={() => withAuth(handleToggleLikeReview)}
         disabled={isLiking}
       >
         <Icon
@@ -130,10 +125,7 @@ const ReviewItem = function (props: Props) {
   }, []);
 
   return (
-    <section
-      className={cls(styles.review, props.show ? 'd-block' : 'd-none')}
-      key={props._id}
-    >
+    <section className={cls(styles.review, props.show ? 'd-block' : 'd-none')} key={props._id}>
       <div className={styles.reviewHeader}>
         <Image
           src={props.reviewedBy.imgUrl}
