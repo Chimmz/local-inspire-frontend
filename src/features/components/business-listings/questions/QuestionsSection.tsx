@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -88,18 +88,17 @@ const QuestionsSection = function (props: Props) {
       return domUtils.scrollToElement(sectionRef.current!);
     }
     // Fetch page data
-    const req = api.getQuestionsAskedAboutBusiness(props.business?._id!, undefined, {
+    const req = api.getQuestionsAskedAboutBusiness(props.business?._id!, '?sort=-createdAt', {
       page: newPage,
       limit: QUESTIONS_PER_PAGE,
     });
     const res = await props.sendRequest(req);
-    console.log(res);
 
     if (res.status === 'SUCCESS') {
       setPageData(newPage, res.data); // Populate the new page
       setCurrentPage(newPage); // Make the populated page be the current page
-      domUtils.scrollToElement(sectionRef.current!); // Scroll to the section top
       if (res.total !== questionsCount) setQuestionsCount(res.total); // In case total has changed
+      domUtils.scrollToElement(sectionRef.current!); // Scroll to the section top
     }
   };
 
@@ -107,13 +106,11 @@ const QuestionsSection = function (props: Props) {
     const res = await sendSubmitQuestionReq(
       api.askQuestionAboutBusiness(newQuestion, props.business?._id!, token!),
     );
-    console.log({ res });
-    if (res?.status === 'SUCCESS') {
-      setPageData(1, [res.question, ...getPageData(1)!]);
-      setCurrentPage(1);
-      clearNewQuestionText();
-      btnCloseAccordionRef.current!.click();
-    }
+    if (res?.status !== 'SUCCESS') return;
+    setPageData(1, [res.question, ...getPageData(1)!]);
+    setCurrentPage(1);
+    clearNewQuestionText();
+    btnCloseAccordionRef.current!.click();
   };
 
   const handleSubmitNewQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
@@ -122,18 +119,10 @@ const QuestionsSection = function (props: Props) {
     withAuth(postNewQuestion);
   };
 
-  const handleReportQuestion = async function (reason: string, explanation: string) {
-    console.log(
-      `Reported ${questionIdReport} because ${reason}. More details: ${explanation}`,
-    );
-  };
-
   const totalPages = useMemo(() => {
     const itemsExceedMaxItems = questionsCount >= MAX_ITEMS;
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(questionsCount / QUESTIONS_PER_PAGE);
   }, [questionsCount, MAX_ITEMS, MAX_PAGES, QUESTIONS_PER_PAGE]);
-
-  // console.log({ totalPages });
 
   const questionsPageUrl = useMemo(
     () => getBusinessQuestionsUrl<string>({ slug: props.slug }),
@@ -144,6 +133,16 @@ const QuestionsSection = function (props: Props) {
     (showClassName: string) => (!props.show ? 'd-none' : showClassName),
     [props.show],
   );
+
+  useEffect(() => {
+    const req = api.getQuestionsAskedAboutBusiness(props.business?._id!, '?sort=-createdAt', {
+      page: 1,
+      limit: QUESTIONS_PER_PAGE,
+    });
+    sendSubmitQuestionReq(req).then(
+      res => res?.status === 'SUCCESS' && setPageData(1, res.data),
+    );
+  }, []);
 
   return (
     <section className={styles.questionSection}>

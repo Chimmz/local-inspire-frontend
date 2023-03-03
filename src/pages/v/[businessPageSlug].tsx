@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import React, { useState } from 'react';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import Head from 'next/head';
+import Link from 'next/link';
 // Types
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
 import { TipProps } from '../../features/components/business-listings/tips/Tip';
+import { UserCollection } from '../../features/types';
 // Hooks
 import { useRouter } from 'next/router';
 import useRequest from '../../features/hooks/useRequest';
+// Contexts
+import { BusinessPageContextProvider } from '../../features/contexts/BusinessPageContext';
+import { SSRProvider } from 'react-bootstrap';
 // Utils
 import api from '../../features/library/api';
 import { toTitleCase } from '../../features/utils/string-utils';
@@ -15,7 +21,6 @@ import navigateTo from '../../features/utils/url-utils';
 import cls from 'classnames';
 // Components
 import { Icon } from '@iconify/react';
-import { SSRProvider } from 'react-bootstrap';
 import Layout from '../../features/components/layout';
 import CategoriesNav from '../../features/components/layout/navbar/CategoriesNav';
 import Aside from '../../features/components/business-listings/Aside';
@@ -25,19 +30,10 @@ import QuestionsSection from '../../features/components/business-listings/questi
 import AdvicesSection from '../../features/components/business-listings/tips/AdvicesSection';
 import FeaturedBusinesses from '../../features/components/business-results/FeaturedBusinesses';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import styles from '../../styles/sass/pages/BusinessPage.module.scss';
-import Head from 'next/head';
-import Link from 'next/link';
 import BusinessAmenities from '../../features/components/business-listings/business-amenities/BusinessAmenities';
-import { createContext } from 'vm';
-import {
-  BusinessPageContextProvider,
-  useBusinessPageContext,
-} from '../../features/contexts/BusinessPageContext';
 import RatingStats from '../../features/components/business-listings/overall-rating/RatingStats';
-import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
-import { authOptions } from '../api/auth/[...nextauth]';
-import { UserCollection } from '../../features/types';
+
+import styles from '../../styles/sass/pages/BusinessPage.module.scss';
 
 interface Props {
   reviews: {
@@ -52,24 +48,16 @@ interface Props {
     data?: QuestionItemProps[];
     total: number;
   };
-  tips: {
-    total: number;
-    status: 'SUCCESS' | 'FAIL';
-    data?: TipProps[];
-  };
+  tips: { total: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
+
   businessReviewStats: {
     overallFeatureRatings?: { _id: string; avgRating: number }[];
-    recommendsStats?: {
-      recommends: number;
-      doesNotRecommend: number;
-    };
+    recommendsStats?: { recommends: number; doesNotRecommend: number };
   };
   userCollections?: UserCollection[];
   userReview?: ReviewProps;
 
-  business: {
-    data: BusinessProps | undefined;
-  };
+  business: { data: BusinessProps | undefined };
   params: {
     businessName: string;
     city: string;

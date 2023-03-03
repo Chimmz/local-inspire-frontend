@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  EventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  WheelEventHandler,
+} from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage } from 'next';
@@ -23,10 +30,9 @@ import ReviewLikersModal from '../../features/components/business-listings/revie
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 import ReportQA from '../../features/components/ReportQA';
 import NoReviewsYet from '../../features/components/business-listings/reviews/NoReviewsYet';
-import {
-  genUserReviewPageUrl,
-  UserReviewPageUrlParams,
-} from '../../features/utils/url-utils';
+import { genUserReviewPageUrl, UserReviewPageUrlParams } from '../../features/utils/url-utils';
+import useRequest from '../../features/hooks/useRequest';
+import usePaginate from '../../features/hooks/usePaginate';
 
 interface PageProps {
   status?: 'SUCCESS' | 'ERROR';
@@ -35,16 +41,19 @@ interface PageProps {
     data: Array<
       ReviewProps & { business: Pick<BusinessProps, 'city' | 'businessName' | 'stateCode'> }
     >;
+    results: number;
     total: number;
   };
-  businessReviewsCount?: Array<{ [businessId: string]: number }>;
+  businessReviewersCount?: Array<{ [businessId: string]: number }>;
   following?: number;
 }
 
-const UserProfilePage: NextPage<PageProps> = function (props) {
-  const [reviewReportId, setReviewReportId] = useState<string | null>(null);
-  const [views, setViews] = useState({ updated: false, total: props.user?.profileViews });
+const MAX_REVIEWS_TO_FETCH = 3;
 
+const UserProfilePage: NextPage<PageProps> = function (props) {
+  const [reviews, setReviews] = useState(props.reviews);
+  const [views, setViews] = useState({ updated: false, total: props.user?.profileViews });
+  const [reviewReportId, setReviewReportId] = useState<string | null>(null);
   const [reviewToShare, setReviewToShare] = useState<{
     _id: string;
     reviewTitle: string;
@@ -55,8 +64,63 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
     reviewerName: string;
   }>(null);
 
+  const { currentPage, setCurrentPage } = usePaginate({ init: [], defaultCurrentPage: 1 });
+  const [scrollHandlers, setScrollHandlers] = useState<any[]>([]);
+  const { send: sendReviewsReq, loading: isLoadingReviews } = useRequest();
+
+  const shouldLoadMoreData = useMemo(() => {
+    return !reviews ? true : reviews.data.length < reviews.total;
+  }, [reviews, reviews?.data.length, reviews?.total]);
+
+  const loadReviews = (page: number) => {
+    if (!props.user) return;
+    const isFirstLoad = currentPage === 1;
+
+    if (!shouldLoadMoreData) return;
+
+    const req = api.getReviewsMadeByUser(props.user?._id, {
+      page,
+      limit: MAX_REVIEWS_TO_FETCH,
+    });
+    sendReviewsReq(req).then(res => {
+      if (res?.status !== 'SUCCESS') return;
+      if (isFirstLoad) setReviews(res);
+      else setReviews({ ...res, data: [...(reviews?.data || []), ...res.data] });
+    });
+  };
+
+  useEffect(() => {
+    const handleScroll = function (this: Window, ev: Event) {
+      const isAtBottom = this.innerHeight + this.scrollY === document.body.offsetHeight;
+
+      if (!isAtBottom || !shouldLoadMoreData || isLoadingReviews) return;
+      setCurrentPage(currentPage + 1);
+    };
+    window.addEventListener('scroll', handleScroll);
+
+    setScrollHandlers(handlers => {
+      handlers.forEach(h => window.removeEventListener('scroll', h)); // Stop listening to previous listeners
+      return [handleScroll]; // Only current listener
+    });
+  }, [currentPage]);
+
+  useEffect(() => {
+    loadReviews(currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    // On unmount
+    return () => {
+      if (props.user)
+        api.updateUserProfileViews(props.user._id).then(res => {
+          res?.status === 'SUCCESS' && setViews({ updated: true, total: res.profileViews });
+        });
+      scrollHandlers.forEach(handler => window.removeEventListener('scroll', handler));
+    };
+  }, []);
+
   const openReviewLikers = useCallback(
-    function (likers: UserPublicProfile[], reviewerName: string) {
+    (likers: UserPublicProfile[], reviewerName: string) => {
       setReviewLikers({ likers, reviewerName });
     },
     [setReviewLikers],
@@ -66,16 +130,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
     () => getFullName(props.user, { lastNameInitial: true }),
     [props.user],
   );
-
-  useEffect(() => {
-    // On unmount
-    return () => {
-      if (!props.user) return;
-      api.updateUserProfileViews(props.user._id).then(res => {
-        res?.status === 'SUCCESS' && setViews({ updated: true, total: res.profileViews });
-      });
-    };
-  }, []);
 
   return (
     <SSRProvider>
@@ -90,14 +144,14 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
 
             <ProfileStats
               user={props.user}
-              photosUploadedTotal={props.reviews?.data.map(r => r.images)?.length}
-              totalReviewsMade={props.reviews?.total}
+              photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
+              totalReviewsMade={reviews?.total}
               followingCount={props.following!}
               profileViews={views.total}
             />
 
             <Layout.Main className={reviewsSectionStyles.reviewsSection}>
-              {props.reviews?.data.map(r => (
+              {reviews?.data.map(r => (
                 <ReviewItem
                   show
                   key={r._id}
@@ -141,7 +195,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               pageUrl={() => {
                 if (props.business && reviewToShare)
                   return genUserReviewPageUrl({
-                    ...props.reviews?.data?.[0].business!,
+                    ...reviews?.data?.[0].business!,
                     reviewId: reviewToShare?._id!,
                     reviewTitle: reviewToShare?.reviewTitle!,
                   });
@@ -167,18 +221,25 @@ export const getStaticPaths: GetStaticPaths = function (context) {
   };
 };
 
-export const getStaticProps: GetStaticProps = async function (
-  context: GetStaticPropsContext,
-) {
+export const getStaticProps: GetStaticProps = async function (context: GetStaticPropsContext) {
   try {
     const [, userId] = (context.params!.profilePageSlug as string).split('_');
-    const profile = await api.getUserPublicProfile(userId);
+    const responses = await Promise.allSettled([
+      api.getUserPublicProfile(userId),
+      api.getReviewsMadeByUser(userId, { page: 1, limit: MAX_REVIEWS_TO_FETCH }),
+    ]);
+
+    const [profile, reviews] = responses
+      .filter(res => res.status === 'fulfilled' && res.value)
+      .map(res => res.status === 'fulfilled' && res.value);
+
+    console.log({ profile, reviews });
 
     if (profile.status === 'NOT_FOUND') return { notFound: true };
     if (profile.status === 'ERROR') throw Error(profile);
 
     return {
-      props: profile,
+      props: { ...profile, reviews },
       revalidate: 60000,
     };
   } catch (err) {

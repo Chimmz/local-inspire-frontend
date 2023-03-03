@@ -7,16 +7,15 @@ interface Params<ExpectedResponse> {
   checkPositiveResponse?: (res: ExpectedResponse) => boolean;
 }
 
-function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
-  const { autoStopLoading = true, startLoadingInitially = false } = props;
-  const {
-    state: loading,
-    setOn: startLoading,
-    setOff: stopLoading,
-  } = useToggle(startLoadingInitially);
+function useRequest<ExpectedResponse>(args?: Params<ExpectedResponse>) {
+  const autoStopLoading = args?.autoStopLoading;
 
+  const [loading, setLoading] = useState(args?.startLoadingInitially || false);
   const [loaded, setLoaded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+
+  const startLoading = useCallback(() => setLoading(true), [setLoading]);
+  const stopLoading = useCallback(() => setLoading(false), [setLoading]);
 
   const send = useCallback(
     async (req: Promise<any>, maxRetries?: number | '~'): Promise<any> => {
@@ -24,12 +23,18 @@ function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
 
       try {
         const data = await req;
-        if (!maxRetries) return data;
+
+        if (!maxRetries) {
+          setLoaded(true);
+          if (args?.autoStopLoading === false) return data;
+          stopLoading();
+          return data;
+        }
 
         // Base case for recursion
         if (
           (typeof maxRetries === 'number' && maxRetries < 1) ||
-          (maxRetries === '~' && props.checkPositiveResponse?.(data))
+          (maxRetries === '~' && args?.checkPositiveResponse?.(data))
         ) {
           setIsRetrying(false);
           return data;
@@ -42,8 +47,9 @@ function useRequest<ExpectedResponse>(props: Params<ExpectedResponse>) {
       } catch (err) {
         console.log('Error in useRequest: ', err);
       } finally {
-        autoStopLoading && stopLoading();
         setLoaded(true);
+        if (args?.autoStopLoading === false) return;
+        stopLoading();
       }
     },
     [startLoading, stopLoading, setIsRetrying],

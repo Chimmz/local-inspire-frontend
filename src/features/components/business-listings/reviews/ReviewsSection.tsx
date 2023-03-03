@@ -130,23 +130,28 @@ function ReviewsSection(props: Props) {
     setQueryString(queryStr.slice(0, -1));
   }, [filters.length]);
 
-  const filterReviews = async (opts?: { page: number; limit: number }) => {
+  const filterReviews = async (opts?: {
+    page: number;
+    limit: number;
+    onFilterScrollToSection?: boolean;
+  }) => {
     const req = api.getBusinessReviews(props.businessId, queryStr, opts);
     const res = await props.sendRequest(sendFilterReq(req));
 
-    if (res?.status === 'SUCCESS') {
-      console.log({ 'res.data': res.data });
-      setReviews(res.data);
-      setTotalReviewsCount(res.total); // In case there are new reviews in the DB
-      domUtils.scrollToElement(sectionRef.current!);
-    }
+    if (res?.status !== 'SUCCESS') return;
+    console.log({ 'res.data': res.data });
+    setReviews(res.data);
+    setTotalReviewsCount(res.total); // In case there are new reviews in the DB
+    if (opts?.onFilterScrollToSection) domUtils.scrollToElement(sectionRef.current!);
   };
 
   useEffect(() => {
-    if (queryStr.length) {
-      filterReviews();
-      return;
-    } else if (!props.reviews) return;
+    filterReviews({ page: 1, limit: REVIEWS_PER_PAGE, onFilterScrollToSection: false });
+  }, []);
+
+  useEffect((): any => {
+    if (queryStr.length) return filterReviews();
+    else if (!props.reviews) return;
     setReviews(props.reviews);
     setTotalReviewsCount(props.totalReviewsCount);
   }, [queryStr]);
@@ -165,7 +170,7 @@ function ReviewsSection(props: Props) {
   };
 
   const handlePageChange = async (newPage: number) => {
-    filterReviews({ page: newPage, limit: REVIEWS_PER_PAGE });
+    filterReviews({ page: newPage, limit: REVIEWS_PER_PAGE, onFilterScrollToSection: true });
   };
 
   const totalPages = useMemo(() => {

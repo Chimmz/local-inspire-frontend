@@ -215,11 +215,17 @@ class API {
     });
   }
 
-  async getReviewsMadeByUser(token: string) {
+  async getReviewsMadeByUser(
+    userId: string,
+    opts?: { page: number; limit: number; populate?: boolean },
+  ) {
     return this._makeRequest({
-      path: `/reviews/made-by-user`,
+      path: `/reviews/made-by/${userId}?`
+        .concat(opts?.page ? `page=${opts.page}` : '')
+        .concat(opts?.limit ? `&limit=${opts.limit}` : '')
+        .concat(opts?.populate ? `&populate=${opts.populate}` : ''),
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 

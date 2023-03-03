@@ -39,7 +39,7 @@ function AllBusinesses(props: Props) {
     if (!loggedInUser.isSignedIn) return;
     const normalizedUserReviews: { [businessId: string]: ReviewProps } = {};
 
-    sendUserReviewsReq(api.getReviewsMadeByUser(loggedInUser.accessToken!))
+    sendUserReviewsReq(api.getReviewsMadeByUser(loggedInUser._id!))
       .then(res => {
         if (res?.status !== 'SUCCESS') return;
         for (const r of res.reviews as ReviewProps[]) normalizedUserReviews[r.business] = r;

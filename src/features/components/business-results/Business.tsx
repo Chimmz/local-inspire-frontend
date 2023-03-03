@@ -53,7 +53,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
   const { businessName, address, featured = false, serialNo } = props;
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
-  const { isSignedIn, ...user } = useSignedInUser({});
+  const { isSignedIn } = useSignedInUser({});
 
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 
@@ -75,9 +75,9 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
 
     return props.whatPeopleSay.slice(0, 2).map(reviewText => {
       const reviewStr = reviewText.join(' ');
-      const first7Words = reviewStr.split(' ').slice(0, 7).join(' ');
+      const first15Words = reviewStr.split(' ').slice(0, 15).join(' ');
 
-      return first7Words.length < reviewStr.length ? first7Words.concat('...') : first7Words;
+      return first15Words.length < reviewStr.length ? first15Words.concat('...') : first15Words;
     });
   }, [props.whatPeopleSay]);
 
@@ -110,12 +110,7 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
 
             {!featured ? (
               <address className="d-flex align-items-center gap-1">
-                <Icon
-                  icon="material-symbols:location-on"
-                  width="17"
-                  height="17"
-                  color="#777"
-                />
+                <Icon icon="material-symbols:location-on" width="17" height="17" color="#777" />
                 <small>{address?.replace('<br/>', '\n') || 'No address available'}</small>
               </address>
             ) : null}

@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState, FormEventHandler } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import useInput from '../../hooks/useInput';
 import useRequest from '../../hooks/useRequest';
 import useMiddleware from '../../hooks/useMiddleware';
 
-import { minLength } from '../../utils/validators/inputValidators';
+import { isRequired, minLength } from '../../utils/validators/inputValidators';
 
 import { Icon } from '@iconify/react';
 import TextInput from '../shared/text-input/TextInput';
@@ -43,12 +43,7 @@ function Aside(props: Props) {
     clearInput: clearQuestion,
   } = useInput({
     init: '',
-    validators: [
-      {
-        fn: minLength,
-        params: [MIN_QUE_LENGTH, `Please enter up to ${MIN_QUE_LENGTH} characters`],
-      },
-    ],
+    validators: [{ fn: isRequired, params: ['Cannot be empty'] }],
   });
 
   const handleSubmitQuestion: React.FormEventHandler<HTMLFormElement> = ev => {
