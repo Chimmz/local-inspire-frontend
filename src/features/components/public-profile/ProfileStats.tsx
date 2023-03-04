@@ -223,7 +223,7 @@ const ProfileStats = (props: Props) => {
             label={
               <>
                 <span className="text-black mb-3 d-block">
-                  Please let us know what's inappropriate about this profile.
+                  Please let us know what&apos;s inappropriate about this profile.
                 </span>
                 <small className="text-light">
                   (e.g. headline, about me, profile photo, spammer, etc.)
