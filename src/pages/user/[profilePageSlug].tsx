@@ -144,15 +144,18 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
           <div className={cls(styles.container, 'container flex-grow-1')}>
             <ProfileHeader user={props.user} followingCount={props.following} />
 
-            <ProfileStats
-              user={props.user}
-              photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
-              totalReviewsMade={reviews?.total}
-              totalHelfulVotes={props.helpfulVotes}
-              followingCount={props.following!}
-              profileViews={views.total}
-              showSpinner={setSpinnerShown}
-            />
+            <div className={styles.profileInfo}>
+              <ProfileStats
+                user={props.user}
+                photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
+                totalReviewsMade={reviews?.total}
+                totalHelfulVotes={props.helpfulVotes}
+                followingCount={props.following!}
+                profileViews={views.total}
+                showSpinner={setSpinnerShown}
+              />
+              <ProfileAbout user={props.user} />
+            </div>
 
             <Layout.Main className={reviewsSectionStyles.reviewsSection}>
               {reviews?.data.map(r => (
@@ -209,8 +212,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               close={setReviewToShare.bind(null, null)}
               title={reviewToShare?.reviewTitle!}
             /> */}
-
-            <ProfileAbout user={props.user} />
           </div>
         </div>
       </Layout>

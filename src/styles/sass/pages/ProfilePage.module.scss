@@ -1,15 +1,16 @@
 .container {
-  $row-gap: 1rem;
+  $gutter: 1rem;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: repeat(3, auto);
   grid-auto-flow: row dense;
   align-items: start;
-  gap: $row-gap;
-  padding-block: $row-gap;
+  gap: $gutter;
+  padding-block: $gutter;
 
   & > * {
-    &:not(main) {
-      // padding-block: $row-gap;
+    &:not(main, [class*='profileInfo']) {
+      // padding-block: $gutter;
       background-color: #fff;
       border: 1px solid $line-color;
       padding: 2rem;
@@ -17,6 +18,28 @@
 
     &:where(main) {
       grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      display: flex;
+      flex-direction: column;
+      gap: $gutter;
+
+      & > * {
+        border: 1px solid $line-color;
+        margin: 0 !important;
+      }
+    }
+
+    &.profileInfo {
+      display: flex;
+      flex-direction: column;
+      gap: $gutter;
+      // background-color: transparent;
+
+      & > * {
+        background-color: #fff;
+        border: 1px solid $line-color;
+        padding: 2rem;
+      }
     }
   }
 

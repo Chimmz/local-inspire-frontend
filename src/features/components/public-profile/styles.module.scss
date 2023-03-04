@@ -20,12 +20,21 @@ header.header {
   grid-row: 1 / 2;
 }
 
-aside.profile {
-}
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 
-section.about {
-  grid-row: 3 / 4;
-  grid-column: 1 / 2;
+  aside.profileStats {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+  }
+
+  section.about {
+    // grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    // transform: translateY(calc(100%));
+  }
 }
 
 aside.ads {
