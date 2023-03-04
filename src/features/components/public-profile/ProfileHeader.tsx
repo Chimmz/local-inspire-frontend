@@ -24,7 +24,7 @@ function ProfileHeader({ user, followingCount }: Props) {
   const [showMsgModal, setShowMsgModal] = useState(false);
 
   const { isSignedIn, _id: currentUserId } = useSignedInUser();
-  const { send: sendFollowReq, loading } = useRequest({ autoStopLoading: true });
+  const { send: sendFollowReq, loading } = useRequest();
   const { withAuth } = useMiddleware();
 
   const handleToggleFollow = () => {
@@ -40,12 +40,9 @@ function ProfileHeader({ user, followingCount }: Props) {
 
   const userName = useMemo(() => getFullName(user, { full: true }), [user]);
 
-  const btnFollowIcon: React.ReactNode = useMemo(
+  const btnFollowIcon = useMemo(
     () => (
-      <Icon
-        icon={`material-symbols:person-${!isFollowedByMe ? 'add' : 'remove'}`}
-        width={20}
-      />
+      <Icon icon={`material-symbols:person-${!isFollowedByMe ? 'add' : 'remove'}`} width={20} />
     ),
     [isFollowedByMe],
   );
@@ -76,8 +73,7 @@ function ProfileHeader({ user, followingCount }: Props) {
             </li>
             <li>
               <span className="text-uppercase text-light fs-5">Following</span>
-              <br />{' '}
-              <span className="fs-3"> {followingCount?.toString().padStart(2, '0')}</span>
+              <br /> <span className="fs-3"> {followingCount?.toString().padStart(2, '0')}</span>
             </li>
             <li>
               <span className="text-uppercase text-light fs-5">Followers</span>

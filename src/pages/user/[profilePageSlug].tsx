@@ -33,6 +33,7 @@ import NoReviewsYet from '../../features/components/business-listings/reviews/No
 import { genUserReviewPageUrl, UserReviewPageUrlParams } from '../../features/utils/url-utils';
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
+import Spinner from '../../features/components/shared/spinner/Spinner';
 
 interface PageProps {
   status?: 'SUCCESS' | 'ERROR';
@@ -44,6 +45,7 @@ interface PageProps {
     results: number;
     total: number;
   };
+  helpfulVotes: number;
   businessReviewersCount?: Array<{ [businessId: string]: number }>;
   following?: number;
 }
@@ -63,6 +65,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
     likers: UserPublicProfile[];
     reviewerName: string;
   }>(null);
+  const [spinnerShown, setSpinnerShown] = useState(false);
 
   const { currentPage, setCurrentPage } = usePaginate({ init: [], defaultCurrentPage: 1 });
   const [scrollHandlers, setScrollHandlers] = useState<any[]>([]);
@@ -133,6 +136,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
 
   return (
     <SSRProvider>
+      <Spinner show={spinnerShown} pageWide />
       <Head>
         <title>{`${userName}. reviews, photos and more`}</title>
       </Head>
@@ -146,8 +150,10 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               user={props.user}
               photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
               totalReviewsMade={reviews?.total}
+              totalHelfulVotes={props.helpfulVotes}
               followingCount={props.following!}
               profileViews={views.total}
+              showSpinner={setSpinnerShown}
             />
 
             <Layout.Main className={reviewsSectionStyles.reviewsSection}>

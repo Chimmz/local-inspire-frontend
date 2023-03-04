@@ -42,7 +42,6 @@ const MessageModal = function (props: MsgModalProps) {
   const handleSendMsg: FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
     if (runNewMessageValidators().errorExists) return;
-
     const res = await sendReq(api.sendMessage(newMessage, props.recipient._id, accessToken!));
     switch (res.status) {
       case 'SUCCESS':

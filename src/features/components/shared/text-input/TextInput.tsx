@@ -12,7 +12,7 @@ interface TextInputProps {
   style?: React.CSSProperties;
   readonly?: boolean;
   validationErrors?: ValidationFeedback[];
-  label?: string;
+  label?: React.ReactNode;
   autoFocus?: boolean;
   onFocusSelect?: boolean;
   onInput?: React.ChangeEventHandler<HTMLInputElement> | (() => void);

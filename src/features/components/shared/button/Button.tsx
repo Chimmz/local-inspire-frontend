@@ -12,8 +12,7 @@ interface ButtonProps {
 }
 
 function LoadingButton(props: ButtonProps) {
-  const { isLoading, disabled, withSpinner, textWhileLoading, children, ...otherProps } =
-    props;
+  const { isLoading, disabled, withSpinner, textWhileLoading, children, ...otherProps } = props;
 
   return (
     <button
@@ -29,7 +28,7 @@ function LoadingButton(props: ButtonProps) {
       {isLoading ? (
         <>
           {withSpinner ? (
-            <Spinner animation="border" style={{ borderWidth: '2px' }} role="status" />
+            <Spinner animation="border" style={{ borderWidth: '1px' }} role="status" />
           ) : null}
           <span className="d-flex align-items-center gap-2">
             {textWhileLoading || 'Loading...'}

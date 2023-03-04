@@ -8,7 +8,7 @@
       margin-bottom: 2rem;
     }
 
-    & > a {
+    & > *:where(a, button) {
       display: grid;
       grid-template-columns: 40px auto;
       // gap: 1.5rem;

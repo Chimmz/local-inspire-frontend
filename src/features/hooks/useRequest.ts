@@ -8,8 +8,7 @@ interface Params<ExpectedResponse> {
 }
 
 function useRequest<ExpectedResponse>(args?: Params<ExpectedResponse>) {
-  const autoStopLoading = args?.autoStopLoading;
-
+  const [response, setResponse] = useState<{ [key: string]: string } | null>(null);
   const [loading, setLoading] = useState(args?.startLoadingInitially || false);
   const [loaded, setLoaded] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -23,11 +22,11 @@ function useRequest<ExpectedResponse>(args?: Params<ExpectedResponse>) {
 
       try {
         const data = await req;
+        setResponse(data);
 
         if (!maxRetries) {
           setLoaded(true);
-          if (args?.autoStopLoading === false) return data;
-          stopLoading();
+          if (args?.autoStopLoading !== false) stopLoading();
           return data;
         }
 
@@ -55,7 +54,7 @@ function useRequest<ExpectedResponse>(args?: Params<ExpectedResponse>) {
     [startLoading, stopLoading, setIsRetrying],
   );
 
-  return { send, loading, startLoading, stopLoading, loaded, isRetrying };
+  return { send, response, loading, startLoading, stopLoading, loaded, isRetrying };
 }
 
 export default useRequest;

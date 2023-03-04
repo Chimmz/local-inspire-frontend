@@ -239,8 +239,8 @@ class API {
 
   async toggleBusinessReviewHelpful(businessId: string, token: string) {
     return this._makeRequest({
-      path: `/businesses/reviews/${businessId}/like`,
-      method: 'POST',
+      path: `/reviews/${businessId}/like`,
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
@@ -263,11 +263,7 @@ class API {
     });
   }
 
-  async toggleLikeAnswerToBusinessQuestion(
-    questionId: string,
-    answerId: string,
-    token: string,
-  ) {
+  async toggleLikeAnswerToBusinessQuestion(questionId: string, answerId: string, token: string) {
     return this._makeRequest({
       path: `/questions/${questionId}/answers/${answerId}/like`,
       method: 'POST',
@@ -341,11 +337,14 @@ class API {
     });
   }
 
-  async report(body: object, token: string) {
+  async report(
+    body: { reportedId: string; reason: string; explanation?: string },
+    token: string,
+  ) {
     return this._makeRequest({
       path: '/report',
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, reported: body.reportedId }),
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
@@ -414,7 +413,23 @@ class API {
     return this._makeRequest({
       path: `/users/${userId}/profile/views`,
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', from: 'localinpire_client' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async getPeopleBlockedByUser(token: string) {
+    return this._makeRequest({
+      path: `/users/blocked`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async toggleBlockUser(userId: string, token: string) {
+    return this._makeRequest({
+      path: `/users/${userId}/block`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
 }

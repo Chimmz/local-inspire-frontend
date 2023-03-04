@@ -63,13 +63,12 @@ const ReportQA = function (props: ReportQAProps) {
     };
 
     const body = {
-      reportedObject: props.reportObjectId,
+      reportedId: props.reportObjectId,
       model: modelMap[props.reportType],
       reason,
-      moreExplanation: explanation,
+      explanation,
     };
     console.log(body);
-
     const res = await sendReportReq(api.report(body, currentUser.accessToken!));
     setReportSubmitted(res?.status === 'SUCCESS');
   };
@@ -127,9 +126,7 @@ const ReportQA = function (props: ReportQAProps) {
                 isLoading={isReporting}
                 className="btn btn-pry"
                 onClick={handleSubmitClick}
-                textWhileLoading={
-                  <Spinner animation="border" style={{ borderWidth: '2px' }} />
-                }
+                textWhileLoading={<Spinner animation="border" style={{ borderWidth: '2px' }} />}
               >
                 Submit
               </LoadingButton>
