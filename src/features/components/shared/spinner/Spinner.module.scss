@@ -16,6 +16,7 @@
   position: relative;
   text-align: center;
   opacity: 1 !important;
+  border: none !important;
 
   // My styles
   position: absolute;
@@ -25,7 +26,7 @@
   z-index: 2; // Bootstrap modal is 1055
   // End of my styles
 
-  -webkit-animation: sk-rotate 2s infinite forwards;
+  -webkit-animation: sk-rotate 1s infinite forwards;
   animation: sk-rotate 2s infinite forwards;
 }
 
@@ -40,7 +41,7 @@
   background-color: #000;
   border-radius: 100%;
 
-  -webkit-animation: sk-bounce 2s infinite ease-in-out forwards;
+  -webkit-animation: sk-bounce 1s infinite ease-in-out forwards;
   animation: sk-bounce 2s infinite ease-in-out forwards;
 }
 

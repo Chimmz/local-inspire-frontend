@@ -383,6 +383,14 @@ class API {
     });
   }
 
+  async getUserFollowers(userId: string) {
+    return this._makeRequest({
+      path: `/users/${userId}/followers`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async getUserPublicProfile(userId: string) {
     return this._makeRequest({
       path: `/users/${userId}/profile`,

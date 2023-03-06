@@ -93,53 +93,6 @@ function Header(props: Props) {
     ];
   }, [props.business?.images]);
 
-  const getImagesToDisplay = useCallback(() => {
-    if (isSignedIn && (fetchingReviews || !userReviewRequested)) return <>Loading...</>;
-
-    if (userReviewImages?.length)
-      return (
-        <div className={cls(styles.headerImages, 'flex-grow-1')}>
-          <ImageList
-            images={userReviewImages?.map(img => ({ ...img, src: img.photoUrl })) || []}
-            limit={4}
-            imageProps={{ layout: 'fill', objectFit: 'cover' }}
-          />
-        </div>
-      );
-    if (props.business?.images)
-      return (
-        <div className={cls(styles.headerImages, 'flex-grow-1')}>
-          <ImageList
-            images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
-            limit={4}
-            imageProps={{ layout: 'fill', objectFit: 'cover' }}
-          />
-        </div>
-      );
-    return (
-      <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
-        <Icon icon="ic:outline-camera-alt" width={35} />
-        <h4 className="text-center">Enhance this page - Upload photos</h4>
-        <Link
-          href={genAddPhotosPageUrl(props.business?._id!, props.business?.businessName!)}
-          passHref
-        >
-          <a href="" className="btn btn-pry mt-3" style={{ color: '#6a6a6a' }}>
-            <Icon icon="material-symbols:photo-camera" width={19} />
-            Add photo
-          </a>
-        </Link>
-      </div>
-    );
-  }, [
-    isSignedIn,
-    fetchingReviews,
-    userReviewRequested,
-    userReviewImages,
-    props.business,
-    props.business?.businessName,
-  ]);
-
   const reviewPageUrl = useMemo(() => {
     return genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null });
   }, []);
@@ -223,7 +176,29 @@ function Header(props: Props) {
             </Link>
           </div>
 
-          {getImagesToDisplay()}
+          {businessImages?.length ? (
+            <div className={cls(styles.headerImages, 'flex-grow-1')}>
+              <ImageList
+                images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
+                limit={4}
+                imageProps={{ layout: 'fill', objectFit: 'cover' }}
+              />
+            </div>
+          ) : (
+            <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
+              <Icon icon="ic:outline-camera-alt" width={35} />
+              <h4 className="text-center">Enhance this page - Upload photos</h4>
+              <Link
+                href={genAddPhotosPageUrl(props.business?._id!, props.business?.businessName!)}
+                passHref
+              >
+                <a href="" className="btn btn-pry mt-3" style={{ color: '#6a6a6a' }}>
+                  <Icon icon="material-symbols:photo-camera" width={19} />
+                  Add photo
+                </a>
+              </Link>
+            </div>
+          )}
 
           {/* {!businessImages?.length && !userReviewImages?.length ? (
             <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>

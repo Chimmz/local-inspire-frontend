@@ -61,16 +61,17 @@ function Liker(liker: UserPublicProfile & { useNativeLinkToProfile: boolean }) {
       if (res.status === 'SUCCESS') setFollowers(res.user.followers);
     });
   };
-  const isFollowing = useMemo(
+
+  const isFollowingUser = useMemo(
     () => !!currentUser && followers.includes(currentUser._id!),
     [followers, liker],
   );
 
   const btnFollowIcon = useMemo(
     () => (
-      <Icon icon={`material-symbols:person-${!isFollowing ? 'add' : 'remove'}`} width={20} />
+      <Icon icon={`material-symbols:person-${!isFollowingUser ? 'add' : 'remove'}`} width={20} />
     ),
-    [isFollowing],
+    [isFollowingUser],
   );
 
   return (
@@ -116,7 +117,7 @@ function Liker(liker: UserPublicProfile & { useNativeLinkToProfile: boolean }) {
         }
       >
         {btnFollowIcon}
-        {!isFollowing ? 'Follow' : 'Unfollow'}
+        {!isFollowingUser ? 'Follow' : 'Unfollow'}
       </LoadingButton>
     </li>
   );

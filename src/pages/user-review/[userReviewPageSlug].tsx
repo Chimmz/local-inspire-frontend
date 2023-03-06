@@ -29,6 +29,7 @@ import { BusinessProps } from '../../features/components/business-results/Busine
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 import ShareStrategies from '../../features/components/shared/social-share/ShareStrategies';
 import SocialShareModal from '../../features/components/shared/social-share/SocialShare';
+import useRequest from '../../features/hooks/useRequest';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL';
@@ -39,6 +40,7 @@ interface Props {
 
 const UserReviewPage: NextPage<Props> = function (props) {
   const [review, setReview] = useState<ReviewProps | undefined>(undefined);
+  const { send: sendReviewReq, loading: loadingReview } = useRequest();
 
   // Modals
   const [showLikersModal, setShowLikersModal] = useState(false);
@@ -46,14 +48,16 @@ const UserReviewPage: NextPage<Props> = function (props) {
   const [showShareModal, setShowShareModal] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
-    if (props.review) setReview(props.review);
+    if (!props.review) return;
+    const req = api.getReviewById(props.review?._id);
+    sendReviewReq(req).then(res => res?.status === 'SUCCESS' && setReview(res.review));
   }, [props.review]);
 
   const userFullname = useMemo(() => {
-    return review?.reviewedBy
-      ? getFullName(review?.reviewedBy, { lastNameInitial: true })
-      : '';
+    return getFullName(review?.reviewedBy, { lastNameInitial: true });
   }, [review?.reviewedBy]);
 
   const businessUrl = useMemo(
@@ -126,9 +130,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
                 />
                 <h2 className="mb-4">{props.business?.businessName}</h2>
 
-                <ul
-                  className={cls(styles.businessInfo, 'no-bullets d-flex flex-column gap-3')}
-                >
+                <ul className={cls(styles.businessInfo, 'no-bullets d-flex flex-column gap-3')}>
                   <li className="d-flex align-items-center gap-3">
                     <Icon icon="ic:outline-location-on" width={19} />
                     {props.business?.address}, {props.business?.city},{' '}

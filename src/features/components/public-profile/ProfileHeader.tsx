@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import Image from 'next/image';
@@ -20,23 +20,30 @@ interface Props {
 }
 
 function ProfileHeader({ user, followingCount }: Props) {
-  const [followerIds, setFollowerIds] = useState(user?.followers || []);
+  const [followers, setFollowers] = useState<string[]>();
   const [showMsgModal, setShowMsgModal] = useState(false);
 
   const { isSignedIn, _id: currentUserId } = useSignedInUser();
-  const { send: sendFollowReq, loading } = useRequest();
   const { withAuth } = useMiddleware();
+  const { send: sendFollowReq, loading: followLoading } = useRequest();
+  const { send: sendGetFollowers, loading: isGettingFollowers } = useRequest();
+
+  useEffect(() => {
+    if (!user) return;
+    const req = api.getUserFollowers(user._id);
+    req.then(res => res?.status === 'SUCCESS' && setFollowers(res.followers));
+  }, [user]);
 
   const handleToggleFollow = () => {
     withAuth(async (token: string) => {
       const res = await sendFollowReq(api.followUser(user!._id, token));
-      if (res.status === 'SUCCESS') setFollowerIds(res.user.followers);
+      if (res.status === 'SUCCESS') setFollowers(res.user.followers);
     });
   };
 
   const isFollowedByMe = useMemo(() => {
-    return isSignedIn ? followerIds.includes(currentUserId!) : false;
-  }, [followerIds, isSignedIn, currentUserId]);
+    return isSignedIn ? followers?.includes(currentUserId!) : false;
+  }, [followers, isSignedIn, currentUserId]);
 
   const userName = useMemo(() => getFullName(user, { full: true }), [user]);
 
@@ -78,25 +85,28 @@ function ProfileHeader({ user, followingCount }: Props) {
             <li>
               <span className="text-uppercase text-light fs-5">Followers</span>
               <br />{' '}
-              <span className="fs-3">{followerIds.length.toString().padStart(2, '0')}</span>
+              <span className="fs-3">{followers?.length.toString().padStart(2, '0')}</span>
             </li>
           </ul>
         </div>
         <div className="d-flex align-self-start gap-3">
-          <LoadingButton
-            className="btn btn-pry btn--sm"
-            onClick={handleToggleFollow}
-            isLoading={loading}
-            textWhileLoading={
-              <div className="d-flex gap-4 align-items-center">
-                {btnFollowIcon}
-                <Spinner animation="border" size="sm" style={{ borderWidth: '1px' }} />
-              </div>
-            }
-          >
-            {btnFollowIcon}
-            {!isFollowedByMe ? 'Follow' : 'Unfollow'}
-          </LoadingButton>
+          {(followers?.length && (
+            <LoadingButton
+              className="btn btn-pry btn--sm"
+              onClick={handleToggleFollow}
+              isLoading={followLoading}
+              textWhileLoading={
+                <div className="d-flex gap-4 align-items-center">
+                  {btnFollowIcon}
+                  <Spinner animation="border" size="sm" style={{ borderWidth: '1px' }} />
+                </div>
+              }
+            >
+              {btnFollowIcon}
+              {!isFollowedByMe ? 'Follow' : 'Unfollow'}
+            </LoadingButton>
+          )) ||
+            null}
 
           <button
             className="btn btn-outline gap-3"

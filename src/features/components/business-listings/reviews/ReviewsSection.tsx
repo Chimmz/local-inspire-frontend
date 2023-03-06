@@ -150,15 +150,11 @@ function ReviewsSection(props: Props) {
   }, []);
 
   useEffect((): any => {
-    if (queryStr.length) return filterReviews();
-    else if (!props.reviews) return;
-    setReviews(props.reviews);
-    setTotalReviewsCount(props.totalReviewsCount);
+    filterReviews();
   }, [queryStr]);
 
   const handleCheckInput: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const filter = target.value as ReviewFilter;
-
     switch (target.checked) {
       case true:
         setFilters(filters => [filter, ...filters]);
@@ -236,9 +232,7 @@ function ReviewsSection(props: Props) {
 
       {/* Pagination */}
       {reviews.length ? (
-        <div
-          className={cls('align-items-center justify-content-between', showWith('d-flex'))}
-        >
+        <div className={cls('align-items-center justify-content-between', showWith('d-flex'))}>
           <Paginators
             currentPage={currentPage}
             onPageChange={handlePageChange}

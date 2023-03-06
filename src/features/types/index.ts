@@ -30,4 +30,5 @@ export interface UserPublicProfile {
   followers: string[];
   createdAt: string;
   profileViews: number;
+  blockedUsers: string[];
 }

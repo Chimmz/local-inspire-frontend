@@ -12,12 +12,13 @@ import { GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage } from 
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SSRProvider } from 'react-bootstrap';
 import Layout from '../../features/components/layout';
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 import api from '../../features/library/api';
 import { UserPublicProfile } from '../../features/types';
 import { getFullName } from '../../features/utils/user-utils';
+
+import { Spinner as BSpinner, SSRProvider } from 'react-bootstrap';
 import ProfileHeader from '../../features/components/public-profile/ProfileHeader';
 import ProfileAbout from '../../features/components/public-profile/ProfileAbout';
 import ProfileStats from '../../features/components/public-profile/ProfileStats';
@@ -69,20 +70,15 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   const [scrollHandlers, setScrollHandlers] = useState<any[]>([]);
   const { send: sendReviewsReq, loading: isLoadingReviews } = useRequest();
 
-  const shouldLoadMoreData = useMemo(() => {
-    return !reviews ? true : reviews.data.length < reviews.total;
-  }, [reviews, reviews?.data.length, reviews?.total]);
+  const shouldLoadMoreReviews = useMemo(() => {
+    return !reviews ? true : reviews.data?.length < reviews.total;
+  }, [reviews, reviews?.data?.length, reviews?.total]);
 
   const loadReviews = (page: number) => {
-    if (!props.user) return;
+    if (!props.user || !shouldLoadMoreReviews) return;
+    const req = api.getReviewsMadeByUser(props.user?._id, { page, limit: MAX_REVIEWS_TO_FETCH });
     const isFirstLoad = currentPage === 1;
 
-    if (!shouldLoadMoreData) return;
-
-    const req = api.getReviewsMadeByUser(props.user?._id, {
-      page,
-      limit: MAX_REVIEWS_TO_FETCH,
-    });
     sendReviewsReq(req).then(res => {
       if (res?.status !== 'SUCCESS') return;
       if (isFirstLoad) setReviews(res);
@@ -93,14 +89,13 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   useEffect(() => {
     const handleScroll = function (this: Window, ev: Event) {
       const isAtBottom = this.innerHeight + this.scrollY === document.body.offsetHeight;
-
-      if (!isAtBottom || !shouldLoadMoreData || isLoadingReviews) return;
+      if (!isAtBottom || !shouldLoadMoreReviews || isLoadingReviews) return;
       setCurrentPage(currentPage + 1);
     };
     window.addEventListener('scroll', handleScroll);
 
     setScrollHandlers(handlers => {
-      handlers.forEach(h => window.removeEventListener('scroll', h)); // Stop listening to previous listeners
+      handlers.forEach(h => window.removeEventListener('scroll', h)); // Remove previous listeners
       return [handleScroll]; // Only current listener
     });
   }, [currentPage]);
@@ -177,6 +172,14 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
             </Layout.Main>
 
             <aside className={styles.ads}>Ads</aside>
+
+            {/* <BSpinner
+              animation="border"
+              style={{ border: '1px solid black', backgroundColor: 'transparent' }}
+            /> */}
+            {/* <div className="position-absolute" style={{ bottom: '0', left: '50%' }}>
+              <Spinner show />
+            </div> */}
 
             {/* The Report modal */}
             <ReportQA

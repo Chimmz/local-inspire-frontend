@@ -14,6 +14,7 @@ import useSignedInUser from '../../hooks/useSignedInUser';
 import Spinner from '../shared/spinner/Spinner';
 import api from '../../library/api';
 import LoadingButton from '../shared/button/Button';
+import { useRouter } from 'next/router';
 
 interface Props {
   user?: UserPublicProfile;
@@ -27,14 +28,19 @@ interface Props {
 
 const ProfileStats = (props: Props) => {
   const [showProfileReportModal, setShowReportModal] = useState(false);
-  const [blockedUsers, setBlockedUsers] = useState<string[] | null>(null);
+  const [usersBlockedByCurrentUser, setUsersBlockedByCurrentUser] = useState<string[] | null>(
+    null,
+  );
   const [showReportFeedbackModal, setShowReportFeedbackModal] = useState(false);
+  const [showUserBlockedModal, setShowUserBlockedModal] = useState(false);
 
-  const { send: sendReportReq, loading: reporting } = useRequest();
   const { withAuth } = useMiddleware();
   const { isSignedIn, ...currentUser } = useSignedInUser();
+  const { send: sendReportReq, loading: reporting } = useRequest();
   const { send: sendBlockRequest, loading: blockReqLoading } = useRequest();
   const { send: sendGetBlockedUsersRequest, loading: gettingBlockedUsers } = useRequest();
+
+  const router = useRouter();
 
   const {
     inputValue: reportReason,
@@ -52,7 +58,7 @@ const ProfileStats = (props: Props) => {
     const req = api.getPeopleBlockedByUser(currentUser!.accessToken!);
     sendGetBlockedUsersRequest(req).then(res =>
       res.status === 'SUCCESS'
-        ? setBlockedUsers(res.users)
+        ? setUsersBlockedByCurrentUser(res.users)
         : pushReportValidationError(res?.msg || "Couldn't submit. Something went wrong"),
     );
   }, [currentUser]);
@@ -78,17 +84,27 @@ const ProfileStats = (props: Props) => {
   const handleBlockUser = (token: string) => {
     const req = api.toggleBlockUser(props.user!._id, token);
     sendBlockRequest(req).then(
-      res => res.status === 'SUCCESS' && setBlockedUsers(res.blockedUsers),
+      res => res.status === 'SUCCESS' && setUsersBlockedByCurrentUser(res.blockedUsers),
     );
   };
 
-  const userIsBlockable = useMemo(() => {
+  const userIsBlockableByCurrentUser = useMemo(() => {
     return isSignedIn && props.user?._id !== currentUser._id;
   }, [isSignedIn, props.user, currentUser]);
 
-  const userIsBlocked = useMemo(() => {
-    return (props.user && isSignedIn && blockedUsers?.includes(props.user._id)) || false;
-  }, [props.user, isSignedIn, blockedUsers]);
+  const userBlockedByCurrentUser = useMemo(() => {
+    return (
+      (props.user && isSignedIn && usersBlockedByCurrentUser?.includes(props.user._id)) || false
+    );
+  }, [props.user, isSignedIn, usersBlockedByCurrentUser]);
+
+  const currentUserBlocked = useMemo(() => {
+    return isSignedIn && currentUser && props.user?.blockedUsers?.includes(currentUser._id!);
+  }, [isSignedIn, usersBlockedByCurrentUser, currentUser]);
+
+  useEffect(() => {
+    setShowUserBlockedModal(!!currentUserBlocked);
+  }, [currentUserBlocked]);
 
   return (
     <>
@@ -174,16 +190,16 @@ const ProfileStats = (props: Props) => {
             </button>
           </li>
 
-          <li className={cls(!userIsBlockable ? 'd-none' : '')}>
+          <li className={cls(!userIsBlockableByCurrentUser ? 'd-none' : '')}>
             <LoadingButton
               isLoading={blockReqLoading}
               className="btn btn-bg-none no-bg-hover w-max-content"
               onClick={withAuth.bind(null, handleBlockUser)}
               withSpinner
-              textWhileLoading={userIsBlocked ? 'Unblocking...' : 'Blocking...'}
+              textWhileLoading={userBlockedByCurrentUser ? 'Unblocking...' : 'Blocking...'}
             >
               <Icon icon="ic:baseline-block" width={20} color="red" />
-              {userIsBlocked ? 'Unblock' : 'Block'} {props.user?.firstName}
+              {userBlockedByCurrentUser ? 'Unblock' : 'Block'} {props.user?.firstName}
             </LoadingButton>
           </li>
         </ul>
@@ -198,6 +214,20 @@ const ProfileStats = (props: Props) => {
           <div className="d-flex align-items-center gap-3">
             <Icon icon="mdi:success" width={25} color="#00ae00" />
             <h3 className="mt-2">Your report has been submitted!</h3>
+          </div>
+        </Modal.Header>
+      </Modal>
+
+      <Modal
+        show={showUserBlockedModal}
+        onHide={setShowUserBlockedModal.bind(null, false)}
+        style={{ marginTop: '2rem' }}
+        onExiting={router.back}
+      >
+        <Modal.Header className="u-border-none p-5" closeButton>
+          <div className="d-flex align-items-center gap-3">
+            <Icon icon="ic:baseline-block" width={20} />
+            <h3 className="mt-2">This profile is not available</h3>
           </div>
         </Modal.Header>
       </Modal>
