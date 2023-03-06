@@ -70,7 +70,7 @@ const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * REVIEWS_PER_PAGE; // 15
 
 function ReviewsSection(props: Props) {
-  const [reviews, setReviews] = useState<ReviewProps[]>(props.reviews || []);
+  const [reviews, setReviews] = useState<ReviewProps[]>([]);
   const [totalReviewsCount, setTotalReviewsCount] = useState(props.totalReviewsCount);
 
   const [filters, setFilters] = useState<ReviewFilter[]>([]);
