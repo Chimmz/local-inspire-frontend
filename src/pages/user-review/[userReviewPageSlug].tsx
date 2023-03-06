@@ -177,8 +177,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
       {/* Modal showing likers of a review */}
       <ReviewLikersModal
         show={!!review && showLikersModal}
-        likers={review?.likes.map(like => like.user)}
-        reviewerName={getFullName(review?.reviewedBy, { lastNameInitial: true })}
+        reviewId={review?._id}
         closeModal={setShowLikersModal.bind(null, false)}
       />
 
