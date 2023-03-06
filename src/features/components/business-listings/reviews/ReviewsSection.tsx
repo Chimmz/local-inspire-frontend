@@ -191,17 +191,17 @@ function ReviewsSection(props: Props) {
       <div
         className={cls(
           styles.reviewsSectionHeader,
-          showWith((props.reviews?.length && 'd-block') || ''),
+          showWith((reviews?.length && 'd-block') || ''),
         )}
       >
         <h2>Reviews</h2>
         <hr />
-        {props.reviews?.length ? (
+        {reviews?.length ? (
           <small className="d-block my-4">Filter for better results</small>
         ) : null}
 
         {/* Checkbox filters section in header */}
-        <section className={cls(styles.filters, props.reviews?.length ? 'd-flex' : 'd-none')}>
+        <section className={cls(styles.filters, reviews?.length ? 'd-flex' : 'd-none')}>
           {Array.from(filterToQueryMap.keys()).map(filterName => (
             <LabelledCheckbox
               key={filterName}
@@ -219,7 +219,7 @@ function ReviewsSection(props: Props) {
         <ReviewItem
           key={r._id}
           {...r}
-          show={!!props.reviews?.length && props.show}
+          show={!!reviews?.length && props.show}
           businessName={props.businessName}
           businessData={props.business!}
           openReviewLikers={openReviewLikers}
@@ -242,10 +242,7 @@ function ReviewsSection(props: Props) {
       ) : null}
 
       {/* Default if no reviews */}
-      <NoReviewsYet
-        businessName={props.businessName}
-        show={!props.reviews?.length && props.show}
-      />
+      <NoReviewsYet businessName={props.businessName} show={!reviews?.length && props.show} />
 
       {/* The Report modal */}
       <ReportQA
