@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, Spinner } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
 import useMiddleware, { MiddlewareNext } from '../../../hooks/useMiddleware';
@@ -13,30 +13,62 @@ import { UserPublicProfile } from '../../../types';
 import { quantitize } from '../../../utils/quantity-utils';
 import { genUserProfileUrl } from '../../../utils/url-utils';
 import { getFullName } from '../../../utils/user-utils';
+import { ReviewProps } from '../../page-reviews/UserReview';
 import LoadingButton from '../../shared/button/Button';
 import styles from './ReviewsSection.module.scss';
 
 interface Props {
   show: boolean;
-  likers: UserPublicProfile[] | undefined;
-  reviewerName: string | undefined | null;
   closeModal: () => void;
+  reviewId: string | undefined;
   useNativeLinkToProfile?: boolean;
 }
 
+type Liker = Pick<
+  UserPublicProfile,
+  '_id' | 'firstName' | 'lastName' | 'followers' | 'contributions' | 'imgUrl'
+>;
+
 const ReviewLikersModal = (props: Props) => {
+  const [likes, setLikes] = useState<Liker[] | undefined>();
+
+  const [reviewer, setReviewer] = useState<
+    Pick<UserPublicProfile, 'firstName' | 'lastName' | '_id'> | undefined
+  >();
+  const { send: sendLikesReq, loading: gettingLikes } = useRequest();
+
+  const loadLikes = async () => {
+    if (!props.reviewId) return;
+    const req = api.getReviewLikes(props.reviewId);
+
+    sendLikesReq(req).then(res => {
+      if (res.status !== 'SUCCESS') return;
+      setLikes(res.likes);
+      setReviewer(res.reviewedBy);
+    });
+  };
+
   return (
-    <Modal centered scrollable show={props.show} onHide={props.closeModal}>
+    <Modal
+      centered
+      scrollable
+      show={props.show}
+      onEntering={loadLikes}
+      onHide={props.closeModal}
+    >
       <Modal.Header
         style={{ backgroundColor: '#f3f3f3' }}
         className="px-5 py-4 pb-3"
         closeButton
       >
-        <h2>{props.likers && <>{props.reviewerName}&apos;s review</>}</h2>
+        <h2>{<>{reviewer?.firstName}&apos;s review</>}</h2>
       </Modal.Header>
       <Modal.Body className="px-5">
         <ul className={styles.reviewLikersList}>
-          {props.likers?.map(user => (
+          <div className={cls('justify-content-center', gettingLikes ? 'd-flex' : 'd-none')}>
+            <Spinner className="mx-auto" animation="border" style={{ borderWidth: '1px' }} />
+          </div>
+          {likes?.map(user => (
             <Liker
               {...user}
               useNativeLinkToProfile={props.useNativeLinkToProfile!}
@@ -49,22 +81,22 @@ const ReviewLikersModal = (props: Props) => {
   );
 };
 
-function Liker(liker: UserPublicProfile & { useNativeLinkToProfile: boolean }) {
-  const [followers, setFollowers] = useState(liker?.followers || []);
+function Liker(props: Liker & { useNativeLinkToProfile: boolean }) {
+  const [followers, setFollowers] = useState(props?.followers || []);
   const { withAuth } = useMiddleware();
   const { send: sendFollowReq, loading } = useRequest();
   const { isSignedIn, ...currentUser } = useSignedInUser();
 
   const handleFollow = () => {
     withAuth(async (token: string) => {
-      const res = await sendFollowReq(api.followUser(liker!._id, token));
+      const res = await sendFollowReq(api.followUser(props._id!, token));
       if (res.status === 'SUCCESS') setFollowers(res.user.followers);
     });
   };
 
   const isFollowingUser = useMemo(
     () => !!currentUser && followers.includes(currentUser._id!),
-    [followers, liker],
+    [followers, props],
   );
 
   const btnFollowIcon = useMemo(
@@ -78,7 +110,7 @@ function Liker(liker: UserPublicProfile & { useNativeLinkToProfile: boolean }) {
     <li className={cls(styles.liker, 'd-flex align-items-center gap-3 py-4')}>
       <figure className="position-relative" style={{ width: '50px', height: '50px' }}>
         <Image
-          src={liker.imgUrl}
+          src={props.imgUrl!}
           layout="fill"
           objectFit="cover"
           style={{ borderRadius: '50%' }}
@@ -87,21 +119,21 @@ function Liker(liker: UserPublicProfile & { useNativeLinkToProfile: boolean }) {
 
       <div className="flex-grow-1">
         <h4>
-          {liker.useNativeLinkToProfile ? (
-            <a href={genUserProfileUrl(liker)} className="">
-              <strong>{getFullName(liker, { lastNameInitial: true })}</strong>
+          {props.useNativeLinkToProfile ? (
+            <a href={genUserProfileUrl(props)} className="">
+              <strong>{getFullName(props, { lastNameInitial: true })}</strong>
             </a>
           ) : (
-            <Link href={genUserProfileUrl(liker)} passHref>
+            <Link href={genUserProfileUrl(props)} passHref>
               <a className="">
-                <strong>{getFullName(liker, { lastNameInitial: true })}</strong>
+                <strong>{getFullName(props, { lastNameInitial: true })}</strong>
               </a>
             </Link>
           )}
         </h4>
         <small>
-          {quantitize(liker.contributions?.length || 0, ['contribution', 'contributions'])} •{' '}
-          {quantitize(liker.followers.length, ['follower', 'followers'])}
+          {quantitize(props.contributions?.length || 0, ['contribution', 'contributions'])} •{' '}
+          {quantitize(props.followers.length, ['follower', 'followers'])}
         </small>
       </div>
 

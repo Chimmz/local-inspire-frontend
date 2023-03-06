@@ -40,7 +40,7 @@ type Props = ReviewProps & {
   businessData: Partial<BusinessProps>;
   openReportModal: (arg: any) => void;
   openShareModal?: (...args: [string, string]) => void;
-  openReviewLikers(likers: UserPublicProfile[], reviewerName: string): void;
+  openReviewLikers(reviewId: string): void;
   useNativeLinkToProfile?: boolean;
 };
 
@@ -284,16 +284,7 @@ const ReviewItem = function (props: Props) {
           <Icon icon="fluent:share-48-regular" width={20} /> Share
         </button>
 
-        <button
-          className="btn bg-none"
-          onClick={() => {
-            likes.length &&
-              props.openReviewLikers(
-                likes.map(like => ({ ...like.user })),
-                reviewerName!,
-              );
-          }}
-        >
+        <button className="btn bg-none" onClick={props.openReviewLikers.bind(null, props._id)}>
           {likes.length
             ? qtyUtils.getPeopleQuantity(likes.length)?.concat(' found this review helpful')
             : 'No helpful votes, was it helpful to you?'}

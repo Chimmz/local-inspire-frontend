@@ -81,9 +81,9 @@ function ReviewsSection(props: Props) {
     _id: string;
     reviewTitle: string;
   } | null>(null);
+
   const [reviewLikers, setReviewLikers] = useState<null | {
-    likers: UserPublicProfile[];
-    reviewerName: string;
+    reviewId: string;
   }>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -175,9 +175,7 @@ function ReviewsSection(props: Props) {
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
 
   const openReviewLikers = useCallback(
-    function (likers: UserPublicProfile[], reviewerName: string) {
-      setReviewLikers({ likers, reviewerName });
-    },
+    (reviewId: string) => setReviewLikers({ reviewId }),
     [setReviewLikers],
   );
 
@@ -257,8 +255,7 @@ function ReviewsSection(props: Props) {
       <ReviewLikersModal
         show={!!reviewLikers}
         closeModal={setReviewLikers.bind(null, null)}
-        likers={reviewLikers?.likers}
-        reviewerName={reviewLikers?.reviewerName}
+        reviewId={reviewLikers?.reviewId}
       />
 
       {/* Share review */}

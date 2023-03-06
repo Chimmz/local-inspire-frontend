@@ -237,6 +237,14 @@ class API {
     });
   }
 
+  async getReviewLikes(id: string) {
+    return this._makeRequest({
+      path: `/reviews/${id}/likes`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async toggleBusinessReviewHelpful(businessId: string, token: string) {
     return this._makeRequest({
       path: `/reviews/${businessId}/like`,
