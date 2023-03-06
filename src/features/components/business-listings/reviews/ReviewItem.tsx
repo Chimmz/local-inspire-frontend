@@ -38,7 +38,7 @@ type Props = ReviewProps & {
   hideLocation?: boolean;
   businessName: string;
   businessData: Partial<BusinessProps>;
-  openReportModal: (arg: any) => void;
+  openReportModal: (reviewId: string) => void;
   openShareModal?: (...args: [string, string]) => void;
   openReviewLikers(reviewId: string): void;
   useNativeLinkToProfile?: boolean;

@@ -61,8 +61,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   } | null>(null);
 
   const [reviewLikers, setReviewLikers] = useState<null | {
-    likers: UserPublicProfile[];
-    reviewerName: string;
+    reviewId: string;
   }>(null);
   const [spinnerShown, setSpinnerShown] = useState(false);
 
@@ -116,9 +115,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   }, []);
 
   const openReviewLikers = useCallback(
-    (likers: UserPublicProfile[], reviewerName: string) => {
-      setReviewLikers({ likers, reviewerName });
-    },
+    (reviewId: string) => setReviewLikers({ reviewId }),
     [setReviewLikers],
   );
 
@@ -194,8 +191,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
             <ReviewLikersModal
               show={!!reviewLikers}
               closeModal={setReviewLikers.bind(null, null)}
-              likers={reviewLikers?.likers}
-              reviewerName={reviewLikers?.reviewerName}
+              reviewId={reviewLikers?.reviewId}
               useNativeLinkToProfile
             />
 
