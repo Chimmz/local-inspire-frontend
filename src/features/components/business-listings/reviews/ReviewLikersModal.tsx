@@ -61,7 +61,7 @@ const ReviewLikersModal = (props: Props) => {
         className="px-5 py-4 pb-3"
         closeButton
       >
-        <h2>{<>{reviewer?.firstName}&apos;s review</>}</h2>
+        <h2>{reviewer?.firstName ? <>{reviewer?.firstName}&apos;s review</> : ''}</h2>
       </Modal.Header>
       <Modal.Body className="px-5">
         <ul className={styles.reviewLikersList}>
