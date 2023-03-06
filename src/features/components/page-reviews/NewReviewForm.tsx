@@ -219,14 +219,14 @@ function NewReviewForm(props: Props) {
 
   return (
     <>
-      <Modal show={!!submittedReview} centered backdrop="static" size="sm">
+      <Modal show={!!'submittedReview'} centered backdrop="static" size="sm">
         <Modal.Body>
           <PageSuccess
             title="Thank you."
             description={`Your review on ${businessName} has been added successfully.`}
             className="mb-5 pt-2"
           />
-          <div className="success-actions d-flex flex-column mx-auto gap-3 px-4 pb-4">
+          <div className="success-actions d-flex flex-column mx-auto gap-3 px-4 pb-4 w-50">
             <Link href={urlUtils.genBusinessPageUrl<string>({ slug: props.slug })} passHref>
               <a className="btn btn--lg btn-gray">Continue</a>
             </Link>
@@ -332,8 +332,7 @@ function NewReviewForm(props: Props) {
           <FeatureRating
             features={config.featuresToRate}
             ratings={
-              props.userReview?.featureRatings.map(obj => obj.rating) ||
-              Object.values(ratingMap)
+              props.userReview?.featureRatings.map(obj => obj.rating) || Object.values(ratingMap)
             }
             onRate={changeFeatureRating}
             readonly={props.readonly}
@@ -416,11 +415,11 @@ function NewReviewForm(props: Props) {
               readOnly={props.readonly}
             />
             <small>
-              I certify that this review is based on my own experience and is my genuine
-              opinion of this business, and that I have no personal or business relationship
-              with this establishment, and have not been offered any incentive or payment
-              originating from the establishment to write this review. I understand that
-              localinspire has a zero-tolerance policy on fake reviews. Terms and Conditions
+              I certify that this review is based on my own experience and is my genuine opinion
+              of this business, and that I have no personal or business relationship with this
+              establishment, and have not been offered any incentive or payment originating from
+              the establishment to write this review. I understand that localinspire has a
+              zero-tolerance policy on fake reviews. Terms and Conditions
             </small>
           </label>
           <Form.Control.Feedback type="invalid" className="d-block">
@@ -428,10 +427,7 @@ function NewReviewForm(props: Props) {
           </Form.Control.Feedback>
         </div>
 
-        <button
-          className={cls(props.readonly && 'd-none', 'btn btn-pry btn--lg')}
-          type="submit"
-        >
+        <button className={cls(props.readonly && 'd-none', 'btn btn-pry btn--lg')} type="submit">
           Submit review
         </button>
       </form>
