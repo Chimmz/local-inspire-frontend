@@ -219,7 +219,7 @@ function NewReviewForm(props: Props) {
 
   return (
     <>
-      <Modal show={!!'submittedReview'} centered backdrop="static" size="sm">
+      <Modal show={!!submittedReview} centered backdrop="static" size="sm">
         <Modal.Body>
           <PageSuccess
             title="Thank you."
