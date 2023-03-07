@@ -135,7 +135,7 @@ function Navbar(props: NavbarProps) {
           <MobileBusinessSearchForm close={setSearchOpen.bind(null, false)} />
         ) : null}
 
-        {/* <Notifications /> */}
+        <Notifications />
 
         <div className={styles['nav-auth']}>
           {!isSignedIn ? (

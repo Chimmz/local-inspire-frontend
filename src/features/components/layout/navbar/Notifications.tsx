@@ -70,10 +70,7 @@ const Notifications = (props: Props) => {
 
   return (
     <div
-      className={cls(
-        styles.icons,
-        props.justifyIconsRight && 'flex-grow-1 justify-content-end',
-      )}
+      className={cls(styles.icons, props.justifyIconsRight && 'flex-grow-1 justify-content-end')}
     >
       <NavDropdown
         className={styles.notifToggler}
