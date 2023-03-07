@@ -209,4 +209,9 @@
       background-color: #f8f8f8 !important;
     }
   }
+
+  &-rounded {
+    border-radius: 999px;
+    padding-inline: 1.7em !important;
+  }
 }

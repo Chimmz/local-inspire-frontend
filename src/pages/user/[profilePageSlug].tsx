@@ -1,20 +1,7 @@
-import React, {
-  EventHandler,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  WheelEventHandler,
-} from 'react';
+import React, { EventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import {
-  GetServerSideProps,
-  GetStaticPaths,
-  GetStaticProps,
-  GetStaticPropsContext,
-  NextPage,
-} from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,6 +30,7 @@ import { unstable_getServerSession, NextAuthOptions } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { useRouter } from 'next/router';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
+import LoadingButton from '../../features/components/shared/button/Button';
 
 interface PageProps {
   status?: 'SUCCESS' | 'ERROR';
@@ -86,17 +74,17 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   const router = useRouter();
 
   useEffect(() => {
-    // Find out if user previoulsy blocked the signed user
+    // Find out if signed user is part of the profile user's blocked list
     if (isSignedIn && props.user?.blockedUsers.includes(currentUser!._id!))
       setCurrentUserBlocked(true);
   }, [isSignedIn]); // Listen for a signin / signup
 
-  const shouldLoadMoreReviews = useMemo(() => {
+  const moreReviewsExistInDB = useMemo(() => {
     return !reviews ? true : reviews.data?.length < reviews.total;
   }, [reviews, reviews?.data?.length, reviews?.total]);
 
-  const loadReviews = (page: number) => {
-    if (!props.user || !shouldLoadMoreReviews) return;
+  const loadMoreReviews = (page: number) => {
+    if (!props.user || !moreReviewsExistInDB) return;
     const isFirstLoad = currentPage === 1;
     const req = api.getReviewsMadeByUser(props.user?._id, { page, limit: MAX_REVIEWS_TO_FETCH });
 
@@ -108,21 +96,22 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   };
 
   useEffect(() => {
-    const handleScroll = function (this: Window, ev: Event) {
-      const isAtBottom = this.innerHeight + this.scrollY === document.body.offsetHeight;
-      if (!isAtBottom || !shouldLoadMoreReviews || isLoadingReviews) return;
-      setCurrentPage(currentPage + 1);
-    };
-    window.addEventListener('scroll', handleScroll);
-    setScrollHandlers(handlers => {
-      handlers.forEach(h => window.removeEventListener('scroll', h)); // Remove previous listeners
-      return [handleScroll]; // Only current listener
-    });
-  }, [currentPage]);
+    if (currentPage === 1) return; // Dont load first page data since we get it from server
+    loadMoreReviews(currentPage);
+  }, [currentPage]); // On page change, load reviews
 
   useEffect(() => {
-    loadReviews(currentPage);
-  }, [currentPage]);
+    // const handleScroll = function (this: Window, ev: Event) {
+    //   const isAtBottom = this.innerHeight + this.scrollY === document.body.offsetHeight;
+    //   if (!isAtBottom || !moreReviewsExistInDB || isLoadingReviews) return;
+    //   setCurrentPage(currentPage + 1);
+    // };
+    // window.addEventListener('scroll', handleScroll);
+    // setScrollHandlers(handlers => {
+    //   handlers.forEach(h => window.removeEventListener('scroll', h)); // Remove previous listeners
+    //   return [handleScroll]; // Only current listener
+    // });
+  }, [currentPage]); // Start a new scroll event listener on page change
 
   useEffect(() => {
     // On unmount
@@ -201,6 +190,28 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
                     useNativeLinkToProfile
                   />
                 ))}
+
+                <LoadingButton
+                  isLoading={isLoadingReviews}
+                  withSpinner
+                  className={cls(
+                    'btn btn-pry d-flex align-items-center gap-2 my-5 w-max-content btn-rounded mx-auto',
+                    moreReviewsExistInDB ? 'd-block' : 'd-none',
+                  )}
+                  onClick={setCurrentPage.bind(null, currentPage + 1)}
+                >
+                  Show more
+                  <Icon icon="material-symbols:expand-more-rounded" width={20} />
+                </LoadingButton>
+
+                {/* <button
+                  className="btn btn-pry d-flex align-items-center gap-2 mt-5 w-max-content btn-rounded d-block mx-auto"
+                  onClick={setCurrentPage.bind(null, currentPage + 1)}
+                >
+                  Show more
+                  <BSpinner animation="border" />
+                  <Icon icon="material-symbols:expand-more-rounded" width={20} />
+                </button> */}
               </Layout.Main>
 
               <aside className={styles.ads}>Ads</aside>
@@ -245,13 +256,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
     </SSRProvider>
   );
 };
-
-// export const getStaticPaths: GetStaticPaths = function (context) {
-//   return {
-//     paths: [],
-//     fallback: 'blocking',
-//   };
-// };
 
 export const getServerSideProps: GetServerSideProps = async context => {
   try {
