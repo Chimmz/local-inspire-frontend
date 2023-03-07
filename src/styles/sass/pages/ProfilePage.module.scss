@@ -3,10 +3,10 @@
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: repeat(3, auto);
-  grid-auto-flow: row dense;
   align-items: start;
   gap: $gutter;
   padding-block: $gutter;
+  min-height: 70vw;
   position: relative;
 
   & > * {
@@ -55,4 +55,11 @@
       grid-column: 1 / 2;
     }
   }
+}
+
+.unAvailableProfile {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
 }

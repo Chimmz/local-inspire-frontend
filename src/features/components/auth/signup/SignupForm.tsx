@@ -32,19 +32,14 @@ const SignupForm: React.FC<Props> = props => {
       authData!.newRegistration.runEmailValidators(),
       authData!.newRegistration.runPasswordValidators(),
     ];
-
     if (results.some(r => r.errorExists)) return;
-
-    const res = await sendEmailRequest(
-      API.isEmailAreadyInUse(authData!.newRegistration.email),
-    );
+    const res = await sendEmailRequest(API.isEmailAreadyInUse(authData!.newRegistration.email));
     console.log('Email response: ', res);
-    if (res.status && res.isEmailInUse) {
+
+    if (res.status === 'SUCCESS' && res.isEmailInUse)
       return authData!.newRegistration.pushEmailValidationError(
         'A user with this email already exists',
       );
-    }
-
     props.goNext();
   };
 

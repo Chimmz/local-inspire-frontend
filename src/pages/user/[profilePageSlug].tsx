@@ -8,7 +8,13 @@ import React, {
 } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
-import { GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage } from 'next';
+import {
+  GetServerSideProps,
+  GetStaticPaths,
+  GetStaticProps,
+  GetStaticPropsContext,
+  NextPage,
+} from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -33,6 +39,10 @@ import ReportQA from '../../features/components/ReportQA';
 import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
 import Spinner from '../../features/components/shared/spinner/Spinner';
+import { unstable_getServerSession, NextAuthOptions } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
+import { useRouter } from 'next/router';
+import useSignedInUser from '../../features/hooks/useSignedInUser';
 
 interface PageProps {
   status?: 'SUCCESS' | 'ERROR';
@@ -47,14 +57,20 @@ interface PageProps {
   helpfulVotes: number;
   businessReviewersCount?: Array<{ [businessId: string]: number }>;
   following?: number;
+  currentUserBlocked?: boolean | undefined;
 }
 
 const MAX_REVIEWS_TO_FETCH = 3;
 
 const UserProfilePage: NextPage<PageProps> = function (props) {
+  const [currentUserBlocked, setCurrentUserBlocked] = useState(props.currentUserBlocked);
   const [reviews, setReviews] = useState(props.reviews);
+  const [followers, setFollowers] = useState<string[]>(props.user?.followers || []);
   const [views, setViews] = useState({ updated: false, total: props.user?.profileViews });
+  const [scrollHandlers, setScrollHandlers] = useState<any[]>([]);
+
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
+  const [spinnerShown, setSpinnerShown] = useState(false);
   const [reviewToShare, setReviewToShare] = useState<{
     _id: string;
     reviewTitle: string;
@@ -63,11 +79,17 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
   const [reviewLikers, setReviewLikers] = useState<null | {
     reviewId: string;
   }>(null);
-  const [spinnerShown, setSpinnerShown] = useState(false);
 
-  const { currentPage, setCurrentPage } = usePaginate({ init: [], defaultCurrentPage: 1 });
-  const [scrollHandlers, setScrollHandlers] = useState<any[]>([]);
+  const { isSignedIn, ...currentUser } = useSignedInUser();
   const { send: sendReviewsReq, loading: isLoadingReviews } = useRequest();
+  const { currentPage, setCurrentPage } = usePaginate({ init: [], defaultCurrentPage: 1 });
+  const router = useRouter();
+
+  useEffect(() => {
+    // Find out if user previoulsy blocked the signed user
+    if (isSignedIn && props.user?.blockedUsers.includes(currentUser!._id!))
+      setCurrentUserBlocked(true);
+  }, [isSignedIn]); // Listen for a signin / signup
 
   const shouldLoadMoreReviews = useMemo(() => {
     return !reviews ? true : reviews.data?.length < reviews.total;
@@ -75,8 +97,8 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
 
   const loadReviews = (page: number) => {
     if (!props.user || !shouldLoadMoreReviews) return;
-    const req = api.getReviewsMadeByUser(props.user?._id, { page, limit: MAX_REVIEWS_TO_FETCH });
     const isFirstLoad = currentPage === 1;
+    const req = api.getReviewsMadeByUser(props.user?._id, { page, limit: MAX_REVIEWS_TO_FETCH });
 
     sendReviewsReq(req).then(res => {
       if (res?.status !== 'SUCCESS') return;
@@ -92,7 +114,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
       setCurrentPage(currentPage + 1);
     };
     window.addEventListener('scroll', handleScroll);
-
     setScrollHandlers(handlers => {
       handlers.forEach(h => window.removeEventListener('scroll', h)); // Remove previous listeners
       return [handleScroll]; // Only current listener
@@ -133,70 +154,76 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
       <Layout>
         <Layout.Nav withSearchForm></Layout.Nav>
         <div className="" style={{ backgroundColor: '#f5f5f5' }}>
-          <div className={cls(styles.container, 'container flex-grow-1')}>
-            <ProfileHeader user={props.user} followingCount={props.following} />
-
-            <div className={styles.profileInfo}>
-              <ProfileStats
+          {currentUserBlocked ? (
+            <section className={cls(styles.unAvailableProfile, 'xy-center')}>
+              <h3 className="fs-2 mt-2">This user&apos;s profile is not available.</h3>
+              <button className="btn btn-outline-pry mt-5" onClick={router.back}>
+                Go back
+              </button>
+            </section>
+          ) : (
+            <div className={cls(styles.container, 'container flex-grow-1')}>
+              <ProfileHeader
                 user={props.user}
-                photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
-                totalReviewsMade={reviews?.total}
-                totalHelfulVotes={props.helpfulVotes}
-                followingCount={props.following!}
-                profileViews={views.total}
-                showSpinner={setSpinnerShown}
+                followers={followers}
+                followingCount={props.following}
+                onFollowUser={setFollowers}
               />
-              <ProfileAbout user={props.user} />
-            </div>
 
-            <Layout.Main className={reviewsSectionStyles.reviewsSection}>
-              {reviews?.data.map(r => (
-                <ReviewItem
-                  show
-                  key={r._id}
-                  {...r}
-                  businessData={r.business}
-                  businessName={r.business.businessName}
-                  openReviewLikers={openReviewLikers}
-                  openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
-                  openShareModal={(reviewId: string, reviewTitle: string) =>
-                    setReviewToShare({ _id: reviewId, reviewTitle })
-                  }
-                  hideLocation
-                  useNativeLinkToProfile
+              <div className={styles.profileInfo}>
+                <ProfileStats
+                  user={props.user}
+                  photosUploadedTotal={reviews?.data.map(r => r.images)?.length}
+                  totalReviewsMade={reviews?.total}
+                  totalHelfulVotes={props.helpfulVotes}
+                  followingCount={props.following!}
+                  followersCount={followers.length}
+                  profileViews={views.total}
+                  showSpinner={setSpinnerShown}
                 />
-              ))}
-            </Layout.Main>
+                <ProfileAbout user={props.user} />
+              </div>
 
-            <aside className={styles.ads}>Ads</aside>
+              <Layout.Main className={reviewsSectionStyles.reviewsSection}>
+                {reviews?.data.map(r => (
+                  <ReviewItem
+                    show
+                    key={r._id}
+                    {...r}
+                    businessData={r.business}
+                    businessName={r.business.businessName}
+                    openReviewLikers={openReviewLikers}
+                    openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
+                    openShareModal={(reviewId: string, reviewTitle: string) =>
+                      setReviewToShare({ _id: reviewId, reviewTitle })
+                    }
+                    hideLocation
+                    useNativeLinkToProfile
+                  />
+                ))}
+              </Layout.Main>
 
-            {/* <BSpinner
-              animation="border"
-              style={{ border: '1px solid black', backgroundColor: 'transparent' }}
-            /> */}
-            {/* <div className="position-absolute" style={{ bottom: '0', left: '50%' }}>
-              <Spinner show />
-            </div> */}
+              <aside className={styles.ads}>Ads</aside>
 
-            {/* The Report modal */}
-            <ReportQA
-              show={!!reviewReportId}
-              reportObjectId={reviewReportId as string}
-              reportType="review"
-              possibleReasons={reviewReportReasonsConfig}
-              close={setReviewReportId.bind(null, null)}
-            />
+              {/* The Report modal */}
+              <ReportQA
+                show={!!reviewReportId}
+                reportObjectId={reviewReportId as string}
+                reportType="review"
+                possibleReasons={reviewReportReasonsConfig}
+                close={setReviewReportId.bind(null, null)}
+              />
 
-            {/* Modal showing likers of a review */}
-            <ReviewLikersModal
-              show={!!reviewLikers}
-              closeModal={setReviewLikers.bind(null, null)}
-              reviewId={reviewLikers?.reviewId}
-              useNativeLinkToProfile
-            />
+              {/* Modal showing likers of a review */}
+              <ReviewLikersModal
+                show={!!reviewLikers}
+                closeModal={setReviewLikers.bind(null, null)}
+                reviewId={reviewLikers?.reviewId}
+                useNativeLinkToProfile
+              />
 
-            {/* Share review */}
-            {/* <SocialShareModal
+              {/* Share review */}
+              {/* <SocialShareModal
               heading="Share Review"
               pageUrl={() => {
                 if (props.business && reviewToShare)
@@ -211,42 +238,49 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
               close={setReviewToShare.bind(null, null)}
               title={reviewToShare?.reviewTitle!}
             /> */}
-          </div>
+            </div>
+          )}
         </div>
       </Layout>
     </SSRProvider>
   );
 };
 
-export const getStaticPaths: GetStaticPaths = function (context) {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+// export const getStaticPaths: GetStaticPaths = function (context) {
+//   return {
+//     paths: [],
+//     fallback: 'blocking',
+//   };
+// };
 
-export const getStaticProps: GetStaticProps = async function (context: GetStaticPropsContext) {
+export const getServerSideProps: GetServerSideProps = async context => {
   try {
     const [, userId] = (context.params!.profilePageSlug as string).split('_');
+
     const responses = await Promise.allSettled([
       api.getUserPublicProfile(userId),
       api.getReviewsMadeByUser(userId, { page: 1, limit: MAX_REVIEWS_TO_FETCH }),
+      unstable_getServerSession(context.req, context.res, authOptions as NextAuthOptions),
     ]);
 
-    const [profile, reviews] = responses
+    const [profile, reviews, session] = responses
       .filter(res => res.status === 'fulfilled' && res.value)
       .map(res => res.status === 'fulfilled' && res.value);
 
+    console.log('Session: ', session);
     console.log({ profile, reviews });
 
     if (profile.status === 'NOT_FOUND') return { notFound: true };
     if (profile.status === 'ERROR') throw Error(profile);
 
-    return {
-      props: { ...profile, reviews },
-      revalidate: 60000,
-    };
+    const currentUserBlocked = profile.user?.blockedUsers?.includes(session?.user?._id);
+    const props = { ...profile, reviews };
+
+    if (session) props.currentUserBlocked = currentUserBlocked;
+
+    return { props };
   } catch (err) {
+    console.log('Error: ', err);
     return { props: { status: 'ERROR', error: err } };
   }
 };

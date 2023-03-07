@@ -33,11 +33,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
   const authData = useNewRegistrationContext();
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [facebookEmail, setFacebookEmail] = useState<string | null>(null);
-  const [birthInfo, setBirthInfo] = useState<BirthInfo>({
-    year: null,
-    month: '',
-    day: null,
-  });
+  const [birthInfo, setBirthInfo] = useState<BirthInfo>({ year: null, month: '', day: null });
   const {
     uploadedFile: uploadedFile,
     setUploadedFile: setUploadedFile,
@@ -62,9 +58,9 @@ const MoreSignupDetails: React.FC<Props> = props => {
       for (let [key, val] of Object.entries(credentials)) formData.append(key, val);
 
       const res = await sendSignupRequest(api.signup(formData));
-      console.log('Response: ', res);
+      console.log('fnAuthenticate Response: ', res);
 
-      switch (res.status) {
+      switch (res?.status) {
         case 'SUCCESS':
           const options: SignInOptions = { user: JSON.stringify(res.data), redirect: false };
           await signIn('register', options);
@@ -81,7 +77,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
       }
       stopLoading();
     } catch (err) {
-      console.log('Credential signin Error: ', err);
+      console.log('Error in fnAuthenticate: ', err);
     }
   };
 
@@ -105,7 +101,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
     if (uploadedFile?.url?.startsWith('https')) credentials.imgUrl = uploadedFile.url; // If user uploaded FB photo
     if (gender) credentials.gender = gender; // If user selected gender
 
-    // If the birthday fields were all selected
+    // If the birthday fields were all selected. They must be all selected
     if (Object.values(birthInfo).every(field => !!field)) credentials.birthInfo = birthInfo;
 
     authenticate(credentials);

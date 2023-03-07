@@ -18,6 +18,21 @@
 header.header {
   grid-column: 1 / -1;
   grid-row: 1 / 2;
+  max-width: 100% !important;
+  // flex-wrap: wrap;
+
+  @media screen and (max-width: 56.25em) {
+    flex-direction: column;
+    text-align: center;
+
+    & li > *:last-child {
+      text-align: left !important;
+    }
+
+    & > :last-child {
+      margin-inline: auto;
+    }
+  }
 }
 
 aside.profileStats {

@@ -21,6 +21,7 @@ interface Props {
   totalReviewsMade?: number;
   totalHelfulVotes?: number;
   photosUploadedTotal?: number;
+  followersCount: number;
   followingCount?: number;
   profileViews: number | undefined;
   showSpinner(bool: boolean): void;
@@ -32,15 +33,13 @@ const ProfileStats = (props: Props) => {
     null,
   );
   const [showReportFeedbackModal, setShowReportFeedbackModal] = useState(false);
-  const [showUserBlockedModal, setShowUserBlockedModal] = useState(false);
+  const [showUserBlockedSuccesModal, setShowUserBlockedSuccessModal] = useState(false);
 
   const { withAuth } = useMiddleware();
   const { isSignedIn, ...currentUser } = useSignedInUser();
   const { send: sendReportReq, loading: reporting } = useRequest();
   const { send: sendBlockRequest, loading: blockReqLoading } = useRequest();
   const { send: sendGetBlockedUsersRequest, loading: gettingBlockedUsers } = useRequest();
-
-  const router = useRouter();
 
   const {
     inputValue: reportReason,
@@ -54,8 +53,8 @@ const ProfileStats = (props: Props) => {
     validators: [{ fn: isRequired, params: ['Report cannot be empty'] }],
   });
 
-  const loadBlockedUsers = useCallback(() => {
-    const req = api.getPeopleBlockedByUser(currentUser!.accessToken!);
+  const loadUsersBlockedByCurrentUser = useCallback(() => {
+    const req = api.getPeopleBlockedByUser(currentUser!._id!);
     sendGetBlockedUsersRequest(req).then(res =>
       res.status === 'SUCCESS'
         ? setUsersBlockedByCurrentUser(res.users)
@@ -63,14 +62,14 @@ const ProfileStats = (props: Props) => {
     );
   }, [currentUser]);
 
-  useEffect(() => {
-    if (isSignedIn) loadBlockedUsers();
-  }, [isSignedIn]);
-
-  useEffect(() => {
-    if (blockReqLoading || gettingBlockedUsers) props.showSpinner(true);
-    else props.showSpinner(false);
-  }, [blockReqLoading]);
+  const handleBlockUser = (token: string) => {
+    const req = api.toggleBlockUser(props.user!._id, token);
+    sendBlockRequest(req).then(res => {
+      if (res?.status !== 'SUCCESS') return;
+      setUsersBlockedByCurrentUser(res.blockedUsers);
+      setShowUserBlockedSuccessModal(true);
+    });
+  };
 
   const handleReport = useCallback(async () => {
     if (runReportValidators().errorExists) return;
@@ -81,30 +80,24 @@ const ProfileStats = (props: Props) => {
       .finally(setShowReportModal.bind(null, false));
   }, [currentUser]);
 
-  const handleBlockUser = (token: string) => {
-    const req = api.toggleBlockUser(props.user!._id, token);
-    sendBlockRequest(req).then(
-      res => res.status === 'SUCCESS' && setUsersBlockedByCurrentUser(res.blockedUsers),
-    );
-  };
+  useEffect(() => {
+    if (isSignedIn) loadUsersBlockedByCurrentUser();
+  }, [isSignedIn]);
 
-  const userIsBlockableByCurrentUser = useMemo(() => {
+  useEffect(() => {
+    if (blockReqLoading || gettingBlockedUsers) props.showSpinner(true);
+    else props.showSpinner(false);
+  }, [blockReqLoading]);
+
+  const profileUserBlockableByCurrentUser = useMemo(() => {
     return isSignedIn && props.user?._id !== currentUser._id;
   }, [isSignedIn, props.user, currentUser]);
 
-  const userBlockedByCurrentUser = useMemo(() => {
+  const profileUserBlockedByCurrentUser = useMemo(() => {
     return (
       (props.user && isSignedIn && usersBlockedByCurrentUser?.includes(props.user._id)) || false
     );
   }, [props.user, isSignedIn, usersBlockedByCurrentUser]);
-
-  const currentUserBlocked = useMemo(() => {
-    return isSignedIn && currentUser && props.user?.blockedUsers?.includes(currentUser._id!);
-  }, [isSignedIn, usersBlockedByCurrentUser, currentUser]);
-
-  useEffect(() => {
-    setShowUserBlockedModal(!!currentUserBlocked);
-  }, [currentUserBlocked]);
 
   return (
     <>
@@ -154,7 +147,7 @@ const ProfileStats = (props: Props) => {
                 Followers
               </a>
             </Link>
-            {props.user?.followers.length}
+            {props.followersCount}
           </li>
 
           <li className="">
@@ -190,21 +183,24 @@ const ProfileStats = (props: Props) => {
             </button>
           </li>
 
-          <li className={cls(!userIsBlockableByCurrentUser ? 'd-none' : '')}>
+          <li className={cls(!profileUserBlockableByCurrentUser ? 'd-none' : '')}>
             <LoadingButton
               isLoading={blockReqLoading}
               className="btn btn-bg-none no-bg-hover w-max-content"
               onClick={withAuth.bind(null, handleBlockUser)}
               withSpinner
-              textWhileLoading={userBlockedByCurrentUser ? 'Unblocking...' : 'Blocking...'}
+              textWhileLoading={
+                profileUserBlockedByCurrentUser ? 'Unblocking...' : 'Blocking...'
+              }
             >
               <Icon icon="ic:baseline-block" width={20} color="red" />
-              {userBlockedByCurrentUser ? 'Unblock' : 'Block'} {props.user?.firstName}
+              {profileUserBlockedByCurrentUser ? 'Unblock' : 'Block'} {props.user?.firstName}
             </LoadingButton>
           </li>
         </ul>
       </aside>
 
+      {/* The profile submit feedback modal alert */}
       <Modal
         show={showReportFeedbackModal}
         style={{ marginTop: '2rem' }}
@@ -218,20 +214,24 @@ const ProfileStats = (props: Props) => {
         </Modal.Header>
       </Modal>
 
+      {/* The blocked/unblocked Success Modal */}
       <Modal
-        show={showUserBlockedModal}
-        onHide={setShowUserBlockedModal.bind(null, false)}
+        show={showUserBlockedSuccesModal}
+        onHide={setShowUserBlockedSuccessModal.bind(null, false)}
         style={{ marginTop: '2rem' }}
-        onExiting={router.back}
       >
         <Modal.Header className="u-border-none p-5" closeButton>
           <div className="d-flex align-items-center gap-3">
-            <Icon icon="ic:baseline-block" width={20} />
-            <h3 className="mt-2">This profile is not available</h3>
+            <Icon icon="mdi:success" width={25} color="#00ae00" />
+            <h3 className="mt-2">
+              {props.user?.firstName} has been{' '}
+              {profileUserBlockedByCurrentUser ? 'blocked' : 'unblocked'}
+            </h3>
           </div>
         </Modal.Header>
       </Modal>
 
+      {/* The profile report modal */}
       <Modal
         show={showProfileReportModal}
         centered

@@ -24,6 +24,7 @@ export interface ReviewProps {
   images: Array<{ photoUrl: string; description: string; _id: string }>;
   likes: Array<{ user: UserPublicProfile }>;
   createdAt: string;
+  totalLikes: number;
   updatedAt: string;
 }
 

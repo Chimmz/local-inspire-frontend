@@ -433,11 +433,11 @@ class API {
     });
   }
 
-  async getPeopleBlockedByUser(token: string) {
+  async getPeopleBlockedByUser(userId: string) {
     return this._makeRequest({
-      path: `/users/blocked`,
+      path: `/users/blocked-by/${userId}`,
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 

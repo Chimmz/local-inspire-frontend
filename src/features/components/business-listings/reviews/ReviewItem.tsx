@@ -64,7 +64,6 @@ const ReviewItem = function (props: Props) {
 
   const getPartialReviewText = useCallback(() => {
     if (props.review.length > 1) return props.review.slice(0, props.review.length / 2 + 1); // Show half array
-
     const strlen = props.review.join('').length;
     const lengthOfPortionToShow = Math.round(0.75 * strlen);
     return [
@@ -117,12 +116,6 @@ const ReviewItem = function (props: Props) {
     '.',
     '',
   );
-
-  const imgsToShowTotal = useMemo(() => {
-    const box = imgsContianerRef.current;
-    if (!box) return undefined;
-    return Math.floor(+box.style.width / REVIEW_IMG_WIDTH);
-  }, []);
 
   return (
     <section className={cls(styles.review, props.show ? 'd-block' : 'd-none')} key={props._id}>
@@ -284,7 +277,12 @@ const ReviewItem = function (props: Props) {
           <Icon icon="fluent:share-48-regular" width={20} /> Share
         </button>
 
-        <button className="btn bg-none" onClick={props.openReviewLikers.bind(null, props._id)}>
+        <button
+          className="btn bg-none"
+          onClick={
+            props.totalLikes > 0 ? props.openReviewLikers.bind(null, props._id) : undefined
+          }
+        >
           {likes.length
             ? qtyUtils.getPeopleQuantity(likes.length)?.concat(' found this review helpful')
             : 'No helpful votes, was it helpful to you?'}

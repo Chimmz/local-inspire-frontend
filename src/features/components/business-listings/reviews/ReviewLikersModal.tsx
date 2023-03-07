@@ -55,6 +55,7 @@ const ReviewLikersModal = (props: Props) => {
       show={props.show}
       onEntering={loadLikes}
       onHide={props.closeModal}
+      onExiting={setLikes.bind(null, [])}
     >
       <Modal.Header
         style={{ backgroundColor: '#f3f3f3' }}

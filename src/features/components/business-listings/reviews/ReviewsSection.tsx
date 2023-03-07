@@ -70,7 +70,7 @@ const MAX_PAGES = 3;
 const MAX_ITEMS = MAX_PAGES * REVIEWS_PER_PAGE; // 15
 
 function ReviewsSection(props: Props) {
-  const [reviews, setReviews] = useState<ReviewProps[]>([]);
+  const [reviews, setReviews] = useState<ReviewProps[]>(props.reviews || []);
   const [totalReviewsCount, setTotalReviewsCount] = useState(props.totalReviewsCount);
 
   const [filters, setFilters] = useState<ReviewFilter[]>([]);
@@ -87,9 +87,7 @@ function ReviewsSection(props: Props) {
   }>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
-  const { send: sendFilterReq, loading: isFilteringReviews } = useRequest({
-    autoStopLoading: true,
-  });
+  const { send: sendFilterReq, loading: isFilteringReviews } = useRequest();
 
   const { currentPage } = usePaginate({ init: reviews });
 
@@ -145,12 +143,9 @@ function ReviewsSection(props: Props) {
     if (opts?.onFilterScrollToSection) domUtils.scrollToElement(sectionRef.current!);
   };
 
-  useEffect(() => {
-    filterReviews({ page: 1, limit: REVIEWS_PER_PAGE, onFilterScrollToSection: false });
-  }, []);
-
   useEffect((): any => {
-    filterReviews();
+    if (queryStr.length) filterReviews();
+    else if (props.reviews) setReviews(props.reviews);
   }, [queryStr]);
 
   const handleCheckInput: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
@@ -173,11 +168,6 @@ function ReviewsSection(props: Props) {
     const itemsExceedMaxItems = totalReviewsCount >= MAX_ITEMS;
     return itemsExceedMaxItems ? MAX_PAGES : Math.ceil(totalReviewsCount / REVIEWS_PER_PAGE);
   }, [totalReviewsCount, MAX_ITEMS, MAX_PAGES, REVIEWS_PER_PAGE]);
-
-  const openReviewLikers = useCallback(
-    (reviewId: string) => setReviewLikers({ reviewId }),
-    [setReviewLikers],
-  );
 
   const showWith = useCallback(
     (showClassName: string) => (!props.show ? 'd-none' : showClassName),
@@ -220,7 +210,7 @@ function ReviewsSection(props: Props) {
           show={!!reviews?.length && props.show}
           businessName={props.businessName}
           businessData={props.business!}
-          openReviewLikers={openReviewLikers}
+          openReviewLikers={(reviewId: string) => setReviewLikers({ reviewId })}
           openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
           openShareModal={(reviewId: string, reviewTitle: string) =>
             setReviewToShare({ _id: reviewId, reviewTitle })
