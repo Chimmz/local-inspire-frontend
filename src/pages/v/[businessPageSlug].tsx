@@ -51,12 +51,12 @@ interface Props {
     data?: QuestionItemProps[];
     total: number;
   };
-  tips: { total: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
+  // tips: { total: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
 
-  businessReviewStats: {
-    overallFeatureRatings?: { _id: string; avgRating: number }[];
-    recommendsStats?: { recommends: number; doesNotRecommend: number };
-  };
+  // businessReviewStats: {
+  //   overallFeatureRatings?: { _id: string; avgRating: number }[];
+  //   recommendsStats?: { recommends: number; doesNotRecommend: number };
+  // };
   userCollections?: UserCollection[];
   userReview?: ReviewProps;
 
@@ -118,8 +118,8 @@ const BusinessPage: NextPage<Props> = function (props) {
 
                 <RatingStats
                   business={props.business.data}
-                  overallFeatureRatings={props.businessReviewStats.overallFeatureRatings!}
-                  recommendationStats={props.businessReviewStats.recommendsStats}
+                  // overallFeatureRatings={props.businessReviewStats.overallFeatureRatings!}
+                  // recommendationStats={props.businessReviewStats.recommendsStats}
                   reviewsCount={props.reviews.total}
                 />
 
@@ -196,7 +196,7 @@ const BusinessPage: NextPage<Props> = function (props) {
                       data-active={active === 'advices'}
                     >
                       <Icon icon="material-symbols:tips-and-updates-outline" width={30} />
-                      <strong>{props.tips.total || ''} Tips</strong>
+                      <strong>{props.reviews.total || ''} Tips</strong>
                     </button>
                   </nav>
 
@@ -223,8 +223,8 @@ const BusinessPage: NextPage<Props> = function (props) {
 
                   <AdvicesSection
                     show={active === 'advices'}
-                    tips={props.tips?.data}
-                    tipsTotal={props.tips?.total}
+                    // tips={props.tips?.data}
+                    tipsTotal={props.reviews?.total}
                     slug={props.params.slug}
                     business={props.business.data!}
                     businessName={props.business.data?.businessName}
@@ -304,15 +304,15 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
       page: 1,
       limit: 5,
     }),
-    api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
-    api.getBusinessOverallRating(businessId), // 4
+    // api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
+    // api.getBusinessOverallRating(businessId), // 4
   ];
 
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions as NextAuthOptions,
-  );
+  // const session = await unstable_getServerSession(
+  //   context.req,
+  //   context.res,
+  //   authOptions as NextAuthOptions,
+  // );
 
   // if (session)
   //   reqs.push(
@@ -330,18 +330,18 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
 
   // if (!business?.businessName ) return { notFound: true };
 
-  const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
-  const userReviewResponse = responses[6] as {
-    status: string;
-    value: { review: ReviewProps };
-  };
+  // const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
+  // const userReviewResponse = responses[6] as {
+  //   status: string;
+  //   value: { review: ReviewProps };
+  // };
 
   const loc = location.split('-');
   const props: any = {
     business: business || {},
     reviews: reviews || {},
     questions: questions || {},
-    tips: tips || {},
+    // tips: tips || {},
     businessReviewStats: businessReviewStats || {},
 
     params: {
@@ -353,10 +353,10 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     },
   };
 
-  if (collectionsResponse?.value?.collections) {
-    props.userCollections = collectionsResponse?.value.collections;
-  }
-  if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
+  // if (collectionsResponse?.value?.collections) {
+  //   props.userCollections = collectionsResponse?.value.collections;
+  // }
+  // if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
 
   return { props };
 };

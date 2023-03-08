@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import cls from 'classnames';
 import styles from './RatingStats.module.scss';
@@ -10,40 +10,61 @@ import { BusinessProps } from '../../business-results/Business';
 import { Overlay, Popover } from 'react-bootstrap';
 import MapView from '../../business-results/MapView';
 import { getPeopleQuantity } from '../../../utils/quantity-utils';
+import api from '../../../library/api';
+
+interface RecommendationStats {
+  overallFeatureRatings: Array<{ _id: string; avgRating: number }> | undefined;
+  recommendationStats: { yes: number; no: number } | undefined;
+}
 
 interface Props {
   business: BusinessProps | undefined;
-  overallFeatureRatings: Array<{ _id: string; avgRating: number }> | undefined;
-  recommendationStats: { recommends: number; doesNotRecommend: number } | undefined;
+  // overallFeatureRatings?: Array<{ _id: string; avgRating: number }> | undefined;
+  // recommendationStats?: { yes: number; no: number } | undefined;
   reviewsCount: number;
 }
 
 const RatingStats = function (props: Props) {
+  const [stats, setStats] = useState<RecommendationStats | null>(null);
   const [show, setShow] = useState(false);
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const ref = useRef(null);
+
+  const loadStats = useCallback(() => {
+    if (!props.business) return;
+    api.getBusinessOverallRating(props.business._id).then(res => {
+      res?.status === 'SUCCESS' && setStats(res);
+    });
+  }, [props.business]);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = event => {
     setShow(!show);
     setTarget(event.target as HTMLElement);
   };
 
-  const normalizedFeatureRatings = useMemo(() => {
-    if (!props.overallFeatureRatings?.length) return null;
-    const result: { [key: string]: number } = {};
+  useEffect(() => {
+    console.log('STATS: ', stats);
+  }, []);
 
-    props.overallFeatureRatings?.forEach(({ _id: feat, avgRating }) => {
+  const normalizedFeatureRatings = useMemo(() => {
+    if (!stats?.overallFeatureRatings?.length) return null;
+
+    // Turn the overall ratings array into a hash table
+    const result: { [key: string]: number } = {};
+    stats?.overallFeatureRatings?.forEach(({ _id: feat, avgRating }) => {
       result[feat] = avgRating;
     });
     return result;
-  }, [props.overallFeatureRatings]);
+  }, [stats?.overallFeatureRatings]);
 
   const getOverallRatingFor = useCallback(
-    (feat: string) => Math.floor(normalizedFeatureRatings![feat]),
+    (feature: string) => Math.floor(normalizedFeatureRatings![feature]),
     [normalizedFeatureRatings],
   );
-
-  console.log({ normalizedFeatureRatings });
 
   return (
     <section className={styles.ratingStats}>
@@ -54,7 +75,8 @@ const RatingStats = function (props: Props) {
           <div className="">
             <h6 className="fs-2">{Math.floor(props.business?.avgRating!)} out of 5</h6>
             <span className="fs-5">
-              Based off the recommendation of {getPeopleQuantity(props.reviewsCount)}
+              Based off the recommendation of {getPeopleQuantity(props.reviewsCount)}{' '}
+              {/* {stats?.recommendationStats?.yes || 0} */}
             </span>
           </div>
         </div>
@@ -124,10 +146,7 @@ const RatingStats = function (props: Props) {
         ) : null}
 
         <div ref={ref} className="mt-5">
-          <button
-            className="btn btn-bg-none no-bg-hover btn--lg text-pry"
-            onClick={handleClick}
-          >
+          <button className="btn btn-bg-none no-bg-hover btn--lg text-pry" onClick={handleClick}>
             <Icon icon="nimbus:stats" />
             <strong>Overall rating stats</strong>
           </button>
@@ -140,27 +159,30 @@ const RatingStats = function (props: Props) {
             containerPadding={20}
           >
             <Popover id="popover-trigger-hover-focus" className="w-max-content p-3">
-              <Popover.Body className="fs-4 d-flex gap-5">
-                <div className="">
-                  <strong className="w-max-content d-block mb-3">Recommended</strong>
-                  <div className="d-flex align-items-center gap-2">
-                    <Icon icon="mdi:success-circle-outline" color="00cc00" width={24} />
-                    <span className="fs-3">{props.recommendationStats?.recommends || 0}</span>
-                  </div>
-                </div>
+              {useMemo(
+                () => (
+                  <Popover.Body className="fs-4 d-flex gap-5">
+                    <div className="">
+                      <strong className="w-max-content d-block mb-3">Recommended</strong>
+                      <div className="d-flex align-items-center gap-2">
+                        <Icon icon="mdi:success-circle-outline" color="00cc00" width={24} />
+                        <span className="fs-3">{stats?.recommendationStats?.yes || 0}</span>
+                      </div>
+                    </div>
 
-                <div className="">
-                  <strong className="w-max-content d-block mb-3">
-                    Didn&apos;t Recommend
-                  </strong>
-                  <div className="d-flex align-items-center gap-2">
-                    <Icon icon="mi:circle-error" color="red" width={24} />
-                    <span className="fs-3">
-                      {props.recommendationStats?.doesNotRecommend || 0}
-                    </span>
-                  </div>
-                </div>
-              </Popover.Body>
+                    <div className="">
+                      <strong className="w-max-content d-block mb-3">
+                        Didn&apos;t Recommend
+                      </strong>
+                      <div className="d-flex align-items-center gap-2">
+                        <Icon icon="mi:circle-error" color="red" width={24} />
+                        <span className="fs-3">{stats?.recommendationStats?.no || 0}</span>
+                      </div>
+                    </div>
+                  </Popover.Body>
+                ),
+                [stats?.recommendationStats],
+              )}
             </Popover>
           </Overlay>
         </div>

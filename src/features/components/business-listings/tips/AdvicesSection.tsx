@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 import usePaginate from '../../../hooks/usePaginate';
@@ -19,7 +19,7 @@ import styles from './AdvicesSection.module.scss';
 
 interface AdvicesSectionProps {
   show: boolean;
-  tips?: TipProps[] | undefined;
+  // tips?: TipProps[] | undefined;
   tipsTotal: number;
   slug: string;
   business: BusinessProps;
@@ -39,9 +39,29 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
 
   const tipsSectionRef = useRef<HTMLElement | null>(null);
   const { withAuth } = useMiddleware();
+  const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } = usePaginate<
+    TipProps[]
+  >({ init: { 1: [] } });
 
-  const { currentPage, currentPageData, setCurrentPage, setPageData, getPageData } =
-    usePaginate<TipProps[]>({ init: { 1: props.tips! } });
+  const loadAdvices = async (page: number, onFetchScrollToSection: boolean = false) => {
+    try {
+      const req = api.getTipsAboutBusiness(props.businessId!, { page, limit: TIPS_PER_PAGE });
+      const res = await props.sendRequest(req);
+      if (res?.status !== 'SUCCESS') return;
+      if (tipsTotal !== res.total) setTipsTotal(res.total);
+
+      setPageData(page, res.data);
+      setCurrentPage(page);
+      if (onFetchScrollToSection) domUtils.scrollToElement(tipsSectionRef.current!);
+    } catch (err) {
+      console.log('Error in fetching tips: ', err);
+    }
+  };
+
+  useEffect(() => {
+    const firstPage = 1;
+    loadAdvices(firstPage);
+  }, []);
 
   const handlePageChange = async (newPage: number) => {
     // If data for this page has been fetched
@@ -49,19 +69,20 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       setCurrentPage(newPage);
       return domUtils.scrollToElement(tipsSectionRef.current!);
     }
-    const req = api.getTipsAboutBusiness(props.businessId!, {
-      page: newPage,
-      limit: TIPS_PER_PAGE,
-    });
-    const res = await props.sendRequest(req);
-    if (res?.status !== 'SUCCESS') return;
+    loadAdvices(newPage, true);
+    // const req = api.getTipsAboutBusiness(props.businessId!, {
+    //   page: newPage,
+    //   limit: TIPS_PER_PAGE,
+    // });
+    // const res = await props.sendRequest(req);
+    // if (res?.status !== 'SUCCESS') return;
 
-    setPageData(newPage, res.data);
-    setCurrentPage(newPage);
-    domUtils.scrollToElement(tipsSectionRef.current!);
+    // setPageData(newPage, res.data);
+    // setCurrentPage(newPage);
+    // domUtils.scrollToElement(tipsSectionRef.current!);
 
     // In case there are new tips in DB, let it alter the number of pages
-    if (tipsTotal !== res.total) setTipsTotal(res.total);
+    // if (tipsTotal !== res.total) setTipsTotal(res.total);
   };
 
   const openAdviceReportModal = function (tId: string) {
@@ -100,7 +121,8 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       {currentPageData?.map(tip => (
         <Tip
           {...tip}
-          show={props.show && !!props.tips?.length}
+          // show={props.show && !!props.tips?.length}
+          show={props.show && !!currentPageData?.length}
           key={tip._id}
           slug={props.slug}
           business={props.business}
@@ -109,7 +131,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       ))}
 
       {/* Pagination */}
-      {props.tips?.length ? (
+      {currentPageData?.length ? (
         <div className={showWith('d-block')}>
           <Paginators
             currentPage={currentPage}
@@ -122,7 +144,7 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       {/* If there are no tips (reviews) */}
       <NoReviewsYet
         businessName={props.businessName}
-        show={props.show && !props.tips?.length}
+        show={props.show && !currentPageData?.length}
       />
 
       <ReportQA
