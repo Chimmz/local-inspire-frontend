@@ -32,3 +32,10 @@ export interface UserPublicProfile {
   profileViews: number;
   blockedUsers: string[];
 }
+
+export interface PrivateMessage {
+  text: string;
+  from: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>;
+  to: string;
+  seen: boolean;
+}

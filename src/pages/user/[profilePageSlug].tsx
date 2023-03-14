@@ -3,8 +3,6 @@ import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
-import Link from 'next/link';
 import Layout from '../../features/components/layout';
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 import api from '../../features/library/api';
@@ -19,7 +17,6 @@ import ReviewItem from '../../features/components/business-listings/reviews/Revi
 import reviewsSectionStyles from '../../features/components/business-listings/reviews/ReviewsSection.module.scss';
 import styles from '../../styles/sass/pages/ProfilePage.module.scss';
 import { BusinessProps } from '../../features/components/business-results/Business';
-import SocialShareModal from '../../features/components/shared/social-share/SocialShare';
 import ReviewLikersModal from '../../features/components/business-listings/reviews/ReviewLikersModal';
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 import ReportQA from '../../features/components/ReportQA';

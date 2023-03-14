@@ -416,10 +416,9 @@ class API {
     });
   }
 
-  async getUnreadMsgs(token: string, url: string) {
-    console.log({ url, token });
+  async getUnreadMsgs(token: string) {
     return this._makeRequest({
-      path: url,
+      path: '/messages/unread',
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });

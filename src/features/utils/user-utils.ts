@@ -1,4 +1,4 @@
-interface NamedUser {
+export interface NamedUser {
   firstName: string | undefined;
   lastName: string | undefined;
 }
@@ -14,9 +14,7 @@ export const getFullName = (
   options?: Partial<UserNameDisplayOptions>,
 ) => {
   if (!user) return null;
-  if (options?.full) return user?.firstName + ' ' + user?.lastName;
-
+  if (!options || options?.full) return user?.firstName + ' ' + user?.lastName;
   if (options?.lastNameInitial) return user?.firstName + ' ' + user?.lastName?.[0] + '.';
-
   if (options?.initials) return user?.firstName?.[0] + '' + user?.lastName?.[0];
 };
