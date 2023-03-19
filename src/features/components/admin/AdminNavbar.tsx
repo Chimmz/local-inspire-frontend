@@ -47,11 +47,11 @@ const AdminNavbar = function (props: Props) {
                 <a href="#" className={getStyle('list-group-item')}>
                   <div className={getStyle('row g-0 align-items-center')}>
                     <div className={getStyle('col-2')}>
-                      <img
+                      {/* <img
                         src="img/avatars/avatar-5.jpg"
                         className={getStyle('avatar img-fluid rounded-circle')}
                         alt="Michelle Bilodeau"
-                      />
+                      /> */}
                     </div>
                     <div className={getStyle('col-10 ps-2')}>
                       <div className={getStyle('text-dark')}>Michelle Bilodeau</div>
@@ -65,11 +65,11 @@ const AdminNavbar = function (props: Props) {
                 <a href="#" className={getStyle('list-group-item')}>
                   <div className={getStyle('row g-0 align-items-center')}>
                     <div className={getStyle('col-2')}>
-                      <img
+                      {/* <img
                         src="img/avatars/avatar-3.jpg"
                         className={getStyle('avatar img-fluid rounded-circle')}
                         alt="Kathie Burton"
-                      />
+                      /> */}
                     </div>
                     <div className={getStyle('col-10 ps-2')}>
                       <div className={getStyle('text-dark')}>Kathie Burton</div>
@@ -83,11 +83,11 @@ const AdminNavbar = function (props: Props) {
                 <a href="#" className={getStyle('list-group-item')}>
                   <div className={getStyle('row g-0 align-items-center')}>
                     <div className={getStyle('col-2')}>
-                      <img
+                      {/* <img
                         src="img/avatars/avatar-2.jpg"
                         className={getStyle('avatar img-fluid rounded-circle')}
                         alt="Alexander Groves"
-                      />
+                      /> */}
                     </div>
                     <div className={getStyle('col-10 ps-2')}>
                       <div className={getStyle('text-dark')}>Alexander Groves</div>
@@ -101,11 +101,11 @@ const AdminNavbar = function (props: Props) {
                 <a href="#" className={getStyle('list-group-item')}>
                   <div className={getStyle('row g-0 align-items-center')}>
                     <div className={getStyle('col-2')}>
-                      <img
+                      {/* <img
                         src="img/avatars/avatar-4.jpg"
                         className={getStyle('avatar img-fluid rounded-circle')}
                         alt="Daisy Seger"
-                      />
+                      /> */}
                     </div>
                     <div className={getStyle('col-10 ps-2')}>
                       <div className={getStyle('text-dark')}>Daisy Seger</div>
