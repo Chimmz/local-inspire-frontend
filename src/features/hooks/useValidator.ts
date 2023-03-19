@@ -10,12 +10,12 @@ export type ValidationError = ValidationFeedback & { type: 'failed' };
 export type ValidatorRunner = () => { errorExists: boolean; errors: ValidationError[] };
 export type ValidationErrorPusher = (err: string) => void;
 
-interface UseValidatorParams<T> {
+interface UseValidatorParams<T extends string | string[] | number | Date = string> {
   inputValue: T;
   validators: ValidatorConfig<T>[];
 }
 
-function useValidator<T extends string | number | Date>({
+function useValidator<T extends string | string[] | number | Date>({
   inputValue,
   validators,
 }: UseValidatorParams<T>) {
@@ -30,8 +30,8 @@ function useValidator<T extends string | number | Date>({
     console.log('Input in running validator: ', inputValue);
 
     const getFeedback = ({ fn, params }: ValidatorConfig<T>): ValidationFeedback => {
-      const validate = fn.bind({ userInput: inputValue });
-      const result = validate(...params);
+      const validator = fn.bind({ userInput: inputValue });
+      const result = validator(...params);
       return result;
     };
 

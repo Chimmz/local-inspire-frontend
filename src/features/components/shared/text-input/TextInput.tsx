@@ -1,11 +1,14 @@
 import React, { Fragment } from 'react';
 import { ValidationFeedback } from '../../../utils/validators/types';
-import { Form } from 'react-bootstrap';
+import { Form, FormControlProps } from 'react-bootstrap';
 import cls from 'classnames';
 
-interface TextInputProps {
+// let a: FormControlProps;
+// a.onChange
+
+interface TextInputProps extends FormControlProps {
   as?: 'input' | 'textarea';
-  type?: 'text' | 'email' | 'password' | 'textarea' | 'date';
+  type?: 'text' | 'number' | 'email' | 'password' | 'textarea' | 'date';
   value: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
@@ -43,7 +46,7 @@ function TextInput(props: TextInputProps) {
         onInput={props.onInput || (() => {})}
         onKeyUp={props.onKeyUp || (() => {})}
         onFocus={ev => {
-          props.onFocus?.();
+          props.onFocus?.(ev);
           onFocusSelect && ev.target.select();
         }}
         readOnly={props.readonly}

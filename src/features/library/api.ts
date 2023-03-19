@@ -120,6 +120,14 @@ class API {
     });
   }
 
+  async getAllBusinessCategories(categoryType: 'SIC2' | 'SIC4' | 'SIC8' | 'industry') {
+    return this._makeRequest({
+      path: `/businesses/categories/search?type=${categoryType}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async searchCities(query: string) {
     return this._makeRequest({
       path: `/cities/search?textQuery=${query}`,
@@ -444,6 +452,24 @@ class API {
     return this._makeRequest({
       path: `/users/${userId}/block`,
       method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  //////// ADMIN //////////
+
+  async addFilter(body: object, token: string) {
+    return this._makeRequest({
+      path: `/admin/filters`,
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async getFilters(token: string) {
+    return this._makeRequest({
+      path: `/admin/filters`,
+      method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }

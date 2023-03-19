@@ -33,9 +33,29 @@ export interface UserPublicProfile {
   blockedUsers: string[];
 }
 
+// Text Message
 export interface PrivateMessage {
   text: string;
   from: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>;
   to: string;
   seen: boolean;
+}
+
+// Admin Filters
+export interface AdminFilter {
+  _id: string;
+  createdBy: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  showForBusiness: boolean;
+  showForFilter: boolean;
+  category?: string;
+  searchKeyword?: 'Restaurants' | 'Hotels' | 'Things to do' | 'Vacation rentals' | 'Cruises';
+  SIC2Categories?: string[];
+  SIC4Categories?: string[];
+  SIC8Categories?: string[];
+  keyOrder?: Number;
+  // subCategories?: string[],
+  formType: string;
 }
