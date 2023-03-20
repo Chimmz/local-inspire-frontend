@@ -64,25 +64,12 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
   }, []);
 
   const handlePageChange = async (newPage: number) => {
-    // If data for this page has been fetched
+    // If data for this page has been fetched before
     if (getPageData(newPage)?.length) {
       setCurrentPage(newPage);
       return domUtils.scrollToElement(tipsSectionRef.current!);
     }
     loadAdvices(newPage, true);
-    // const req = api.getTipsAboutBusiness(props.businessId!, {
-    //   page: newPage,
-    //   limit: TIPS_PER_PAGE,
-    // });
-    // const res = await props.sendRequest(req);
-    // if (res?.status !== 'SUCCESS') return;
-
-    // setPageData(newPage, res.data);
-    // setCurrentPage(newPage);
-    // domUtils.scrollToElement(tipsSectionRef.current!);
-
-    // In case there are new tips in DB, let it alter the number of pages
-    // if (tipsTotal !== res.total) setTipsTotal(res.total);
   };
 
   const openAdviceReportModal = function (tId: string) {
@@ -121,7 +108,6 @@ const AdvicesSection = function (props: AdvicesSectionProps) {
       {currentPageData?.map(tip => (
         <Tip
           {...tip}
-          // show={props.show && !!props.tips?.length}
           show={props.show && !!currentPageData?.length}
           key={tip._id}
           slug={props.slug}

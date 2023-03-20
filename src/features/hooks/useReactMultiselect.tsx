@@ -11,7 +11,6 @@ const useReactSelect = () => {
     newState: MultiValue<ReactSelectOption> | SingleValue<ReactSelectOption>,
     action: ActionMeta<ReactSelectOption>,
   ) => {
-    // console.log('New state, Action: ', newState, action);
     setChosenItems(newState);
   };
   return { chosenItems, onSelect };

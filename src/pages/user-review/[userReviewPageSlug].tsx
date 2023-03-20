@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import { ReviewProps } from '../../features/components/page-reviews/UserReview';
 
-import useDate from '../../features/hooks/useDate';
+import useRequest from '../../features/hooks/useRequest';
+import { useRouter } from 'next/router';
 
 import api from '../../features/library/api';
 import { getFullName } from '../../features/utils/user-utils';
@@ -14,22 +14,16 @@ import { genBusinessPageUrl, parseUserReviewPageSlug } from '../../features/util
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
-import { InputGroup, SSRProvider } from 'react-bootstrap';
-import { FacebookShareButton, TwitterShareButton } from 'react-share';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import { SSRProvider } from 'react-bootstrap';
 import ReviewItem from '../../features/components/business-listings/reviews/ReviewItem';
 import Layout from '../../features/components/layout';
-import styles from '../../styles/sass/pages/UserReviewPage.module.scss';
-import TextInput from '../../features/components/shared/text-input/TextInput';
 import ReviewLikersModal from '../../features/components/business-listings/reviews/ReviewLikersModal';
 import ReportQA from '../../features/components/ReportQA';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import { reviewReportReasonsConfig } from '../../features/components/business-listings/reviews/config';
 import ShareStrategies from '../../features/components/shared/social-share/ShareStrategies';
 import SocialShareModal from '../../features/components/shared/social-share/SocialShare';
-import useRequest from '../../features/hooks/useRequest';
+import styles from '../../styles/sass/pages/UserReviewPage.module.scss';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL';

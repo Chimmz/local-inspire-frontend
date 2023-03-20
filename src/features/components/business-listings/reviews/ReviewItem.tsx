@@ -58,14 +58,12 @@ const ReviewItem = function (props: Props) {
     month: 'short',
     year: 'numeric',
   });
-  const { send: sendLikeReq, loading: isLiking } = useRequest({
-    autoStopLoading: true,
-  });
+  const { send: sendLikeReq, loading: isLiking } = useRequest();
 
   const getPartialReviewText = useCallback(() => {
     if (props.review.length > 1) return props.review.slice(0, props.review.length / 2 + 1); // Show half array
     const strlen = props.review.join('').length;
-    const lengthOfPortionToShow = Math.round(0.75 * strlen);
+    const lengthOfPortionToShow = Math.round(0.75 * strlen); // 75% of the string length
     return [
       props.review
         .join('')

@@ -123,7 +123,6 @@ const AddFilterModal = function (props: Props) {
   const handleSave = async () => {
     const validationResults = [runNameValidators(), runDescriptionValidators()];
     if (validationResults.some(result => result.errorExists)) return;
-
     const body = {
       name: filterName,
       description,
@@ -142,12 +141,12 @@ const AddFilterModal = function (props: Props) {
       const res = await sendSaveFilterReq(api.addFilter(body, accessToken!));
       if (res.status !== 'SUCCESS') throw Error(res.msg || res.error);
       props.onAddFilter();
+      clearName();
+      clearDescription();
       props.close();
     } catch (err) {
       console.log(err);
     }
-    clearName();
-    clearDescription();
   };
 
   return (

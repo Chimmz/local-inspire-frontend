@@ -8,7 +8,6 @@ import AuthContextProvider from '../features/contexts/AuthContext';
 import { UserLocationProvider } from '../features/contexts/UserLocationContext';
 import Head from 'next/head';
 import { seoKeywords } from '../features/data/constants';
-// import Script from 'next/script';
 
 interface PageProps {
   [key: string]: any;

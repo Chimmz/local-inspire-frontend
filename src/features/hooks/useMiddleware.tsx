@@ -9,11 +9,10 @@ export type AuthMiddlewareNext = (token: string) => any;
 type Middleware = (next: AuthMiddlewareNext) => any;
 
 const useMiddleware = function () {
-  const currentUser = useSignedInUser();
-  const { showAuthModal, isAuthModalOpen } = useAuthModalContext();
-
-  const [nextAction, setNextAction] = useState<AuthMiddlewareNext | undefined>(undefined);
   const [middlewareType, setMiddlewareType] = useState<'AUTH' | null>(null);
+  const [nextAction, setNextAction] = useState<AuthMiddlewareNext | undefined>(undefined);
+  const { showAuthModal, isAuthModalOpen } = useAuthModalContext();
+  const currentUser = useSignedInUser();
 
   const removeNextAction = () => {
     setNextAction(undefined);

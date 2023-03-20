@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState, Dispatch, SetStateAction, memo } from 'react';
-import { Icon } from '@iconify/react';
-import cls from 'classnames';
+import Head from 'next/head';
 import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,13 +7,37 @@ import { Modal, SSRProvider } from 'react-bootstrap';
 import Answer, {
   AnswerProps,
 } from '../../features/components/business-listings/questions/Answer';
+import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
+import { BusinessProps } from '../../features/components/business-results/Business';
 import {
   answerReportReasonsConfig,
   newQuestionGuidelinesConfig,
   newAnswersGuidelinesConfig,
   questionReportReasonsConfig,
 } from '../../features/components/business-listings/questions/config';
-import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
+
+import { Icon } from '@iconify/react';
+import useMiddleware, { AuthMiddlewareNext } from '../../features/hooks/useMiddleware';
+import usePaginate from '../../features/hooks/usePaginate';
+import useDate from '../../features/hooks/useDate';
+import useInput from '../../features/hooks/useInput';
+import useRequest from '../../features/hooks/useRequest';
+import useSignedInUser from '../../features/hooks/useSignedInUser';
+import cls from 'classnames';
+
+import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
+import {
+  genBusinessPageUrl,
+  genUserProfileUrl,
+  getBusinessQuestionsUrl,
+} from '../../features/utils/url-utils';
+import { getFullName } from '../../features/utils/user-utils';
+import * as qtyUtils from '../../features/utils/quantity-utils';
+import * as domUtils from '../../features/utils/dom-utils';
+import { toTitleCase } from '../../features/utils/string-utils';
+import api from '../../features/library/api';
+
+import Paginators from '../../features/components/shared/pagination/Paginators';
 import PopupInfo from '../../features/components/PopupInfo';
 import Layout from '../../features/components/layout';
 import PopularQuestions from '../../features/components/question-details-page/PopularQuestions';
@@ -24,35 +47,12 @@ import AppDropdown from '../../features/components/shared/dropdown/AppDropdown';
 import Spinner from '../../features/components/shared/spinner/Spinner';
 import PageSuccess from '../../features/components/shared/success/PageSuccess';
 import TextInput from '../../features/components/shared/text-input/TextInput';
-import useMiddleware, { AuthMiddlewareNext } from '../../features/hooks/useMiddleware';
-import useDate from '../../features/hooks/useDate';
-import useInput from '../../features/hooks/useInput';
-import useRequest from '../../features/hooks/useRequest';
-import useSignedInUser from '../../features/hooks/useSignedInUser';
-import api from '../../features/library/api';
-import {
-  genBusinessPageUrl,
-  genUserProfileUrl,
-  getBusinessQuestionsUrl,
-} from '../../features/utils/url-utils';
-import { getFullName } from '../../features/utils/user-utils';
-import { maxLength, minLength } from '../../features/utils/validators/inputValidators';
 import ReportQA from '../../features/components/ReportQA';
-import * as qtyUtils from '../../features/utils/quantity-utils';
-import usePaginate from '../../features/hooks/usePaginate';
-import Paginators from '../../features/components/shared/pagination/Paginators';
-import * as domUtils from '../../features/utils/dom-utils';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
-import { BusinessProps } from '../../features/components/business-results/Business';
-import Head from 'next/head';
-import { toTitleCase } from '../../features/utils/string-utils';
 
 interface Props {
   question?: QuestionItemProps & {
-    business: Pick<
-      BusinessProps,
-      '_id' | 'businessName' | 'city' | 'stateCode' | 'reviewers'
-    >;
+    business: Pick<BusinessProps, '_id' | 'businessName' | 'city' | 'stateCode' | 'reviewers'>;
   };
   answers: {
     data: AnswerProps[] | undefined;
@@ -60,7 +60,6 @@ interface Props {
     results: number;
     mostHelpfulAnswerId: string | null;
   };
-  // mostHelpfulAnswer: AnswerProps | undefined;
   error?: string;
 }
 
@@ -143,10 +142,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
     [setCurrentPage, props.question?._id, sendPageReq, setAnswers, setAnswersTotal],
   );
 
-  const pageCount = useMemo(
-    () => Math.ceil(answersTotal! / ANSWERS_PER_PAGE),
-    [answersTotal],
-  );
+  const pageCount = useMemo(() => Math.ceil(answersTotal! / ANSWERS_PER_PAGE), [answersTotal]);
 
   const handleSelectDropdownOption = useCallback(
     (evKey: string) => {
@@ -366,8 +362,8 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
             >
               <h6 className="fs-4 mb-5" style={{ flexBasis: '100%' }}>
                 <strong>
-                  Hi, {currentUser.firstName}, can you provide an answer for this
-                  traveler&apos;s question?
+                  Hi, {currentUser.firstName}, can you provide an answer for this traveler&apos;s
+                  question?
                 </strong>
               </h6>
               <div className="d-flex align-items-start flex-wrap gap-4 mb-3">

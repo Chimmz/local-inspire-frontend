@@ -3,10 +3,10 @@ import { Modal } from 'react-bootstrap';
 
 interface PopupInfoPropsProps {
   show: boolean;
-  close: Function;
   heading?: React.ReactNode;
   bodyStyle?: React.CSSProperties;
   children: React.ReactNode;
+  close: Function;
 }
 
 const PopupInfo: React.FC<PopupInfoPropsProps> = props => {

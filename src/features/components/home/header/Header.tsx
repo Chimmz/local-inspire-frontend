@@ -32,7 +32,7 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
     router.push(url);
   };
 
-  useEffect(() => stopSearchLoader, []);
+  useEffect(() => stopSearchLoader, []); // Unmount/cleanup function
 
   return (
     <header className={styles.header}>

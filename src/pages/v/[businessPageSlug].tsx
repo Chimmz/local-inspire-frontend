@@ -304,44 +304,20 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
       page: 1,
       limit: 5,
     }),
-    // api.getTipsAboutBusiness(businessId, { page: 1, limit: 5 }), // 3
-    // api.getBusinessOverallRating(businessId), // 4
   ];
-
-  // const session = await unstable_getServerSession(
-  //   context.req,
-  //   context.res,
-  //   authOptions as NextAuthOptions,
-  // );
-
-  // if (session)
-  //   reqs.push(
-  //     api.getUserCollections(session.user.accessToken), // 5
-  //     api.getUserReviewOnBusiness(businessId, session.user.accessToken), // 6
-  //   );
 
   const responses = await Promise.allSettled(reqs);
   // console.log('Business page responses: ', responses);
-  console.log('getUserReviewOnBusiness response: ', responses[6]);
 
   const [business, reviews, questions, tips, businessReviewStats] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
-
-  // if (!business?.businessName ) return { notFound: true };
-
-  // const collectionsResponse = responses[5] as { status: string; value: { collections: [] } };
-  // const userReviewResponse = responses[6] as {
-  //   status: string;
-  //   value: { review: ReviewProps };
-  // };
 
   const loc = location.split('-');
   const props: any = {
     business: business || {},
     reviews: reviews || {},
     questions: questions || {},
-    // tips: tips || {},
     businessReviewStats: businessReviewStats || {},
 
     params: {
@@ -352,12 +328,6 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
       slug,
     },
   };
-
-  // if (collectionsResponse?.value?.collections) {
-  //   props.userCollections = collectionsResponse?.value.collections;
-  // }
-  // if (userReviewResponse?.value?.review) props.userReview = userReviewResponse.value.review;
-
   return { props };
 };
 

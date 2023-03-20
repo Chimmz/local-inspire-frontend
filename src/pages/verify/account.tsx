@@ -1,5 +1,3 @@
-import { Icon } from '@iconify/react';
-import cls from 'classnames';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';

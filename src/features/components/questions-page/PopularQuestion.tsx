@@ -5,11 +5,11 @@ import { genBusinessPageUrl, genQuestionDetailsPageUrl } from '../../utils/url-u
 import { getFullName } from '../../utils/user-utils';
 import { QuestionItemProps } from '../business-listings/questions/QuestionItem';
 
-type Props = QuestionItemProps & {
+interface Props extends QuestionItemProps {
   businessId: string;
   businessName: string;
   location: string;
-};
+}
 
 const PopularQuestion = function (props: Props) {
   const { date: askedDate } = useDate(props.createdAt, { month: 'short', year: 'numeric' });
@@ -29,8 +29,7 @@ const PopularQuestion = function (props: Props) {
     <li className="py-3" key={props._id}>
       <p className="parag text-dark">{props.questionText}</p>
       <small className="fs-5 text-light">
-        Asked by{' '}
-        <Link href={'/'}>{getFullName(props.askedBy, { lastNameInitial: true })}</Link>{' '}
+        Asked by <Link href={'/'}>{getFullName(props.askedBy, { lastNameInitial: true })}</Link>{' '}
         {askedDate}
       </small>
       <small

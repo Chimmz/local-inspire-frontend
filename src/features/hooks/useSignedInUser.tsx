@@ -8,10 +8,7 @@ const useSignedInUser = function (arg: Params) {
     onUnauthenticated: arg?.onSignOut,
   });
 
-  return {
-    ...session?.user,
-    isSignedIn: status === 'authenticated',
-  };
+  return { ...session?.user, isSignedIn: status === 'authenticated' };
 };
 
 export default useSignedInUser;

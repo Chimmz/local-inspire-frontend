@@ -110,7 +110,7 @@ const UserCollectionsModal = (props: Props) => {
       api.addItemToCollection(collectionId, props.itemToSave, accessToken!),
     );
     if (res?.status === 'SUCCESS')
-      setMode(res.msg.toLowerCase() === 'deleted' ? 'delete-success' : 'save-success');
+      setMode(res.msg?.toLowerCase() === 'deleted' ? 'delete-success' : 'save-success');
   };
 
   const createCollectionAndSaveItem: React.FormEventHandler<HTMLFormElement> = async ev => {
@@ -129,9 +129,7 @@ const UserCollectionsModal = (props: Props) => {
       description: newDescription,
       isPrivate: (newVisibility as 'Private' | 'Public').toLowerCase() === 'private',
     };
-    let res = await sendCreateCollectionReq(
-      api.createCollection(newCollection, accessToken!),
-    );
+    let res = await sendCreateCollectionReq(api.createCollection(newCollection, accessToken!));
     if (res?.status !== 'SUCCESS') return;
     await addItemToCollection(res.newCollectionId);
   };
@@ -156,10 +154,7 @@ const UserCollectionsModal = (props: Props) => {
       </Modal.Header>
 
       <Modal.Body
-        className={cls(
-          'py-5 position-relative',
-          mode === 'add-to-collection' ? 'px-4' : 'px-5',
-        )}
+        className={cls('py-5 position-relative', mode === 'add-to-collection' ? 'px-4' : 'px-5')}
       >
         {fetchingCollections || isAddingToCollection ? (
           <div className="w-100 xy-center position-absolute">
@@ -277,8 +272,8 @@ const UserCollectionsModal = (props: Props) => {
               validationError={newVisibilityValidationErrors[0]?.msg}
             />
             <small className="mb-4">
-              A public Collection can be seen by others. A private Collection is not visible
-              to others.
+              A public Collection can be seen by others. A private Collection is not visible to
+              others.
             </small>
             <LoadingButton
               isLoading={creatingCollection || isAddingToCollection}

@@ -14,7 +14,7 @@ interface Props {
   show: boolean;
 }
 
-////////////// This component is not currently in use ///////////////////
+////////////// This component is currently not in use ///////////////////
 const BusinessesToConsider = function (props: Props) {
   const router = useRouter();
   const slug = router.query.businessDetails as string;

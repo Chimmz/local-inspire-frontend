@@ -199,41 +199,6 @@ function Header(props: Props) {
               </Link>
             </div>
           )}
-
-          {/* {!businessImages?.length && !userReviewImages?.length ? (
-            <div className={cls(styles.headerImages, styles.noImages, 'flex-grow-1')}>
-              <Icon icon="ic:outline-camera-alt" width={35} />
-              <h4 className="text-center">Enhance this page - Upload photos</h4>
-              <Link
-                href={genAddPhotosPageUrl(
-                  props.business?._id!,
-                  props.business?.businessName!,
-                )}
-                passHref
-              >
-                <a href="" className="btn btn-pry" style={{ color: '#6a6a6a' }}>
-                  <Icon icon="material-symbols:photo-camera" width={19} />
-                  Add photo
-                </a>
-              </Link>
-            </div>
-          ) : (
-            <div className={cls(styles.headerImages, 'flex-grow-1')}>
-              {userReviewImages ? (
-                <ImageList
-                  images={userReviewImages?.map(img => ({ ...img, src: img.photoUrl })) || []}
-                  limit={4}
-                  imageProps={{ layout: 'fill', objectFit: 'cover' }}
-                />
-              ) : (
-                <ImageList
-                  images={businessImages?.map(img => ({ ...img, src: img.imgUrl })) || []}
-                  limit={4}
-                  imageProps={{ layout: 'fill', objectFit: 'cover' }}
-                />
-              )}
-            </div> 
-          )}*/}
         </div>
       </header>
 

@@ -65,8 +65,6 @@ const UserReview: React.FC<ReviewProps> = function (props) {
         ideal={200}
         max={200}
       />
-
-      {/* <p className={cls('parag')}>{props.review}.</p> */}
     </article>
   );
 };

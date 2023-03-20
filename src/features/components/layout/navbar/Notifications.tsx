@@ -76,12 +76,6 @@ const Notifications = (props: Props) => {
         className={styles.notifToggler}
         color="white"
         title={<Icon icon="ic:baseline-notifications" color="#fff" width={20} />}
-        // title={
-        //   <span className={styles.iconBox}>
-        //     <Icon icon="ic:baseline-notifications" color="#fff" width={20} />
-        //   </span>
-        // }
-        // align="end"
       >
         <NavDropdown.Item className="fs-5 d-flex align-items-center gap-3">
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, sequi!...

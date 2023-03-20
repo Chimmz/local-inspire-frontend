@@ -27,7 +27,7 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
     checkPositiveResponse: (res: Promise<any>) => res && 'features' in res,
   });
 
-  const extractLocationData = (mapboxContexts: { [key: string]: string }[]) => {
+  const smartlyExtractLocation = (mapboxContexts: { [key: string]: string }[]) => {
     console.log('Param: ', mapboxContexts);
     const data = mapboxContexts.reduce(
       (accum, context) => {
@@ -66,10 +66,8 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
 
       if (!data?.features) throw Error('Something went wrong');
 
-      const extractedData = extractLocationData(
-        (data.features as { context: { [key: string]: string } }[])
-          .map(f => f.context)
-          .flat(),
+      const extractedData = smartlyExtractLocation(
+        (data.features as { context: { [key: string]: string } }[]).map(f => f.context).flat(),
       );
       console.log('extractedData: ', extractedData);
 

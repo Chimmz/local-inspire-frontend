@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 // Types
 import { QuestionItemProps } from '../../features/components/business-listings/questions/QuestionItem';
@@ -10,6 +11,7 @@ import useRequest from '../../features/hooks/useRequest';
 import usePaginate from '../../features/hooks/usePaginate';
 // Utils
 import api from '../../features/library/api';
+import { toTitleCase } from '../../features/utils/string-utils';
 import { genBusinessPageUrl, parseQuestionsPageSlug } from '../../features/utils/url-utils';
 import {
   newQuestionGuidelinesConfig,
@@ -30,8 +32,6 @@ import Layout from '../../features/components/layout';
 import PopupInfo from '../../features/components/PopupInfo';
 import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionsPage.module.scss';
-import Head from 'next/head';
-import { toTitleCase } from '../../features/utils/string-utils';
 
 interface QuestionsPageProps {
   questions: {
@@ -64,9 +64,9 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
   });
   const { send: sendFilterReq, loading: isFiltering } = useRequest({ autoStopLoading: true });
 
-  const { currentPage, currentPageData, setPageData, setCurrentPage } = usePaginate<
-    QuestionItemProps[]
-  >({ defaultCurrentPage: 1 });
+  const { currentPage, setCurrentPage } = usePaginate<QuestionItemProps[]>({
+    defaultCurrentPage: 1,
+  });
 
   // Modals
   const [showAnswerSuccessModal, setShowAnswerSuccessModal] = useState(false);
@@ -258,8 +258,8 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
                 pageCount={pageCount}
               />
               <small>
-                Page 1 of {pageCount}, showing {recordsShown} record(s) out of{' '}
-                {questionsCount} results
+                Page 1 of {pageCount}, showing {recordsShown} record(s) out of {questionsCount}{' '}
+                results
               </small>
             </section>
 

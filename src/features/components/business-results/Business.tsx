@@ -53,8 +53,6 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
   const { businessName, address, featured = false, serialNo } = props;
   const businessCategs = Array.from(new Set([props.SIC8, props.SIC4, props.SIC2]));
 
-  const { isSignedIn } = useSignedInUser({});
-
   const [businessId, city, stateCode] = [props._id!, props.city!, props.stateCode!];
 
   const genRecommendUrl = useCallback(
@@ -132,10 +130,6 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
             </span>
           ) : null}
         </div>
-
-        {/* {!featured && props.reviewedByCurrentUser ? (
-          <div className={styles.userComment}>{renderWhatPeopleSay()}</div>
-        ) : null} */}
 
         {!featured && peoplesOpinions ? (
           <div className={styles.userOpinions}>{renderMultiLineText(peoplesOpinions)}</div>

@@ -11,19 +11,19 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
   const [searchResults, setSearchResults] = useState([]);
   const [resultsShown, setResultsShown] = useState(false);
 
-  const resetResults = useCallback(setSearchResults.bind(null, []), [setSearchResults]);
-  const showResults = useCallback(setResultsShown.bind(null, true), [setResultsShown]);
-  const hideResults = useCallback(setResultsShown.bind(null, false), [setResultsShown]);
+  const showResults = useCallback(() => setResultsShown(true), [setResultsShown]);
+  const hideResults = useCallback(() => setResultsShown(false), [setResultsShown]);
+  const resetResults = useCallback(() => setSearchResults([]), [setSearchResults]);
 
   const search = useCallback(() => {
     const req = sendRequest(makeRequest());
-
-    req.then(res => {
-      if (res?.status !== 'SUCCESS') return;
-      setSearchResults(res[responseDataField]);
-      showResults();
-    });
-    req.catch(resetResults);
+    req
+      .then(res => {
+        if (res?.status !== 'SUCCESS') return;
+        setSearchResults(res[responseDataField]);
+        showResults();
+      })
+      .catch(resetResults);
   }, [sendRequest, makeRequest, setSearchResults, showResults]);
 
   return {

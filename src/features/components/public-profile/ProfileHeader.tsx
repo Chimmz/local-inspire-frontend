@@ -26,13 +26,6 @@ function ProfileHeader(props: Props) {
   const { isSignedIn, _id: currentUserId } = useSignedInUser();
   const { withAuth } = useMiddleware();
   const { send: sendFollowReq, loading: followLoading } = useRequest();
-  // const { send: sendGetFollowers, loading: isGettingFollowers } = useRequest();
-
-  // useEffect(() => {
-  //   if (!user) return;
-  //   const req = api.getUserFollowers(user._id);
-  //   req.then(res => res?.status === 'SUCCESS' && setFollowers(res.followers));
-  // }, [user]);
 
   const handleToggleFollow = () => {
     withAuth(async (token: string) => {

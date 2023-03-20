@@ -1,19 +1,19 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import cls from 'classnames';
-import styles from '../../styles/sass/pages/AdminPage.module.css';
+import Link from 'next/link';
+import { PrivateMessage } from '../../features/types';
+
+import useToggle from '../../features/hooks/useToggle';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
 import api from '../../features/library/api';
-import { PrivateMessage } from '../../features/types';
-import Link from 'next/link';
-import { Icon } from '@iconify/react';
-import { quantitize } from '../../features/utils/quantity-utils';
+import cls from 'classnames';
+
 import AdminSidebar from '../../features/components/admin/sidebar/AdminSidebar';
 import AdminNavbar from '../../features/components/admin/AdminNavbar';
-import useToggle from '../../features/hooks/useToggle';
 import FiltersPage from '../../features/components/admin/pages/filters/FiltersPage';
+import styles from '../../styles/sass/pages/AdminPage.module.css';
 
 interface AdminPageProps {
   messages: PrivateMessage[] | undefined;

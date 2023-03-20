@@ -97,8 +97,8 @@ const AddPhotosPage: NextPage<Props> = function (props) {
                 Have a photo of <strong> {props.params?.businessName}?</strong>
               </h1>
               <p className="parag">
-                A picture is worth a thousand words... Paint a picture of this business with
-                any photos you have of it...
+                A picture is worth a thousand words... Paint a picture of this business with any
+                photos you have of it...
               </p>
               <button
                 className="btn btn-pry btn-curved btn--lg mt-5"

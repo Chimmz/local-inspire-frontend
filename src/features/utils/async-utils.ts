@@ -12,7 +12,6 @@ export const timeoutWithin = function (duration: number) {
 
 export async function fetchWithinTimeout(request: Promise<any>, durationSecs: number) {
   let millisecs = isNaN(durationSecs) ? API_DEFAULT_TIMEOUT : +durationSecs * 1000;
-
   const response = await Promise.race([request, timeoutWithin(millisecs)]);
   return response;
 }

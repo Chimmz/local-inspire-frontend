@@ -7,7 +7,6 @@ const useDate = (rawValue?: string, options?: DateFormatOptions) => {
 
   const format = function (dateStr?: string) {
     if (!dateStr) return;
-
     const result = new Intl.DateTimeFormat('en-US', options).format(new Date(dateStr));
     if (rawValue) setDate(result);
     return result;

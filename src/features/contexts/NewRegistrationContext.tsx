@@ -7,9 +7,8 @@ interface NewRegistration {
   firstName: string;
   handleChangeFirstName: React.ChangeEventHandler<HTMLInputElement>;
   runFirstNameValidators: ValidatorRunner;
-  // setFirstNameValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
-  pushFirstNameValidationError(msg: string): void;
   firstNameErrors: ValidationError[];
+  pushFirstNameValidationError(msg: string): void;
   clearfirstName: () => void;
   clearFirstnameErrors: () => void;
 
@@ -17,7 +16,6 @@ interface NewRegistration {
   handleChangeLastName: React.ChangeEventHandler<HTMLInputElement>;
   runLastNameValidators: ValidatorRunner;
   lastNameErrors: ValidationError[];
-  // // setLastNameValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
   pushLastNameValidationError(msg: string): void;
   clearLastName: () => void;
 
@@ -25,7 +23,6 @@ interface NewRegistration {
   handleChangeEmail: React.ChangeEventHandler<HTMLInputElement>;
   runEmailValidators: ValidatorRunner;
   emailErrors: ValidationError[];
-  // // setEmailValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
   pushEmailValidationError(msg: string): void;
   clearEmail: () => void;
 
@@ -34,7 +31,6 @@ interface NewRegistration {
   runPasswordValidators: ValidatorRunner;
   clearPassword: () => void;
   passwordErrors: ValidationError[];
-  // // setPasswordValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
   pushPasswordValidationError(msg: string): void;
   clearPasswordErrors: () => void;
 }
@@ -53,7 +49,6 @@ export const NewRegistrationContextProvider: React.FC<{
     handleChange: handleChangeFirstName,
     runValidators: runFirstNameValidators,
     validationErrors: firstNameErrors,
-    // // setValidationErrors: setFirstNameValidationErrors,
     pushValidationError: pushFirstNameValidationError,
     clearInput: clearfirstName,
     clearValidationErrors: clearFirstnameErrors,
@@ -67,7 +62,6 @@ export const NewRegistrationContextProvider: React.FC<{
     handleChange: handleChangeLastName,
     runValidators: runLastNameValidators,
     validationErrors: lastNameErrors,
-    // // setValidationErrors: setLastNameValidationErrors,
     pushValidationError: pushLastNameValidationError,
     clearInput: clearLastName,
     clearValidationErrors: clearLastnameErrors,
@@ -81,7 +75,6 @@ export const NewRegistrationContextProvider: React.FC<{
     handleChange: handleChangeEmail,
     runValidators: runEmailValidators,
     validationErrors: emailErrors,
-    // // setValidationErrors: setEmailValidationErrors,
     pushValidationError: pushEmailValidationError,
     clearInput: clearEmail,
     clearValidationErrors: clearEmailErrors,
@@ -98,7 +91,6 @@ export const NewRegistrationContextProvider: React.FC<{
     handleChange: handleChangePassword,
     runValidators: runPasswordValidators,
     validationErrors: passwordErrors,
-    // // setValidationErrors: setPasswordValidationErrors,
     pushValidationError: pushPasswordValidationError,
     clearInput: clearPassword,
     clearValidationErrors: clearPasswordErrors,
@@ -115,36 +107,29 @@ export const NewRegistrationContextProvider: React.FC<{
       firstName,
       handleChangeFirstName,
       runFirstNameValidators,
-      // setFirstNameValidationErrors,
       pushFirstNameValidationError,
       firstNameErrors,
 
       clearfirstName,
       clearFirstnameErrors,
-      // Last name
       lastName,
       handleChangeLastName,
       runLastNameValidators,
-      // setLastNameValidationErrors,
       pushLastNameValidationError,
       lastNameErrors,
 
       clearLastName,
-      // Email
       email,
       handleChangeEmail,
       runEmailValidators,
-      // setEmailValidationErrors,
       pushEmailValidationError,
       emailErrors,
 
       clearEmail,
-      // Password
       password,
       handleChangePassword,
       runPasswordValidators,
       passwordErrors,
-      // setPasswordValidationErrors,
       pushPasswordValidationError,
       clearPassword,
       clearPasswordErrors,

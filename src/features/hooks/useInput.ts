@@ -1,5 +1,4 @@
 import { useState, ChangeEventHandler } from 'react';
-import * as inputValidators from '../utils/validators/inputValidators';
 import useValidator, { ValidatorConfig } from './useValidator';
 
 interface UseInputParams {

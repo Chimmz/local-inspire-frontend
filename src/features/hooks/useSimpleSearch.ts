@@ -10,18 +10,15 @@ const useSimpleSearch = <Item>(params: SimpleSearchParams<Item>): Item[] => {
   const { query, items = [], criteria } = params;
   const [searchResults, setSearchResults] = useState<Item[]>([]);
 
-  const search = useCallback(
-    function () {
-      if (!query) return setSearchResults(items);
-      const foundItems = items.filter(criteria);
-      setSearchResults(foundItems);
-    },
-    [query, setSearchResults],
-  );
+  const search = useCallback(() => {
+    if (!query) return setSearchResults(items);
+    const foundItems = items.filter(criteria);
+    setSearchResults(foundItems);
+  }, [query, setSearchResults]);
 
   useEffect(() => {
     search();
-  }, [search]); // When query changes, search!
+  }, [query, search]); // When query changes, search!
 
   return [...searchResults];
 };

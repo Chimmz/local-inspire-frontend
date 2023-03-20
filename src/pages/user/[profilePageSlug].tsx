@@ -200,15 +200,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
                   Show more
                   <Icon icon="material-symbols:expand-more-rounded" width={20} />
                 </LoadingButton>
-
-                {/* <button
-                  className="btn btn-pry d-flex align-items-center gap-2 mt-5 w-max-content btn-rounded d-block mx-auto"
-                  onClick={setCurrentPage.bind(null, currentPage + 1)}
-                >
-                  Show more
-                  <BSpinner animation="border" />
-                  <Icon icon="material-symbols:expand-more-rounded" width={20} />
-                </button> */}
               </Layout.Main>
 
               <aside className={styles.ads}>Ads</aside>

@@ -23,18 +23,13 @@ const PopularQuestions = function (props: Props) {
   const [questions, setQuestions] = useState<QuestionItemProps[]>([]);
   const [questionsTotal, setQuestionsTotal] = useState<null | number>(null);
 
-  const { formatDate } = useDate(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  const { formatDate } = useDate(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
 
   const getPopularQuestions = async () => {
-    const req = api.getQuestionsAskedAboutBusiness(
-      props.business._id,
-      '?sort=-answersCount',
-      { page: 1, limit: TOTAL_POPULARS_TO_SHOW },
-    );
+    const req = api.getQuestionsAskedAboutBusiness(props.business._id, '?sort=-answersCount', {
+      page: 1,
+      limit: TOTAL_POPULARS_TO_SHOW,
+    });
     const res = await req;
     console.log('Popular: ', res);
 

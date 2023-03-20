@@ -1,23 +1,24 @@
-import { Icon } from '@iconify/react';
-import cls from 'classnames';
+import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Image from 'next/image';
+
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import AuthSuccess from '../../features/components/auth/AuthSuccess';
-import Layout from '../../features/components/layout';
-import Navbar from '../../features/components/layout/navbar/Navbar';
-import Spinner from '../../features/components/shared/spinner/Spinner';
-import PageSuccess from '../../features/components/shared/success/PageSuccess';
-import TextInput from '../../features/components/shared/text-input/TextInput';
 import useInput from '../../features/hooks/useInput';
 import useRequest from '../../features/hooks/useRequest';
+
+import cls from 'classnames';
 import API from '../../features/library/api';
 import {
   isRequired,
   minLength,
   mustBeSameAs,
 } from '../../features/utils/validators/inputValidators';
+
+import Layout from '../../features/components/layout';
+import Navbar from '../../features/components/layout/navbar/Navbar';
+import Spinner from '../../features/components/shared/spinner/Spinner';
+import PageSuccess from '../../features/components/shared/success/PageSuccess';
+import TextInput from '../../features/components/shared/text-input/TextInput';
 import styles from '../../styles/sass/pages/PasswordReset.module.scss';
 
 const PasswordReset: NextPage = function () {
@@ -138,9 +139,7 @@ const PasswordReset: NextPage = function () {
             <button
               className="btn btn-pry mt-5 px-5 py-3 mx-auto d-block w-100 mt-3"
               type="submit"
-              disabled={
-                !!passwordErrors.length || !!passwordConfirmErrors.length || isVerifying
-              }
+              disabled={!!passwordErrors.length || !!passwordConfirmErrors.length || isVerifying}
             >
               Continue
             </button>

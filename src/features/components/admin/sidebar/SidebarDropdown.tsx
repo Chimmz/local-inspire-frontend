@@ -72,7 +72,7 @@ const SidebarDropdown = (props: Props) => {
       >
         {'subLinks' in props.links
           ? props.links.subLinks.map(l => (
-              <li className={getStyle('sidebar-item active')}>
+              <li className={getStyle('sidebar-item active')} key={l.label}>
                 <Link href={l.href} className={getStyle('sidebar-link')}>
                   {l.label}
                 </Link>
