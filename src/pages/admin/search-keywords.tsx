@@ -15,12 +15,11 @@ import AdminNavbar from '../../features/components/admin/AdminNavbar';
 import FiltersPage from '../../features/components/admin/pages/filters/FiltersPage';
 import styles from '../../styles/sass/pages/AdminPage.module.css';
 import AdminFooter from '../../features/components/admin/AdminFooter';
+import KeywordsBody from '../../features/components/admin/pages/keywords/main';
 
-interface AdminPageProps {
-  messages: PrivateMessage[] | undefined;
-}
+interface KeywordsPageProps {}
 
-const AdminPage: NextPage<AdminPageProps> = function (props) {
+const KeywordsPage: NextPage<KeywordsPageProps> = function (props) {
   const { state: sidebarOpened, toggle: toggleSidebar } = useToggle();
   const adminUser = useSignedInUser();
 
@@ -45,7 +44,7 @@ const AdminPage: NextPage<AdminPageProps> = function (props) {
               .
             </p>
           </div> */}
-          <FiltersPage getStyle={getStyle} pageTitle="Filters" />
+          <KeywordsBody getStyle={getStyle} />
         </main>
         <AdminFooter getStyle={getStyle} />
       </div>
@@ -53,15 +52,15 @@ const AdminPage: NextPage<AdminPageProps> = function (props) {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async function ({ req, res }) {
-  const session = await unstable_getServerSession(req, res, authOptions as NextAuthOptions);
+// export const getServerSideProps: GetServerSideProps = async function ({ req, res }) {
+//   const session = await unstable_getServerSession(req, res, authOptions as NextAuthOptions);
 
-  if (!session || session.user.role !== 'MAIN_ADMIN')
-    return { redirect: { destination: '/', permanent: true } };
+//   if (!session || session.user.role !== 'MAIN_ADMIN')
+//     return { redirect: { destination: '/', permanent: true } };
 
-  const newMessages = await api.getUnreadMsgs(session.user.accessToken);
+//   const newMessages = await api.getUnreadMsgs(session.user.accessToken);
 
-  return { props: { ...newMessages } };
-};
+//   return { props: { ...newMessages } };
+// };
 
-export default AdminPage;
+export default KeywordsPage;

@@ -22,8 +22,7 @@
     border: none;
 
     &:hover,
-    &:active,
-    &:focus {
+    &:active {
       background-color: $color-pry-dark !important;
       color: #fff !important;
 

@@ -473,6 +473,37 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
+  async getKeywords(token: string) {
+    return this._makeRequest({
+      path: `/admin/keywords`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async addKeyword(body: object, token: string) {
+    return this._makeRequest({
+      path: `/admin/keywords`,
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async editKeyword(kwId: string, updateObj: object, token: string) {
+    return this._makeRequest({
+      path: `/admin/keywords/${kwId}`,
+      method: 'PATCH',
+      body: JSON.stringify(updateObj),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async deleteKeyword(kwId: string, token: string) {
+    return this._makeRequest({
+      path: `/admin/keywords/${kwId}`,
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

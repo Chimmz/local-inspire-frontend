@@ -1,19 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Form, Modal } from 'react-bootstrap';
+
 import useInput from '../../../../hooks/useInput';
 import useToggle from '../../../../hooks/useToggle';
-import { isRequired } from '../../../../utils/validators/inputValidators';
-import ReactSelect from 'react-select';
-import ReactSelectAsync from 'react-select/async';
-import makeAnimated from 'react-select/animated';
-import LabelledCheckbox from '../../../shared/LabelledCheckbox';
-import TextInput from '../../../shared/text-input/TextInput';
-import api from '../../../../library/api';
-import { formTypes, getSelectOptions, ReactSelectOption, searchKeywords } from './config';
-import LoadingButton from '../../../shared/button/Button';
 import useRequest from '../../../../hooks/useRequest';
 import useReactSelect from '../../../../hooks/useReactMultiselect';
 import useSignedInUser from '../../../../hooks/useSignedInUser';
+
+import { isRequired } from '../../../../utils/validators/inputValidators';
+import makeAnimated from 'react-select/animated';
+import api from '../../../../library/api';
+import { formTypes, getSelectOptions, ReactSelectOption, searchKeywords } from './config';
+
+import { Form, Modal } from 'react-bootstrap';
+import LabelledCheckbox from '../../../shared/LabelledCheckbox';
+import TextInput from '../../../shared/text-input/TextInput';
+import LoadingButton from '../../../shared/button/Button';
+import ReactSelectAsync from 'react-select/async';
+import ReactSelect from 'react-select';
 
 interface Props {
   show: boolean;
@@ -150,7 +153,14 @@ const AddFilterModal = function (props: Props) {
   };
 
   return (
-    <Modal show={props.show} onHide={props.close} centered size="lg" scrollable>
+    <Modal
+      show={props.show}
+      onHide={props.close}
+      backdrop="static"
+      centered
+      size="lg"
+      scrollable
+    >
       <Modal.Header closeButton>
         <h2> New Filter</h2>
       </Modal.Header>

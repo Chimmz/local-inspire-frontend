@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuthModalContext } from '../contexts/AuthContext';
 import useSignedInUser from './useSignedInUser';
 
-export type MiddlewareNext = (...args: []) => any;
+export type MiddlewareNext = (...args: any[]) => any;
 export type AuthMiddlewareNext = (token: string) => any;
 
 type Middleware = (next: AuthMiddlewareNext) => any;

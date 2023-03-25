@@ -15,6 +15,14 @@ const AdminSidebar = function (props: Props) {
   const { getStyle } = props;
   const currentAdminUser = useSignedInUser();
 
+  // const profileLink = useMemo(() => {
+  //   console.log({currentAdminUser});
+  //   if (!currentAdminUser) return '/';
+  //   return genUserProfileUrl(
+  //     currentAdminUser as { _id: string; firstName: string; lastName: string },
+  //   );
+  // }, [currentAdminUser]);
+
   return (
     <nav id="sidebar" className={getStyle(`sidebar ${props.show && 'toggled'}`)}>
       <Link href="/">

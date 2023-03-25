@@ -59,3 +59,11 @@ export interface AdminFilter {
   // subCategories?: string[],
   formType: string;
 }
+
+export interface AdminSearchKeyword {
+  _id: string;
+  name: string;
+  enableForBusiness: boolean;
+  enableForFilter: boolean;
+  sic4Categories: [string];
+}
