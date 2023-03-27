@@ -170,3 +170,41 @@ const KeywordModal = function (props: Props) {
 };
 
 export default KeywordModal;
+
+// EXPLANATIONS FOR PHASE 2:
+
+// Filters: (26th Dec)
+// https://edocadvisor.com/admin/filters
+
+// We add keywords and the sic codes it should show for.
+// So if I add "Restaurants", I need to be able to set the sic code for it like Restaurants. So, when someone searches for restaurants the filters I add for it will show.
+// We set filters for the keywords (most important categories) we have like hotels and motels, Restaurants, cruises and so on.
+
+// So when I add the filter it needs to be like so:
+
+// Add keyword:
+// 1)	Keyword title
+// 2)	Select Sic codes
+
+// Add Filters:
+// 1) Select keyword
+// 2) Add title (Will show on search page and Add/Edit page)
+// 3) Add description (will only show on Add/edit business page)
+// 4) Select to show on Search page and or Business add/edit page)
+// 5) Order they will show in on filter and business page.
+// 6) Filter keywords can add as many as I want.
+// 7) Form type it will be.
+
+// Whatever a business selects when adding or editing the business will show on the business page. And a business will show on search page according to what was selected.
+
+// I will select the keyword like "Restaurants", I will then select the sic code for it.
+
+// I will then select if it is for search and add/edit business.
+
+// I can then add the filters like it is on my site. Filter title and all the filters.
+
+// This is the tricky part as we will have price range also.
+
+// But need to show on results page and add/edit page like trip advisor and show a few then if more popup.
+
+// And whatever the businesses select when they add/edit their business page will show on their business page.

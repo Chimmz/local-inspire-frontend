@@ -9,14 +9,14 @@ import useSignedInUser from '../../../../hooks/useSignedInUser';
 import { isRequired } from '../../../../utils/validators/inputValidators';
 import makeAnimated from 'react-select/animated';
 import api from '../../../../library/api';
-import { formTypes, getSelectOptions, ReactSelectOption, searchKeywords } from './config';
+import { formTypes, getSelectOptions, ReactSelectOption } from './config';
 
 import { Form, Modal } from 'react-bootstrap';
 import LabelledCheckbox from '../../../shared/LabelledCheckbox';
 import TextInput from '../../../shared/text-input/TextInput';
 import LoadingButton from '../../../shared/button/Button';
-import ReactSelectAsync from 'react-select/async';
 import ReactSelect from 'react-select';
+import { AdminSearchKeyword } from '../../../../types';
 
 interface Props {
   show: boolean;
@@ -25,10 +25,10 @@ interface Props {
 }
 
 const AddFilterModal = function (props: Props) {
+  const [searchKeywords, setSearchKeywords] = useState<AdminSearchKeyword[] | undefined>();
   const [sic2Categories, setSic2Categories] = useState<string[]>();
   const [sic4Categories, setSic4Categories] = useState<string[]>();
   const [sic8Categories, setSic8Categories] = useState<string[]>();
-  const [industries, setIndustries] = useState<string[]>();
 
   const { accessToken } = useSignedInUser();
   const { send: sendGetCategories, loading: gettingCategories } = useRequest();
@@ -53,6 +53,17 @@ const AddFilterModal = function (props: Props) {
   });
 
   const { state: isActive, toggle: toggleIsActive } = useToggle(true);
+
+  const {
+    inputValue: filterTitle,
+    handleChange: handleChangeFilterTitle,
+    validationErrors: filterTitleValidationErrors,
+    runValidators: runFilterTitleValidators,
+    clearInput: clearFilterTitle,
+  } = useInput({
+    init: '',
+    validators: [{ fn: isRequired, params: ['Please write a title for this filter'] }],
+  });
 
   const {
     inputValue: description,
@@ -91,43 +102,16 @@ const AddFilterModal = function (props: Props) {
     validators: [{ fn: isRequired, params: ['Please select a subcategory'] }],
   });
 
-  // const {
-  //   inputValue: formType,
-  //   handleChange: handleChangeFormType,
-  //   validationErrors: formTypeValidationErrors,
-  //   runValidators: runFormTypeValidators,
-  //   clearInput: clearFormType,
-  // } = useInput({
-  //   init: '',
-  //   validators: [{ fn: isRequired, params: ['Please select a form type'] }],
-  // });
-
-  useEffect(() => {
-    const reqs = Promise.all([
-      api.getAllBusinessCategories('SIC2'),
-      api.getAllBusinessCategories('SIC4'),
-      api.getAllBusinessCategories('SIC8'),
-      api.getAllBusinessCategories('industry'),
-    ]);
-    const setters = [setSic2Categories, setSic4Categories, setSic8Categories, setIndustries];
-
-    reqs.then(responses => {
-      responses.forEach((res, i) => res.status === 'SUCCESS' && setters[i](res.categories));
-    });
-  }, []);
-
-  const keywordOptions = useMemo(() => getSelectOptions(searchKeywords), []);
-  const sic2Options = useMemo(() => getSelectOptions(sic2Categories), [sic2Categories]);
-  const sic4Options = useMemo(() => getSelectOptions(sic4Categories), [sic4Categories]);
-  const sic8Options = useMemo(() => getSelectOptions(sic8Categories), [sic8Categories]);
-  const industryOptions = useMemo(() => getSelectOptions(industries), [industries]);
-  const formTypeOptions = useMemo(() => getSelectOptions(formTypes), []);
-
   const handleSave = async () => {
-    const validationResults = [runNameValidators(), runDescriptionValidators()];
+    const validationResults = [
+      runNameValidators(),
+      runDescriptionValidators(),
+      runFilterTitleValidators(),
+    ];
     if (validationResults.some(result => result.errorExists)) return;
     const body = {
       name: filterName,
+      title: filterTitle,
       description,
       isActive,
       showForBusiness,
@@ -146,11 +130,39 @@ const AddFilterModal = function (props: Props) {
       props.onAddFilter();
       clearName();
       clearDescription();
+      clearFilterTitle();
       props.close();
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    const reqs = Promise.all([
+      api.getKeywords(),
+      api.getAllBusinessCategories('SIC2'),
+      api.getAllBusinessCategories('SIC4'),
+      api.getAllBusinessCategories('SIC8'),
+    ]);
+    const setters = [setSearchKeywords, setSic2Categories, setSic4Categories, setSic8Categories];
+
+    reqs.then(responses => {
+      responses.forEach((res, i) => {
+        if (res.status !== 'SUCCESS') return;
+        if (i === 0) setters[i](res.keywords);
+        else setters[i](res.categories);
+      });
+    });
+  }, []);
+
+  const keywordOptions = useMemo(() => {
+    if (!searchKeywords) return;
+    return getSelectOptions(searchKeywords.map(k => k.name));
+  }, [searchKeywords]);
+  const sic2Options = useMemo(() => getSelectOptions(sic2Categories), [sic2Categories]);
+  const sic4Options = useMemo(() => getSelectOptions(sic4Categories), [sic4Categories]);
+  const sic8Options = useMemo(() => getSelectOptions(sic8Categories), [sic8Categories]);
+  const formTypeOptions = useMemo(() => getSelectOptions(formTypes), []);
 
   return (
     <Modal
@@ -183,6 +195,16 @@ const AddFilterModal = function (props: Props) {
           className="gap-3 w-max-content mb-5"
         />
 
+        <div className="mb-5">
+          <TextInput
+            label="Title"
+            value={filterTitle}
+            onChange={handleChangeFilterTitle}
+            validationErrors={filterTitleValidationErrors}
+            autoFocus
+          />
+        </div>
+
         {/* Description input */}
         <div className="mb-5">
           <TextInput
@@ -209,22 +231,11 @@ const AddFilterModal = function (props: Props) {
           className="gap-3 w-max-content mb-5"
         />
 
-        {/* Category select */}
-        <div>
-          <label className="mb-2">Category</label>
-          <ReactSelect
-            options={industryOptions}
-            onChange={handleChangeCategory}
-            className="mb-5"
-            components={useMemo(() => makeAnimated(), [])}
-          />
-        </div>
-
         {/* Search keyword */}
         <div className="mb-5">
           <label className="mb-2">Search keyword</label>
           <ReactSelect
-            options={keywordOptions}
+            options={keywordOptions || []}
             onChange={handleChangeKeyword}
             components={useMemo(() => makeAnimated(), [])}
             closeMenuOnSelect

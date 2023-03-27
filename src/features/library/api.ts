@@ -474,11 +474,11 @@ class API {
     });
   }
 
-  async getKeywords(token: string) {
+  async getKeywords() {
     return this._makeRequest({
       path: `/admin/keywords`,
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
   async addKeyword(body: object, token: string) {
