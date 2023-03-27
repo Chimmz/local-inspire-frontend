@@ -41,7 +41,7 @@ const KeywordsBody = (props: Props) => {
   } = useConfirmation();
 
   const loadKeywords = () => {
-    const req = sendKeywordRequest(api.getKeywords(adminUser.accessToken!));
+    const req = sendKeywordRequest(api.getKeywords());
     req.then(res => res.status === 'SUCCESS' && setKeywords(res.keywords));
   };
 
