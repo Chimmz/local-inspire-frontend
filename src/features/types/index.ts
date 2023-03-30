@@ -46,6 +46,7 @@ export interface AdminFilter {
   _id: string;
   createdBy: string;
   name: string;
+  title: string;
   description: string;
   isActive: boolean;
   showForBusiness: boolean;

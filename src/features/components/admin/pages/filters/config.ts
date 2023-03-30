@@ -2,6 +2,7 @@ import { AdminFilter } from '../../../../types';
 
 export const tableColumns = [
   { name: 'Name', selector: (row: any) => row.name },
+  { name: 'Title', selector: (row: any) => row.title },
   { name: 'Add/Edit Description', selector: (row: any) => row.description },
   { name: 'SIC2', selector: (row: any) => row.SIC2Categories },
   { name: 'SIC4', selector: (row: any) => row.SIC4Categories },
@@ -13,7 +14,7 @@ export const tableColumns = [
   { name: 'Show on business', selector: (row: any) => row.showForBusiness },
   { name: 'Show on filter', selector: (row: any) => row.showForFilter },
   { name: 'Active', selector: (row: any) => row.isActive },
-  // { name: 'Actions', selector: (row: any) => row.actions },
+  { name: 'Actions', selector: (row: any) => row.actions },
 ];
 
 export interface ReactSelectOption {

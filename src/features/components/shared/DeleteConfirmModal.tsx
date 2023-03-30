@@ -28,7 +28,7 @@ const DeleteConfirmModal = function (props: Props) {
             Cancel
           </button>
           <button
-            className="btn btn-pry btn--sm fs-5"
+            className="btn btn-danger btn--sm fs-5"
             onClick={props.onChooseDelete as () => void}
           >
             {btnText}

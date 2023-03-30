@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { GetServerSideProps, GetStaticProps, NextPage } from 'next';
-import { getProviders, signOut } from 'next-auth/react';
+import { GetStaticProps, NextPage } from 'next';
 
 import AuthContextProvider from '../features/contexts/AuthContext';
 
@@ -8,13 +7,12 @@ import Header from '../features/components/home/header/Header';
 import Gallery from '../features/components/home/Gallery';
 import BestPlaces from '../features/components/home/BestPlaces';
 import Layout from '../features/components/layout/index';
-import Navbar from '../features/components/layout/navbar/Navbar';
 
-interface HomePageProps {
+interface Props {
   popularCategorySuggestions: string[];
 }
 
-function HomePage({ popularCategorySuggestions }: HomePageProps) {
+const HomePage: NextPage<Props> = function ({ popularCategorySuggestions }) {
   return (
     <AuthContextProvider>
       <Layout>
@@ -32,7 +30,7 @@ function HomePage({ popularCategorySuggestions }: HomePageProps) {
       </Layout>
     </AuthContextProvider>
   );
-}
+};
 
 export const getStaticProps: GetStaticProps = async function () {
   const popularCategorySuggestions = [
@@ -48,4 +46,4 @@ export const getStaticProps: GetStaticProps = async function () {
   };
 };
 
-export default HomePage as NextPage;
+export default HomePage;

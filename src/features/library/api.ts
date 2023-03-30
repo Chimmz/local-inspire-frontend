@@ -36,17 +36,10 @@ class API {
   }
 
   async register(formData: FormData) {
-    // const fd = new FormData();
-    // fd.append('name', 'Chima');
-    // fd.append('age', '22');
-
     return this._makeRequest({
       path: `/users/signup`,
       method: 'POST',
-      // body: JSON.stringify(credentials),
       body: formData,
-      // body: fd,
-      // headers: { 'Content-Type': 'multipart/form-data; boundary=--photo' },
     });
   }
 
@@ -120,9 +113,9 @@ class API {
     });
   }
 
-  async getAllBusinessCategories(categoryType: 'SIC2' | 'SIC4' | 'SIC8' | 'industry') {
+  async getBusinessCategories(type: 'SIC2' | 'SIC4' | 'SIC8', queryString: string) {
     return this._makeRequest({
-      path: `/businesses/categories/search?type=${categoryType}`,
+      path: `/businesses/categories/${type}/?${queryString}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -470,6 +463,21 @@ class API {
     return this._makeRequest({
       path: `/admin/filters`,
       method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async editFilter(fId: string, updateObj: object, token: string) {
+    return this._makeRequest({
+      path: `/admin/filters/${fId}`,
+      method: 'PATCH',
+      body: JSON.stringify(updateObj),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+  async deleteFilter(filterId: string, token: string) {
+    return this._makeRequest({
+      path: `/admin/filters/${filterId}`,
+      method: 'DELETE',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }

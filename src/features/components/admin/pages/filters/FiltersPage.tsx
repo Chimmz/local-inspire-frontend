@@ -8,11 +8,13 @@ import useSignedInUser from '../../../../hooks/useSignedInUser';
 import api from '../../../../library/api';
 // Components
 import DataTable from 'react-data-table-component';
-import AddFilterModal from './AddFilterModal';
+import FilterModal from './FilterModal';
 import Spinner from '../../../shared/spinner/Spinner';
 import { tableColumns } from './config';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
+import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
+import DeleteConfirmModal from '../../../shared/DeleteConfirmModal';
 
 interface Props {
   pageTitle: string;
@@ -24,12 +26,33 @@ const FiltersPage = (props: Props) => {
 
   const [filters, setFilters] = useState<AdminFilter[]>();
   const [showNewFilterModal, setShowAddFilterModal] = useState(false);
+  // const [showEditFilterModal, setShowEditFilterModal] = useState(false);
+  const [filterToEdit, setFilterToEdit] = useState<AdminFilter | null>(null);
+
+  const {
+    withConfirmation,
+    confirmationShown: deleteConfirmationShown,
+    confirm: proceedToDelete,
+    closeConfirmation: closeDeleteConfirmation,
+  } = useConfirmation();
+
   const adminUser = useSignedInUser();
   const { send: sendFiltersRequest, loading: filtersLoading } = useRequest();
+  const { send: sendDeleteReq, loading: deletingFilter } = useRequest();
 
   const loadFilters = () => {
     const req = sendFiltersRequest(api.getFilters(adminUser.accessToken!));
     req.then(res => res.status === 'SUCCESS' && setFilters(res.filters));
+  };
+
+  const deleteFilter = async (filterId: string) => {
+    const req = sendDeleteReq(api.deleteFilter(filterId, adminUser.accessToken!));
+    req.then(res => {
+      if (res.status !== 'SUCCESS') return;
+      closeDeleteConfirmation();
+      loadFilters();
+    });
+    req.catch(err => {});
   };
 
   useEffect(() => {
@@ -40,6 +63,7 @@ const FiltersPage = (props: Props) => {
     return filters?.map(f => ({
       ...f,
       id: f._id,
+      title: f.title || '-',
       showForBusiness: f.showForBusiness ? 'Yes' : 'No',
       showForFilter: f.showForFilter ? 'Yes' : 'No',
       isActive: f.isActive ? 'Yes' : 'No',
@@ -50,11 +74,19 @@ const FiltersPage = (props: Props) => {
       actions: (
         <div className="d-flex align-items-center gap-2 ">
           <Icon
+            onClick={setFilterToEdit.bind(null, f)}
             icon="material-symbols:edit-outline-rounded"
             width={18}
             className="cursor-pointer"
+            color="#555"
           />
-          <Icon icon="material-symbols:delete-outline" className="cursor-pointer" width={18} />
+          <Icon
+            onClick={withConfirmation.bind(null, deleteFilter.bind(null, f._id))}
+            icon="material-symbols:delete-outline"
+            className="cursor-pointer"
+            width={18}
+            color="#555"
+          />
         </div>
       ),
     }));
@@ -63,10 +95,25 @@ const FiltersPage = (props: Props) => {
   return (
     <>
       <Spinner show={filtersLoading} pageWide />
-      <AddFilterModal
+      <DeleteConfirmModal
+        show={deleteConfirmationShown}
+        onChooseDelete={proceedToDelete}
+        loading={deletingFilter}
+        close={closeDeleteConfirmation}
+        msg="Are you sure you want to delete this filter?"
+      />
+      {/* For add new filter modal */}
+      <FilterModal
         show={showNewFilterModal}
         close={setShowAddFilterModal.bind(null, false)}
         onAddFilter={loadFilters}
+      />
+      {/* For edit filter modal */}
+      <FilterModal
+        show={!!filterToEdit}
+        close={setFilterToEdit.bind(null, null)}
+        onAddFilter={loadFilters}
+        filterToEdit={filterToEdit}
       />
 
       <div className={getStyle('header')}>

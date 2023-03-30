@@ -9,7 +9,7 @@ import { MiddlewareNext } from './useMiddleware';
 const useConfirmation = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [nextAction, setNextAction] = useState<MiddlewareNext | undefined>();
-  const [confirmedToProceed, setConfirmToProceed] = useState<boolean | undefined>();
+  const [confirmedToProceed, setConfirmToProceed] = useState<boolean>(false);
 
   useEffect(() => {
     if (confirmedToProceed) nextAction?.();
@@ -18,8 +18,8 @@ const useConfirmation = () => {
   }, [confirmedToProceed]);
 
   const withConfirmation = (next: MiddlewareNext) => {
-    setShowConfirmation(true);
-    setNextAction(() => next);
+    setShowConfirmation(true); // Show the confirmation
+    setNextAction(() => next); // Save the delete (next) action to be executed when user confirms deletion
   };
 
   return {

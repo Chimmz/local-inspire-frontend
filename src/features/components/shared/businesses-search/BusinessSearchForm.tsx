@@ -15,6 +15,8 @@ import { Icon } from '@iconify/react';
 import SearchResults from '../search-results/SearchResults';
 import styles from './BusinessSearchForm.module.scss';
 import { UserLocationContext } from '../../../contexts/UserLocationContext';
+import { AdminSearchKeyword } from '../../../types';
+import api from '../../../library/api';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -28,13 +30,12 @@ interface BusinessSearchFormProps {
 }
 
 function BusinessSearchForm(props: BusinessSearchFormProps) {
-  const { fontSize, defaultCategorySuggestions } = props;
+  const { fontSize } = props;
+  const [keywords, setKeywords] = useState<AdminSearchKeyword[] | undefined>();
   const categoryInput = useRef<HTMLInputElement | null>(null);
   const cityInput = useRef<HTMLInputElement | null>(null);
-
   const [hasSelectedCategory, setHasSelectedCategory] = useState(false);
   const [hasSelectedCity, setHasSelectedCity] = useState(false);
-
   const { userLocation } = useContext(UserLocationContext);
 
   const {
@@ -42,13 +43,11 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     handleChange: handleChangeCategory,
     setInputValue: setCategoryValue,
   } = useInput({ init: '' });
-
   const {
     inputValue: cityValue,
     handleChange: handleChangeCity,
     setInputValue: setCityValue,
   } = useInput({ init: '' });
-
   const {
     search: searchCategories,
     searchResults: categoryResults,
@@ -61,7 +60,6 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     makeRequest: API.searchBusinessCategories.bind(API, categoryValue.trim()),
     responseDataField: 'categories',
   });
-
   const {
     search: searchCities,
     searchResults: cityResults,
@@ -79,27 +77,20 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     action: searchCategories,
     delay: 100,
   });
-  const searchCitiesDelayed = useDelayActionUponTextInput({
-    action: searchCities,
-    delay: 250,
-  });
-
+  const searchCitiesDelayed = useDelayActionUponTextInput({ action: searchCities, delay: 250 });
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
-  useEffect(() => {
-    setCityValue(userLocation?.city || '');
-    hideCityResults();
-  }, [userLocation?.city, setCityValue]);
+  const loadKeywords = useCallback(() => {
+    api.getKeywords().then(res => res.status === 'SUCCESS' && setKeywords(res.keywords));
+  }, []);
 
   useEffect(() => {
+    loadKeywords();
+
     if (props.promptUserInput) categoryInput.current?.focus();
     hideCategoryResults();
-
     const clickHandler = (ev: MouseEvent) => {
-      const clickedOn = ev.target as Element;
-      // console.log((ev.target as Element)?.closest('form'));
-      if (clickedOn?.closest('form')?.className.includes('search')) return;
-
+      if ((ev.target as Element)?.closest('form')?.className.includes('search')) return;
       hideCategoryResults();
       hideCityResults();
     };
@@ -107,24 +98,25 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     return () => document.removeEventListener('click', clickHandler);
   }, []);
 
+  useEffect(() => {
+    setCityValue(userLocation?.city || '');
+    hideCityResults();
+  }, [userLocation?.city, setCityValue]);
+
   useEffect(() => stopFindBusinessLoader, []);
 
   const handleSelectResult: React.MouseEventHandler<HTMLAnchorElement> = ev => {
     ev.preventDefault();
-
     const { field, value } = (ev.target as Element).closest('a')?.dataset as {
       field: string;
       value: string;
     };
-    console.log(field, value);
-
     switch (field) {
       case 'category':
         setCategoryValue(value);
         setHasSelectedCategory(true);
         hideCityResults();
         break;
-
       case 'city':
         setCityValue(value);
         hideCategoryResults();
@@ -162,22 +154,19 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     props.onSearch(categoryValue.trim(), cityValue.trim());
   };
 
-  const getCategoriesToShow = useCallback(() => {
-    const toShow = categoryResults.length ? categoryResults : defaultCategorySuggestions;
+  const getCategoriesToRender = useCallback(() => {
+    const resultsToShow = categoryResults.length ? categoryResults : keywords?.map(k => k.name);
+    return resultsToShow?.map(text => ({ label: text, value: text })) || [];
+  }, [categoryResults, keywords]);
 
-    return toShow?.map(text => ({ label: text, value: text })) || [];
-  }, [categoryResults, defaultCategorySuggestions]);
-
-  const locationSuggestions: Array<{ label: React.ReactNode; value: string }> =
-    cityResults.map(city => ({ label: city, value: city }));
+  const locationSuggestions: Array<{ label: React.ReactNode; value: string }> = cityResults.map(
+    city => ({ label: city, value: city }),
+  );
 
   if (userLocation?.city?.length) {
     locationSuggestions.unshift({
       label: (
-        <div
-          className="d-flex align-items-center gap-2 text-pry"
-          // style={{ fontWeight: '400' }}
-        >
+        <div className="d-flex align-items-center gap-2 text-pry">
           <Icon
             icon="material-symbols:location-on-outline"
             color="#0955a1"
@@ -219,7 +208,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
         <SearchResults
           show={categoryResultsShown}
-          resultItems={getCategoriesToShow()}
+          resultItems={getCategoriesToRender()}
           searchTerm={categoryValue}
           renderItem={categ => (
             <li key={uuid.v4()}>
@@ -266,12 +255,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           searchTerm={cityValue}
           renderItem={city => (
             <li key={uuid.v4()}>
-              <a
-                href="#"
-                data-field="city"
-                data-value={city.value}
-                onClick={handleSelectResult}
-              >
+              <a href="#" data-field="city" data-value={city.value} onClick={handleSelectResult}>
                 {city.label}
               </a>
             </li>
@@ -279,11 +263,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         />
       </div>
 
-      <Button
-        className={cls(styles.btn, 'btn btn-pry')}
-        type="submit"
-        disabled={props.loading}
-      >
+      <Button className={cls(styles.btn, 'btn btn-pry')} type="submit" disabled={props.loading}>
         {props.loading ? (
           <BootstrapSpinner
             animation="border"
