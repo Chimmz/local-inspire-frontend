@@ -8,7 +8,6 @@ export const tableColumns = [
   { name: 'SIC4', selector: (row: any) => row.SIC4Categories },
   { name: 'SIC8', selector: (row: any) => row.SIC8Categories },
   { name: 'Keyword', selector: (row: any) => row.searchKeyword },
-  { name: 'Category', selector: (row: any) => row.category },
   { name: 'Order', selector: (row: any) => row.keyOrder },
   { name: 'Type', selector: (row: any) => row.formType },
   { name: 'Show on business', selector: (row: any) => row.showForBusiness },
