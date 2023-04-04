@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 
 interface Props {
   show: boolean;
-  closeMap: any;
+  closeMap?: () => void; // Optional because it may be without a modal
   coords: string | undefined;
   withModal: boolean;
   scrollZoom?: boolean;

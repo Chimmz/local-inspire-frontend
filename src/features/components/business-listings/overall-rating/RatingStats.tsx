@@ -89,12 +89,7 @@ const RatingStats = function (props: Props) {
       <section className={styles.location}>
         <h3 className="mb-3">Location & Contact</h3>
         <div className={styles.mapbox}>
-          <MapView
-            shown
-            coords={props.business?.coordinates}
-            closeMap={null}
-            withModal={false}
-          />
+          <MapView show coords={props.business?.coordinates} withModal={false} />
         </div>
         <ul className={'no-bullets d-flex flex-column gap-3 mb-5 mt-5 fs-5'}>
           <li className="d-flex align-items-start gap-3">

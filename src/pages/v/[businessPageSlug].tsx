@@ -93,7 +93,7 @@ const BusinessPage: NextPage<Props> = function (props) {
         <Layout>
           <Spinner pageWide show={loading} />
           <Layout.Nav>
-            <CategoriesNav searchParams={{ category: 'Rest', ...props.params }} />
+            <CategoriesNav />
           </Layout.Nav>
 
           <Layout.Main className={styles.main}>
