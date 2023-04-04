@@ -1,10 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const scrollToElement = (query: string | HTMLElement) => {
-  if (typeof query === 'string')
-    return document.querySelector(query)?.scrollIntoView({ behavior: 'smooth' });
-
-  query.scrollIntoView({ behavior: 'smooth' });
+  (typeof query === 'string' ? document.querySelector(query) : query)?.scrollIntoView({
+    behavior: 'smooth',
+  });
 };
 
 export const renderMultiLineText = (text: string[]) => {

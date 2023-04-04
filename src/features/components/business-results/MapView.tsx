@@ -4,7 +4,7 @@ import Map, { Marker } from 'react-map-gl';
 import Modal from 'react-bootstrap/Modal';
 
 interface Props {
-  shown: boolean;
+  show: boolean;
   closeMap: any;
   coords: string | undefined;
   withModal: boolean;
@@ -20,8 +20,7 @@ interface Viewport {
 }
 
 const MapView = function (props: Props) {
-  const { shown, closeMap, coords, withModal = true, scrollZoom = true, zoom } = props;
-
+  const { coords, withModal = true, scrollZoom = true, zoom } = props;
   const [lat, lng] = coords?.split(',') || [];
   const [view, setView] = useState<Viewport>({
     latitude: +lat,
@@ -35,18 +34,13 @@ const MapView = function (props: Props) {
         '.mapboxgl-ctrl.mapboxgl-ctrl-attrib',
       ) as HTMLElement;
 
-      console.log({ mapBoxText });
-
-      if (mapBoxText) {
-        mapBoxText.style.display = 'none';
-        mapBoxText.style.visibility = 'hidden';
-      }
+      if (!mapBoxText) return;
+      mapBoxText.style.display = 'none';
+      mapBoxText.style.visibility = 'hidden';
     }, 20);
   }, []);
 
-  if (!shown) return <></>;
-
-  if (!withModal)
+  if (!withModal) {
     return (
       <Map
         initialViewState={view}
@@ -55,9 +49,10 @@ const MapView = function (props: Props) {
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_API_KEY}
       />
     );
+  }
 
   return (
-    <Modal show={true} fullscreen onHide={() => closeMap()}>
+    <Modal show={props.show} fullscreen onHide={props.closeMap}>
       <Modal.Header closeButton>
         <Modal.Title>{props.placeName}</Modal.Title>
       </Modal.Header>

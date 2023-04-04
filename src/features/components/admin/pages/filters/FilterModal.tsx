@@ -20,7 +20,7 @@ import { AdminFilter, AdminSearchKeyword } from '../../../../types';
 
 interface Props {
   show: boolean;
-  onAddFilter: Function;
+  onSavedFilter: Function;
   close: () => void;
   filterToEdit?: AdminFilter | null; // For edit
 }
@@ -35,7 +35,7 @@ const FilterModal = function (props: Props) {
   const { chosenItems: chosenSic2Categories, onSelect: handleChangeSic2 } = useReactSelect();
   const { chosenItems: chosenSic4Categories, onSelect: handleChangeSic4 } = useReactSelect();
   const { chosenItems: chosenSic8Categories, onSelect: handleChangeSic8 } = useReactSelect();
-  const { chosenItems: keyword, onSelect: handleChangeKeyword } = useReactSelect();
+  const { chosenItems: keywords, onSelect: handleChangeKeyword } = useReactSelect();
   const { chosenItems: formType, onSelect: handleChangeFormType } = useReactSelect();
 
   const { accessToken } = useSignedInUser();
@@ -103,20 +103,8 @@ const FilterModal = function (props: Props) {
     validators: [{ fn: isRequired, params: ['A key order is required'] }],
   });
 
-  const {
-    inputValue: subcategory,
-    handleChange: handleChangeSubcategory,
-    setInputValue: setCategory,
-    validationErrors: subcategoryValidationErrors,
-    runValidators: runSubcategoryValidators,
-    clearInput: clearSubcategory,
-  } = useInput({
-    init: '',
-    validators: [{ fn: isRequired, params: ['Please select a subcategory'] }],
-  });
-
   useEffect(() => {
-    if (!props.filterToEdit) return;
+    if (!props.filterToEdit) return; // If in edit mode
     setName(props.filterToEdit.name);
     setTitle(props.filterToEdit.title);
     setDescription(props.filterToEdit.description);
@@ -139,7 +127,7 @@ const FilterModal = function (props: Props) {
       isActive,
       showForBusiness,
       showForFilter,
-      searchKeyword: (keyword as ReactSelectOption).value,
+      searchKeywords: (keywords as ReactSelectOption[]).map(item => item.value),
       category: (industry as ReactSelectOption).value,
       SIC2Categories: (chosenSic2Categories as ReactSelectOption[]).map(optn => optn.value),
       SIC4Categories: (chosenSic4Categories as ReactSelectOption[]).map(optn => optn.value),
@@ -147,6 +135,7 @@ const FilterModal = function (props: Props) {
       keyOrder: +keyOrder,
       formType: (formType as ReactSelectOption).value,
     };
+    console.log('Body: ', body);
     try {
       const req = props.filterToEdit
         ? api.editFilter(props.filterToEdit._id, body, accessToken!)
@@ -155,7 +144,7 @@ const FilterModal = function (props: Props) {
       const res = await sendSaveFilterReq(req);
       if (res.status !== 'SUCCESS') throw Error(res.msg || res.error);
 
-      props.onAddFilter();
+      props.onSavedFilter();
       clearName();
       clearDescription();
       clearFilterTitle();
@@ -168,7 +157,6 @@ const FilterModal = function (props: Props) {
   useEffect(() => {
     const reqs = Promise.all([api.getKeywords(), api.getBusinessCategories('SIC2', '')]);
     const setters = [setSearchKeywords, setSic2Categories, setSic4Categories, setSic8Categories];
-
     reqs.then(responses => {
       responses.forEach((res, i) => {
         if (res.status !== 'SUCCESS') return;
@@ -181,7 +169,6 @@ const FilterModal = function (props: Props) {
   useEffect(() => {
     const sic2Arr = chosenSic2Categories as ReactSelectOption[];
     if (!sic2Arr.length) return;
-
     const req = api.getBusinessCategories('SIC4', `sic2=${sic2Arr[0].value}`);
     req.then(res => {
       res.status === 'SUCCESS' && setSic4Categories(res.categories);
@@ -191,7 +178,6 @@ const FilterModal = function (props: Props) {
   useEffect(() => {
     const sic4Arr = chosenSic4Categories as ReactSelectOption[];
     if (!sic4Arr.length) return;
-
     const req = sendGetSIC8(api.getBusinessCategories('SIC8', `sic4=${sic4Arr[0].value}`));
     req.then(res => res.status === 'SUCCESS' && setSic8Categories(res.categories));
   }, [chosenSic4Categories]);
@@ -281,6 +267,7 @@ const FilterModal = function (props: Props) {
             onChange={handleChangeKeyword}
             components={useMemo(() => makeAnimated(), [])}
             closeMenuOnSelect
+            isMulti
           />
         </div>
 
@@ -291,6 +278,7 @@ const FilterModal = function (props: Props) {
             options={sic2Options}
             onChange={handleChangeSic2}
             isMulti
+            closeMenuOnSelect={false}
             components={useMemo(() => makeAnimated(), [])}
           />
         </div>
@@ -302,6 +290,7 @@ const FilterModal = function (props: Props) {
             options={sic4Options}
             onChange={handleChangeSic4}
             isMulti
+            closeMenuOnSelect={false}
             components={useMemo(() => makeAnimated(), [])}
           />
         </div>
@@ -309,21 +298,15 @@ const FilterModal = function (props: Props) {
         {/* SIC8 Categories */}
         <div className="mb-5">
           <label className="mb-2">SIC8 Categories</label>
-          <div className="d-flex align-items-center gap-3">
-            <ReactSelect
-              options={sic8Options}
-              onChange={handleChangeSic8}
-              isMulti
-              className="flex-grow-1"
-              // components={useMemo(() => makeAnimated(), [])}
-            />
-            <Spinner
-              size="sm"
-              animation="border"
-              className={loadingSIC8Categories ? 'd-block' : 'd-none'}
-              style={{ borderWidth: '1px' }}
-            />
-          </div>
+          <ReactSelect
+            options={sic8Options}
+            onChange={handleChangeSic8}
+            isMulti
+            className="flex-grow-1"
+            closeMenuOnSelect={false}
+            components={useMemo(() => makeAnimated(), [])}
+            isLoading={loadingSIC8Categories}
+          />
         </div>
 
         {/* Key order */}
@@ -337,18 +320,6 @@ const FilterModal = function (props: Props) {
           />
         </div>
 
-        {/* Sub-categories */}
-        {/* <div className="mb-5">
-          <label className="mb-2">SIC4 Categories</label>
-          <ReactSelect
-            options={sic4Options}
-            onChange={handleChangeSic4}
-            isMulti
-            components={useMemo(() => makeAnimated(), [])}
-            
-          />
-        </div> */}
-
         {/* Form type */}
         <div className="mb-5">
           <label className="mb-2">Form Type</label>
@@ -361,7 +332,6 @@ const FilterModal = function (props: Props) {
 
         <LoadingButton
           isLoading={savingFilter}
-          // withSpinner
           textWhileLoading="Saving..."
           className="btn btn-pry btn--lg"
           onClick={handleSave}

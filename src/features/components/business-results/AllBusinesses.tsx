@@ -12,17 +12,20 @@ import api from '../../library/api';
 interface Props {
   data?: { status: string; businesses: BusinessProps[] };
   page: number;
-  allResults?: number;
+  total?: number;
   type?: string;
+  sectionId?: string;
+  style?: React.CSSProperties;
 }
 
 function AllBusinesses(props: Props) {
-  const { allResults, page } = props;
+  const { total, page } = props;
 
   // State that maps business ids to logged-in user's reviews
   const [userReviewLookup, setUserReviewLookup] = useState<{
     [businessId: string]: ReviewProps;
   }>({});
+
   const [peoplesOpinionsAboutBusinesses, setPeoplesOpinionsAboutBusinesses] = useState<{
     [businessId: string]: Array<string[]>;
   }>({});
@@ -91,8 +94,14 @@ function AllBusinesses(props: Props) {
     );
 
   return (
-    <ul className={cls(styles.businesses, 'no-bullets')} id="all-businesses">
-      <small className={styles.totalResults}>{allResults} results</small>
+    <ul className={cls(styles.businesses, 'no-bullets')}>
+      <small
+        className={cls(styles.totalResults, 'fs-4 color-pry ms-auto')}
+        id={props.sectionId}
+        style={{ scrollPaddingTop: '100px' }}
+      >
+        {total} results found
+      </small>
 
       {(props.data.businesses as BusinessProps[])?.map((b, i) => {
         const reviewedByUser = b._id in userReviewLookup;

@@ -39,6 +39,7 @@
 
   & .totalResults {
     position: absolute;
+    // right: 0;
     bottom: calc(100% + 5px);
     color: $color-pry-light;
     z-index: 4;

@@ -52,12 +52,11 @@ export interface AdminFilter {
   showForBusiness: boolean;
   showForFilter: boolean;
   category?: string;
-  searchKeyword?: 'Restaurants' | 'Hotels' | 'Things to do' | 'Vacation rentals' | 'Cruises';
+  searchKeyword: string[];
   SIC2Categories?: string[];
   SIC4Categories?: string[];
   SIC8Categories?: string[];
   keyOrder?: Number;
-  // subCategories?: string[],
   formType: string;
 }
 

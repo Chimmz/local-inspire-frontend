@@ -55,7 +55,7 @@ const KeywordModal = function (props: Props) {
 
   const { chosenItems: selectedSic4Categories, onSelect: handleChangeSic4 } = useReactSelect();
   const { accessToken } = useSignedInUser();
-  const { send: sendGetCategories, loading: gettingCategories } = useRequest();
+  const { send: sendGetCategories, loading: loadingCategories } = useRequest();
   const { send: sendSaveKeywordReq, loading: isSavingKeyword } = useRequest();
 
   const sic4Options = useMemo(() => getSelectOptions(sic4Categories), [sic4Categories]);
@@ -68,11 +68,9 @@ const KeywordModal = function (props: Props) {
       sic4Categories: (selectedSic4Categories as ReactSelectOption[]).map(optn => optn.value),
     };
     console.log(body);
-
     const req = !!props.keyword
       ? api.editKeyword(props.keyword._id, body, accessToken!)
       : api.addKeyword(body, accessToken!);
-
     try {
       const res = await sendSaveKeywordReq(req);
       if (res.status !== 'SUCCESS') throw Error(res.msg || res.error);
@@ -94,7 +92,6 @@ const KeywordModal = function (props: Props) {
   useEffect(() => {
     const req = sendGetCategories(api.getBusinessCategories('SIC4', ''));
     req.then(res => res.status === 'SUCCESS' && setSic4Categories(res.categories));
-
     // If not in edit mode
     if (!props.keyword) return;
     (props.keyword.enableForBusiness ? setEnabledForBusinessTrue : setEnabledForBusinessFalse)();

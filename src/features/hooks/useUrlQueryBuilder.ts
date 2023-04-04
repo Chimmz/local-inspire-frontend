@@ -17,6 +17,10 @@ const useUrlQueryBuilder = function <T extends string>(params: Params) {
   const [queryStr, setQueryStr] = useState('');
   const [filterNames, setFilterNames] = useState<string[]>(params.initFilters || []);
 
+  const [filtersConfig, setFiltersConfig] = useState<
+    Map<string, { [key: string]: string | number }>
+  >(params.filtersConfig);
+
   const addNewFilterName = useCallback(
     (filter: T) => setFilterNames(filters => [filter, ...filters]),
     [setFilterNames],
@@ -31,9 +35,9 @@ const useUrlQueryBuilder = function <T extends string>(params: Params) {
     const queryProperties: QueryProperties = { match: {}, sort: [], page: 0 };
 
     filterNames.forEach((filterName, i) => {
-      const querySpecification = params.filtersConfig.get(filterName)!;
+      const querySpecification = filtersConfig.get(filterName);
 
-      if ('sort' in querySpecification) {
+      if (querySpecification?.sort) {
         queryProperties.sort.push(querySpecification.sort!);
       } else {
         const [k, v] = Object.entries(querySpecification!).flat();
@@ -75,6 +79,7 @@ const useUrlQueryBuilder = function <T extends string>(params: Params) {
     filterNames,
     addNewFilterName,
     removeFilterName,
+    setFiltersConfig,
   };
 };
 

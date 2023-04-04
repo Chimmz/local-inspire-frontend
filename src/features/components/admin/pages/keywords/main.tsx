@@ -102,7 +102,6 @@ const KeywordsBody = (props: Props) => {
         close={setKeywordToEdit.bind(null, null)}
         onSaved={loadKeywords}
         keyword={keywordToEdit}
-        // onExit={setKeywordToEdit.bind(null, null)}
       />
       <DeleteConfirmModal
         show={deleteConfirmationShown}

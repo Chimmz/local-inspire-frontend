@@ -41,7 +41,7 @@ const FiltersPage = (props: Props) => {
   const { send: sendDeleteReq, loading: deletingFilter } = useRequest();
 
   const loadFilters = () => {
-    const req = sendFiltersRequest(api.getFilters(adminUser.accessToken!));
+    const req = sendFiltersRequest(api.getFilters());
     req.then(res => res.status === 'SUCCESS' && setFilters(res.filters));
   };
 
@@ -106,13 +106,13 @@ const FiltersPage = (props: Props) => {
       <FilterModal
         show={showNewFilterModal}
         close={setShowAddFilterModal.bind(null, false)}
-        onAddFilter={loadFilters}
+        onSavedFilter={loadFilters}
       />
       {/* For edit filter modal */}
       <FilterModal
         show={!!filterToEdit}
         close={setFilterToEdit.bind(null, null)}
-        onAddFilter={loadFilters}
+        onSavedFilter={loadFilters}
         filterToEdit={filterToEdit}
       />
 

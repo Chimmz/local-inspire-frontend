@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 // Types
@@ -11,7 +11,7 @@ import * as uuid from 'uuid';
 import * as urlUtils from '../../features/utils/url-utils';
 import * as stringUtils from '../../features/utils/string-utils';
 import { ParsedUrlQuery } from 'querystring';
-import API from '../../features/library/api';
+import api from '../../features/library/api';
 import cls from 'classnames';
 // Components
 import Layout from '../../features/components/layout';
@@ -24,6 +24,8 @@ import CategoriesNav from '../../features/components/layout/navbar/CategoriesNav
 import Paginators from '../../features/components/shared/pagination/Paginators';
 
 import styles from '../../styles/sass/pages/BusinessResultsPage.module.scss';
+import * as domUtils from '../../features/utils/dom-utils';
+import { AdminFilter } from '../../features/types';
 
 interface SearchParams extends ParsedUrlQuery {
   businessSearchParams: string;
@@ -32,112 +34,173 @@ interface SearchParams extends ParsedUrlQuery {
 interface Props {
   status: 'SUCCESS' | 'ERROR';
   error?: string;
-  businesses?: { [key: string]: any }[];
+  businesses?: BusinessProps[];
   results?: number;
-  allResults?: number;
-  defaultCategorySuggestions: string[];
+  total?: number;
   sponsored?: BusinessProps[];
   specials: Array<{ title: string; items: Array<BusinessProps> }>;
-  pageSearchParams: { category: string; city: string; stateCode: string };
+  pageParams: { category: string; city: string; stateCode: string };
   pageId: string;
-  pageLoading: boolean;
 }
 
-const PER_PAGE = 20;
+const RESULTS_PER_PAGE = 20;
+const MAIN_RESULTS_SECTION_ID = 'main-results';
 
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
-  const [pageLoading, setPageLoading] = useState(props.pageLoading);
   const [propsData, setPropsData] = useState<Props>(props);
-  const [showGoogleMap, setShowGoogleMap] = useState(false);
-
-  const error = propsData?.status !== 'SUCCESS';
-
-  const {
-    category: currentCategory,
-    city: currentCity,
-    stateCode: currentStateCode,
-  } = props.pageSearchParams;
-
-  const [categoryTitle, cityTitle] = [
-    stringUtils.toTitleCase(currentCategory),
-    stringUtils.toTitleCase(currentCity),
-  ];
-
-  const { currentPage, currentPageData, setPageData, setCurrentPage, pageHasData } =
-    usePaginate<{ status: string; businesses: BusinessProps[] }>({
-      defaultCurrentPage: 1,
-      init: { 1: propsData as any },
-    });
+  const [totalResults, setTotalResults] = useState(props.total);
+  const [filters, setFilters] = useState<string[]>();
+  const [showMap, setShowMap] = useState(false);
 
   const {
-    startLoading: startNewSearchLoader,
-    stopLoading: stopNewSearchLoader,
-    loading: newSearchLoading,
-  } = useRequest({ autoStopLoading: false });
+    send: sendSearchReq,
+    loading: isSearching,
+    startLoading: showSearchLoader,
+    stopLoading: hideSearchLoader,
+  } = useRequest();
+  const { send: sendFilterReq, loading: isFiltering } = useRequest();
 
-  useEffect(() => {
-    const paginators = document.querySelector("[class*='paginators']");
-    const anchors = paginators?.querySelectorAll('a');
+  let { category, city, stateCode } = props.pageParams;
 
-    anchors?.forEach(a => {
-      a.onclick = () => window.scrollTo(0, 2000);
+  const [categoryTitle, cityTitle] = useMemo(
+    () => [
+      stringUtils.toTitleCase(props.pageParams.category),
+      stringUtils.toTitleCase(props.pageParams.city),
+    ],
+    [props.pageParams],
+  );
+
+  const {
+    currentPage,
+    currentPageData,
+    setPageData,
+    setCurrentPage,
+    pageHasData,
+    resetAllPages,
+  } = usePaginate<{ status: string; businesses: BusinessProps[] }>({
+    defaultCurrentPage: 1,
+    init: { 1: propsData as any },
+  });
+
+  const handlePageChange = async (page: number) => {
+    setCurrentPage(page);
+    if (pageHasData(page, data => !!data?.businesses.length)) return;
+
+    const req = filters?.length
+      ? api.filterBusinesses(filters, propsData.pageParams, {
+          page,
+          limit: RESULTS_PER_PAGE,
+        })
+      : api.findBusinesses(category, { city, stateCode }, { page, limit: RESULTS_PER_PAGE });
+
+    sendSearchReq(req)
+      .then(res => {
+        if (res.status !== 'SUCCESS') return;
+        setPageData(page, res);
+      })
+      .catch(console.error);
+  };
+
+  const filterBusinesses = (filterIds: string[]) => {
+    setFilters(filterIds);
+    const noFilters = !filterIds.length;
+
+    if (noFilters) {
+      setTotalResults(propsData.total);
+      resetAllPages(); // Clear all pages and use props data
+      const firstPage = 1;
+      setPageData(firstPage, { ...propsData, businesses: propsData.businesses! }); // Register data for first page
+      setCurrentPage(firstPage); // Set current page to first page
+      return domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main businesses section
+    }
+    const req = api.filterBusinesses(filterIds, propsData.pageParams, {
+      page: 1,
+      limit: RESULTS_PER_PAGE,
     });
-  }, [currentPage]);
+    sendFilterReq(req)
+      .then(res => {
+        if (res.status !== 'SUCCESS') return;
+        setTotalResults(res.total);
+        resetAllPages(); // Clear all pages since we now have new results
 
-  useEffect(() => {
-    setCurrentPage(1);
-    const paginators = document.querySelector("[class*='paginators']");
-    // const previousActivePaginator = paginators?.querySelector('li.selected');
-
-    setPropsData(props);
-    setPageData(1, props as any);
-  }, [props, setPropsData, props.pageId]); // Never include setCurrentPage, setPageData in this list
-
-  const handlePageChange = async (newPage: number) => {
-    setCurrentPage(newPage);
-    if (pageHasData(newPage, 'businesses')) return;
-
-    const res = await API.findBusinesses(
-      currentCategory,
-      currentCity,
-      currentStateCode,
-      newPage,
-      PER_PAGE,
-    );
-    if (res) setPageData(newPage, { status: res?.status, businesses: res?.businesses });
-    console.log(res);
+        const firstPage = 1;
+        setPageData(firstPage, res); // Register data for first page
+        setCurrentPage(firstPage); // Set current page to first page
+        domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main businesses section
+      })
+      .catch(console.error);
   };
 
   useEffect(() => {
-    stopNewSearchLoader();
-    setPageLoading(false);
-  }, [propsData.pageId]);
+    setPropsData(props); // Set new props data
+    const firstPage = 1;
+    setCurrentPage(firstPage); // Always set to first page when page changes
+    setPageData(firstPage, props as any); // Set new page data
+    setTotalResults(props.total);
+    // const paginators = document.querySelector("[class*='paginators']");
+    // const previousActivePaginator = paginators?.querySelector('li.selected');
+  }, [props, setPropsData, props.pageId]); // Never include setCurrentPage, setPageData in this list. It causes a limitless rerendering
+
+  useEffect(() => {
+    hideSearchLoader(); // Hide the search loader. The loader may have been triggered by the <CategoriesNav />
+  }, [propsData.pageId]); // On transition to a new results page
+
+  useEffect(() => {
+    domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main business results
+  }, [currentPage]); // Whenever pagination is triggered
+
+  const pageCount = useMemo(
+    () => (totalResults ? Math.ceil(totalResults / RESULTS_PER_PAGE) : 0),
+    [propsData, totalResults],
+  );
 
   return (
     <Layout>
-      {pageLoading && <Spinner pageWide />}
+      {/* Page white overlay for pending requests */}
+      <Spinner show={isFiltering || isSearching} pageWide />
+
       <Head>
-        <title>{`Top ${categoryTitle} in ${cityTitle}, ${props.pageSearchParams?.stateCode} – Updated regularly | Local Inspire`}</title>
+        <title>{`Top ${categoryTitle} in ${cityTitle}, ${props.pageParams?.stateCode} – Updated regularly | Local Inspire`}</title>
         <meta name="description" content={`Find ${categoryTitle} in ${cityTitle}`} />
       </Head>
+
       <Layout.Nav bg="#003366" lightLogo position="sticky">
-        <CategoriesNav
-          searchParams={props.pageSearchParams}
-          setPageLoading={setPageLoading}
-        />
+        <CategoriesNav searchParams={props.pageParams} showLoader={showSearchLoader} />
       </Layout.Nav>
+
       <Layout.Main className={styles.main}>
         <div className={cls(styles.businessesResultsPage, 'container')}>
           <h1 className={cls(styles.heading, 'text-dark')}>
             {categoryTitle}
             <span style={{ color: '#bbb' }}>{' in '}</span>
-            {cityTitle + ', ' + props.pageSearchParams.stateCode.toUpperCase()}
+            {cityTitle + ', ' + props.pageParams.stateCode.toUpperCase()}
           </h1>
+
+          {/* Business results */}
+          <div className={styles.searchResults}>
+            {propsData.specials.map(group => (
+              <FeaturedBusinesses
+                title={group.title}
+                businesses={group.items}
+                key={group.title}
+              />
+            ))}
+
+            <AllBusinesses
+              data={currentPageData}
+              total={totalResults}
+              page={currentPage}
+              sectionId={MAIN_RESULTS_SECTION_ID}
+              style={{ scrollPadding: '30px' }}
+            />
+          </div>
+
+          {/* Map + Filters side-bar */}
           <aside className={styles.aside}>
             <figure className={styles.mapPreview} style={{ position: 'relative' }}>
               <MapView
-                shown
-                closeMap={useCallback(() => setShowGoogleMap(false), [setShowGoogleMap])}
+                show
+                closeMap={useCallback(() => setShowMap(false), [setShowMap])}
                 coords={propsData.businesses?.[0]?.coordinates as string}
                 withModal={false}
                 scrollZoom={false}
@@ -145,46 +208,32 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
               />
               <button
                 className={cls(styles.btnViewMap, 'btn btn-outline-pry')}
-                onClick={() => setShowGoogleMap(true)}
+                onClick={setShowMap.bind(null, true)}
               >
                 View map
               </button>
             </figure>
 
-            <Filters styles={styles} />
+            <Filters onFilter={filterBusinesses} pageParams={props.pageParams} styles={styles} />
           </aside>
 
-          <div className={styles.searchResults}>
-            {propsData.specials.map(group => (
-              <FeaturedBusinesses
-                groupName={group.title}
-                businesses={group.items}
-                key={group.title}
-              />
-            ))}
-            <AllBusinesses
-              data={currentPageData}
-              allResults={propsData.allResults!}
-              page={currentPage}
-            />
-          </div>
-
-          <div className={styles.pagination}>
-            {propsData.allResults ? (
+          {/* Pagination */}
+          <section className={styles.pagination}>
+            {propsData.total ? (
               <Paginators
-                pageCount={
-                  propsData.allResults ? Math.ceil(propsData.allResults / PER_PAGE) : 0
-                }
-                currentPage={currentPage}
                 onPageChange={handlePageChange}
+                currentPage={currentPage}
+                pageCount={pageCount}
               />
             ) : null}
-          </div>
+          </section>
+
+          {/* Modal showing map*/}
           <MapView
-            shown={showGoogleMap}
-            closeMap={useCallback(setShowGoogleMap.bind(null, false), [setShowGoogleMap])}
-            coords={currentPageData?.businesses?.[0]?.coordinates as string}
+            show={showMap}
             withModal
+            closeMap={useCallback(() => setShowMap(false), [setShowMap])}
+            coords={currentPageData?.businesses?.[0]?.coordinates as string}
             placeName={propsData.businesses?.[0]?.city as string}
           />
         </div>
@@ -202,45 +251,28 @@ export const getStaticPaths: GetStaticPaths = async function () {
 };
 
 export const getStaticProps: GetStaticProps = async function (context) {
-  const parsedResult = urlUtils.parseBusinessSearchUrlParams(
+  const parsedParams = urlUtils.parseBusinessSearchUrlParams(
     (context.params as SearchParams).businessSearchParams,
   );
-  console.log({ parsedResult });
-  if (parsedResult instanceof Error) return { notFound: true };
+  if (parsedParams instanceof Error) return { notFound: true }; // In case of invalid params
 
-  const { category, city, stateCode } = parsedResult;
-
+  const { category, city, stateCode } = parsedParams;
   if (!category || !city || !stateCode) return { notFound: true };
 
-  const defaultCategorySuggestions = [
-    'Hotels and motels',
-    'Restaurants',
-    'Cabins Rentals',
-    'Vacation Rentals',
-    'Things to do',
-    'Cruises',
-  ];
-
   const pageId = uuid.v4();
-
   try {
-    const data = await API.findBusinesses(category, city, stateCode, 1, 20);
-    if (!data) throw Error('');
-
-    const { businesses, ...others } = data;
-    console.log({ others, businesses: businesses.slice(0, 2) });
+    const res = await api.findBusinesses(category, { city, stateCode }, { page: 1, limit: 20 });
+    if (res.status !== 'SUCCESS') throw Error('');
 
     return {
       props: {
-        ...data,
-        pageId,
-        defaultCategorySuggestions,
+        ...res,
         specials: [
-          { title: 'Sponsored', items: data?.businesses?.slice(0, 10) || [] },
-          { title: 'Top 10 businesses', items: data?.businesses?.slice(0, 10) || [] },
+          { title: 'Sponsored', items: res?.businesses?.slice(0, 10) || [] },
+          { title: 'Top 10 businesses', items: res?.businesses?.slice(0, 10) || [] },
         ],
-        pageSearchParams: parsedResult,
-        pageLoading: true,
+        pageParams: parsedParams,
+        pageId,
       },
     };
   } catch (err) {

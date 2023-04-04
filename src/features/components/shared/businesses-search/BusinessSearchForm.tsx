@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useState, useCallback, useContext, useEffect, useRef, useMemo } from 'react';
 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
@@ -17,6 +17,8 @@ import styles from './BusinessSearchForm.module.scss';
 import { UserLocationContext } from '../../../contexts/UserLocationContext';
 import { AdminSearchKeyword } from '../../../types';
 import api from '../../../library/api';
+import Link from 'next/link';
+import { getBusinessSearchResultsUrl } from '../../../utils/url-utils';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -24,7 +26,7 @@ const MIN_CHARS_FOR_CITY_SEARCH = 2;
 interface BusinessSearchFormProps {
   promptUserInput: boolean;
   fontSize?: string;
-  onSearch: (categ: string, city: string) => void;
+  onSearch: (categ: string, city: string, ...others: any[]) => void;
   loading: boolean;
   defaultCategorySuggestions: string[];
 }
@@ -43,11 +45,13 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     handleChange: handleChangeCategory,
     setInputValue: setCategoryValue,
   } = useInput({ init: '' });
+
   const {
     inputValue: cityValue,
     handleChange: handleChangeCity,
     setInputValue: setCityValue,
   } = useInput({ init: '' });
+
   const {
     search: searchCategories,
     searchResults: categoryResults,
@@ -60,6 +64,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     makeRequest: API.searchBusinessCategories.bind(API, categoryValue.trim()),
     responseDataField: 'categories',
   });
+
   const {
     search: searchCities,
     searchResults: cityResults,
@@ -151,7 +156,8 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = ev => {
     ev.preventDefault();
-    props.onSearch(categoryValue.trim(), cityValue.trim());
+    const selectedKeyword = keywords?.find(kw => kw.name === categoryValue);
+    props.onSearch(categoryValue.trim(), cityValue.trim(), selectedKeyword?.name);
   };
 
   const getCategoriesToRender = useCallback(() => {
@@ -179,6 +185,41 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
       value: userLocation?.city,
     });
   }
+
+  // const btnSearch = useMemo(() => {
+  //   const content = props.loading ? (
+  //     <BootstrapSpinner
+  //       animation="border"
+  //       size="sm"
+  //       style={{ width: '1.2em', height: '1.2em', borderWidth: '2px' }}
+  //       color="#e87525"
+  //     />
+  //   ) : (
+  //     <Icon icon="akar-icons:search" color="#fff" />
+  //   );
+
+  //   if (!categoryValue || !cityValue || !userLocation?.stateCode || !keywords)
+  //     return (
+  //       <Button
+  //         className={cls(styles.btn, 'btn btn-pry')}
+  //         type="submit"
+  //         disabled={props.loading}
+  //       >
+  //         {content}
+  //       </Button>
+  //     );
+  //   const url = getBusinessSearchResultsUrl({
+  //     category: categoryValue,
+  //     city: cityValue.split(', ')[0],
+  //     stateCode: cityValue.split(', ')[1],
+  //     queryStr: `?keyword=${keywords.find(kw => kw.name === categoryValue)?.name}`,
+  //   });
+  //   return (
+  //     <Link href={url} passHref>
+  //       <a className={cls(styles.btn, 'btn btn-pry')}>{content}</a>
+  //     </Link>
+  //   );
+  // }, [categoryValue, cityValue, userLocation, keywords]);
 
   return (
     <form className={styles.search} onSubmit={handleSubmit}>
@@ -262,6 +303,8 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
           )}
         />
       </div>
+
+      {/* {btnSearch} */}
 
       <Button className={cls(styles.btn, 'btn btn-pry')} type="submit" disabled={props.loading}>
         {props.loading ? (

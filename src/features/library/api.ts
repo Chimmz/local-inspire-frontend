@@ -16,10 +16,9 @@ class API {
 
   async _makeRequest({ path, ...config }: RequestConfig) {
     const isApiCall = path.startsWith('/');
-
     try {
-      const fullUrl = isApiCall ? this._baseUrl!.concat(path) : path;
-      const res = await fetch(fullUrl, { ...config } as RequestInit);
+      const reqUrl = isApiCall ? this._baseUrl!.concat(path) : path;
+      const res = await fetch(reqUrl, { ...config } as RequestInit);
       return await res.json();
     } catch (err) {
       console.log('Error log in _makeRequest: ', err);
@@ -131,13 +130,25 @@ class API {
 
   async findBusinesses(
     category: string,
-    city: string,
-    stateCode: string,
-    page: number = 1,
-    limit: number = 20,
+    place: { city: string; stateCode: string },
+    opts: { page: number; limit: number },
   ): Promise<any> {
     return this._makeRequest({
-      path: `/businesses/find?category=${category}&city=${city}&stateCode=${stateCode}&page=${page}&limit=${limit}`,
+      path: `/businesses/find?category=${category}&city=${place.city}&stateCode=${place.stateCode}&page=${opts.page}&limit=${opts.limit}`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async filterBusinesses(
+    filterIds: string[],
+    place: { city: string; stateCode: string },
+    opts: { page: number; limit: number },
+  ): Promise<any> {
+    const filtersStr = filterIds.join(',');
+
+    return this._makeRequest({
+      path: `/businesses/filter?filters=${filtersStr}&city=${place.city}&stateCode=${place.stateCode}&page=${opts.page}&limit=${opts.limit}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -459,13 +470,15 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
-  async getFilters(token: string) {
+
+  async getFilters(keyword?: string) {
     return this._makeRequest({
-      path: `/admin/filters`,
+      path: `/admin/filters${keyword ? `?keyword=${keyword}` : ''}`,
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
+
   async editFilter(fId: string, updateObj: object, token: string) {
     return this._makeRequest({
       path: `/admin/filters/${fId}`,
@@ -474,6 +487,7 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
   async deleteFilter(filterId: string, token: string) {
     return this._makeRequest({
       path: `/admin/filters/${filterId}`,

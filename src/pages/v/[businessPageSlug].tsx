@@ -239,7 +239,7 @@ const BusinessPage: NextPage<Props> = function (props) {
 
               <FeaturedBusinesses
                 className={styles.similarBusinesses}
-                groupName="Similar Businesses you may like"
+                title="Similar Businesses you may like"
                 businesses={[
                   {
                     _id: (Math.random() + Math.random()).toString(),

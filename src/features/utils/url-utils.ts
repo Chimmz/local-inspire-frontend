@@ -42,21 +42,18 @@ const navigateTo = function (path: string, router: NextRouter) {
   router.push(path);
 };
 
-export const getBusinessSearchResultsUrl = ({
-  category,
-  city,
-  stateCode,
-}: {
+export const getBusinessSearchResultsUrl = (obj: {
   category: string;
   city: string;
   stateCode: string;
+  queryStr?: string | undefined;
 }) => {
   const [categParam, cityParam, stateParam] = [
-    category.toLowerCase().split(' ').join('-'),
-    city.toLowerCase().split(' ').join('-'),
-    stateCode.toUpperCase(),
+    obj.category.toLowerCase().split(' ').join('-'),
+    obj.city.toLowerCase().split(' ').join('-'),
+    obj.stateCode.toUpperCase(),
   ];
-  return `/reviews/find=${categParam}&location=${cityParam}-${stateParam}`;
+  return `/reviews/find=${categParam}&location=${cityParam}-${stateParam}${obj.queryStr || ''}`;
 };
 
 export const parseBusinessSearchUrlParams = (

@@ -40,8 +40,11 @@ function Header(props: Props) {
   const [userCollections, setUserCollections] = useState<UserCollection[] | undefined>(
     props.userCollections,
   );
-  const [userReviewImages, setUserReviewImages] =
-    useState<Array<{ photoUrl: string; description: string; _id: string }>>();
+  const [userReviewImages, setUserReviewImages] = useState<Array<{
+    _id: string;
+    photoUrl: string;
+    description: string;
+  }> | null>(null);
 
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCollectionsModal, setShowCollectionsModal] = useState(false);
@@ -49,16 +52,9 @@ function Header(props: Props) {
   const router = useRouter();
   const { isSignedIn, accessToken: token } = useSignedInUser();
   const { withAuth } = useMiddleware();
-  const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest({
-    autoStopLoading: true,
-  });
-  const {
-    send: sendReviewReq,
-    loading: fetchingReviews,
-    loaded: userReviewRequested,
-  } = useRequest({
-    autoStopLoading: true,
-  });
+
+  const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest();
+  const { send: sendReviewReq, loading: loadingReviews } = useRequest();
 
   const loadUserCollections = useCallback(async () => {
     const res = await sendCollectionsReq(api.getUserCollections(token!));
@@ -67,7 +63,7 @@ function Header(props: Props) {
 
   const loadUserReview = useCallback(async () => {
     const req = sendReviewReq(api.getUserReviewOnBusiness(props.business!._id!, token!));
-    req.then(res => res?.status === 'SUCCESS' && setUserReviewImages(res.review.images));
+    req.then(res => res?.status === 'SUCCESS' && setUserReviewImages(res.review?.images));
   }, [isSignedIn, token, props.business?._id]);
 
   useEffect(() => {
@@ -75,7 +71,7 @@ function Header(props: Props) {
   }, [isSignedIn, loadUserCollections]);
 
   useEffect(() => {
-    if (!isSignedIn) return setUserReviewImages(undefined); // If user logs out
+    if (!isSignedIn) return setUserReviewImages(null); // If user logs out
     if (props.business?._id) loadUserReview();
   }, [isSignedIn, props.business?._id]);
 

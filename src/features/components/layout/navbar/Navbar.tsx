@@ -35,7 +35,6 @@ export type AuthType = 'login' | 'register';
 
 function Navbar(props: NavbarProps) {
   console.log('Evaluating Navbar');
-
   const { bg = '#003366', position, lightLogo = true, withSearchForm = true } = props;
 
   const authData = useAuthModalContext();
@@ -78,7 +77,6 @@ function Navbar(props: NavbarProps) {
       city: cityValue,
       stateCode: stateValue,
     });
-    console.log('To push: ', url);
     router.push(url);
   };
 

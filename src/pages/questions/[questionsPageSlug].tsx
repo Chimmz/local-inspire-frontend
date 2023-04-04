@@ -50,19 +50,14 @@ const QUESTIONS_PER_PAGE = 10;
 const MAX_POPULAR_QUESTIONS = 6;
 
 const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
-  const { businessId, businessName } = props.params;
   const [questions, setQuestions] = useState<QuestionItemProps[]>(props.questions.data || []);
   const [questionsCount, setQuestionsCount] = useState<number>(props.questions.total!);
 
   const router = useRouter();
 
-  const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest({
-    autoStopLoading: true,
-  });
-  const { send: sendSubmitAnswerReq, loading: submittingNewAnswer } = useRequest({
-    autoStopLoading: true,
-  });
-  const { send: sendFilterReq, loading: isFiltering } = useRequest({ autoStopLoading: true });
+  const { send: sendSubmitQuestionReq, loading: submittingNewQuestion } = useRequest();
+  const { send: sendSubmitAnswerReq, loading: submittingNewAnswer } = useRequest();
+  const { send: sendFilterReq, loading: isFiltering } = useRequest();
 
   const { currentPage, setCurrentPage } = usePaginate<QuestionItemProps[]>({
     defaultCurrentPage: 1,

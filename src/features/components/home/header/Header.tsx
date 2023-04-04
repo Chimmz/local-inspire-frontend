@@ -21,16 +21,26 @@ function Header({ defaultCategorySuggestions }: HeaderProps) {
     loading: searchLoading,
   } = useRequest({ autoStopLoading: false });
 
-  const handleClickSearch = (category: string, location: string) => {
+  const handleClickSearch = (category: string, location: string, keyword?: string) => {
     if (!category || !location) return;
     console.log({ category, location });
     const [city, stateCode] = location.split(', ');
 
     startSearchLoader();
-    const url = utlUtils.getBusinessSearchResultsUrl({ category, city, stateCode });
-    console.log({ url });
+    const url = utlUtils.getBusinessSearchResultsUrl({
+      category,
+      city,
+      stateCode,
+      queryStr: `?keyword=${keyword}`,
+    });
+    console.log(url);
     router.push(url);
   };
+
+  // This useEffect should be removed. Just here for dev purposes
+  // useEffect(() => {
+  //   stopSearchLoader();
+  // }, []);
 
   useEffect(() => stopSearchLoader, []); // Unmount/cleanup function
 
