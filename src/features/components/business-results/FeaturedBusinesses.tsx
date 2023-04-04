@@ -13,9 +13,9 @@ interface Props {
 }
 
 const FeaturedBusinesses: FC<Props> = props => {
-  if (!props.businesses?.length) return <></>;
   const id = React.useId();
 
+  if (!props.businesses?.length) return <></>;
   return (
     <section className={cls(styles.businessGroup, 'no-bullets', props.className)}>
       <h3 className={cls(styles.groupName, 'mb-4')}>{stringUtils.toTitleCase(props.title)}</h3>
