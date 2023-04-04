@@ -60,7 +60,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   } = useRequest();
   const { send: sendFilterReq, loading: isFiltering } = useRequest();
 
-  let { category, city, stateCode } = props.pageParams;
+  let { category, city, stateCode } = useMemo(() => props.pageParams, [props]);
 
   const [categoryTitle, cityTitle] = useMemo(
     () => [
@@ -97,6 +97,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       .then(res => {
         if (res.status !== 'SUCCESS') return;
         setPageData(page, res);
+        domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main business results
       })
       .catch(console.error);
   };
@@ -145,10 +146,6 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     hideSearchLoader(); // Hide the search loader. The loader may have been triggered by the <CategoriesNav />
   }, [propsData.pageId]); // On transition to a new results page
 
-  useEffect(() => {
-    domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main business results
-  }, [currentPage]); // Whenever pagination is triggered
-
   const pageCount = useMemo(
     () => (totalResults ? Math.ceil(totalResults / RESULTS_PER_PAGE) : 0),
     [propsData, totalResults],
@@ -165,7 +162,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       </Head>
 
       <Layout.Nav bg="#003366" lightLogo position="sticky">
-        <CategoriesNav searchParams={props.pageParams} showLoader={showSearchLoader} />
+        <CategoriesNav showLoader={showSearchLoader} />
       </Layout.Nav>
 
       <Layout.Main className={styles.main}>

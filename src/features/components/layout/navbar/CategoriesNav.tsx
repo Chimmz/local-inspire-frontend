@@ -12,7 +12,6 @@ import api from '../../../library/api';
 import { AdminSearchKeyword } from '../../../types';
 
 interface CategoriesNavProps {
-  searchParams: { category: string; city: string; stateCode: string };
   showLoader?: () => void;
 }
 
@@ -55,7 +54,7 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
         </li>
       );
     });
-  }, [keywords]);
+  }, [keywords, userLocation]);
 
   return (
     <nav className={cls(styles.categoriesNav)}>
