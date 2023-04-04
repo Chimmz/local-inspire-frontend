@@ -197,7 +197,6 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     ) : (
       <Icon icon="akar-icons:search" color="#fff" />
     );
-
     if (!categoryValue || !cityValue || !userLocation?.stateCode || !keywords)
       return (
         <Button
@@ -219,7 +218,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         <a className={cls(styles.btn, 'btn btn-pry')}>{content}</a>
       </Link>
     );
-  }, [categoryValue, cityValue, userLocation, keywords]);
+  }, [hasSelectedCategory, hasSelectedCity, userLocation, keywords]);
 
   return (
     <form className={styles.search} onSubmit={handleSubmit}>
