@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { AdminFilter, AdminSearchKeyword } from '../../../../types';
 
 import useInput from '../../../../hooks/useInput';
 import useToggle from '../../../../hooks/useToggle';
@@ -10,13 +11,13 @@ import { isRequired } from '../../../../utils/validators/inputValidators';
 import makeAnimated from 'react-select/animated';
 import api from '../../../../library/api';
 import { formTypes, getSelectOptions, ReactSelectOption } from './config';
+import cls from 'classnames';
 
-import { Form, Modal, Spinner } from 'react-bootstrap';
+import ReactSelect from 'react-select';
+import { Form, Modal } from 'react-bootstrap';
 import LabelledCheckbox from '../../../shared/LabelledCheckbox';
 import TextInput from '../../../shared/text-input/TextInput';
 import LoadingButton from '../../../shared/button/Button';
-import ReactSelect from 'react-select';
-import { AdminFilter, AdminSearchKeyword } from '../../../../types';
 
 interface Props {
   show: boolean;
@@ -81,6 +82,17 @@ const FilterModal = function (props: Props) {
   });
 
   const {
+    state: showDescriptionForFilter,
+    toggle: toggleShowDescriptionForFilter,
+    setState: setShowDescriptionForFilter,
+  } = useToggle(true);
+  const {
+    state: showDescriptionForBusiness,
+    toggle: toggleShowDescriptionForBusiness,
+    setState: setShowDescriptionForBusiness,
+  } = useToggle(false);
+
+  const {
     state: showForBusiness,
     toggle: toggleShowForBusiness,
     setState: setShowForBusiness,
@@ -90,6 +102,18 @@ const FilterModal = function (props: Props) {
     toggle: toggleShowForFilter,
     setState: setShowForFilter,
   } = useToggle(true);
+
+  const {
+    inputValue: tagsValue,
+    handleChange: handleChangeTags,
+    setInputValue: setTagsValue,
+    validationErrors: tagsValidationErrors,
+    runValidators: runTagsValidators,
+    clearInput: clearTagsValue,
+  } = useInput({
+    init: '',
+    validators: [{ fn: isRequired, params: ['No tag is specified for this filter'] }],
+  });
 
   const {
     inputValue: keyOrder,
@@ -107,35 +131,15 @@ const FilterModal = function (props: Props) {
     if (!props.filterToEdit) return; // If in edit mode
     setName(props.filterToEdit.name);
     setTitle(props.filterToEdit.title);
-    setDescription(props.filterToEdit.description);
+    setDescription(props.filterToEdit.description.text);
+    setShowDescriptionForBusiness(props.filterToEdit.description.showInAddEditBusinessPage);
+    setShowDescriptionForFilter(props.filterToEdit.description.showInSearchResultsPage);
     setShowForBusiness(props.filterToEdit.showForBusiness);
     setShowForFilter(props.filterToEdit.showForFilter);
     setKeyOrder(props.filterToEdit.keyOrder + '');
   }, [props.filterToEdit]);
 
-  const handleSave = async () => {
-    const validationResults = [
-      runNameValidators(),
-      runDescriptionValidators(),
-      runFilterTitleValidators(),
-    ];
-    if (validationResults.some(result => result.errorExists)) return;
-    const body = {
-      name: filterName,
-      title: filterTitle,
-      description,
-      isActive,
-      showForBusiness,
-      showForFilter,
-      searchKeywords: (keywords as ReactSelectOption[]).map(item => item.value),
-      category: (industry as ReactSelectOption).value,
-      SIC2Categories: (chosenSic2Categories as ReactSelectOption[]).map(optn => optn.value),
-      SIC4Categories: (chosenSic4Categories as ReactSelectOption[]).map(optn => optn.value),
-      SIC8Categories: (chosenSic8Categories as ReactSelectOption[]).map(optn => optn.value),
-      keyOrder: +keyOrder,
-      formType: (formType as ReactSelectOption).value,
-    };
-    console.log('Body: ', body);
+  const saveFilter = async (body: object) => {
     try {
       const req = props.filterToEdit
         ? api.editFilter(props.filterToEdit._id, body, accessToken!)
@@ -152,6 +156,40 @@ const FilterModal = function (props: Props) {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleSubmit: React.FormEventHandler = ev => {
+    ev.preventDefault();
+    const validations = [
+      runNameValidators(),
+      runDescriptionValidators(),
+      runFilterTitleValidators(),
+      runTagsValidators(),
+    ];
+    if (validations.some(result => result.errorExists)) return;
+    const body = {
+      name: filterName,
+      title: filterTitle,
+      description: {
+        text: description,
+        showInSearchResultsPage: showDescriptionForFilter,
+        showInAddEditBusinessPage: showDescriptionForBusiness,
+      },
+      isActive,
+      showForBusiness,
+      showForFilter,
+      searchKeywords: (keywords as ReactSelectOption[]).map(item => item.value),
+      category: (industry as ReactSelectOption).value,
+      SIC2Categories: (chosenSic2Categories as ReactSelectOption[]).map(optn => optn.value),
+      SIC4Categories: (chosenSic4Categories as ReactSelectOption[]).map(optn => optn.value),
+      SIC8Categories: (chosenSic8Categories as ReactSelectOption[]).map(optn => optn.value),
+      keyOrder: +keyOrder,
+      // prettier-ignore
+      tags: tagsValue.split(',').map(t => t.trim()).filter(t => !!t),
+      formType: (formType as ReactSelectOption).value,
+    };
+    console.log('Body: ', body);
+    saveFilter(body);
   };
 
   useEffect(() => {
@@ -183,8 +221,7 @@ const FilterModal = function (props: Props) {
   }, [chosenSic4Categories]);
 
   const keywordOptions = useMemo(() => {
-    if (!searchKeywords) return;
-    return getSelectOptions(searchKeywords.map(k => k.name));
+    return getSelectOptions(searchKeywords?.map(k => k.name));
   }, [searchKeywords]);
 
   const sic2Options = useMemo(() => getSelectOptions(sic2Categories), [sic2Categories]);
@@ -220,7 +257,7 @@ const FilterModal = function (props: Props) {
           label="Active"
           checked={isActive}
           onChange={toggleIsActive}
-          className="gap-3 w-max-content mb-5"
+          className="w-max-content mb-5"
         />
 
         <div className="mb-5">
@@ -234,7 +271,7 @@ const FilterModal = function (props: Props) {
         </div>
 
         {/* Description input */}
-        <div className="mb-5">
+        <div className="mb-1">
           <TextInput
             label="Description"
             value={description}
@@ -243,24 +280,27 @@ const FilterModal = function (props: Props) {
           />
         </div>
 
-        {/* Show for business checkbox */}
-        <LabelledCheckbox
-          label="Show for business"
-          checked={showForBusiness}
-          onChange={toggleShowForBusiness}
-          className="gap-3 w-max-content mb-5"
-        />
-
-        {/* Show for filter checkbox */}
-        <LabelledCheckbox
-          label="Show for filter"
-          checked={showForFilter}
-          onChange={toggleShowForFilter}
-          className="gap-3 w-max-content mb-5"
-        />
+        <div
+          className={`${!!description.length ? 'd-flex' : 'd-none'} align-items-center gap-5`}
+        >
+          {/* Show description for business checkbox */}
+          <LabelledCheckbox
+            label="Show this for business"
+            checked={showDescriptionForBusiness}
+            onChange={toggleShowDescriptionForBusiness}
+            className="w-max-content"
+          />
+          {/* Show description for filter checkbox */}
+          <LabelledCheckbox
+            label="Show this for filter"
+            checked={showDescriptionForFilter}
+            onChange={toggleShowDescriptionForFilter}
+            className="w-max-content"
+          />
+        </div>
 
         {/* Search keyword */}
-        <div className="mb-5">
+        <div className="my-5">
           <label className="mb-2">Search keyword</label>
           <ReactSelect
             options={keywordOptions || []}
@@ -314,9 +354,20 @@ const FilterModal = function (props: Props) {
           <TextInput
             label="Key Order"
             type="number"
+            min={1}
             value={keyOrder}
             onChange={handleChangeKeyOrder}
             validationErrors={keyOrderValidationErrors}
+          />
+        </div>
+
+        {/* Tags */}
+        <div className="mb-5">
+          <TextInput
+            label="Filters"
+            value={tagsValue}
+            onChange={handleChangeTags}
+            validationErrors={tagsValidationErrors}
           />
         </div>
 
@@ -330,11 +381,28 @@ const FilterModal = function (props: Props) {
           />
         </div>
 
+        <div className="d-flex align-items-center flex-wrap gap-5 mb-5">
+          {/* Show filter for business checkbox */}
+          <LabelledCheckbox
+            label="Show filter for business"
+            checked={showForBusiness}
+            onChange={toggleShowForBusiness}
+            className="w-max-content"
+          />
+          {/* Show filter for filter checkbox */}
+          <LabelledCheckbox
+            label="Show filter in search results"
+            checked={showForFilter}
+            onChange={toggleShowForFilter}
+            className="w-max-content"
+          />
+        </div>
+
         <LoadingButton
           isLoading={savingFilter}
           textWhileLoading="Saving..."
           className="btn btn-pry btn--lg"
-          onClick={handleSave}
+          onClick={handleSubmit}
         >
           Save filter
         </LoadingButton>

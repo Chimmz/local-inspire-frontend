@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const useList = function <T>(initItems?: T[]) {
+const useList = function <T = string>(initItems?: T[]) {
   const [items, setItems] = useState<T[]>(initItems || []);
 
   const addItem = (newItem: T) => setItems(items => [...items, newItem]);

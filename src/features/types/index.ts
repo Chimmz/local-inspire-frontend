@@ -47,15 +47,20 @@ export interface AdminFilter {
   createdBy: string;
   name: string;
   title: string;
-  description: string;
+  description: {
+    text: string;
+    showInSearchResultsPage: boolean;
+    showInAddEditBusinessPage: boolean;
+  };
   isActive: boolean;
   showForBusiness: boolean;
   showForFilter: boolean;
   category?: string;
-  searchKeyword: string[];
+  keywords: string[];
   SIC2Categories?: string[];
   SIC4Categories?: string[];
   SIC8Categories?: string[];
+  tags: string[];
   keyOrder?: Number;
   formType: string;
 }

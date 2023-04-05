@@ -92,7 +92,7 @@ const KeywordModal = function (props: Props) {
   useEffect(() => {
     const req = sendGetCategories(api.getBusinessCategories('SIC4', ''));
     req.then(res => res.status === 'SUCCESS' && setSic4Categories(res.categories));
-    // If not in edit mode
+
     if (!props.keyword) return;
     (props.keyword.enableForBusiness ? setEnabledForBusinessTrue : setEnabledForBusinessFalse)();
     (props.keyword.enableForFilter ? setEnabledForFilterTrue : setEnabledForFilterFalse)();

@@ -44,11 +44,12 @@ interface Props {
 }
 
 const RESULTS_PER_PAGE = 20;
+const SEARCH_RESULTS_SECTION_ID = 'search-results-section';
 const MAIN_RESULTS_SECTION_ID = 'main-results';
 
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [propsData, setPropsData] = useState<Props>(props);
-  const [totalResults, setTotalResults] = useState(props.total);
+  const [totalUnpaginatedResults, setTotalUnpaginatedResults] = useState(props.total);
   const [filters, setFilters] = useState<string[]>();
   const [showMap, setShowMap] = useState(false);
 
@@ -86,48 +87,42 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     setCurrentPage(page);
     if (pageHasData(page, data => !!data?.businesses.length)) return;
 
-    const req = filters?.length
-      ? api.filterBusinesses(filters, propsData.pageParams, {
-          page,
-          limit: RESULTS_PER_PAGE,
-        })
+    const isInFilterMode = filters?.length;
+    const req = isInFilterMode
+      ? api.filterBusinesses(filters, propsData.pageParams, { page, limit: RESULTS_PER_PAGE })
       : api.findBusinesses(category, { city, stateCode }, { page, limit: RESULTS_PER_PAGE });
 
     sendSearchReq(req)
       .then(res => {
         if (res.status !== 'SUCCESS') return;
         setPageData(page, res);
-        domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main business results
+        domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
       })
       .catch(console.error);
   };
 
   const filterBusinesses = (filterIds: string[]) => {
     setFilters(filterIds);
-    const noFilters = !filterIds.length;
+    const noCheckedFilters = !filterIds.length;
+    const firstPage = 1;
+    setCurrentPage(firstPage); // Set current page to first page
+    resetAllPages(); // Clear all pages and use props data
 
-    if (noFilters) {
-      setTotalResults(propsData.total);
-      resetAllPages(); // Clear all pages and use props data
-      const firstPage = 1;
+    if (noCheckedFilters) {
+      setTotalUnpaginatedResults(propsData.total);
       setPageData(firstPage, { ...propsData, businesses: propsData.businesses! }); // Register data for first page
-      setCurrentPage(firstPage); // Set current page to first page
-      return domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main businesses section
+      return domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
     }
     const req = api.filterBusinesses(filterIds, propsData.pageParams, {
-      page: 1,
+      page: firstPage,
       limit: RESULTS_PER_PAGE,
     });
     sendFilterReq(req)
       .then(res => {
         if (res.status !== 'SUCCESS') return;
-        setTotalResults(res.total);
-        resetAllPages(); // Clear all pages since we now have new results
-
-        const firstPage = 1;
+        setTotalUnpaginatedResults(res.total);
         setPageData(firstPage, res); // Register data for first page
-        setCurrentPage(firstPage); // Set current page to first page
-        domUtils.scrollToElement(`#${MAIN_RESULTS_SECTION_ID}`); // Scroll to main businesses section
+        domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
       })
       .catch(console.error);
   };
@@ -137,7 +132,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const firstPage = 1;
     setCurrentPage(firstPage); // Always set to first page when page changes
     setPageData(firstPage, props as any); // Set new page data
-    setTotalResults(props.total);
+    setTotalUnpaginatedResults(props.total);
     // const paginators = document.querySelector("[class*='paginators']");
     // const previousActivePaginator = paginators?.querySelector('li.selected');
   }, [props, setPropsData, props.pageId]); // Never include setCurrentPage, setPageData in this list. It causes a limitless rerendering
@@ -147,8 +142,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   }, [propsData.pageId]); // On transition to a new results page
 
   const pageCount = useMemo(
-    () => (totalResults ? Math.ceil(totalResults / RESULTS_PER_PAGE) : 0),
-    [propsData, totalResults],
+    () => (totalUnpaginatedResults ? Math.ceil(totalUnpaginatedResults / RESULTS_PER_PAGE) : 0),
+    [propsData, totalUnpaginatedResults],
   );
 
   return (
@@ -174,7 +169,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
           </h1>
 
           {/* Business results */}
-          <div className={styles.searchResults}>
+          <div className={styles.searchResults} id={SEARCH_RESULTS_SECTION_ID}>
             {propsData.specials.map(group => (
               <FeaturedBusinesses
                 title={group.title}
@@ -185,7 +180,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
             <AllBusinesses
               data={currentPageData}
-              total={totalResults}
+              total={totalUnpaginatedResults}
               page={currentPage}
               sectionId={MAIN_RESULTS_SECTION_ID}
               style={{ scrollPadding: '30px' }}

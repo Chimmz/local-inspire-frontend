@@ -10,7 +10,7 @@ import api from '../../../../library/api';
 import DataTable from 'react-data-table-component';
 import FilterModal from './FilterModal';
 import Spinner from '../../../shared/spinner/Spinner';
-import { tableColumns } from './config';
+import { genFilterTableData, tableColumns } from './config';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
@@ -60,36 +60,11 @@ const FiltersPage = (props: Props) => {
   }, [adminUser.accessToken]);
 
   const tableData = useMemo(() => {
-    return filters?.map(f => ({
-      ...f,
-      id: f._id,
-      title: f.title || '-',
-      showForBusiness: f.showForBusiness ? 'Yes' : 'No',
-      showForFilter: f.showForFilter ? 'Yes' : 'No',
-      isActive: f.isActive ? 'Yes' : 'No',
-      SIC2Categories: f.SIC2Categories?.join(', ') || '-',
-      SIC4Categories: f.SIC4Categories?.join(', ') || '-',
-      SIC8Categories: f.SIC8Categories?.join(', ') || '-',
-      searchKeyword: f?.searchKeyword || '-',
-      actions: (
-        <div className="d-flex align-items-center gap-2 ">
-          <Icon
-            onClick={setFilterToEdit.bind(null, f)}
-            icon="material-symbols:edit-outline-rounded"
-            width={18}
-            className="cursor-pointer"
-            color="#555"
-          />
-          <Icon
-            onClick={withConfirmation.bind(null, deleteFilter.bind(null, f._id))}
-            icon="material-symbols:delete-outline"
-            className="cursor-pointer"
-            width={18}
-            color="#555"
-          />
-        </div>
-      ),
-    }));
+    const rowOptions = {
+      onEdit: setFilterToEdit,
+      onDelete: (f: AdminFilter) => withConfirmation(deleteFilter.bind(null, f._id)),
+    };
+    return genFilterTableData(filters, rowOptions);
   }, [filters]);
 
   return (
@@ -127,33 +102,9 @@ const FiltersPage = (props: Props) => {
           <div className={getStyle('col-12')}>
             <div className={getStyle('card flex-fill w-100 px-2 py-4')}>
               <div className={getStyle('card-header')}>
-                {/* Card actions */}
-                {/* <div className={getStyle('card-actions float-end')}>
-                  <a href="#" className={getStyle('me-1')}>
-                    <i className={getStyle('align-middle')} data-feather="refresh-cw"></i>
-                  </a>
-                  <div className={getStyle('d-inline-block dropdown show')}>
-                    <a href="#" data-bs-toggle="dropdown" data-bs-display="static">
-                      <i className={getStyle('align-middle')} data-feather="more-vertical"></i>
-                    </a>
-
-                    <div className={getStyle('dropdown-menu dropdown-menu-end')}>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Action
-                      </a>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Another action
-                      </a>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Something else here
-                      </a>
-                    </div>
-                  </div>
-                </div> */}
-
                 <div
                   className={cls(
-                    getStyle('card-title mb-0'),
+                    getStyle('card-title'),
                     'd-flex justify-content-between align-items-center',
                   )}
                 >
@@ -166,7 +117,7 @@ const FiltersPage = (props: Props) => {
                   </button>
                 </div>
               </div>
-              <div className={getStyle('card-body py-3')}>
+              <div className={getStyle('card-body mt-5 py-3')}>
                 <DataTable
                   columns={tableColumns}
                   data={tableData || []}

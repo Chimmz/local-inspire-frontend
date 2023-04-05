@@ -15,29 +15,29 @@ interface Props {
 
 const Filters = (props: Props) => {
   const [filters, setFilters] = useState<AdminFilter[] | undefined>();
-  const {
-    items: selectedFilters,
-    addItem: addFilter,
-    removeItem: removeFilter,
-  } = useList<string>();
+  const { items: selectedFilters, addItem: addFilter, removeItem: removeFilter } = useList();
 
   const { send: sendFilterReq, loading: loadingFilters } = useRequest();
   const router = useRouter();
 
-  const normalizedFilters = useMemo(() => {
-    if (!filters) return {};
-    let hashmap: { [filterTitle: string]: AdminFilter[] } = {};
+  // const normalizedFilters = useMemo(() => {
+  //   if (!filters) return {};
+  //   let hashmap: { [filterTitle: string]: AdminFilter[] } = {};
 
-    filters.forEach(f => {
-      if (f.title in hashmap) hashmap[f.title].push(f);
-      else hashmap[f.title] = [f];
-    });
-    return hashmap;
-  }, [filters]);
+  //   filters.forEach(f => {
+  //     if (f.title in hashmap) hashmap[f.title].push(f);
+  //     else hashmap[f.title] = [f];
+  //   });
+  //   return hashmap;
+  // }, [filters]);
 
-  const handleCheckFilter = (checked: boolean, filter: AdminFilter) => {
-    if (!filter.SIC8Categories?.length) return;
-    (checked ? addFilter : removeFilter)(filter._id);
+  const handleToggleFilter = (checked: boolean, f: AdminFilter) => {
+    if (!f.SIC8Categories?.length) return;
+    (checked ? addFilter : removeFilter)(f._id);
+
+    const newFiltersSync = selectedFilters;
+    checked ? newFiltersSync.push(f._id) : newFiltersSync.pop();
+    props.onFilter(newFiltersSync);
   };
 
   useEffect(() => {
@@ -45,42 +45,39 @@ const Filters = (props: Props) => {
     sendFilterReq(req).then(res => res.status === 'SUCCESS' && setFilters(res.filters));
   }, [router.asPath]);
 
-  useEffect(() => {
-    props.onFilter(selectedFilters);
-  }, [selectedFilters]);
+  // useEffect(() => {
+  //   props.onFilter(selectedFilters);
+  // }, [selectedFilters]);
 
   return (
     <aside className={props.styles.filter}>
-      {Object.keys(normalizedFilters).map(title => (
+      {filters?.map(f => (
+        <div className={props.styles.filterSection} key={f.name}>
+          <h6 className={props.styles.filterTitle}>{f.title}</h6>
+          {f.tags.map(tag => (
+            <LabelledCheckbox
+              label={tag}
+              onChange={ev => handleToggleFilter(ev.target.checked, f)}
+              className="gap-2"
+              key={tag}
+            />
+          ))}
+        </div>
+      ))}
+      {/* {Object.keys(normalizedFilters).map(title => (
         <div className={props.styles.filterSection} key={title}>
           <h6 className={props.styles.filterTitle}>{title}</h6>
 
-          {/* Now display the filter names */}
           {normalizedFilters[title].map(filter => (
             <LabelledCheckbox
               label={filter.name}
-              onChange={ev => handleCheckFilter(ev.target.checked, filter)}
+              onChange={ev => handleToggleFilter(ev.target.checked, filter)}
               className="gap-2"
               key={filter._id}
             />
           ))}
         </div>
-      ))}
-
-      {/* <label htmlFor="Restaurants">
-          <input type="checkbox" id="Restaurants" />
-          <span>Restaurants</span>
-        </label>
-
-        <label htmlFor="Bakeries">
-          <input type="checkbox" id="Bakeries" />
-          <span>Bakeries</span>
-        </label>
-
-        <label htmlFor="Delivery Only">
-          <input type="checkbox" id="Delivery Only" />
-          <span>Delivery Only</span>
-        </label> */}
+      ))} */}
     </aside>
   );
 };
