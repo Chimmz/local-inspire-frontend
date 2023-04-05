@@ -186,39 +186,39 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     });
   }
 
-  const btnSearch = useMemo(() => {
-    const content = props.loading ? (
-      <BootstrapSpinner
-        animation="border"
-        size="sm"
-        style={{ width: '1.2em', height: '1.2em', borderWidth: '2px' }}
-        color="#e87525"
-      />
-    ) : (
-      <Icon icon="akar-icons:search" color="#fff" />
-    );
-    if (!categoryValue || !cityValue || !userLocation?.stateCode || !keywords)
-      return (
-        <Button
-          className={cls(styles.btn, 'btn btn-pry')}
-          type="submit"
-          disabled={props.loading}
-        >
-          {content}
-        </Button>
-      );
-    const url = getBusinessSearchResultsUrl({
-      category: categoryValue,
-      city: cityValue.split(', ')[0],
-      stateCode: cityValue.split(', ')[1],
-      queryStr: `?keyword=${keywords.find(kw => kw.name === categoryValue)?.name}`,
-    });
-    return (
-      <Link href={url} passHref>
-        <a className={cls(styles.btn, 'btn btn-pry')}>{content}</a>
-      </Link>
-    );
-  }, [hasSelectedCategory, hasSelectedCity, userLocation, keywords]);
+  // const btnSearch = useMemo(() => {
+  //   const content = props.loading ? (
+  //     <BootstrapSpinner
+  //       animation="border"
+  //       size="sm"
+  //       style={{ width: '1.2em', height: '1.2em', borderWidth: '2px' }}
+  //       color="#e87525"
+  //     />
+  //   ) : (
+  //     <Icon icon="akar-icons:search" color="#fff" />
+  //   );
+  //   if (!categoryValue || !cityValue || !userLocation?.stateCode || !keywords)
+  //     return (
+  //       <Button
+  //         className={cls(styles.btn, 'btn btn-pry')}
+  //         type="submit"
+  //         disabled={props.loading}
+  //       >
+  //         {content}
+  //       </Button>
+  //     );
+  //   const url = getBusinessSearchResultsUrl({
+  //     category: categoryValue,
+  //     city: cityValue.split(', ')[0],
+  //     stateCode: cityValue.split(', ')[1],
+  //     queryStr: `?keyword=${keywords.find(kw => kw.name === categoryValue)?.name}`,
+  //   });
+  //   return (
+  //     <Link href={url} passHref>
+  //       <a className={cls(styles.btn, 'btn btn-pry')}>{content}</a>
+  //     </Link>
+  //   );
+  // }, [hasSelectedCategory, hasSelectedCity, userLocation, keywords]);
 
   return (
     <form className={styles.search} onSubmit={handleSubmit}>
@@ -303,9 +303,9 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         />
       </div>
 
-      {btnSearch}
+      {/* {btnSearch} */}
 
-      {/* <Button className={cls(styles.btn, 'btn btn-pry')} type="submit" disabled={props.loading}>
+      <Button className={cls(styles.btn, 'btn btn-pry')} type="submit" disabled={props.loading}>
         {props.loading ? (
           <BootstrapSpinner
             animation="border"
@@ -316,7 +316,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
         ) : (
           <Icon icon="akar-icons:search" color="#fff" />
         )}
-      </Button> */}
+      </Button>
     </form>
   );
 }
