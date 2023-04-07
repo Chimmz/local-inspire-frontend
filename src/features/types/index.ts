@@ -61,7 +61,7 @@ export interface AdminFilter {
   SIC4Categories?: string[];
   SIC8Categories?: string[];
   tags: string[];
-  keyOrder?: Number;
+  keyOrder: number;
   formType: string;
 }
 

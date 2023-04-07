@@ -44,8 +44,6 @@ type Props = ReviewProps & {
   useNativeLinkToProfile?: boolean;
 };
 
-const REVIEW_IMG_WIDTH = 120;
-
 const ReviewItem = function (props: Props) {
   const [likes, setLikes] = useState(props.likes);
   const { state: isShowingFullReviewText, toggle: toggleShowFullReviewText } = useToggle(false);
@@ -195,13 +193,12 @@ const ReviewItem = function (props: Props) {
         <CustomAccordionToggle
           eventKey="1"
           className="btn btn-bg-none no-bg-hover text-pry"
-          style={{ marginTop: '-7px' }}
-          contentOnExpand={
-            <>
-              <Icon icon="material-symbols:expand-less-rounded" height={20} /> Show less
-            </>
-          }
           onClick={toggleShowFullReviewText}
+          contentOnExpand={[
+            <Icon icon="material-symbols:expand-less-rounded" height={20} />,
+            'Show less',
+          ]}
+          style={{ marginTop: '-7px' }}
         >
           <Icon icon="material-symbols:expand-more-rounded" height={20} /> Show more
         </CustomAccordionToggle>

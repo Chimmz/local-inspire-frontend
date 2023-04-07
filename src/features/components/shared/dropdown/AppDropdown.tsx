@@ -35,12 +35,10 @@ const AppDropdown: React.FC<DropdownProps> = props => {
         noDefaultIcon && styles.noDefaultIcon,
         'fs-5',
       )}
-      // align="end"
       variant="outline-secondary"
       size="lg"
       title={props.toggler}
       onSelect={evKey => props.onSelect(evKey!)}
-      // className="overflow-y-scroll thin-scrollbar"
     >
       {renderItems()}
     </DropdownButton>

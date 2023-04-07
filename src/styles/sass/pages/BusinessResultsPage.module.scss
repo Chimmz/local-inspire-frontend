@@ -56,6 +56,29 @@
     position: sticky;
     top: 5px;
     left: 0px;
+    max-height: 98vh;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      height: 5px; // for horizontal scrollbars
+      width: 5px; // for vertical scrollbars
+    }
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: #fff;
+      // background-color: #cacaca;
+      height: 7px;
+    }
+    &::-webkit-scrollbar-thumb {
+      // display: none;
+      background-color: #cfcfcf;
+      height: 3px;
+      border-radius: 999px;
+    }
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #666666;
+    }
 
     @media screen and (max-width: 47em) {
       display: none;

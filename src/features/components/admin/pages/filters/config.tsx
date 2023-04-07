@@ -41,6 +41,7 @@ export const genFilterTableData = (filters: AdminFilter[] | undefined, rowOpts: 
     const dataStr = stringify?.(data) || (data as string);
     return <span title={dataStr}>{dataStr}</span>;
   };
+
   return filters.map(f => ({
     ...f,
     id: f._id,

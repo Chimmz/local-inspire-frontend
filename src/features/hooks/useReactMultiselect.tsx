@@ -3,7 +3,7 @@ import { ActionMeta, MultiValue, SingleValue } from 'react-select';
 import { ReactSelectOption } from '../components/admin/pages/filters/config';
 
 const useReactSelect = () => {
-  const [chosenItems, setChosenItems] = useState<
+  const [selectedItems, setSelectedItems] = useState<
     MultiValue<ReactSelectOption> | SingleValue<ReactSelectOption>
   >([]);
 
@@ -11,9 +11,10 @@ const useReactSelect = () => {
     newState: MultiValue<ReactSelectOption> | SingleValue<ReactSelectOption>,
     action: ActionMeta<ReactSelectOption>,
   ) => {
-    setChosenItems(newState);
+    setSelectedItems(newState);
   };
-  return { chosenItems, onSelect };
+
+  return { selectedItems, onSelect, setSelectedItems };
 };
 
 export default useReactSelect;

@@ -32,14 +32,34 @@ const FilterModal = function (props: Props) {
   const [sic4Categories, setSic4Categories] = useState<string[]>();
   const [sic8Categories, setSic8Categories] = useState<string[]>();
 
-  const { chosenItems: industry, onSelect: handleChangeCategory } = useReactSelect();
-  const { chosenItems: chosenSic2Categories, onSelect: handleChangeSic2 } = useReactSelect();
-  const { chosenItems: chosenSic4Categories, onSelect: handleChangeSic4 } = useReactSelect();
-  const { chosenItems: chosenSic8Categories, onSelect: handleChangeSic8 } = useReactSelect();
-  const { chosenItems: keywords, onSelect: handleChangeKeyword } = useReactSelect();
-  const { chosenItems: formType, onSelect: handleChangeFormType } = useReactSelect();
+  const {
+    selectedItems: selectedSic2Categories,
+    onSelect: handleChangeSic2,
+    setSelectedItems: setSelectedSIC2Value,
+  } = useReactSelect();
+  const {
+    selectedItems: sic4CategoriesValue,
+    onSelect: handleChangeSic4,
+    setSelectedItems: setSelectedSIC4Value,
+  } = useReactSelect();
+  const {
+    selectedItems: sic8CategoriesValue,
+    onSelect: handleChangeSic8,
+    setSelectedItems: setSelectedSIC8Value,
+  } = useReactSelect();
+  const {
+    selectedItems: keywordsValue,
+    onSelect: handleChangeKeyword,
+    setSelectedItems: setKeywordsValue,
+  } = useReactSelect();
+  const {
+    selectedItems: formTypeValue,
+    onSelect: handleChangeFormType,
+    setSelectedItems: setFormTypeValue,
+  } = useReactSelect();
 
   const { accessToken } = useSignedInUser();
+  const { send: sendGetSIC4, loading: loadingSIC4Categories } = useRequest();
   const { send: sendGetSIC8, loading: loadingSIC8Categories } = useRequest();
   const { send: sendSaveFilterReq, loading: savingFilter } = useRequest();
 
@@ -127,18 +147,26 @@ const FilterModal = function (props: Props) {
     validators: [{ fn: isRequired, params: ['A key order is required'] }],
   });
 
+  // Fill all inputs with filter-to-edit's values as default values
   useEffect(() => {
-    if (!props.filterToEdit) return; // If in edit mode
+    if (!props.filterToEdit) return; // If not in edit mode
     setName(props.filterToEdit.name);
     setTitle(props.filterToEdit.title);
     setDescription(props.filterToEdit.description.text);
     setShowDescriptionForBusiness(props.filterToEdit.description.showInAddEditBusinessPage);
     setShowDescriptionForFilter(props.filterToEdit.description.showInSearchResultsPage);
+    setSelectedSIC2Value(getSelectOptions(props.filterToEdit.SIC2Categories));
+    setSelectedSIC4Value(getSelectOptions(props.filterToEdit.SIC4Categories));
+    setSelectedSIC8Value(getSelectOptions(props.filterToEdit.SIC8Categories));
+    setKeywordsValue(getSelectOptions(props.filterToEdit.keywords));
+    setFormTypeValue(getSelectOptions([props.filterToEdit.formType]));
     setShowForBusiness(props.filterToEdit.showForBusiness);
     setShowForFilter(props.filterToEdit.showForFilter);
-    setKeyOrder(props.filterToEdit.keyOrder + '');
+    setTagsValue(props.filterToEdit.tags.join(', '));
+    setKeyOrder(props.filterToEdit.keyOrder.toString());
   }, [props.filterToEdit]);
 
+  // API request to either save (add or edit) filter
   const saveFilter = async (body: object) => {
     try {
       const req = props.filterToEdit
@@ -158,15 +186,20 @@ const FilterModal = function (props: Props) {
     }
   };
 
+  // Form submit handler
   const handleSubmit: React.FormEventHandler = ev => {
     ev.preventDefault();
+    // Run all configured validators
     const validations = [
       runNameValidators(),
       runDescriptionValidators(),
       runFilterTitleValidators(),
       runTagsValidators(),
+      runKeyOrderValidators(),
     ];
     if (validations.some(result => result.errorExists)) return;
+
+    // Structure the req body
     const body = {
       name: filterName,
       title: filterTitle,
@@ -178,20 +211,20 @@ const FilterModal = function (props: Props) {
       isActive,
       showForBusiness,
       showForFilter,
-      searchKeywords: (keywords as ReactSelectOption[]).map(item => item.value),
-      category: (industry as ReactSelectOption).value,
-      SIC2Categories: (chosenSic2Categories as ReactSelectOption[]).map(optn => optn.value),
-      SIC4Categories: (chosenSic4Categories as ReactSelectOption[]).map(optn => optn.value),
-      SIC8Categories: (chosenSic8Categories as ReactSelectOption[]).map(optn => optn.value),
+      searchKeywords: (keywordsValue as ReactSelectOption[]).map(item => item.value),
+      SIC2Categories: (selectedSic2Categories as ReactSelectOption[]).map(optn => optn.value),
+      SIC4Categories: (sic4CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
+      SIC8Categories: (sic8CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
       keyOrder: +keyOrder,
       // prettier-ignore
       tags: tagsValue.split(',').map(t => t.trim()).filter(t => !!t),
-      formType: (formType as ReactSelectOption).value,
+      formType: (formTypeValue as ReactSelectOption).value,
     };
     console.log('Body: ', body);
     saveFilter(body);
   };
 
+  // COMPONENT STARTS: Load all keyword and SIC2 options
   useEffect(() => {
     const reqs = Promise.all([api.getKeywords(), api.getBusinessCategories('SIC2', '')]);
     const setters = [setSearchKeywords, setSic2Categories, setSic4Categories, setSic8Categories];
@@ -204,21 +237,23 @@ const FilterModal = function (props: Props) {
     });
   }, []);
 
+  // When SIC2 is changed, load SIC4 options
   useEffect(() => {
-    const sic2Arr = chosenSic2Categories as ReactSelectOption[];
+    const sic2Arr = selectedSic2Categories as ReactSelectOption[];
     if (!sic2Arr.length) return;
-    const req = api.getBusinessCategories('SIC4', `sic2=${sic2Arr[0].value}`);
+    const req = sendGetSIC4(api.getBusinessCategories('SIC4', `sic2=${sic2Arr[0].value}`));
     req.then(res => {
       res.status === 'SUCCESS' && setSic4Categories(res.categories);
     });
-  }, [chosenSic2Categories]);
+  }, [selectedSic2Categories]);
 
+  // When SIC2 is changed, load SIC4 options
   useEffect(() => {
-    const sic4Arr = chosenSic4Categories as ReactSelectOption[];
+    const sic4Arr = sic4CategoriesValue as ReactSelectOption[];
     if (!sic4Arr.length) return;
     const req = sendGetSIC8(api.getBusinessCategories('SIC8', `sic4=${sic4Arr[0].value}`));
     req.then(res => res.status === 'SUCCESS' && setSic8Categories(res.categories));
-  }, [chosenSic4Categories]);
+  }, [sic4CategoriesValue]);
 
   const keywordOptions = useMemo(() => {
     return getSelectOptions(searchKeywords?.map(k => k.name));
@@ -238,8 +273,8 @@ const FilterModal = function (props: Props) {
       size="lg"
       scrollable
     >
-      <Modal.Header closeButton>
-        <h2> New Filter</h2>
+      <Modal.Header closeButton className="ms-4">
+        <h2> {props.filterToEdit ? filterName : 'New Filter'}</h2>
       </Modal.Header>
       <Modal.Body className="p-5">
         <div className="mb-5">
@@ -248,7 +283,7 @@ const FilterModal = function (props: Props) {
             value={filterName}
             onChange={handleChangeName}
             validationErrors={nameValidationErrors}
-            autoFocus={!!!props.filterToEdit}
+            autoFocus={!props.filterToEdit}
           />
         </div>
 
@@ -266,7 +301,6 @@ const FilterModal = function (props: Props) {
             value={filterTitle}
             onChange={handleChangeFilterTitle}
             validationErrors={filterTitleValidationErrors}
-            autoFocus
           />
         </div>
 
@@ -303,6 +337,7 @@ const FilterModal = function (props: Props) {
         <div className="my-5">
           <label className="mb-2">Search keyword</label>
           <ReactSelect
+            value={keywordsValue}
             options={keywordOptions || []}
             onChange={handleChangeKeyword}
             components={useMemo(() => makeAnimated(), [])}
@@ -315,6 +350,7 @@ const FilterModal = function (props: Props) {
         <div className="mb-5">
           <label className="mb-2">SIC2 Categories</label>
           <ReactSelect
+            value={selectedSic2Categories}
             options={sic2Options}
             onChange={handleChangeSic2}
             isMulti
@@ -327,9 +363,11 @@ const FilterModal = function (props: Props) {
         <div className="mb-5">
           <label className="mb-2">SIC4 Categories</label>
           <ReactSelect
+            value={sic4CategoriesValue}
             options={sic4Options}
             onChange={handleChangeSic4}
             isMulti
+            isLoading={loadingSIC4Categories}
             closeMenuOnSelect={false}
             components={useMemo(() => makeAnimated(), [])}
           />
@@ -339,6 +377,7 @@ const FilterModal = function (props: Props) {
         <div className="mb-5">
           <label className="mb-2">SIC8 Categories</label>
           <ReactSelect
+            value={sic8CategoriesValue}
             options={sic8Options}
             onChange={handleChangeSic8}
             isMulti
@@ -375,6 +414,7 @@ const FilterModal = function (props: Props) {
         <div className="mb-5">
           <label className="mb-2">Form Type</label>
           <ReactSelect
+            value={formTypeValue}
             options={formTypeOptions}
             onChange={handleChangeFormType}
             components={useMemo(() => makeAnimated(), [])}

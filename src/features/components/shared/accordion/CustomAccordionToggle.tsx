@@ -4,7 +4,7 @@ import useToggle from '../../../hooks/useToggle';
 
 interface Props {
   eventKey: string;
-  className: string;
+  className?: string;
   children: React.ReactNode;
   contentOnExpand?: React.ReactNode;
   classNameOnExpand?: string;
