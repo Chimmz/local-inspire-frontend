@@ -52,6 +52,7 @@ const Filters = (props: Props) => {
           f={f}
           onToggleFilterCheckbox={handleToggleFilterCheckbox}
           styles={props.styles}
+          key={f._id}
         />
       ))}
     </aside>
