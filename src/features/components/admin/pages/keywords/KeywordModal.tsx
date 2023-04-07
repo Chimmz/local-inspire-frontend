@@ -28,6 +28,7 @@ interface Props {
 
 const KeywordModal = function (props: Props) {
   const [sic4Categories, setSic4Categories] = useState<string[]>([]);
+
   const {
     inputValue: keywordName,
     handleChange: handleChangeName,
@@ -39,21 +40,28 @@ const KeywordModal = function (props: Props) {
     init: props.keyword?.name || '',
     validators: [{ fn: isRequired, params: ['Please enter a name for this keyword'] }],
   });
+
   const {
     state: enableForBusiness,
     toggle: toggleEnableForBusiness,
-    setOn: setEnabledForBusinessTrue,
-    setOff: setEnabledForBusinessFalse,
+    setState: setEnabledForBusiness,
+    // setOn: setEnabledForBusinessTrue,
+    // setOff: setEnabledForBusinessFalse,
   } = useToggle(props.keyword?.enableForBusiness || true);
 
   const {
     state: enableForFilter,
     toggle: toggleEnableForFilter,
-    setOn: setEnabledForFilterTrue,
-    setOff: setEnabledForFilterFalse,
+    setState: setEnabledForFilter,
+    // setOn: setEnabledForFilterTrue,
+    // setOff: setEnabledForFilterFalse,
   } = useToggle(props.keyword?.enableForFilter || true);
 
-  const { chosenItems: selectedSic4Categories, onSelect: handleChangeSic4 } = useReactSelect();
+  const {
+    selectedItems: sic4CategoriesValue,
+    onSelect: handleChangeSic4,
+    setSelectedItems: setSelectedSIC4Value,
+  } = useReactSelect();
   const { accessToken } = useSignedInUser();
   const { send: sendGetCategories, loading: loadingCategories } = useRequest();
   const { send: sendSaveKeywordReq, loading: isSavingKeyword } = useRequest();
@@ -65,7 +73,7 @@ const KeywordModal = function (props: Props) {
       name: keywordName,
       enableForBusiness,
       enableForFilter,
-      sic4Categories: (selectedSic4Categories as ReactSelectOption[]).map(optn => optn.value),
+      sic4Categories: (sic4CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
     };
     console.log(body);
     const req = !!props.keyword
@@ -85,18 +93,21 @@ const KeywordModal = function (props: Props) {
   const handleSubmit = () => {
     const validationResults = [runNameValidators()];
     if (validationResults.some(result => result.errorExists)) return;
-    if (!(selectedSic4Categories as []).length) return;
+    if (!(sic4CategoriesValue as []).length) return;
     saveKeyword();
   };
 
   useEffect(() => {
     const req = sendGetCategories(api.getBusinessCategories('SIC4', ''));
     req.then(res => res.status === 'SUCCESS' && setSic4Categories(res.categories));
+  }, []);
 
-    if (!props.keyword) return;
-    (props.keyword.enableForBusiness ? setEnabledForBusinessTrue : setEnabledForBusinessFalse)();
-    (props.keyword.enableForFilter ? setEnabledForFilterTrue : setEnabledForFilterFalse)();
+  useEffect(() => {
+    if (!props.keyword) return; // If not in edit mode
     setKeywordName(props.keyword.name);
+    setEnabledForFilter(props.keyword.enableForFilter);
+    setEnabledForBusiness(props.keyword.enableForBusiness);
+    setSelectedSIC4Value(getSelectOptions(props.keyword.sic4Categories));
   }, [props.keyword]);
 
   return (
@@ -143,6 +154,7 @@ const KeywordModal = function (props: Props) {
         <div className="mb-5">
           <label className="mb-2">SIC4 Categories</label>
           <ReactSelect
+            value={sic4CategoriesValue}
             options={sic4Options}
             onChange={handleChangeSic4}
             isMulti
