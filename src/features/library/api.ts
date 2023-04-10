@@ -141,14 +141,14 @@ class API {
   }
 
   async filterBusinesses(
-    filterIds: string[],
+    tags: string[],
     place: { city: string; stateCode: string },
     opts: { page: number; limit: number },
   ): Promise<any> {
-    const filtersStr = filterIds.join(',');
+    const tagsStr = tags.join(',');
 
     return this._makeRequest({
-      path: `/businesses/filter?filters=${filtersStr}&city=${place.city}&stateCode=${place.stateCode}&page=${opts.page}&limit=${opts.limit}`,
+      path: `/businesses/filter?tags=${tagsStr}&city=${place.city}&stateCode=${place.stateCode}&page=${opts.page}&limit=${opts.limit}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

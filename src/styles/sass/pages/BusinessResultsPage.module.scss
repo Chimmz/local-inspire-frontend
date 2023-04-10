@@ -53,32 +53,32 @@
     padding: 2rem;
     border: 1px solid #e6e6e6;
     border-radius: 4px;
-    position: sticky;
-    top: 5px;
-    left: 0px;
-    max-height: 98vh;
-    overflow-y: scroll;
+    // position: sticky;
+    // top: 5px;
+    // left: 0px;
+    // max-height: 98vh;
+    // overflow-y: scroll;
 
-    &::-webkit-scrollbar {
-      height: 5px; // for horizontal scrollbars
-      width: 5px; // for vertical scrollbars
-    }
-    /* Track */
-    &::-webkit-scrollbar-track {
-      background: #fff;
-      // background-color: #cacaca;
-      height: 7px;
-    }
-    &::-webkit-scrollbar-thumb {
-      // display: none;
-      background-color: #cfcfcf;
-      height: 3px;
-      border-radius: 999px;
-    }
-    /* Handle on hover */
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: #666666;
-    }
+    // &::-webkit-scrollbar {
+    //   height: 5px; // for horizontal scrollbars
+    //   width: 5px; // for vertical scrollbars
+    // }
+    // /* Track */
+    // &::-webkit-scrollbar-track {
+    //   background: #fff;
+    //   // background-color: #cacaca;
+    //   height: 7px;
+    // }
+    // &::-webkit-scrollbar-thumb {
+    //   // display: none;
+    //   background-color: #cfcfcf;
+    //   height: 3px;
+    //   border-radius: 999px;
+    // }
+    // /* Handle on hover */
+    // &::-webkit-scrollbar-thumb:hover {
+    //   background-color: #666666;
+    // }
 
     @media screen and (max-width: 47em) {
       display: none;
@@ -125,7 +125,7 @@
         border-top: 1px solid #dadada;
 
         & > .filterTitle {
-          font-size: 1.1em;
+          font-size: 1.6em;
           color: #2c2c2c;
         }
         & label {

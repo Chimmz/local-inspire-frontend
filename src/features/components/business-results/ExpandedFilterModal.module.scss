@@ -1,0 +1,10 @@
+.filters {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  column-gap: 5rem;
+  row-gap: 1rem;
+
+  @media screen and (max-width: 37.5em) {
+    grid-template-columns: 1fr;
+  }
+}
