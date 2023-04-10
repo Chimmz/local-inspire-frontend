@@ -16,7 +16,7 @@ interface Props {
 
 const FiltersModal = (props: Props) => {
   return (
-    <Modal show={props.show} onHide={props.close} scrollable>
+    <Modal show={props.show} onHide={props.close} size="lg" scrollable>
       <Modal.Header className="p-5" style={{ border: 'none' }} closeButton>
         <h2>{props.f?.title}</h2>
       </Modal.Header>
