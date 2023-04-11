@@ -41,12 +41,9 @@ const FiltersGroup = function (props: Props) {
   );
 
   const handleToggleAccordion = () => {
-    if (!shouldExpand) collapseAccordion();
-    else {
-      // const selectedTagsCountSync = totalFiltersToShow + MAX_FILTERS_TO_REVEAL;
-      if (nextFiltersCount <= 10) return expandAccordion();
-      props.showFilterModal(f);
-    }
+    if (!shouldExpand) return collapseAccordion();
+    if (nextFiltersCount <= 10) return expandAccordion();
+    props.showFilterModal(f);
   };
 
   if (f.formType === 'dropdown')

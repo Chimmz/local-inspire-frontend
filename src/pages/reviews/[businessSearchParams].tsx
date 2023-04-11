@@ -50,7 +50,7 @@ const MAIN_RESULTS_SECTION_ID = 'main-results';
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [propsData, setPropsData] = useState<Props>(props);
   const [totalUnpaginatedResults, setTotalUnpaginatedResults] = useState(props.total);
-  const [filters, setFilters] = useState<string[]>();
+  const [selectedTags, setSelectedTags] = useState<string[]>();
   const [showMap, setShowMap] = useState(false);
 
   const {
@@ -87,9 +87,12 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     setCurrentPage(page);
     if (pageHasData(page, data => !!data?.businesses.length)) return;
 
-    const isInFilterMode = filters?.length;
+    const isInFilterMode = selectedTags?.length;
     const req = isInFilterMode
-      ? api.filterBusinesses(filters, propsData.pageParams, { page, limit: RESULTS_PER_PAGE })
+      ? api.filterBusinesses(selectedTags, propsData.pageParams, {
+          page,
+          limit: RESULTS_PER_PAGE,
+        })
       : api.findBusinesses(category, { city, stateCode }, { page, limit: RESULTS_PER_PAGE });
 
     sendSearchReq(req)
@@ -101,19 +104,20 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
       .catch(console.error);
   };
 
-  const filterBusinesses = (filterIds: string[]) => {
-    setFilters(filterIds);
-    const noCheckedFilters = !filterIds.length;
+  const filterBusinesses = (tags: string[]) => {
+    console.log('In filterBusinesses: ', tags);
+    setSelectedTags(tags);
+    const noCheckedTags = !tags.length;
     const firstPage = 1;
     setCurrentPage(firstPage); // Set current page to first page
     resetAllPages(); // Clear all pages and use props data
 
-    if (noCheckedFilters) {
+    if (noCheckedTags) {
       setTotalUnpaginatedResults(propsData.total);
       setPageData(firstPage, { ...propsData, businesses: propsData.businesses! }); // Register data for first page
       return domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
     }
-    const req = api.filterBusinesses(filterIds, propsData.pageParams, {
+    const req = api.filterBusinesses(tags, propsData.pageParams, {
       page: firstPage,
       limit: RESULTS_PER_PAGE,
     });

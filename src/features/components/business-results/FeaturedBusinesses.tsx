@@ -22,7 +22,7 @@ const FeaturedBusinesses: FC<Props> = props => {
       <h3 className={cls(styles.groupName, 'mb-4')}>{stringUtils.toTitleCase(props.title)}</h3>
       <div className={cls(styles.featuredBusinesses, otherStyles.businesses)}>
         {props.businesses.map(b => (
-          <Business featured {...b} key={id} />
+          <Business {...b} key={id} featured />
         ))}
       </div>
     </section>

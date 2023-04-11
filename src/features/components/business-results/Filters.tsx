@@ -40,9 +40,13 @@ const Filters = (props: Props) => {
 
   const handleChangeSelect: ChangeEventHandler<HTMLSelectElement> = ev => {
     const prevValue = ev.target.dataset.previousValue;
+
     if (ev.target.value !== 'select') {
       addFilter(ev.target.value);
-      props.onFilter(selectedFilters);
+
+      let selectedFiltersSync: string[] = selectedFilters;
+      selectedFiltersSync.push(ev.target.value);
+      props.onFilter(selectedFiltersSync);
     }
     if (prevValue && prevValue !== 'select') removeFilter(prevValue); // Remove option previously selected
     ev.target.dataset.previousValue = ev.target.value; // Set dataset value to current value
