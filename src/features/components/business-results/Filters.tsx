@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, ChangeEvent } from 'react';
+import { useState, useMemo, useEffect, ChangeEvent, ChangeEventHandler } from 'react';
 import { AdminFilter } from '../../types';
 
 import { useRouter } from 'next/router';
@@ -38,6 +38,16 @@ const Filters = (props: Props) => {
     props.onFilter(selectedFiltersSync);
   };
 
+  const handleChangeSelect: ChangeEventHandler<HTMLSelectElement> = ev => {
+    const prevValue = ev.target.dataset.previousValue;
+    if (ev.target.value !== 'select') {
+      addFilter(ev.target.value);
+      props.onFilter(selectedFilters);
+    }
+    if (prevValue && prevValue !== 'select') removeFilter(prevValue); // Remove option previously selected
+    ev.target.dataset.previousValue = ev.target.value; // Set dataset value to current value
+  };
+
   return (
     <>
       <aside className={cls(props.styles.filter, 'thin-scrollbar')}>
@@ -46,6 +56,7 @@ const Filters = (props: Props) => {
             f={f}
             showFilterModal={(f: AdminFilter) => setExpandedFilter(f)}
             onChangeCheckbox={handleChangeCheckbox}
+            onChangeSelect={handleChangeSelect}
             selectedFilters={selectedFilters}
             styles={props.styles}
             key={f._id}

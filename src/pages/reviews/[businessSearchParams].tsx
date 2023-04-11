@@ -149,7 +149,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   return (
     <Layout>
       {/* Page white overlay for pending requests */}
-      <Spinner show={isFiltering || isSearching} pageWide />
+      <Spinner show={isSearching || isFiltering} pageWide />
 
       <Head>
         <title>{`Top ${categoryTitle} in ${cityTitle}, ${props.pageParams?.stateCode} – Updated regularly | Local Inspire`}</title>

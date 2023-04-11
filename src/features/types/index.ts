@@ -62,7 +62,7 @@ export interface AdminFilter {
   SIC8Categories?: string[];
   tags: string[];
   keyOrder: number;
-  formType: string;
+  formType: 'input' | 'checkbox' | 'dropdown' | 'textarea' | 'slider';
 }
 
 export interface AdminSearchKeyword {

@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useMemo, ChangeEvent } from 'react';
+import React, { useState, useEffect, useMemo, ChangeEvent, ChangeEventHandler } from 'react';
 import { AdminFilter } from '../../types';
 import useCounter from '../../hooks/useCounter';
 import CustomAccordionToggle from '../shared/accordion/CustomAccordionToggle';
 import cls from 'classnames';
-import { Accordion } from 'react-bootstrap';
-import LabelledCheckbox from '../shared/LabelledCheckbox';
+
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import { Accordion, Form } from 'react-bootstrap';
 import { Icon } from '@iconify/react';
+import LabelledCheckbox from '../shared/LabelledCheckbox';
 
 interface Props {
   f: AdminFilter;
   selectedFilters: string[];
   onChangeCheckbox: (ev: ChangeEvent<HTMLInputElement>, tag: string) => void;
+  onChangeSelect: (ev: ChangeEvent<HTMLSelectElement>) => void;
   showFilterModal: (f: AdminFilter) => void;
   styles: { [key: string]: string };
 }
@@ -44,6 +48,22 @@ const FiltersGroup = function (props: Props) {
       props.showFilterModal(f);
     }
   };
+
+  if (f.formType === 'dropdown')
+    return (
+      <div className={styles.filterSection} key={f._id}>
+        <Form.Select className="textfield cursor-pointer" onChange={props.onChangeSelect}>
+          <option value="select">{f.title}</option>
+          {f.tags.map(tag => (
+            <option key={tag}>{tag}</option>
+          ))}
+        </Form.Select>
+      </div>
+    );
+
+  // if (f.formType === 'input') {
+  //   return <>INPUT</>;
+  // }
 
   return (
     <div className={styles.filterSection} key={f._id}>
