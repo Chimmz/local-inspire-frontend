@@ -16,24 +16,24 @@ interface Props {
 
 const FiltersModal = (props: Props) => {
   return (
-    <Modal show={props.show} onHide={props.close} size="lg" scrollable>
+    <Modal show={props.show} onHide={props.close} size="lg">
       <Modal.Header className="p-5" style={{ border: 'none' }} closeButton>
         <h2>{props.f?.title}</h2>
       </Modal.Header>
-      <Modal.Body className="px-5 pb-5">
-        <div className={styles.filters}>
+      <Modal.Body className="ps-5 ">
+        <div className={cls(styles.filters, 'thin-scrollbar  w-100')}>
           {props.f?.tags.map(tag => (
             <LabelledCheckbox
               label={tag}
               checked={props.selectedFilters.includes(tag)}
               onChange={ev => props.onChangeCheckbox(ev, tag)}
-              className="gap-2 mb-3"
+              className="w-max-content gap-2 mb-3"
               key={tag}
             />
           ))}
         </div>
       </Modal.Body>
-      <Modal.Footer style={{ border: 'none' }}>
+      <Modal.Footer className={styles.footer}>
         <button
           className="btn btn-pry btn--lg ms-auto"
           onClick={props.close}

@@ -27,7 +27,7 @@ interface Props {
 }
 
 const FilterModal = function (props: Props) {
-  const [searchKeywords, setSearchKeywords] = useState<AdminSearchKeyword[] | undefined>();
+  const [keywords, setKeywords] = useState<AdminSearchKeyword[] | undefined>();
   const [sic2Categories, setSic2Categories] = useState<string[]>();
   const [sic4Categories, setSic4Categories] = useState<string[]>();
   const [sic8Categories, setSic8Categories] = useState<string[]>();
@@ -147,7 +147,7 @@ const FilterModal = function (props: Props) {
     validators: [{ fn: isRequired, params: ['A key order is required'] }],
   });
 
-  // Fill all inputs with filter-to-edit's values as default values
+  // In edit mode, fill all fields with the filter-to-edit's values as default values
   useEffect(() => {
     if (!props.filterToEdit) return; // If not in edit mode
     setName(props.filterToEdit.name);
@@ -166,7 +166,7 @@ const FilterModal = function (props: Props) {
     setKeyOrder(props.filterToEdit.keyOrder.toString());
   }, [props.filterToEdit]);
 
-  // API request to either save (add or edit) filter
+  // API request to save (add or edit) filter
   const saveFilter = async (body: object) => {
     try {
       const req = props.filterToEdit
@@ -211,7 +211,7 @@ const FilterModal = function (props: Props) {
       isActive,
       showForBusiness,
       showForFilter,
-      searchKeywords: (keywordsValue as ReactSelectOption[]).map(item => item.value),
+      keywords: (keywordsValue as ReactSelectOption[]).map(item => item.value),
       SIC2Categories: (selectedSic2Categories as ReactSelectOption[]).map(optn => optn.value),
       SIC4Categories: (sic4CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
       SIC8Categories: (sic8CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
@@ -227,7 +227,7 @@ const FilterModal = function (props: Props) {
   // COMPONENT STARTS: Load all keyword and SIC2 options
   useEffect(() => {
     const reqs = Promise.all([api.getKeywords(), api.getBusinessCategories('SIC2', '')]);
-    const setters = [setSearchKeywords, setSic2Categories, setSic4Categories, setSic8Categories];
+    const setters = [setKeywords, setSic2Categories, setSic4Categories, setSic8Categories];
     reqs.then(responses => {
       responses.forEach((res, i) => {
         if (res.status !== 'SUCCESS') return;
@@ -255,14 +255,11 @@ const FilterModal = function (props: Props) {
     req.then(res => res.status === 'SUCCESS' && setSic8Categories(res.categories));
   }, [sic4CategoriesValue]);
 
-  const keywordOptions = useMemo(() => {
-    return getSelectOptions(searchKeywords?.map(k => k.name));
-  }, [searchKeywords]);
-
   const sic2Options = useMemo(() => getSelectOptions(sic2Categories), [sic2Categories]);
   const sic4Options = useMemo(() => getSelectOptions(sic4Categories), [sic4Categories]);
   const sic8Options = useMemo(() => getSelectOptions(sic8Categories), [sic8Categories]);
   const formTypeOptions = useMemo(() => getSelectOptions(formTypes), []);
+  const keywordOptions = useMemo(() => getSelectOptions(keywords?.map(k => k.name)), [keywords]);
 
   return (
     <Modal
@@ -333,9 +330,9 @@ const FilterModal = function (props: Props) {
           />
         </div>
 
-        {/* Search keyword */}
+        {/* Search keywords */}
         <div className="my-5">
-          <label className="mb-2">Search keyword</label>
+          <label className="mb-2">Search keywords</label>
           <ReactSelect
             value={keywordsValue}
             options={keywordOptions || []}
@@ -403,6 +400,7 @@ const FilterModal = function (props: Props) {
         {/* Tags */}
         <div className="mb-5">
           <TextInput
+            as="textarea"
             label="Filters"
             value={tagsValue}
             onChange={handleChangeTags}

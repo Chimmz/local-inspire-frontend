@@ -1,10 +1,28 @@
 .filters {
   display: grid;
-  grid-template-columns: max-content max-content;
-  column-gap: 5rem;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10rem;
   row-gap: 1rem;
+  max-height: 50vh;
+  overflow-y: scroll;
 
   @media screen and (max-width: 37.5em) {
     grid-template-columns: 1fr;
+  }
+}
+
+.footer {
+  position: relative;
+  border: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 100%;
+    width: 80%;
+    height: 25px;
+    background: linear-gradient(to top, #fff 5%, rgba(#fff, 0.5) 90%);
+    // background-color: rgba(#fff, 0.7);
   }
 }
