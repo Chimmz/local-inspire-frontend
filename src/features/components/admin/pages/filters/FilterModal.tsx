@@ -291,6 +291,7 @@ const FilterModal = function (props: Props) {
           className="w-max-content mb-5"
         />
 
+        {/* Title input */}
         <div className="mb-5">
           <TextInput
             label="Title"
@@ -309,7 +310,6 @@ const FilterModal = function (props: Props) {
             validationErrors={descriptionValidationErrors}
           />
         </div>
-
         <div
           className={`${!!description.length ? 'd-flex' : 'd-none'} align-items-center gap-5`}
         >
@@ -339,6 +339,7 @@ const FilterModal = function (props: Props) {
             components={useMemo(() => makeAnimated(), [])}
             closeMenuOnSelect
             isMulti
+            className="mb-1"
           />
         </div>
 
@@ -357,7 +358,9 @@ const FilterModal = function (props: Props) {
 
         {/* SIC4 Categories */}
         <div className="mb-5">
-          <label className="mb-2">SIC4 Categories</label>
+          <label className="mb-2">
+            <span>SIC4 Categories</span>
+          </label>
           <ReactSelect
             value={sic4CategoriesValue}
             options={sic4Options}
@@ -371,7 +374,19 @@ const FilterModal = function (props: Props) {
 
         {/* SIC8 Categories */}
         <div className="mb-5">
-          <label className="mb-2">SIC8 Categories</label>
+          <div className="d-flex align-items-center mb-1">
+            <label className="flex-grow-1">SIC8 Categories</label>
+            <button
+              className="btn btn--sm btn-bg-none w-max-content"
+              style={{
+                display: (sic8CategoriesValue as []).length === sic8Options.length ? 'none' : '',
+              }}
+              onClick={setSelectedSIC8Value.bind(null, sic8Options)}
+            >
+              Select all
+            </button>
+          </div>
+
           <ReactSelect
             value={sic8CategoriesValue}
             options={sic8Options}

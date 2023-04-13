@@ -29,7 +29,7 @@ export const tableColumns = [
 ];
 
 interface RowOptions {
-  onEdit: Dispatch<SetStateAction<AdminFilter | null>>;
+  onEdit: (f: AdminFilter) => void;
   onDelete: (f: AdminFilter) => void;
 }
 
@@ -39,7 +39,19 @@ export const genFilterTableData = (filters: AdminFilter[] | undefined, rowOpts: 
   const withTooltip = function <T>(data: T, stringify?: (data: T) => string | undefined) {
     if (!data) return '-';
     const dataStr = stringify?.(data) || (data as string);
-    return <span title={dataStr}>{dataStr}</span>;
+    return (
+      <div
+        title={dataStr}
+        style={{ maxWidth: '50ch', overflowX: 'scroll' }}
+        className="thin-scrollbar light-scroll-thumb"
+      >
+        {dataStr}
+      </div>
+    );
+  };
+
+  const convertBooleanToYesNo = (value: boolean): string => {
+    return value ? 'Yes' : 'No';
   };
 
   return filters.map(f => ({
@@ -47,15 +59,16 @@ export const genFilterTableData = (filters: AdminFilter[] | undefined, rowOpts: 
     id: f._id,
     title: f.title || '-',
     description: <span title={f.description.text}>{f.description.text}</span>,
-    showForBusiness: f.showForBusiness ? 'Yes' : 'No',
-    showForFilter: f.showForFilter ? 'Yes' : 'No',
-    isActive: f.isActive ? 'Yes' : 'No',
+    showForBusiness: convertBooleanToYesNo(f.showForBusiness),
+    showForFilter: convertBooleanToYesNo(f.showForFilter),
+    isActive: convertBooleanToYesNo(f.isActive),
     SIC2Categories: withTooltip(f.SIC2Categories, data => data?.join(', ')),
-    SIC4Categories: withTooltip(f.SIC4Categories, data => data?.join(', ')),
+    // SIC4Categories: withTooltip(f.SIC4Categories, data => data?.join(', ')),
+    SIC4Categories: f.SIC4Categories,
     SIC8Categories: withTooltip(f.SIC8Categories, data => data?.join(', ')),
     keywords: withTooltip(f?.keywords, data => data?.join(', ')),
     actions: (
-      <div className="d-flex align-items-center gap-2 ">
+      <div className="d-flex align-items-center gap-3 ">
         <Icon
           onClick={rowOpts.onEdit.bind(null, f)}
           icon="material-symbols:edit-outline-rounded"

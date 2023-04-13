@@ -1,22 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // Types
-import { AdminFilter, AdminSearchKeyword } from '../../../../types';
+import { AdminSearchKeyword } from '../../../../types';
 // Hooks
 import useRequest from '../../../../hooks/useRequest';
 import useSignedInUser from '../../../../hooks/useSignedInUser';
+import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
 // Utils
 import api from '../../../../library/api';
+import * as pageConfig from './config';
+import cls from 'classnames';
 // Components
 import DataTable from 'react-data-table-component';
-
-import { tableColumns } from './config';
 import { Icon } from '@iconify/react';
-import cls from 'classnames';
 import KeywordModal from './KeywordModal';
 import Spinner from '../../../shared/spinner/Spinner';
 import DeleteConfirmModal from '../../../shared/DeleteConfirmModal';
-import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
-import { simulateRequest } from '../../../../utils/async-utils';
 
 interface Props {
   getStyle: (className: string) => string;
@@ -27,9 +25,8 @@ const KeywordsBody = (props: Props) => {
   const [showAddKeywordModal, setShowAddKeywordModal] = useState(false);
   const [keywordToEdit, setKeywordToEdit] = useState<AdminSearchKeyword | null>(null);
 
-  const { send: sendDeleteReq, loading: deleting } = useRequest();
-
   const adminUser = useSignedInUser();
+  const { send: sendDeleteReq, loading: deleting } = useRequest();
   const { send: sendKeywordRequest, loading: loadingkeywords } = useRequest();
   const { getStyle } = props;
 
@@ -45,6 +42,18 @@ const KeywordsBody = (props: Props) => {
     req.then(res => res.status === 'SUCCESS' && setKeywords(res.keywords));
   };
 
+  useEffect(() => {
+    if (adminUser?.accessToken) loadKeywords();
+  }, [adminUser.accessToken]);
+
+  const tableData = useMemo(() => {
+    const rowOptions = {
+      onEdit: setKeywordToEdit,
+      onDelete: (k: AdminSearchKeyword) => withConfirmation(deleteKeyword.bind(null, k._id)),
+    };
+    return pageConfig.genTableData(keywords, rowOptions);
+  }, [keywords]);
+
   const deleteKeyword = async (kwId: string) => {
     const req = sendDeleteReq(api.deleteKeyword(kwId, adminUser.accessToken!));
     req
@@ -53,40 +62,8 @@ const KeywordsBody = (props: Props) => {
         closeDeleteConfirmation();
         loadKeywords();
       })
-      .catch(err => {});
+      .catch(console.error);
   };
-
-  const tableData = useMemo(() => {
-    return keywords?.map(k => ({
-      id: k._id,
-      name: k.name,
-      sic4Categories: k.sic4Categories?.join(', ') || '-',
-      enableForBusiness: k.enableForBusiness ? 'Yes' : 'No',
-      enableForFilter: k.enableForFilter ? 'Yes' : 'No',
-      actions: (
-        <div className="d-flex align-items-center gap-3 ">
-          <Icon
-            onClick={setKeywordToEdit.bind(null, k)}
-            icon="material-symbols:edit-outline-rounded"
-            width={18}
-            className="cursor-pointer"
-            color="#555"
-          />
-          <Icon
-            onClick={withConfirmation.bind(null, () => deleteKeyword(k._id))}
-            icon="material-symbols:delete-outline"
-            className="cursor-pointer"
-            width={18}
-            color="#555"
-          />
-        </div>
-      ),
-    }));
-  }, [keywords]);
-
-  useEffect(() => {
-    if (adminUser?.accessToken) loadKeywords();
-  }, [adminUser.accessToken]);
 
   return (
     <>
@@ -163,7 +140,7 @@ const KeywordsBody = (props: Props) => {
 
               <div className={getStyle('card-body py-3')}>
                 <DataTable
-                  columns={tableColumns}
+                  columns={pageConfig.tableColumns}
                   data={tableData || []}
                   dense
                   fixedHeader

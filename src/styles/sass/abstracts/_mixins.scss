@@ -29,3 +29,9 @@
     background-color: #666666;
   }
 }
+
+.light-scroll-thumb:not(:hover) {
+  &::-webkit-scrollbar-thumb {
+    background-color: #c4c4c4 !important;
+  }
+}

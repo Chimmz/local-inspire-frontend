@@ -71,5 +71,7 @@ export interface AdminSearchKeyword {
   name: string;
   enableForBusiness: boolean;
   enableForFilter: boolean;
+  showOnNavbar: boolean;
+  showForSearch: boolean;
   sic4Categories: [string];
 }

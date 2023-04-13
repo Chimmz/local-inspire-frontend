@@ -26,8 +26,8 @@ const FiltersPage = (props: Props) => {
 
   const [filters, setFilters] = useState<AdminFilter[]>();
   const [showNewFilterModal, setShowAddFilterModal] = useState(false);
-  // const [showEditFilterModal, setShowEditFilterModal] = useState(false);
   const [filterToEdit, setFilterToEdit] = useState<AdminFilter | null>(null);
+  const adminUser = useSignedInUser();
 
   const {
     withConfirmation,
@@ -36,7 +36,6 @@ const FiltersPage = (props: Props) => {
     closeConfirmation: closeDeleteConfirmation,
   } = useConfirmation();
 
-  const adminUser = useSignedInUser();
   const { send: sendFiltersRequest, loading: filtersLoading } = useRequest();
   const { send: sendDeleteReq, loading: deletingFilter } = useRequest();
 

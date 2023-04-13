@@ -28,6 +28,9 @@ interface Props {
 
 const KeywordModal = function (props: Props) {
   const [sic4Categories, setSic4Categories] = useState<string[]>([]);
+  const { accessToken } = useSignedInUser();
+  const { send: sendGetCategories, loading: loadingCategories } = useRequest();
+  const { send: sendSaveKeywordReq, loading: isSavingKeyword } = useRequest();
 
   const {
     inputValue: keywordName,
@@ -42,43 +45,64 @@ const KeywordModal = function (props: Props) {
   });
 
   const {
-    state: enableForBusiness,
-    toggle: toggleEnableForBusiness,
-    setState: setEnabledForBusiness,
-    // setOn: setEnabledForBusinessTrue,
-    // setOff: setEnabledForBusinessFalse,
-  } = useToggle(props.keyword?.enableForBusiness || true);
+    state: showOnNavbar,
+    toggle: toggleShowOnNavbar,
+    setState: setShowOnNavbar,
+  } = useToggle(true);
+  const {
+    state: showForSearch,
+    toggle: toggleShowForSearch,
+    setState: setShowForSearch,
+  } = useToggle(true);
 
   const {
     state: enableForFilter,
     toggle: toggleEnableForFilter,
     setState: setEnabledForFilter,
-    // setOn: setEnabledForFilterTrue,
-    // setOff: setEnabledForFilterFalse,
-  } = useToggle(props.keyword?.enableForFilter || true);
+  } = useToggle(true);
+  const {
+    state: enableForBusiness,
+    toggle: toggleEnableForBusiness,
+    setState: setEnabledForBusiness,
+  } = useToggle(false);
 
   const {
     selectedItems: sic4CategoriesValue,
     onSelect: handleChangeSic4,
     setSelectedItems: setSelectedSIC4Value,
   } = useReactSelect();
-  const { accessToken } = useSignedInUser();
-  const { send: sendGetCategories, loading: loadingCategories } = useRequest();
-  const { send: sendSaveKeywordReq, loading: isSavingKeyword } = useRequest();
 
   const sic4Options = useMemo(() => getSelectOptions(sic4Categories), [sic4Categories]);
+
+  useEffect(() => {
+    if (!props.keyword) return; // If not in edit mode
+    setKeywordName(props.keyword.name);
+    setSelectedSIC4Value(getSelectOptions(props.keyword.sic4Categories));
+    setShowOnNavbar(props.keyword.showOnNavbar);
+    setShowForSearch(props.keyword.showForSearch);
+    setEnabledForFilter(props.keyword.enableForFilter);
+    setEnabledForBusiness(props.keyword.enableForBusiness);
+  }, [props.keyword]);
+
+  useEffect(() => {
+    const req = sendGetCategories(api.getBusinessCategories('SIC4', ''));
+    req.then(res => res.status === 'SUCCESS' && setSic4Categories(res.categories));
+  }, []);
 
   const saveKeyword = async () => {
     const body = {
       name: keywordName,
       enableForBusiness,
       enableForFilter,
+      showOnNavbar,
+      showForSearch,
       sic4Categories: (sic4CategoriesValue as ReactSelectOption[]).map(optn => optn.value),
     };
     console.log(body);
     const req = !!props.keyword
       ? api.editKeyword(props.keyword._id, body, accessToken!)
       : api.addKeyword(body, accessToken!);
+
     try {
       const res = await sendSaveKeywordReq(req);
       if (res.status !== 'SUCCESS') throw Error(res.msg || res.error);
@@ -97,19 +121,6 @@ const KeywordModal = function (props: Props) {
     saveKeyword();
   };
 
-  useEffect(() => {
-    const req = sendGetCategories(api.getBusinessCategories('SIC4', ''));
-    req.then(res => res.status === 'SUCCESS' && setSic4Categories(res.categories));
-  }, []);
-
-  useEffect(() => {
-    if (!props.keyword) return; // If not in edit mode
-    setKeywordName(props.keyword.name);
-    setEnabledForFilter(props.keyword.enableForFilter);
-    setEnabledForBusiness(props.keyword.enableForBusiness);
-    setSelectedSIC4Value(getSelectOptions(props.keyword.sic4Categories));
-  }, [props.keyword]);
-
   return (
     <Modal
       show={props.show}
@@ -124,6 +135,7 @@ const KeywordModal = function (props: Props) {
         <h2> New Search Keyword</h2>
       </Modal.Header>
       <Modal.Body className="p-5">
+        {/* Keyword name */}
         <div className="mb-5">
           <TextInput
             label="Name"
@@ -134,21 +146,22 @@ const KeywordModal = function (props: Props) {
           />
         </div>
 
-        {/* Enable for business checkbox */}
-        <LabelledCheckbox
-          label="Enable for business"
-          checked={enableForBusiness}
-          onChange={toggleEnableForBusiness}
-          className="gap-3 w-max-content mb-5"
-        />
-
-        {/* Enable for filter checkbox */}
-        <LabelledCheckbox
-          label="Enable for filter"
-          checked={enableForFilter}
-          onChange={toggleEnableForFilter}
-          className="gap-3 w-max-content mb-5"
-        />
+        <div className="d-flex align-items-center gap-5 mb-5">
+          {/* Show on navigation bar checkbox */}
+          <LabelledCheckbox
+            label="Show on navigation bar"
+            checked={showOnNavbar}
+            onChange={toggleShowOnNavbar}
+            className="w-max-content"
+          />
+          {/* Show on search results checkbox */}
+          <LabelledCheckbox
+            label="Show on search results"
+            checked={showForSearch}
+            onChange={toggleShowForSearch}
+            className="w-max-content"
+          />
+        </div>
 
         {/* SIC4 Categories */}
         <div className="mb-5">
@@ -163,6 +176,24 @@ const KeywordModal = function (props: Props) {
           {/* <Form.Control.Feedback type="invalid" className="d-block">
             Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </Form.Control.Feedback> */}
+        </div>
+
+        <div className="d-flex align-items-center gap-5 mb-5">
+          {/* Enable for business checkbox */}
+          <LabelledCheckbox
+            label="Enable for business"
+            checked={enableForBusiness}
+            onChange={toggleEnableForBusiness}
+            className="gap-3 w-max-content"
+          />
+
+          {/* Enable for filter checkbox */}
+          <LabelledCheckbox
+            label="Enable for filter"
+            checked={enableForFilter}
+            onChange={toggleEnableForFilter}
+            className="gap-3 w-max-content"
+          />
         </div>
 
         <LoadingButton

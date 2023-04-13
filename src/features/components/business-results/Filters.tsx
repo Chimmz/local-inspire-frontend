@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, ChangeEvent, ChangeEventHandler } from 'react';
+import { useState, useEffect, ChangeEvent, ChangeEventHandler } from 'react';
 import { AdminFilter } from '../../types';
 
 import { useRouter } from 'next/router';
@@ -50,7 +50,6 @@ const Filters = (props: Props) => {
 
     if (ev.target.value !== 'select') {
       addFilter(ev.target.value);
-
       let selectedFiltersSync: string[] = selectedFilters;
       selectedFiltersSync.push(ev.target.value);
       props.onFilter(selectedFiltersSync);

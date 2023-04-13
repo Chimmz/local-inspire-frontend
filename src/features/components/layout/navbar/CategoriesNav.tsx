@@ -17,6 +17,7 @@ interface CategoriesNavProps {
 
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
   const [keywords, setKeywords] = useState<AdminSearchKeyword[] | undefined>();
+
   const { userLocation } = useUserLocationContext();
   const { send: sendKeywordReq, loading: loadingKeywords } = useRequest();
 
@@ -25,60 +26,32 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
     sendKeywordReq(req).then(res => res.status === 'SUCCESS' && setKeywords(res.keywords));
   }, []);
 
-  const popularCategories = useMemo(
-    () => [
-      'Hotels and motels',
-      'Restaurants',
-      'Cabins Rentals',
-      'Vacation Rentals',
-      'Things to do',
-      'Cruises',
-    ],
-    [],
-  );
-
   const navLinksUI = useMemo(() => {
-    return keywords?.map(kw => {
-      const href = urlUtils.getBusinessSearchResultsUrl({
-        category: kw.name,
-        city: userLocation?.cityName || '',
-        stateCode: userLocation?.stateCode || '',
+    if (!keywords?.length) return <></>;
+    return keywords
+      .filter(k => k.showOnNavbar)
+      .map(kwd => {
+        const href = urlUtils.getBusinessSearchResultsUrl({
+          category: kwd.name,
+          city: userLocation?.cityName || '',
+          stateCode: userLocation?.stateCode || '',
+        });
+        return (
+          <li key={kwd.name}>
+            <Link href={href} passHref>
+              <a onClick={props.showLoader} className="w-max-content d-block">
+                {kwd.name}
+              </a>
+            </Link>
+          </li>
+        );
       });
-      return (
-        <li key={kw.name}>
-          <Link href={href} passHref>
-            <a onClick={props.showLoader} className="w-max-content d-block">
-              {kw.name}
-            </a>
-          </Link>
-        </li>
-      );
-    });
   }, [keywords, userLocation]);
 
   return (
     <nav className={cls(styles.categoriesNav)}>
       <div className="container">
-        <ul className={cls(styles.categories, 'no-bullets')}>
-          {navLinksUI}
-
-          {/* {popularCategories.map(categ => {
-            const href = urlUtils.getBusinessSearchResultsUrl({
-              category: categ,
-              city: userLocation?.cityName || '',
-              stateCode: userLocation?.stateCode || '',
-            });
-            return (
-              <li key={categ}>
-                <Link href={href} passHref>
-                  <a onClick={props.showLoader} className="w-max-content d-block">
-                    {categ}
-                  </a>
-                </Link>
-              </li>
-            );
-          })} */}
-        </ul>
+        <ul className={cls(styles.categories, 'no-bullets')}>{navLinksUI}</ul>
       </div>
     </nav>
   );

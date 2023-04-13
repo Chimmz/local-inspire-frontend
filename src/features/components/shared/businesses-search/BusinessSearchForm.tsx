@@ -3,7 +3,6 @@ import React, { useState, useCallback, useContext, useEffect, useRef, useMemo } 
 import API from '../../../library/api';
 import * as uuid from 'uuid';
 
-import { useRouter } from 'next/router';
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
 import useAPISearchResults from '../../../hooks/useAPISearchResults';
@@ -17,8 +16,6 @@ import styles from './BusinessSearchForm.module.scss';
 import { UserLocationContext } from '../../../contexts/UserLocationContext';
 import { AdminSearchKeyword } from '../../../types';
 import api from '../../../library/api';
-import Link from 'next/link';
-import { getBusinessSearchResultsUrl } from '../../../utils/url-utils';
 
 const MIN_CHARS_FOR_CATEGORY_SEARCH = 2;
 const MIN_CHARS_FOR_CITY_SEARCH = 2;
@@ -86,14 +83,22 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
   const { stopLoading: stopFindBusinessLoader } = useRequest({ autoStopLoading: false });
 
   const loadKeywords = useCallback(() => {
-    api.getKeywords().then(res => res.status === 'SUCCESS' && setKeywords(res.keywords));
+    const req = api.getKeywords();
+    req.then(res => {
+      if (res.status !== 'SUCCESS') return;
+      // Show only keywords configured for search
+      const dropdownKeywords = (res.keywords as AdminSearchKeyword[]).filter(
+        k => k.showForSearch,
+      );
+      setKeywords(dropdownKeywords);
+    });
   }, []);
 
   useEffect(() => {
     loadKeywords();
-
-    if (props.promptUserInput) categoryInput.current?.focus();
     hideCategoryResults();
+    if (props.promptUserInput) categoryInput.current?.focus();
+
     const clickHandler = (ev: MouseEvent) => {
       if ((ev.target as Element)?.closest('form')?.className.includes('search')) return;
       hideCategoryResults();
