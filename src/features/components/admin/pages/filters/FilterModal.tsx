@@ -111,7 +111,6 @@ const FilterModal = function (props: Props) {
     toggle: toggleShowDescriptionForBusiness,
     setState: setShowDescriptionForBusiness,
   } = useToggle(false);
-
   const {
     state: showForBusiness,
     toggle: toggleShowForBusiness,

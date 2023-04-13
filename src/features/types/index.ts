@@ -63,6 +63,7 @@ export interface AdminFilter {
   tags: string[];
   keyOrder: number;
   formType: 'input' | 'checkbox' | 'dropdown' | 'textarea' | 'slider';
+  createdAt: string;
 }
 
 export interface AdminSearchKeyword {

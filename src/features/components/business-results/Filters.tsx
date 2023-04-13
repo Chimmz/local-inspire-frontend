@@ -28,7 +28,14 @@ const Filters = (props: Props) => {
 
   useEffect(() => {
     const req = api.getFilters(props.pageParams.category);
-    sendFilterReq(req).then(res => res.status === 'SUCCESS' && setFilters(res.filters));
+    sendFilterReq(req).then(res => {
+      if (res.status !== 'SUCCESS') return;
+      (res.filters as AdminFilter[]).sort((prev, next) => {
+        if (prev.keyOrder < next.keyOrder) return -1; // Sort by key order
+        return +new Date(prev.createdAt) - +new Date(next.createdAt); // Sort by creation date
+      });
+      setFilters(res.filters);
+    });
   }, [router.asPath]); // Load filters on new results page
 
   const handleChangeCheckbox = (ev: ChangeEvent<HTMLInputElement>, tag: string) => {
