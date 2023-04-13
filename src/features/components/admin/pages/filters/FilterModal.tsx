@@ -377,7 +377,7 @@ const FilterModal = function (props: Props) {
           <div className="d-flex align-items-center mb-1">
             <label className="flex-grow-1">SIC8 Categories</label>
             <button
-              className="btn btn--sm btn-bg-none w-max-content"
+              className="btn btn--sm btn-bg-none w-max-content text-pry"
               style={{
                 display: (sic8CategoriesValue as []).length === sic8Options.length ? 'none' : '',
               }}
