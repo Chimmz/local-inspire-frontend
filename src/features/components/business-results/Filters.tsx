@@ -8,7 +8,6 @@ import useRequest from '../../hooks/useRequest';
 import api from '../../library/api';
 import cls from 'classnames';
 
-import LabelledCheckbox from '../shared/LabelledCheckbox';
 import ExpandedFilterModal from './FiltersModal';
 import FiltersGroup from './FilterGroup';
 
@@ -27,14 +26,17 @@ const Filters = (props: Props) => {
   const router = useRouter();
 
   useEffect(() => {
-    const req = api.getFilters(props.pageParams.category);
-    sendFilterReq(req).then(res => {
+    const req = sendFilterReq(api.getFilters(props.pageParams.category));
+    req.then(res => {
       if (res.status !== 'SUCCESS') return;
-      (res.filters as AdminFilter[]).sort((prev, next) => {
-        if (prev.keyOrder < next.keyOrder) return -1; // Sort by key order
-        return +new Date(prev.createdAt) - +new Date(next.createdAt); // Sort by creation date
-      });
-      setFilters(res.filters);
+
+      const filters = (res.filters as AdminFilter[])
+        .filter(f => f.showForFilter)
+        .sort((prev, next) => {
+          if (prev.keyOrder < next.keyOrder) return -1; // Sort by key order
+          return +new Date(prev.createdAt) - +new Date(next.createdAt); // OR Sort by creation date
+        });
+      setFilters(filters);
     });
   }, [router.asPath]); // Load filters on new results page
 

@@ -318,14 +318,14 @@ const FilterModal = function (props: Props) {
             label="Show this for business"
             checked={showDescriptionForBusiness}
             onChange={toggleShowDescriptionForBusiness}
-            className="w-max-content"
+            className="w-max-content fs-5"
           />
           {/* Show description for filter checkbox */}
           <LabelledCheckbox
             label="Show this for filter"
             checked={showDescriptionForFilter}
             onChange={toggleShowDescriptionForFilter}
-            className="w-max-content"
+            className="w-max-content fs-5"
           />
         </div>
 
