@@ -15,15 +15,15 @@ export const getSelectOptions = (arr: string[] | undefined): ReactSelectOption[]
 export const tableColumns = [
   { name: 'Name', selector: (row: any) => row.name },
   { name: 'Title', selector: (row: any) => row.title },
-  { name: 'Add/Edit Description', selector: (row: any) => row.description },
-  { name: 'SIC2', selector: (row: any) => row.SIC2Categories },
-  { name: 'SIC4', selector: (row: any) => row.SIC4Categories },
-  { name: 'SIC8', selector: (row: any) => row.SIC8Categories },
+  // { name: 'Add/Edit Description', selector: (row: any) => row.description },
+  // { name: 'SIC2', selector: (row: any) => row.SIC2Categories },
+  // { name: 'SIC4', selector: (row: any) => row.SIC4Categories },
+  // { name: 'SIC8', selector: (row: any) => row.SIC8Categories },
   { name: 'Keywords', selector: (row: any) => row.keywords },
   { name: 'Order', selector: (row: any) => row.keyOrder },
-  { name: 'Type', selector: (row: any) => row.formType },
-  { name: 'Show on business', selector: (row: any) => row.showForBusiness },
-  { name: 'Show on filter', selector: (row: any) => row.showForFilter },
+  // { name: 'Type', selector: (row: any) => row.formType },
+  // { name: 'Show on business', selector: (row: any) => row.showForBusiness },
+  // { name: 'Show on filter', selector: (row: any) => row.showForFilter },
   { name: 'Active', selector: (row: any) => row.isActive },
   { name: 'Actions', selector: (row: any) => row.actions },
 ];
@@ -39,15 +39,7 @@ export const genFilterTableData = (filters: AdminFilter[] | undefined, rowOpts: 
   const withTooltip = function <T>(data: T, stringify?: (data: T) => string | undefined) {
     if (!data) return '-';
     const dataStr = stringify?.(data) || (data as string);
-    return (
-      <div
-        title={dataStr}
-        style={{ maxWidth: '50ch', overflowX: 'scroll' }}
-        className="thin-scrollbar light-scroll-thumb"
-      >
-        {dataStr}
-      </div>
-    );
+    return <div title={dataStr}>{dataStr}</div>;
   };
 
   const convertBooleanToYesNo = (value: boolean): string => {

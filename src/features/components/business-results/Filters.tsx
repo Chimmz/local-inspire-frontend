@@ -33,12 +33,14 @@ const Filters = (props: Props) => {
       const filters = (res.filters as AdminFilter[])
         .filter(f => f.showForFilter)
         .sort((prev, next) => {
-          if (prev.keyOrder < next.keyOrder) return -1; // Sort by key order
-          return +new Date(prev.createdAt) - +new Date(next.createdAt); // OR Sort by creation date
+          if (prev.keyOrder < next.keyOrder) return -1; // Sort by key order (asc)
+          if (prev.keyOrder === next.keyOrder)
+            return +new Date(prev.createdAt) - +new Date(next.createdAt); // OR Sort by creation date (asc)
+          return 1;
         });
       setFilters(filters);
     });
-  }, [router.asPath]); // Load filters on new results page
+  }, [router.asPath]); // Load filters on change window url
 
   const handleChangeCheckbox = (ev: ChangeEvent<HTMLInputElement>, tag: string) => {
     (ev.target.checked ? addFilter : removeFilter)(tag);

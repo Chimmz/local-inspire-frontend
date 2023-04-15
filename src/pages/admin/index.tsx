@@ -2,11 +2,12 @@ import React, { useCallback } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import Link from 'next/link';
+
 import { PrivateMessage } from '../../features/types';
 
 import useToggle from '../../features/hooks/useToggle';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
+
 import api from '../../features/library/api';
 import cls from 'classnames';
 
