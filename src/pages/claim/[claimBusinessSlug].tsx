@@ -97,7 +97,7 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                     <h5 className="fs-4 text-uppercase fw-bold mb-3">Manage Listing</h5>
                     <p className="parag mb-4" style={{ maxWidth: '50ch' }}>
                       Manage your reviews, photos, and check your business listings activity.
-                      Claim for FREE... It's one of the best investment you'll ever make.
+                      Claim for FREE... Its one of the best investment you&apos;ll ever make.
                     </p>
                     <button
                       className="btn btn-outline-pry btn--lg"
