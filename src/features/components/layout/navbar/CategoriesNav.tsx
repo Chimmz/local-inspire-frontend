@@ -13,6 +13,7 @@ import { AdminSearchKeyword } from '../../../types';
 
 interface CategoriesNavProps {
   showLoader?: () => void;
+  claimButton?: boolean;
 }
 
 const CategoriesNav: FC<CategoriesNavProps> = function (props) {
@@ -50,8 +51,9 @@ const CategoriesNav: FC<CategoriesNavProps> = function (props) {
 
   return (
     <nav className={cls(styles.categoriesNav)}>
-      <div className="container">
+      <div className="container d-flex justify-content-between">
         <ul className={cls(styles.categories, 'no-bullets')}>{navLinksUI}</ul>
+        <button className={cls("btn btn-sec", !props.claimButton && 'd-none')}>Claim</button>
       </div>
     </nav>
   );

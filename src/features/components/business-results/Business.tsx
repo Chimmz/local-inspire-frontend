@@ -37,7 +37,7 @@ export interface BusinessProps {
   reviewers?: Array<string>;
   images: { _id: string; imgUrl: string; approvedByBusinessOwner: boolean }[];
   avgRating?: number;
-  claimed: boolean;
+  claimedBy: string;
 }
 
 interface RatedBusiness extends Partial<BusinessProps> {
@@ -69,12 +69,9 @@ const Business: FC<RatedBusiness & { featured?: boolean; serialNo?: number }> = 
   );
 
   const peoplesOpinions = useMemo(() => {
-    if (!props.whatPeopleSay) return null;
-
-    return props.whatPeopleSay.slice(0, 2).map(reviewText => {
+    return props.whatPeopleSay?.slice(0, 2).map(reviewText => {
       const reviewStr = reviewText.join(' ');
       const first15Words = reviewStr.split(' ').slice(0, 15).join(' ');
-
       return first15Words.length < reviewStr.length ? first15Words.concat('...') : first15Words;
     });
   }, [props.whatPeopleSay]);

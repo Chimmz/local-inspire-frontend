@@ -1,0 +1,14 @@
+.main {
+  background-color: #f8fafb;
+}
+
+.ctaItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5rem;
+
+  &:not(:last-child) {
+    margin-bottom: 10rem;
+  }
+}

@@ -1,30 +1,33 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { BusinessProps } from '../business-results/Business';
+import { UserCollection } from '../../types';
+import { ReviewProps } from '../page-reviews/UserReview';
+
+import useSignedInUser from '../../hooks/useSignedInUser';
+import useRequest from '../../hooks/useRequest';
+import useMiddleware from '../../hooks/useMiddleware';
 
 import {
   genRecommendBusinessPageUrl,
   getBusinessQuestionsUrl,
   genAddPhotosPageUrl,
+  genClaimBusinessPageUrl,
 } from '../../utils/url-utils';
+import api from '../../library/api';
 import cls from 'classnames';
 
 import { Icon } from '@iconify/react';
 import StarRating from '../shared/star-rating/StarRating';
-import styles from './Header.module.scss';
 import PhotoGallery from '../shared/img-gallery/PhotoGallery';
-import SocialShareModal from '../shared/social-share/SocialShare';
 import UserCollectionsModal from './modals/UserCollectionsModal';
-import { UserCollection } from '../../types';
-import useSignedInUser from '../../hooks/useSignedInUser';
-import useRequest from '../../hooks/useRequest';
-import api from '../../library/api';
-import { ReviewProps } from '../page-reviews/UserReview';
-import useMiddleware from '../../hooks/useMiddleware';
+import SocialShareModal from '../shared/social-share/SocialShare';
 import ImageList from '../shared/image-list/ImageList';
+import styles from './Header.module.scss';
+import AppTooltip from '../AppTooltip';
+import { Overlay, Popover } from 'react-bootstrap';
 
 interface Props {
   businessName: string;
@@ -40,21 +43,24 @@ function Header(props: Props) {
   const [userCollections, setUserCollections] = useState<UserCollection[] | undefined>(
     props.userCollections,
   );
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showCollectionsModal, setShowCollectionsModal] = useState(false);
+
+  const [showPopover, setShowPopover] = useState(false);
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+  const ref = useRef(null);
+
   const [userReviewImages, setUserReviewImages] = useState<Array<{
     _id: string;
     photoUrl: string;
     description: string;
   }> | null>(null);
 
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showCollectionsModal, setShowCollectionsModal] = useState(false);
-
-  const router = useRouter();
-  const { isSignedIn, accessToken: token } = useSignedInUser();
-  const { withAuth } = useMiddleware();
-
   const { send: sendCollectionsReq, loading: fetchingCollections } = useRequest();
   const { send: sendReviewReq, loading: loadingReviews } = useRequest();
+  const { isSignedIn, accessToken: token } = useSignedInUser();
+  const { withAuth } = useMiddleware();
+  const router = useRouter();
 
   const loadUserCollections = useCallback(async () => {
     const res = await sendCollectionsReq(api.getUserCollections(token!));
@@ -82,25 +88,67 @@ function Header(props: Props) {
     );
   }, [userCollections, isSignedIn]);
 
-  const [businessImages, morePhotosCount] = useMemo(() => {
-    return [
-      props.business?.images,
-      userReviewImages ? props.business?.images?.length! - userReviewImages?.length : 0,
-    ];
-  }, [props.business?.images]);
+  const businessImages = useMemo(() => props.business?.images, [props.business?.images]);
 
-  const reviewPageUrl = useMemo(() => {
-    return genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null });
+  const [reviewPageUrl, questionsPageUrl] = useMemo(() => {
+    return [
+      genRecommendBusinessPageUrl<string>({ slug: props.slug, recommends: null }),
+      getBusinessQuestionsUrl<string>({ slug: props.slug, promptNewQuestion: true }),
+    ];
   }, []);
-  const questionsPageUrl = useMemo(() => {
-    return getBusinessQuestionsUrl<string>({ slug: props.slug, promptNewQuestion: true });
-  }, []);
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = event => {
+    setShowPopover(state => !state);
+    setTarget(event.target as HTMLElement);
+  };
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1 className="mb-3">{props.business?.businessName}</h1>
+          <div className="d-flex align-items-center gap-3">
+            <h1 className="mb-3">{props.business?.businessName}</h1>
+            <div className="">
+              <button
+                className="btn btn-bg-none no-bg-hover text-pry d-flex align-items-center gap-1"
+                style={{ color: props.business?.claimedBy && '#0ab30a' }}
+                onClick={handleClick}
+              >
+                <Icon
+                  icon={props.business?.claimedBy ? 'mdi:success-circle-outline' : 'ph:question'}
+                  width={20}
+                />
+                {props.business?.claimedBy ? 'Claimed' : 'Unclaimed'}
+              </button>
+              <Overlay
+                show={showPopover && !props.business?.claimedBy}
+                target={target}
+                placement="bottom"
+              >
+                <Popover id="header-popover-trigger-hover-focus" className="w-max-content p-3">
+                  <Popover.Body className="fs-4 d-flex gap-5">
+                    <div style={{ maxWidth: '50ch' }}>
+                      <h4>
+                        This business has not yet been claimed by the owner or a representative.
+                      </h4>
+                      <small>
+                        Is this your business?{' '}
+                        <Link
+                          href={genClaimBusinessPageUrl<string>({ slug: props.slug })}
+                          passHref
+                        >
+                          <a className="font-bold text-pry">Claim it now</a>
+                        </Link>{' '}
+                        to make sure your information is up to date, add photos and more. Plus
+                        use our free tools to find new customers.
+                      </small>
+                    </div>
+                  </Popover.Body>
+                </Popover>
+              </Overlay>
+            </div>
+          </div>
+
           <StarRating
             readonly
             initialValue={Math.floor(props.business?.avgRating!)}
@@ -132,7 +180,7 @@ function Header(props: Props) {
               <a className="btn btn-outline btn--lg">Ask a question</a>
             </Link>
 
-            {props.business?.claimed ? (
+            {props.business?.claimedBy ? (
               <button className="btn btn-outline btn--lg">Message owner</button>
             ) : null}
           </div>

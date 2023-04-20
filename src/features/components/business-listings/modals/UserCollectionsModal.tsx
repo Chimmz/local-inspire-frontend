@@ -115,14 +115,12 @@ const UserCollectionsModal = (props: Props) => {
 
   const createCollectionAndSaveItem: React.FormEventHandler<HTMLFormElement> = async ev => {
     ev.preventDefault();
-    if (
-      [
-        runNewNameValidationErrors(),
-        runNewDescriptionValidationErrors(),
-        runNewVisibilityValidationErrors(),
-      ].some(result => result.errorExists)
-    )
-      return;
+    const validations = [
+      runNewNameValidationErrors(),
+      runNewDescriptionValidationErrors(),
+      runNewVisibilityValidationErrors(),
+    ];
+    if (validations.some(result => result.errorExists)) return;
 
     const newCollection = {
       name: newName,
@@ -139,6 +137,7 @@ const UserCollectionsModal = (props: Props) => {
       show={props.show}
       size="lg"
       centered
+      scrollable
       onHide={props.close}
       onEntering={loadCollections}
     >

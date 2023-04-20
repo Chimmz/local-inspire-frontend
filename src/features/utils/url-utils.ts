@@ -201,4 +201,10 @@ export const genUserProfileUrl = (
   return `/user/${slug}`;
 };
 
+export const genClaimBusinessPageUrl = function <T>(args: BusinessPageUrlParams<T>) {
+  if ('slug' in args) return `/claim/${args.slug}`;
+  const { businessName, city, stateCode, businessId } = transformBusinessUrlParams(args);
+  return `/claim/${businessName}_${city}-${stateCode}_${businessId}`;
+};
+
 export default navigateTo;

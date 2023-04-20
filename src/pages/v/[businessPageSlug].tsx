@@ -51,12 +51,6 @@ interface Props {
     data?: QuestionItemProps[];
     total: number;
   };
-  // tips: { total: number; status: 'SUCCESS' | 'FAIL'; data?: TipProps[] };
-
-  // businessReviewStats: {
-  //   overallFeatureRatings?: { _id: string; avgRating: number }[];
-  //   recommendsStats?: { recommends: number; doesNotRecommend: number };
-  // };
   userCollections?: UserCollection[];
   userReview?: ReviewProps;
 

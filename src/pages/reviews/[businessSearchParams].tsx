@@ -49,7 +49,7 @@ const MAIN_RESULTS_SECTION_ID = 'main-results';
 
 const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   const [propsData, setPropsData] = useState<Props>(props);
-  const [totalUnpaginatedResults, setTotalUnpaginatedResults] = useState(props.total);
+  const [totalResults, setTotalResults] = useState(props.total);
   const [selectedTags, setSelectedTags] = useState<string[]>();
   const [showMap, setShowMap] = useState(false);
 
@@ -61,15 +61,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   } = useRequest();
   const { send: sendFilterReq, loading: isFiltering } = useRequest();
 
-  let { category, city, stateCode } = useMemo(() => props.pageParams, [props]);
-
-  const [categoryTitle, cityTitle] = useMemo(
-    () => [
-      stringUtils.toTitleCase(props.pageParams.category),
-      stringUtils.toTitleCase(props.pageParams.city),
-    ],
-    [props.pageParams],
-  );
+  const { category, city, stateCode } = useMemo(() => props.pageParams, [props]);
 
   const {
     currentPage,
@@ -87,8 +79,8 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     setCurrentPage(page);
     if (pageHasData(page, data => !!data?.businesses.length)) return;
 
-    const isInFilterMode = selectedTags?.length;
-    const req = isInFilterMode
+    const isFilterMode = selectedTags?.length;
+    const req = isFilterMode
       ? api.filterBusinesses(selectedTags, propsData.pageParams, {
           page,
           limit: RESULTS_PER_PAGE,
@@ -113,7 +105,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     resetAllPages(); // Clear all pages and use props data
 
     if (noCheckedTags) {
-      setTotalUnpaginatedResults(propsData.total);
+      setTotalResults(propsData.total);
       setPageData(firstPage, { ...propsData, businesses: propsData.businesses! }); // Register data for first page
       return domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
     }
@@ -124,7 +116,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     sendFilterReq(req)
       .then(res => {
         if (res.status !== 'SUCCESS') return;
-        setTotalUnpaginatedResults(res.total);
+        setTotalResults(res.total);
         setPageData(firstPage, res); // Register data for first page
         domUtils.scrollToElement('#' + SEARCH_RESULTS_SECTION_ID); // Scroll to search results section
       })
@@ -136,7 +128,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
     const firstPage = 1;
     setCurrentPage(firstPage); // Always set to first page when page changes
     setPageData(firstPage, props as any); // Set new page data
-    setTotalUnpaginatedResults(props.total);
+    setTotalResults(props.total);
     // const paginators = document.querySelector("[class*='paginators']");
     // const previousActivePaginator = paginators?.querySelector('li.selected');
   }, [props, setPropsData, props.pageId]); // Never include setCurrentPage, setPageData in this list. It causes a limitless rerendering
@@ -146,8 +138,16 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
   }, [propsData.pageId]); // On transition to a new results page
 
   const pageCount = useMemo(
-    () => (totalUnpaginatedResults ? Math.ceil(totalUnpaginatedResults / RESULTS_PER_PAGE) : 0),
-    [propsData, totalUnpaginatedResults],
+    () => (totalResults ? Math.ceil(totalResults / RESULTS_PER_PAGE) : 0),
+    [propsData, totalResults],
+  );
+
+  const [categoryTitle, cityTitle] = useMemo(
+    () => [
+      stringUtils.toTitleCase(props.pageParams.category),
+      stringUtils.toTitleCase(props.pageParams.city),
+    ],
+    [props.pageParams],
   );
 
   return (
@@ -184,7 +184,7 @@ const BusinessSearchResultsPage: NextPage<Props> = function (props) {
 
             <AllBusinesses
               data={currentPageData}
-              total={totalUnpaginatedResults}
+              total={totalResults}
               page={currentPage}
               sectionId={MAIN_RESULTS_SECTION_ID}
               style={{ scrollPadding: '30px' }}

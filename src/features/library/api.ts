@@ -526,6 +526,15 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
+  async claimBusiness(businessId: string, body: object, token: string) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/claim`,
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

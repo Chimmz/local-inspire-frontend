@@ -19,14 +19,12 @@ interface RecommendationStats {
 
 interface Props {
   business: BusinessProps | undefined;
-  // overallFeatureRatings?: Array<{ _id: string; avgRating: number }> | undefined;
-  // recommendationStats?: { yes: number; no: number } | undefined;
   reviewsCount: number;
 }
 
 const RatingStats = function (props: Props) {
   const [stats, setStats] = useState<RecommendationStats | null>(null);
-  const [show, setShow] = useState(false);
+  const [showPopover, setShowPopover] = useState(false);
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const ref = useRef(null);
 
@@ -37,22 +35,7 @@ const RatingStats = function (props: Props) {
     });
   }, [props.business]);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = event => {
-    setShow(!show);
-    setTarget(event.target as HTMLElement);
-  };
-
-  useEffect(() => {
-    console.log('STATS: ', stats);
-  }, []);
-
   const normalizedFeatureRatings = useMemo(() => {
-    if (!stats?.overallFeatureRatings?.length) return null;
-
     // Turn the overall ratings array into a hash table
     const result: { [key: string]: number } = {};
     stats?.overallFeatureRatings?.forEach(({ _id: feat, avgRating }) => {
@@ -65,6 +48,15 @@ const RatingStats = function (props: Props) {
     (feature: string) => Math.floor(normalizedFeatureRatings![feature]),
     [normalizedFeatureRatings],
   );
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = event => {
+    setShowPopover(state => !state);
+    setTarget(event.target as HTMLElement);
+  };
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   return (
     <section className={styles.ratingStats}>
@@ -147,7 +139,7 @@ const RatingStats = function (props: Props) {
           </button>
 
           <Overlay
-            show={show}
+            show={showPopover}
             target={target}
             placement="right"
             container={ref}

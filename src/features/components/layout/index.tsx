@@ -2,10 +2,19 @@ import React, { Component, Fragment, ReactNode } from 'react';
 import Navbar, { NavbarProps } from './navbar/Navbar';
 import Footer from './Footer';
 import cls from 'classnames';
+import KeywordsNav from './navbar/CategoriesNav';
 
-const Nav: React.FC<NavbarProps> = props => (
+type LayoutProps = {
+  navBg?: string;
+  navbar?: boolean;
+  children: React.ReactNode;
+  // className?: string;
+};
+
+const Nav: React.FC<NavbarProps & { withKeywordsNav?: boolean }> = props => (
   <div className="position-relative">
     <Navbar {...props} />
+    {props.withKeywordsNav ? <KeywordsNav /> : null}
     {props.children} {/* For rendering secondary navs*/}
   </div>
 );
@@ -15,23 +24,15 @@ const Main = (props: {
   className?: string;
   style?: React.CSSProperties;
 }) => (
-  <main className={cls(props.className, 'flex-grow-1')} style={props.style}>
+  <main className={cls(props.className, 'flex-grow-1')} style={props.style} role="main">
     {props.children}
   </main>
 );
-
-type LayoutProps = {
-  navBg?: string;
-  navbar?: boolean;
-  children: React.ReactNode;
-  // className?: string;
-};
 
 class Layout extends Component<LayoutProps> {
   constructor(props: LayoutProps) {
     super(props);
   }
-
   static Nav = Nav;
   static Main = Main;
 
