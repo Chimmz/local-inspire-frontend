@@ -82,7 +82,7 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                     </h5>
                     <p className="parag mb-4" style={{ maxWidth: '50ch' }}>
                       Customize your business listing details, set main photo, upload photos, and
-                      more to show your customers what you're all about.
+                      more to show your customers what you&apos;re all about.
                     </p>
                     <button
                       className="btn btn-outline-pry btn--lg"
@@ -94,12 +94,10 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                 </li>
                 <li className={styles.ctaItem}>
                   <article>
-                    <h5 className="fs-4 text-uppercase fw-bold mb-3">
-                      Take control of your listing
-                    </h5>
+                    <h5 className="fs-4 text-uppercase fw-bold mb-3">Manage Listing</h5>
                     <p className="parag mb-4" style={{ maxWidth: '50ch' }}>
-                      Customize your business listing details, set main photo, upload photos, and
-                      more to show your customers what you're all about.
+                      Manage your reviews, photos, and check your business listings activity.
+                      Claim for FREE... It's one of the best investment you'll ever make.
                     </p>
                     <button
                       className="btn btn-outline-pry btn--lg"
