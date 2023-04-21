@@ -8,7 +8,8 @@ import cls from 'classnames';
 import styles from '../../styles/sass/pages/claimBusinessPage.module.scss';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import Image from 'next/image';
-import ClaimCtaImage1 from '../../../public/img/claim-cta-img-1.svg';
+import ClaimCtaImage1 from '../../../public/svg/claim-cta-img-1.svg';
+import ClaimCtaImage2 from '../../../public/svg/claim-cta-img-2.svg';
 import BusinessClaimModal from '../../features/components/business-claim/BusinessClaimModal';
 import useMiddleware from '../../features/hooks/useMiddleware';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
@@ -92,8 +93,8 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                     </button>
                   </article>
                 </li>
-                <li className={styles.ctaItem}>
-                  <article>
+                <li className={cls(styles.ctaItem, 'align-items-center gap-3')}>
+                  <article className="">
                     <h5 className="fs-4 text-uppercase fw-bold mb-3">Manage Listing</h5>
                     <p className="parag mb-4" style={{ maxWidth: '50ch' }}>
                       Manage your reviews, photos, and check your business listings activity.
@@ -107,7 +108,8 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                     </button>
                   </article>
                   <figure>
-                    <Image src={ClaimCtaImage1} width={400} height={400} objectFit="contain" />
+                    <Image src={ClaimCtaImage2} width={500} height={600} objectFit="contain" />
+                    {/* <Image src={ClaimCtaImage1} width={400} height={400} objectFit="contain" /> */}
                   </figure>
                 </li>
               </ul>

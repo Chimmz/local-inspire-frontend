@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Modal } from 'react-bootstrap';
 import useInput from '../../hooks/useInput';
-import { isRequired, mustNotBeSameAs } from '../../utils/validators/inputValidators';
+import * as validators from '../../utils/validators/inputValidators';
 import TextInput from '../shared/text-input/TextInput';
 import LabelledCheckbox from '../shared/LabelledCheckbox';
 import useToggle from '../../hooks/useToggle';
@@ -42,14 +42,20 @@ const BusinessClaimModal = (props: Props) => {
     handleChange: handleChangePhone,
     validationErrors: phoneValidationErrors,
     runValidators: runPhoneValidators,
-  } = useInput({ init: '', validators: [{ fn: isRequired, params: [] }] });
+  } = useInput({ init: '', validators: [{ fn: validators.isRequired, params: [] }] });
 
   const {
     inputValue: email,
     handleChange: handleChangeEmail,
     validationErrors: emailValidationErrors,
     runValidators: runEmailValidators,
-  } = useInput({ init: '', validators: [{ fn: isRequired, params: [] }] });
+  } = useInput({
+    init: '',
+    validators: [
+      { fn: validators.isRequired, params: [] },
+      { fn: validators.isEmail, params: ['This does not look like an email address'] },
+    ],
+  });
 
   const {
     inputValue: role,
@@ -59,16 +65,14 @@ const BusinessClaimModal = (props: Props) => {
   } = useInput({
     init: '',
     validators: [
-      { fn: mustNotBeSameAs, params: ['Select', 'This field is required'] },
-      { fn: isRequired, params: [] },
+      { fn: validators.mustNotBeSameAs, params: ['Select', 'This field is required'] },
+      { fn: validators.isRequired, params: [] },
     ],
   });
 
   const handleContinue = () => {
     const validators = [runPhoneValidators, runEmailValidators, runRoleValidators];
     if (validators.some(v => v().errorExists) || !authorized || !agreedToTerms) return;
-
-    console.log(props.businessId, accessToken);
 
     const body = { businessPhone: phone, businessEmail: email, role };
     const req = api.claimBusiness(props.businessId, body, accessToken!);
@@ -82,15 +86,15 @@ const BusinessClaimModal = (props: Props) => {
 
   return (
     <Modal show={props.show} centered size="lg" onHide={props.close}>
-      <Modal.Header className="bg-white text-center py-4 px-5" closeButton>
-        <h2>Claim Your FREE Listing</h2>
-        <br />
-        <span className="text-black fs-3">{props.businessName}</span>
-        <br />
-        <span className="text-light">{props.businessAddress}</span>
+      <Modal.Header className="bg-white text-center py-3 px-5" closeButton>
+        <div className="flex-grow-1">
+          <h2 className="">Claim Your FREE Listing</h2>
+          <span className="d-inline-block fs-4 me-3 text-uppercase">{props.businessName}</span> |
+          <span className="text-light d-inline-block ms-3">{props.businessAddress}</span>
+        </div>
       </Modal.Header>
       <Modal.Body className="p-5">
-        <div className="d-flex flex-wrap gap-5 mb-5">
+        <div className="d-flex flex-wrap gap-5 mb-4">
           <div className="flex-grow-1">
             <TextInput
               type="number"
@@ -111,7 +115,7 @@ const BusinessClaimModal = (props: Props) => {
           </div>
         </div>
 
-        <Form.Group className="mb-5">
+        <Form.Group className="mb-4">
           <Form.Label>How do you represent this business? *</Form.Label>
           <Form.Select
             className="textfield"
@@ -132,14 +136,24 @@ const BusinessClaimModal = (props: Props) => {
         </Form.Group>
 
         <LabelledCheckbox
-          label="I certify that I am an authorized representative of this business and have the authority to claim and represent this business, and agree to localinspire’s Terms of Service and Privacy Policy."
-          className="gap-3 mb-5"
+          label={
+            <small>
+              I certify that I am an authorized representative of this business and have the
+              authority to claim and represent this business, and agree to localinspire’s Terms
+              of Service and Privacy Policy.
+            </small>
+          }
+          className="gap-3 mb-4 "
           checked={authorized}
           onChange={toggleAuthorized}
         />
 
         <LabelledCheckbox
-          label="I have read and agree to localinspire’s Terms of Service and Privacy Policy."
+          label={
+            <small>
+              I have read and agree to localinspire’s Terms of Service and Privacy Policy.
+            </small>
+          }
           className="gap-3"
           checked={agreedToTerms}
           onChange={toggleAgreedToTerms}

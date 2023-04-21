@@ -75,3 +75,17 @@ export interface AdminSearchKeyword {
   showForSearch: boolean;
   sic4Categories: [string];
 }
+
+export interface City {
+  name: string;
+  stateCode: string;
+  stateName: string;
+  stateId: string;
+  population: string;
+  lat: string;
+  lng: string;
+  density: string;
+  zips: string;
+  price: number;
+  isFeatured: boolean;
+}

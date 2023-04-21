@@ -7,15 +7,13 @@ import { PrivateMessage } from '../../features/types';
 
 import useToggle from '../../features/hooks/useToggle';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
-import api from '../../features/library/api';
 import cls from 'classnames';
 
 import AdminSidebar from '../../features/components/admin/sidebar/AdminSidebar';
 import AdminNavbar from '../../features/components/admin/AdminNavbar';
-import FiltersPage from '../../features/components/admin/pages/filters/FiltersPage';
-import styles from '../../styles/sass/pages/AdminPage.module.css';
 import AdminFooter from '../../features/components/admin/AdminFooter';
-import KeywordsBody from '../../features/components/admin/pages/keywords/main';
+import KeywordsMain from '../../features/components/admin/pages/keywords/main';
+import styles from '../../styles/sass/pages/AdminPage.module.css';
 
 interface KeywordsPageProps {}
 
@@ -34,8 +32,7 @@ const KeywordsPage: NextPage<KeywordsPageProps> = function (props) {
       <div className={getStyle('main')}>
         <AdminNavbar getStyle={getStyle} toggleSidebar={toggleSidebar} />
 
-        <main className={getStyle('content')}>
-          {/* <div className={getStyle('header')}>
+        {/* <div className={getStyle('header')}>
             <h1 className={getStyle('header-title fs-1')}>
               Welcome back, {adminUser.firstName}!
             </h1>
@@ -44,8 +41,7 @@ const KeywordsPage: NextPage<KeywordsPageProps> = function (props) {
               .
             </p>
           </div> */}
-          <KeywordsBody getStyle={getStyle} />
-        </main>
+        <KeywordsMain getStyle={getStyle} />
         <AdminFooter getStyle={getStyle} />
       </div>
     </div>

@@ -128,6 +128,14 @@ class API {
     });
   }
 
+  async getAllCities() {
+    return this._makeRequest({
+      path: `/cities`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async findBusinesses(
     category: string,
     place: { city: string; stateCode: string },

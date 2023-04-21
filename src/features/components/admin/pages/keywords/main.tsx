@@ -20,7 +20,7 @@ interface Props {
   getStyle: (className: string) => string;
 }
 
-const KeywordsBody = (props: Props) => {
+const KeywordsMain = (props: Props) => {
   const [keywords, setKeywords] = useState<AdminSearchKeyword[]>();
   const [showAddKeywordModal, setShowAddKeywordModal] = useState(false);
   const [keywordToEdit, setKeywordToEdit] = useState<AdminSearchKeyword | null>(null);
@@ -66,7 +66,7 @@ const KeywordsBody = (props: Props) => {
   };
 
   return (
-    <>
+    <main className={getStyle('content')}>
       <Spinner show={loadingkeywords} pageWide />
       <KeywordModal
         show={showAddKeywordModal}
@@ -98,30 +98,6 @@ const KeywordsBody = (props: Props) => {
           <div className={getStyle('col-12')}>
             <div className={getStyle('card flex-fill w-100 px-2 py-4')}>
               <div className={getStyle('card-header')}>
-                {/* Card actions */}
-                {/* <div className={getStyle('card-actions float-end')}>
-                  <a href="#" className={getStyle('me-1')}>
-                    <i className={getStyle('align-middle')} data-feather="refresh-cw"></i>
-                  </a>
-                  <div className={getStyle('d-inline-block dropdown show')}>
-                    <a href="#" data-bs-toggle="dropdown" data-bs-display="static">
-                      <i className={getStyle('align-middle')} data-feather="more-vertical"></i>
-                    </a>
-
-                    <div className={getStyle('dropdown-menu dropdown-menu-end')}>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Action
-                      </a>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Another action
-                      </a>
-                      <a className={getStyle('dropdown-item')} href="#">
-                        Something else here
-                      </a>
-                    </div>
-                  </div>
-                </div> */}
-
                 <div
                   className={cls(
                     getStyle('card-title mb-0'),
@@ -151,8 +127,8 @@ const KeywordsBody = (props: Props) => {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 };
 
-export default KeywordsBody;
+export default KeywordsMain;
