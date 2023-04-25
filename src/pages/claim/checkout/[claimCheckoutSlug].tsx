@@ -103,7 +103,7 @@ const ClaimCheckoutPage: NextPage<Props> = function (props) {
           <aside>
             <figure>
               <Image
-                src={props.business?.images[0].imgUrl || '/img/business-img-default.jpeg'}
+                src={props.business?.images[0]?.imgUrl || '/img/business-img-default.jpeg'}
                 width={700}
                 height={400}
                 objectFit="cover"
