@@ -167,8 +167,22 @@ export const getServerSideProps: GetServerSideProps = async context => {
   const businessClaim = claimResponse.claim as BusinessClaim | undefined;
   console.log({ businessClaim });
 
+  // If business has not been claimed
+  if (!businessClaim)
+    return {
+      props: {
+        business: business.data || {},
+        pageParams: {
+          businessName: toTitleCase(businessName.replace('-', ' ')),
+          location,
+          businessId,
+          slug,
+        },
+      },
+    };
+
   // If business has already been claimed by another user, go to business page
-  if (businessClaim?.user._id !== session.user._id)
+  if (businessClaim.user._id !== session.user._id)
     return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: true } };
 
   // If logged in user has claimed but has not selected a pricing plan, go tot pricing page
@@ -179,26 +193,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
         permanent: false,
       },
     };
-
-  // If user has previously paid for a plan, go to business page
-  if (
-    ['SPONSORED_BUSINESS_LISTING', 'ENHANCED_BUSINESS_PROFILE'].includes(
-      businessClaim.pricingPlan,
-    )
-  )
+  else
     return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: true } };
-
-  return {
-    props: {
-      business: business.data || {},
-      pageParams: {
-        businessName: toTitleCase(businessName.replace('-', ' ')),
-        location,
-        businessId,
-        slug,
-      },
-    },
-  };
 };
 
 export default ClaimBusinessPage;
