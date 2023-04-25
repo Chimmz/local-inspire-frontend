@@ -157,7 +157,7 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
                         <small>24/7 support</small>
                       </li>
                       <li>
-                        <small>Remove competitor's ads</small>
+                        <small>Remove competitor&apos;s ads</small>
                       </li>
                       <li>
                         <small>Respond to reviews</small>
