@@ -21,7 +21,12 @@ interface RadioProps {
 
 function RadioOptions(props: RadioProps) {
   const { options, layout = 'inline' } = props;
-  const parentClassMap = { btn: styles.btnRadioOptions, circle: styles.circleRadioOptions };
+
+  const parentClassMap = useMemo(
+    () => ({ btn: styles.btnRadioOptions, circle: styles.circleRadioOptions }),
+    [],
+  );
+  const optionId = useMemo(() => uuidv4(), []);
 
   return (
     <>
@@ -43,7 +48,7 @@ function RadioOptions(props: RadioProps) {
           };
 
           return (
-            <label htmlFor={String(value)} key={useMemo(() => uuidv4(), [])}>
+            <label htmlFor={String(value)} key={optionId}>
               {props.label}
               <input
                 type="radio"
