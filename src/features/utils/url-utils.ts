@@ -207,4 +207,25 @@ export const genClaimBusinessPageUrl = function <T>(args: BusinessPageUrlParams<
   return `/claim/${businessName}_${city}-${stateCode}_${businessId}`;
 };
 
+export const genBusinessClaimSuccessPageUrl = function <T>(args: BusinessPageUrlParams<T>) {
+  if ('slug' in args) return `/claim/success/${args.slug}`;
+  const { businessName, city, stateCode, businessId } = transformBusinessUrlParams(args);
+  return `/claim/success/${businessName}_${city}-${stateCode}_${businessId}`;
+};
+
+export const genClaimBusinessCheckoutPageUrl = function <T>(
+  args: BusinessPageUrlParams<T>,
+  query: {
+    package: 'sponsored_business_listing' | 'ehanced_business_profile';
+    duration: 'monthly' | 'yearly';
+  },
+) {
+  const queryStr = `package=${query.package}&duration=${query.duration}`;
+
+  if ('slug' in args) return `/claim/checkout/${args.slug}?${queryStr}`;
+
+  const { businessName, city, stateCode, businessId } = transformBusinessUrlParams(args);
+  return `/claim/${businessName}_${city}-${stateCode}_${businessId}?${queryStr}`;
+};
+
 export default navigateTo;

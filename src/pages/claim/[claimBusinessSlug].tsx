@@ -5,7 +5,6 @@ import { toTitleCase } from '../../features/utils/string-utils';
 import { SSRProvider } from 'react-bootstrap';
 import Layout from '../../features/components/layout';
 import cls from 'classnames';
-import styles from '../../styles/sass/pages/claimBusinessPage.module.scss';
 import { BusinessProps } from '../../features/components/business-results/Business';
 import Image from 'next/image';
 import ClaimCtaImage1 from '../../../public/svg/claim-cta-img-1.svg';
@@ -14,6 +13,13 @@ import BusinessClaimModal from '../../features/components/business-claim/Busines
 import useMiddleware from '../../features/hooks/useMiddleware';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
+import styles from '../../styles/sass/pages/claimBusinessPage.module.scss';
+import {
+  genBusinessClaimSuccessPageUrl,
+  genBusinessPageUrl,
+  genClaimBusinessCheckoutPageUrl,
+} from '../../features/utils/url-utils';
+import { BusinessClaim } from '../../features/types';
 
 interface Props {
   business: BusinessProps;
@@ -94,7 +100,7 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                   </article>
                 </li>
                 <li className={cls(styles.ctaItem, 'align-items-center gap-3')}>
-                  <article className="">
+                  <article className="mb-5" style={{ transform: 'translateY(-3rem)' }}>
                     <h5 className="fs-4 text-uppercase fw-bold mb-3">Manage Listing</h5>
                     <p className="parag mb-4" style={{ maxWidth: '50ch' }}>
                       Manage your reviews, photos, and check your business listings activity.
@@ -109,7 +115,6 @@ const ClaimBusinessPage: NextPage<Props> = function (props) {
                   </article>
                   <figure>
                     <Image src={ClaimCtaImage2} width={500} height={600} objectFit="contain" />
-                    {/* <Image src={ClaimCtaImage1} width={400} height={400} objectFit="contain" /> */}
                   </figure>
                 </li>
               </ul>
@@ -139,31 +144,49 @@ export const getServerSideProps: GetServerSideProps = async context => {
   const slug = context.params!.claimBusinessSlug as string;
   const [businessName, location, businessId] = slug.split('_');
 
-  console.log('Claim page Request URL: ', context.req.url);
-
   const session = await unstable_getServerSession(
     context.req,
     context.res,
     authOptions as NextAuthOptions,
   );
   if (!session)
-    return {
-      redirect: { destination: `/v/${slug}`, permanent: false },
-    };
+    return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: false } };
 
-  const reqs = [api.getBusinessById(businessId)];
+  const reqs = [
+    api.getBusinessById(businessId),
+    api.getBusinessClaim(businessId, session.user.accessToken),
+  ];
+
   const responses = await Promise.allSettled(reqs);
-  const [business] = responses
+  const [business, claimResponse] = responses
     .filter(res => res.status === 'fulfilled' && res.value)
     .map(res => res.status === 'fulfilled' && res.value);
 
   if (!business.data) return { notFound: true };
 
-  // If business has already been claimed
-  if ((business.data as BusinessProps)?.claimedBy?.length)
+  const businessClaim = claimResponse.claim as BusinessClaim | undefined;
+  console.log({ businessClaim });
+
+  // If business has already been claimed by another user, go to business page
+  if (businessClaim?.user._id !== session.user._id)
+    return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: true } };
+
+  // If logged in user has claimed but has not selected a pricing plan, go tot pricing page
+  if (businessClaim.pricingPlan === 'FREE')
     return {
-      redirect: { destination: `/v/${slug}`, permanent: true },
+      redirect: {
+        destination: genBusinessClaimSuccessPageUrl<string>({ slug }),
+        permanent: false,
+      },
     };
+
+  // If user has previously paid for a plan, go to business page
+  if (
+    ['SPONSORED_BUSINESS_LISTING', 'ENHANCED_BUSINESS_PROFILE'].includes(
+      businessClaim.pricingPlan,
+    )
+  )
+    return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: true } };
 
   return {
     props: {

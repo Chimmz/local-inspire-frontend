@@ -3,10 +3,11 @@ import useValidator, { ValidatorConfig } from './useValidator';
 
 interface UseInputParams {
   init: string;
+  type?: 'number';
   validators?: ValidatorConfig<string>[];
 }
 
-const useInput = function ({ init: initValue, validators = [] }: UseInputParams) {
+const useInput = function ({ init: initValue, type, validators = [] }: UseInputParams) {
   const [inputValue, setInputValue] = useState(initValue);
 
   const { runValidators, validationErrors, setValidationErrors, pushValidationError } =
@@ -15,7 +16,8 @@ const useInput = function ({ init: initValue, validators = [] }: UseInputParams)
   const handleChange: ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
   > = ev => {
-    setInputValue(ev.target.value);
+    if (type === 'number') !isNaN(+ev.target.value) && setInputValue(ev.target.value);
+    else setInputValue(ev.target.value);
     setValidationErrors([]); // Clear validation errors when user continues to input
   };
 
@@ -23,6 +25,7 @@ const useInput = function ({ init: initValue, validators = [] }: UseInputParams)
     inputValue,
     setInputValue,
     handleChange,
+    onChange: handleChange,
     runValidators,
     validationErrors,
     setValidationErrors,

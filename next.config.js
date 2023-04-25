@@ -4,7 +4,8 @@ const nextConfig = {
   swcMinify: true,
   sassOptions: {
     //  Add global styles you want module sass files to access
-    additionalData: `@import "src/styles/sass/abstracts/variables.scss";`,
+    additionalData: `@import "src/styles/sass/abstracts/variables.scss";
+    @import "src/styles/sass/abstracts/mixins.scss";`,
   },
   typescript: {
     // ignoreBuildErrors: true

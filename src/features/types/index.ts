@@ -1,3 +1,5 @@
+import { BusinessProps } from '../components/business-results/Business';
+
 export type Readonly = { readonly: true };
 export type Changable = { readonly: false };
 
@@ -88,4 +90,15 @@ export interface City {
   zips: string;
   price: number;
   isFeatured: boolean;
+}
+
+export interface BusinessClaim {
+  pricingPlan: 'FREE' | 'SPONSORED_BUSINESS_LISTING' | 'ENHANCED_BUSINESS_PROFILE';
+  _id: string;
+  user: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>;
+  business: Pick<BusinessProps, '_id' | 'businessName'>;
+  businessPhone: number;
+  businessEmail: string;
+  createdAt: string;
+  updatedAt: string;
 }

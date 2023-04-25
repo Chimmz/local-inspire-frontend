@@ -1,0 +1,61 @@
+section.pricingSection {
+  display: flex;
+
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+  }
+}
+
+ul.plans {
+  @media screen and (max-width: 720px) {
+    align-items: start !important;
+    flex-direction: column;
+    gap: 3rem !important;
+  }
+}
+
+.plan {
+  min-width: 33rem;
+  max-width: 100%;
+  box-shadow: 0 0 30px rgba(#000, 0.25);
+  transition: box-shadow 0.2s, transform 0.3s;
+
+  &:hover {
+    // box-shadow: 0 0 30px rgba(#000, 0.25);
+    // transform: translateY(-1rem);
+  }
+
+  @media screen and (max-width: 56.25em) {
+    min-width: 30rem;
+  }
+
+  header {
+    background-color: $color-pry;
+    color: #fff;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
+    padding-bottom: 4rem !important;
+
+    h4 {
+      // font-size: 2rem;
+    }
+  }
+
+  .price strong {
+    font-size: 5rem;
+  }
+
+  ul.planFeatures {
+    & > * {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.2rem;
+      position: relative;
+
+      &::before {
+        content: '\2714';
+        @include grid-center;
+        @include circle(25px, rgba($color-pry, 0.07), $color-pry);
+      }
+    }
+  }
+}

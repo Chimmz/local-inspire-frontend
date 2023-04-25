@@ -6,10 +6,33 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  justify-content: space-between;
+  // justify-content: space-between;
   gap: 5rem;
 
   &:not(:last-child) {
-    margin-bottom: 10rem;
+    // margin-bottom: 10rem;
+  }
+
+  // Portrait and mobile sizes
+  @media screen and (max-width: 56.25em) {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 2rem;
+
+    &:not(:last-child) {
+      margin-bottom: 10rem;
+    }
+
+    & > * {
+      transform: none !important;
+
+      & > button {
+        margin-inline: auto;
+      }
+    }
+    & > article {
+      order: 2;
+    }
   }
 }

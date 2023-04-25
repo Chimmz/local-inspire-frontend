@@ -8,7 +8,10 @@ import useToggle from '../../hooks/useToggle';
 import api from '../../library/api';
 import useRequest from '../../hooks/useRequest';
 import useSignedInUser from '../../hooks/useSignedInUser';
-import navigateTo, { genBusinessPageUrl } from '../../utils/url-utils';
+import navigateTo, {
+  genBusinessClaimSuccessPageUrl,
+  genBusinessPageUrl,
+} from '../../utils/url-utils';
 import { useRouter } from 'next/router';
 import LoadingButton from '../shared/button/Button';
 
@@ -34,7 +37,6 @@ const BusinessClaimModal = (props: Props) => {
   const { state: agreedToTerms, toggle: toggleAgreedToTerms } = useToggle();
   const { send: sendClaimReq, loading: isSubmitting, startLoading: showSpinner } = useRequest();
   const { accessToken } = useSignedInUser();
-
   const router = useRouter();
 
   const {
@@ -80,7 +82,7 @@ const BusinessClaimModal = (props: Props) => {
     sendClaimReq(req).then(res => {
       if (res.status !== 'SUCCESS') return;
       showSpinner();
-      router.push(genBusinessPageUrl<string>({ slug: props.pageSlug }));
+      router.push(genBusinessClaimSuccessPageUrl<string>({ slug: props.pageSlug }));
     });
   };
 

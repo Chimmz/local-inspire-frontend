@@ -1,0 +1,56 @@
+.container {
+  display: grid;
+  grid-template-columns: 35rem 1fr;
+  grid-template-rows: repeat(3, auto);
+  align-items: start;
+  column-gap: 5rem;
+  row-gap: 2rem;
+  padding-block: 5rem;
+
+  @media screen and (max-width: 56.25em) {
+    grid-template-columns: 1fr;
+    row-gap: 5rem;
+
+    & > * {
+      grid-column: 1 / 1 !important;
+      grid-row: auto !important;
+    }
+  }
+
+  & > aside {
+    grid-column: 1 / 2;
+    grid-row: 1 / -1;
+  }
+
+  & > *:not(aside) {
+    grid-column: 2 / 3;
+  }
+}
+
+article.whatYouAreGetting {
+  grid-row: 2 / 3;
+}
+
+form.cardDetails {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  row-gap: 15px;
+  flex-wrap: wrap;
+
+  & > * {
+    &:first-child {
+      flex: 1 1 30%;
+    }
+    &:nth-child(2) {
+      flex: 1 0 20%;
+    }
+    &:nth-child(3) {
+      flex: 0 0 20%;
+    }
+  }
+
+  & > * > input {
+    min-width: unset !important;
+  }
+}

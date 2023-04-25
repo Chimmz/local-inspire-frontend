@@ -1,9 +1,15 @@
-@mixin circle($radius, $bg) {
-  width: calc($radius * 2);
-  height: $radius * 2;
-  background-color: $bg;
-  border-radius: 50%;
+@mixin circle($diameter, $bg, $color) {
+  width: $diameter;
+  height: $diameter;
   display: grid;
+  place-items: center;
+  background-color: $bg;
+  color: $color;
+  border-radius: 50%;
+}
+
+@mixin grid-center {
+  display: grid !important;
   place-items: center;
 }
 
