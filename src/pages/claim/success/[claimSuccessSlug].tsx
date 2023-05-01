@@ -13,8 +13,14 @@ import { BusinessClaim } from '../../../features/types';
 
 import styles from '../../../styles/sass/pages/claimBusinessSuccessPage.module.scss';
 import Link from 'next/link';
-import { genClaimBusinessCheckoutPageUrl } from '../../../features/utils/url-utils';
+import {
+  genBusinessPageUrl,
+  genClaimBusinessCheckoutPageUrl,
+} from '../../../features/utils/url-utils';
 import { toTitleCase } from '../../../features/utils/string-utils';
+import useRequest from '../../../features/hooks/useRequest';
+import useSignedInUser from '../../../features/hooks/useSignedInUser';
+import LoadingButton from '../../../features/components/shared/button/Button';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL' | 'ERROR';
@@ -25,17 +31,50 @@ interface Props {
 const ClaimSuccessPage: NextPage<Props> = function (props) {
   const [selectedDuration, setSelectedDuration] = useState<'monthly' | 'yearly'>('monthly');
   const [prices, setPrices] = useState({
-    monthly: { sponsored: 59.99, ehanced: 199.99 },
-    yearly: { sponsored: 199.99, ehanced: 399.99 },
+    monthly: { sponsored: 0.99, enhanced: 1.99 },
+    yearly: { sponsored: 1.99, enhanced: 2.99 },
+  });
+  const { accessToken } = useSignedInUser();
+
+  const {
+    send: sendSponsoredReq,
+    loading: sponsoredReqLoading,
+    startLoading: startSponsoredLoader,
+  } = useRequest({
+    autoStopLoading: false,
+  });
+  const {
+    send: sendEnhancedReq,
+    loading: enhancedReqLoading,
+    startLoading: startEnhancedLoader,
+  } = useRequest({
+    autoStopLoading: false,
   });
 
-  const getCheckoutUrl = (
-    packageName: 'sponsored_business_listing' | 'ehanced_business_profile',
-  ) => {
-    return genClaimBusinessCheckoutPageUrl<string>(
-      { slug: props.pageSlug },
-      { package: packageName, duration: selectedDuration.toLowerCase() as 'monthly' | 'yearly' },
-    );
+  // const getCheckoutUrl = (
+  //   packageName: 'sponsored_business_listing' | 'enhanced_business_profile',
+  // ) => {
+  //   return genClaimBusinessCheckoutPageUrl<string>(
+  //     { slug: props.pageSlug },
+  //     { package: packageName, duration: selectedDuration.toLowerCase() as 'monthly' | 'yearly' },
+  //   );
+  // };
+
+  const handleClickPackage = async (pkg: 'sponsored' | 'enhanced') => {
+    try {
+      pkg === 'sponsored' ? startSponsoredLoader() : startEnhancedLoader();
+      const req = api.getBusinessClaimCheckoutSession(
+        props.claim!.business._id,
+        pkg,
+        genBusinessPageUrl<string>({ slug: props.pageSlug }),
+        accessToken!,
+      );
+      const res = await req;
+      console.log(res);
+      if (res.status === 'SUCCESS') window.location.href = res.session.url;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const selectedPrices = useMemo(() => prices[selectedDuration], [prices, selectedDuration]);
@@ -132,9 +171,20 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
                         <small> Members area in your city</small>
                       </li>
                     </ul>
-                    <Link href={getCheckoutUrl('sponsored_business_listing')} passHref>
-                      <a className="btn btn-pry btn--lg">Get the Sponsored Business Listing</a>
-                    </Link>
+                    {/* <Link href={getCheckoutUrl('sponsored_business_listing')} passHref>
+                       <a className="btn btn-pry btn--lg">Get the Sponsored Business Listing</a>
+
+                    </Link> */}
+                    <LoadingButton
+                      isLoading={sponsoredReqLoading}
+                      textWhileLoading="Processing..."
+                      withSpinner
+                      disabled={sponsoredReqLoading || enhancedReqLoading}
+                      className="btn btn-pry btn--lg"
+                      onClick={handleClickPackage.bind(null, 'sponsored')}
+                    >
+                      Get the Sponsored Business Listing
+                    </LoadingButton>
                   </div>
                 </li>
 
@@ -142,7 +192,8 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
                   <header className="p-5">
                     <h4 className="text-uppercase">Enhanced Business Profile</h4>
                     <div className={cls(styles.price)}>
-                      <small className="fs-3">$</small> <strong>{selectedPrices.ehanced}</strong>
+                      <small className="fs-3">$</small>{' '}
+                      <strong>{selectedPrices.enhanced}</strong>
                       <small>/year</small>
                     </div>
                     {/* <Image src={claimPricingPlanSvg} width={200} height={100} /> */}
@@ -178,9 +229,20 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
                         <small>Call to Action</small>
                       </li>
                     </ul>
-                    <Link href={getCheckoutUrl('ehanced_business_profile')} passHref>
+                    {/* <Link href={getCheckoutUrl('enhanced_business_profile')} passHref>
                       <a className="btn btn-pry btn--lg">Get the Sponsored Business Listing</a>
-                    </Link>
+                    </Link> */}
+
+                    <LoadingButton
+                      isLoading={enhancedReqLoading}
+                      textWhileLoading="Processing..."
+                      withSpinner
+                      disabled={sponsoredReqLoading || enhancedReqLoading}
+                      className="btn btn-pry btn--lg"
+                      onClick={handleClickPackage.bind(null, 'enhanced')}
+                    >
+                      Get the Enhanced Business Profile
+                    </LoadingButton>
                   </div>
                 </li>
               </ul>

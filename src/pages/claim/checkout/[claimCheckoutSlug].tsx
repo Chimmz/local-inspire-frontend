@@ -33,8 +33,8 @@ const packages = {
 
 const ClaimCheckoutPage: NextPage<Props> = function (props) {
   const [prices, setPrices] = useState({
-    monthly: { sponsored_business_listing: 59.99, ehanced_business_profile: 199.99 },
-    yearly: { sponsored_business_listing: 199.99, ehanced_business_profile: 399.99 },
+    monthly: { sponsored_business_listing: 0.99, ehanced_business_profile: 1.99 },
+    yearly: { sponsored_business_listing: 1.99, ehanced_business_profile: 2.99 },
   });
 
   const { send: sendSubscribeReq, loading: isSubscribing } = useRequest();
@@ -162,7 +162,7 @@ const ClaimCheckoutPage: NextPage<Props> = function (props) {
                 value={cardNumber}
                 onChange={handleChangeCardNumber}
                 validationErrors={cardValidationErrors}
-                maxlength="12"
+                maxLength="12"
                 autoFocus
               />
             </div>
@@ -181,7 +181,7 @@ const ClaimCheckoutPage: NextPage<Props> = function (props) {
                 value={cardCVC}
                 onChange={handleChangeCVC}
                 validationErrors={cvcValidationErrors}
-                maxlength="4"
+                maxLength={4}
               />
             </div>
           </form>

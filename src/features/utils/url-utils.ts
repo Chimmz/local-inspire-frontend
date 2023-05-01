@@ -216,7 +216,7 @@ export const genBusinessClaimSuccessPageUrl = function <T>(args: BusinessPageUrl
 export const genClaimBusinessCheckoutPageUrl = function <T>(
   args: BusinessPageUrlParams<T>,
   query: {
-    package: 'sponsored_business_listing' | 'ehanced_business_profile';
+    package: 'sponsored_business_listing' | 'enhanced_business_profile';
     duration: 'monthly' | 'yearly';
   },
 ) {

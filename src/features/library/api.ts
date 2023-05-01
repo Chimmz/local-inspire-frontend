@@ -543,10 +543,23 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
-  
+
   async getBusinessClaim(businessId: string, token: string) {
     return this._makeRequest({
       path: `/businesses/${businessId}/claim`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getBusinessClaimCheckoutSession(
+    businessId: string,
+    pkg: 'sponsored' | 'enhanced',
+    businessPageUrlPath: string,
+    token: string,
+  ) {
+    return this._makeRequest({
+      path: `/businesses/${businessId}/claim/checkout-session?package=${pkg}&redirectUrl=${businessPageUrlPath}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });

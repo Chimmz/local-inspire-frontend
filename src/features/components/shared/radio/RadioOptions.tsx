@@ -26,7 +26,6 @@ function RadioOptions(props: RadioProps) {
     () => ({ btn: styles.btnRadioOptions, circle: styles.circleRadioOptions }),
     [],
   );
-  const optionId = useMemo(() => uuidv4(), []);
 
   return (
     <>
@@ -48,7 +47,7 @@ function RadioOptions(props: RadioProps) {
           };
 
           return (
-            <label htmlFor={String(value)} key={optionId}>
+            <label htmlFor={String(value)} key={uuidv4()}>
               {props.label}
               <input
                 type="radio"
