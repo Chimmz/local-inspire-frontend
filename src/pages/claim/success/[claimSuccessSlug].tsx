@@ -1,6 +1,6 @@
 import cls from 'classnames';
 import { GetServerSideProps, NextPage } from 'next';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Layout from '../../../features/components/layout';
 import { SSRProvider } from 'react-bootstrap';
 import claimPricingPlanSvg from '../../../../public/svg/claim-pricing-plan.svg';
@@ -28,56 +28,101 @@ interface Props {
   pageSlug: string;
 }
 
+interface BusinessUpgradePrice {
+  id: string;
+  object: string;
+  active: true;
+  billing_scheme: string;
+  created: number;
+  currency: string;
+  custom_unit_amount: string | null;
+  livemode: false;
+  lookup_key: string | null;
+  metadata: {};
+  nickname: string;
+  product: string;
+  recurring: {
+    aggregate_usage: any;
+    interval: string;
+    interval_count: number;
+    trial_period_days: number | null;
+    usage_type: string;
+  };
+  tax_behavior: string;
+  tiers_mode: null;
+  transform_quantity: null;
+  type: string;
+  unit_amount: number;
+  unit_amount_decimal: string;
+}
+
+type BusinessUpgradePlanNickname =
+  | 'sponsored_business_listing_yearly'
+  | 'sponsored_business_listing_monthly'
+  | 'enhanced_business_profile_yearly'
+  | 'enhanced_business_profile_monthly';
+
+const planNicknames = [
+  'sponsored_business_listing_monthly',
+  'sponsored_business_listing_yearly',
+  'enhanced_business_profile_monthly',
+  'enhanced_business_profile_yearly',
+];
+
 const ClaimSuccessPage: NextPage<Props> = function (props) {
+  const [prices, setPrices] = useState<BusinessUpgradePrice[]>();
   const [selectedDuration, setSelectedDuration] = useState<'monthly' | 'yearly'>('monthly');
-  const [prices, setPrices] = useState({
-    monthly: { sponsored: 0.99, enhanced: 1.99 },
-    yearly: { sponsored: 1.99, enhanced: 2.99 },
-  });
   const { accessToken } = useSignedInUser();
 
-  const {
-    send: sendSponsoredReq,
-    loading: sponsoredReqLoading,
-    startLoading: startSponsoredLoader,
-  } = useRequest({
+  const { loading: sponsoredReqLoading, startLoading: startSponsoredLoader } = useRequest({
     autoStopLoading: false,
   });
-  const {
-    send: sendEnhancedReq,
-    loading: enhancedReqLoading,
-    startLoading: startEnhancedLoader,
-  } = useRequest({
+  const { loading: enhancedReqLoading, startLoading: startEnhancedLoader } = useRequest({
     autoStopLoading: false,
   });
 
-  // const getCheckoutUrl = (
-  //   packageName: 'sponsored_business_listing' | 'enhanced_business_profile',
-  // ) => {
-  //   return genClaimBusinessCheckoutPageUrl<string>(
-  //     { slug: props.pageSlug },
-  //     { package: packageName, duration: selectedDuration.toLowerCase() as 'monthly' | 'yearly' },
-  //   );
-  // };
-
-  const handleClickPackage = async (pkg: 'sponsored' | 'enhanced') => {
+  const getPackage = async (plan: BusinessUpgradePrice) => {
+    plan.nickname.includes('sponsored') ? startSponsoredLoader() : startEnhancedLoader();
     try {
-      pkg === 'sponsored' ? startSponsoredLoader() : startEnhancedLoader();
       const req = api.getBusinessClaimCheckoutSession(
+        plan.id,
         props.claim!.business._id,
-        pkg,
         genBusinessPageUrl<string>({ slug: props.pageSlug }),
         accessToken!,
       );
       const res = await req;
       console.log(res);
-      if (res.status === 'SUCCESS') window.location.href = res.session.url;
+      if (res.status === 'SUCCESS' && res.session?.url) window.location.href = res.session.url;
     } catch (err) {
       console.log(err);
     }
   };
 
-  const selectedPrices = useMemo(() => prices[selectedDuration], [prices, selectedDuration]);
+  useEffect(() => {
+    const req = api.getBusinessUpgradePlans();
+
+    req.then((res: { data?: BusinessUpgradePrice[]; status?: string }) => {
+      if (res.status === 'SUCCESS' && 'data' in res) {
+        setPrices(
+          res.data!.filter((price: BusinessUpgradePrice) =>
+            planNicknames.includes(price.nickname),
+          ),
+        );
+      }
+    });
+    req.catch(console.log);
+  }, []);
+
+  const plans = useMemo(() => {
+    return prices
+      ?.filter(pr => pr.nickname.includes(selectedDuration))
+      .sort(curr => (curr.nickname.startsWith('sponsored') ? -1 : 1));
+  }, [prices, selectedDuration]);
+
+  const getPlanName = (nickname: BusinessUpgradePlanNickname) => {
+    const planName = nickname.replace('_monthly', '').replace('_yearly', '');
+    return toTitleCase(planName, '_');
+  };
 
   return (
     <SSRProvider>
@@ -129,122 +174,57 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
               </article>
 
               <ul className={cls(styles.plans, 'd-flex align-items-center no-bullets gap-4')}>
-                <li className={cls(styles.plan, 'bg-white rounded-2 overflow-hidden')}>
-                  <header className="p-5 position-relative">
-                    <h4 className="text-uppercase">Sponsored Business Listing</h4>
-                    <div className={cls(styles.price)}>
-                      <small className="fs-3">$</small>{' '}
-                      <strong>{selectedPrices.sponsored}</strong>
-                      <small>/month</small>
+                {plans?.map(plan => (
+                  <li
+                    className={cls(styles.plan, 'bg-white rounded-2 overflow-hidden')}
+                    key={plan.id}
+                  >
+                    <header className="p-5 position-relative">
+                      <h4 className="text-uppercase">
+                        {getPlanName(plan.nickname as BusinessUpgradePlanNickname)}
+                      </h4>
+                      <div className={cls(styles.price)}>
+                        <small className="fs-3">$</small>{' '}
+                        <strong>{+plan.unit_amount_decimal / 100}</strong>
+                        <small>/{plan.recurring.interval}</small>
+                      </div>
+                    </header>
+
+                    <div className={cls(styles.planBody, 'px-5 py-4 mb-4')}>
+                      <span className="d-block text-black mb-4">
+                        Your featured ad will appear on:
+                      </span>
+                      <ul className={cls(styles.planFeatures, 'no-bullets mb-5')}>
+                        <li>
+                          <small> Home page for your city</small>
+                        </li>
+                        <li>
+                          <small> Search results pages in your city</small>
+                        </li>
+                        <li>
+                          <small> Competitors pages in your city</small>
+                        </li>
+                        <li>
+                          <small> Members area in your city</small>
+                        </li>
+                      </ul>
+                      <LoadingButton
+                        onClick={getPackage.bind(null, plan)}
+                        textWhileLoading="Processing..."
+                        withSpinner
+                        disabled={sponsoredReqLoading || enhancedReqLoading}
+                        className="btn btn-pry btn--lg"
+                        isLoading={
+                          plan.nickname.includes('sponsored')
+                            ? sponsoredReqLoading
+                            : enhancedReqLoading
+                        }
+                      >
+                        Get the {getPlanName(plan.nickname as BusinessUpgradePlanNickname)}
+                      </LoadingButton>
                     </div>
-                    {/* <figure
-                      className="position-absolute"
-                      style={{
-                        width: '100%',
-                        height: 100,
-                        position: 'relative',
-                        transform: 'rotate(7deg) translateX(-4rem)',
-                        bottom: '-40px',
-                        zIndex: '3',
-                        // top: '90%',
-                      }}
-                    >
-                      <Image src={claimPricingPlanSvg} layout="fill" />
-                    </figure> */}
-                  </header>
-
-                  <div className={cls(styles.planBody, 'px-5 py-4 mb-4')}>
-                    <span className="d-block text-black mb-4">
-                      Your featured ad will appear on:
-                    </span>
-                    <ul className={cls(styles.planFeatures, 'no-bullets mb-5')}>
-                      <li>
-                        <small> Home page for your city</small>
-                      </li>
-                      <li>
-                        <small> Search results pages in your city</small>
-                      </li>
-                      <li>
-                        <small> Competitors pages in your city</small>
-                      </li>
-                      <li>
-                        <small> Members area in your city</small>
-                      </li>
-                    </ul>
-                    {/* <Link href={getCheckoutUrl('sponsored_business_listing')} passHref>
-                       <a className="btn btn-pry btn--lg">Get the Sponsored Business Listing</a>
-
-                    </Link> */}
-                    <LoadingButton
-                      isLoading={sponsoredReqLoading}
-                      textWhileLoading="Processing..."
-                      withSpinner
-                      disabled={sponsoredReqLoading || enhancedReqLoading}
-                      className="btn btn-pry btn--lg"
-                      onClick={handleClickPackage.bind(null, 'sponsored')}
-                    >
-                      Get the Sponsored Business Listing
-                    </LoadingButton>
-                  </div>
-                </li>
-
-                <li className={cls(styles.plan, 'bg-white rounded-2 overflow-hidden')}>
-                  <header className="p-5">
-                    <h4 className="text-uppercase">Enhanced Business Profile</h4>
-                    <div className={cls(styles.price)}>
-                      <small className="fs-3">$</small>{' '}
-                      <strong>{selectedPrices.enhanced}</strong>
-                      <small>/year</small>
-                    </div>
-                    {/* <Image src={claimPricingPlanSvg} width={200} height={100} /> */}
-                  </header>
-
-                  <div className={cls(styles.planBody, 'px-5 py-4 mb-4')}>
-                    <span className="d-block text-black mb-4">
-                      Your featured ad will appear on:
-                    </span>
-                    <ul className={cls(styles.planFeatures, 'no-bullets mb-5')}>
-                      <li>
-                        <small>24/7 support</small>
-                      </li>
-                      <li>
-                        <small>Remove competitor&apos;s ads</small>
-                      </li>
-                      <li>
-                        <small>Respond to reviews</small>
-                      </li>
-                      <li>
-                        <small>Private message reviewer</small>
-                      </li>
-                      <li>
-                        <small>Add Video (upload, youtube, or however)</small>
-                      </li>
-                      <li>
-                        <small>Photo slideshow</small>
-                      </li>
-                      <li>
-                        <small>Announcements</small>
-                      </li>
-                      <li>
-                        <small>Call to Action</small>
-                      </li>
-                    </ul>
-                    {/* <Link href={getCheckoutUrl('enhanced_business_profile')} passHref>
-                      <a className="btn btn-pry btn--lg">Get the Sponsored Business Listing</a>
-                    </Link> */}
-
-                    <LoadingButton
-                      isLoading={enhancedReqLoading}
-                      textWhileLoading="Processing..."
-                      withSpinner
-                      disabled={sponsoredReqLoading || enhancedReqLoading}
-                      className="btn btn-pry btn--lg"
-                      onClick={handleClickPackage.bind(null, 'enhanced')}
-                    >
-                      Get the Enhanced Business Profile
-                    </LoadingButton>
-                  </div>
-                </li>
+                  </li>
+                ))}
               </ul>
             </section>
           </div>

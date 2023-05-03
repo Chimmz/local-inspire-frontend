@@ -552,14 +552,22 @@ class API {
     });
   }
 
+  async getBusinessUpgradePlans() {
+    return this._makeRequest({
+      path: `/businesses/upgrade-plans`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async getBusinessClaimCheckoutSession(
+    priceId: string,
     businessId: string,
-    pkg: 'sponsored' | 'enhanced',
-    businessPageUrlPath: string,
+    returnUrl: string,
     token: string,
   ) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/claim/checkout-session?package=${pkg}&redirectUrl=${businessPageUrlPath}`,
+      path: `/businesses/${businessId}/claim/checkout-session?priceId=${priceId}&returnUrl=${returnUrl}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
