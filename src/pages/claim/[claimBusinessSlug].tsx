@@ -186,7 +186,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     return { redirect: { destination: genBusinessPageUrl<string>({ slug }), permanent: true } };
 
   // If logged in user has claimed but has not selected a pricing plan, go tot pricing page
-  if (businessClaim.pricingPlan === 'FREE')
+  if (!businessClaim.currentPlan || businessClaim.currentPlan === 'free')
     return {
       redirect: {
         destination: genBusinessClaimSuccessPageUrl<string>({ slug }),

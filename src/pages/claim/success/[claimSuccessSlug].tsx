@@ -9,7 +9,7 @@ import RadioOptions from '../../../features/components/shared/radio/RadioOptions
 import api from '../../../features/library/api';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../../api/auth/[...nextauth]';
-import { BusinessClaim } from '../../../features/types';
+import { BusinessClaim, StripePrice } from '../../../features/types';
 
 import styles from '../../../styles/sass/pages/claimBusinessSuccessPage.module.scss';
 import Link from 'next/link';
@@ -24,36 +24,15 @@ import LoadingButton from '../../../features/components/shared/button/Button';
 
 interface Props {
   status: 'SUCCESS' | 'FAIL' | 'ERROR';
+  prices: StripePrice[];
+  //  {
+  // has_more: boolean;
+  // object: string;
+  // status: 'SUCCESS' | 'FAIL' | 'ERROR';
+  // url: string;
+  // };
   claim: BusinessClaim | undefined;
   pageSlug: string;
-}
-
-interface BusinessUpgradePrice {
-  id: string;
-  object: string;
-  active: true;
-  billing_scheme: string;
-  created: number;
-  currency: string;
-  custom_unit_amount: string | null;
-  livemode: false;
-  lookup_key: string | null;
-  metadata: {};
-  nickname: string;
-  product: string;
-  recurring: {
-    aggregate_usage: any;
-    interval: string;
-    interval_count: number;
-    trial_period_days: number | null;
-    usage_type: string;
-  };
-  tax_behavior: string;
-  tiers_mode: null;
-  transform_quantity: null;
-  type: string;
-  unit_amount: number;
-  unit_amount_decimal: string;
 }
 
 type BusinessUpgradePlanNickname =
@@ -70,7 +49,6 @@ const planNicknames = [
 ];
 
 const ClaimSuccessPage: NextPage<Props> = function (props) {
-  const [prices, setPrices] = useState<BusinessUpgradePrice[]>();
   const [selectedDuration, setSelectedDuration] = useState<'monthly' | 'yearly'>('monthly');
   const { accessToken } = useSignedInUser();
 
@@ -81,16 +59,15 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
     autoStopLoading: false,
   });
 
-  const getPackage = async (plan: BusinessUpgradePrice) => {
+  const getPackage = async (plan: StripePrice) => {
     plan.nickname.includes('sponsored') ? startSponsoredLoader() : startEnhancedLoader();
     try {
-      const req = api.getBusinessClaimCheckoutSession(
+      const res = await api.getBusinessClaimCheckoutSession(
         plan.id,
         props.claim!.business._id,
         genBusinessPageUrl<string>({ slug: props.pageSlug }),
         accessToken!,
       );
-      const res = await req;
       console.log(res);
       if (res.status === 'SUCCESS' && res.session?.url) window.location.href = res.session.url;
     } catch (err) {
@@ -98,26 +75,24 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
     }
   };
 
-  useEffect(() => {
-    const req = api.getBusinessUpgradePlans();
+  // useEffect(() => {
+  //   const req = api.getBusinessUpgradePlans();
 
-    req.then((res: { data?: BusinessUpgradePrice[]; status?: string }) => {
-      if (res.status === 'SUCCESS' && 'data' in res) {
-        setPrices(
-          res.data!.filter((price: BusinessUpgradePrice) =>
-            planNicknames.includes(price.nickname),
-          ),
-        );
-      }
-    });
-    req.catch(console.log);
-  }, []);
+  //   req.then((res: { data?: StripePrice[]; status?: string }) => {
+  //     if (res.status === 'SUCCESS' && 'data' in res) {
+  //       setPrices(
+  //         res.data!.filter((price: StripePrice) => planNicknames.includes(price.nickname)),
+  //       );
+  //     }
+  //   });
+  //   req.catch(console.log);
+  // }, []);
 
   const plans = useMemo(() => {
-    return prices
+    return props.prices
       ?.filter(pr => pr.nickname.includes(selectedDuration))
       .sort(curr => (curr.nickname.startsWith('sponsored') ? -1 : 1));
-  }, [prices, selectedDuration]);
+  }, [props.prices, selectedDuration]);
 
   const getPlanName = (nickname: BusinessUpgradePlanNickname) => {
     const planName = nickname.replace('_monthly', '').replace('_yearly', '');
@@ -142,7 +117,10 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
               style={{
                 maxWidth: '100ch',
                 marginBottom: '10rem',
-                display: props.claim?.pricingPlan === 'FREE' ? 'block' : '',
+                display:
+                  !props.claim?.currentPlan || props.claim?.currentPlan === 'free'
+                    ? 'block'
+                    : '',
               }}
             >
               You currently have the <span className="text-black">free</span> plan. Upgrade to
@@ -247,12 +225,29 @@ export const getServerSideProps: GetServerSideProps = async context => {
     );
     if (!session) return { redirect: { destination: '/', permanent: false } };
 
-    const res = await api.getBusinessClaim(businessId, session.user.accessToken);
-    if (!res.claim) return { notFound: true };
+    const responses = await Promise.allSettled([
+      api.getBusinessClaim(businessId, session.user.accessToken),
+      api.getBusinessUpgradePlans(),
+    ]);
 
-    const businessWasClaimedByLoggedInUser = session.user._id === res.claim.user._id;
+    const [claimResp, prices] = responses
+      .filter(res => res.status === 'fulfilled' && res.value)
+      .map(res => res.status === 'fulfilled' && res.value);
+
+    if (!claimResp.claim) return { notFound: true };
+
+    const businessWasClaimedByLoggedInUser = session.user._id === claimResp.claim.user._id;
     if (!businessWasClaimedByLoggedInUser) return { notFound: true };
-    return { props: { ...res, pageSlug: slug } };
+
+    return {
+      props: {
+        ...claimResp,
+        prices: prices.data!.filter((price: StripePrice) =>
+          planNicknames.includes(price.nickname),
+        ),
+        pageSlug: slug,
+      },
+    };
   } catch (err) {
     return {
       props: {

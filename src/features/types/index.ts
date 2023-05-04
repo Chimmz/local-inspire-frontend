@@ -93,12 +93,52 @@ export interface City {
 }
 
 export interface BusinessClaim {
-  pricingPlan: 'FREE' | 'SPONSORED_BUSINESS_LISTING' | 'ENHANCED_BUSINESS_PROFILE';
   _id: string;
   user: Pick<UserPublicProfile, '_id' | 'firstName' | 'lastName'>;
   business: Pick<BusinessProps, '_id' | 'businessName'>;
   businessPhone: number;
   businessEmail: string;
+  currentPlan:
+    | 'free'
+    | 'sponsored_business_listing_monthly'
+    | 'enhanced_business_profile_monthly'
+    | 'sponsored_business_listing_yearly'
+    | 'enhanced_business_profile_yearly';
+  payment?: {
+    status: string;
+    amountPaid: number;
+    currency: string;
+    stripeSubscriptionId: string;
+    paidDate: Date;
+  };
   createdAt: string;
   updatedAt: string;
+}
+
+export interface StripePrice {
+  id: string;
+  object: string;
+  active: true;
+  billing_scheme: string;
+  created: number;
+  currency: string;
+  custom_unit_amount: string | null;
+  livemode: false;
+  lookup_key: string | null;
+  metadata: {};
+  nickname: string;
+  product: string;
+  recurring: {
+    aggregate_usage: any;
+    interval: string;
+    interval_count: number;
+    trial_period_days: number | null;
+    usage_type: string;
+  };
+  tax_behavior: string;
+  tiers_mode: null;
+  transform_quantity: null;
+  type: string;
+  unit_amount: number;
+  unit_amount_decimal: string;
 }
