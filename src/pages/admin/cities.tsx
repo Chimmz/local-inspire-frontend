@@ -44,14 +44,14 @@ const AdminCitiesPage: NextPage<Props> = function (props) {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getStaticProps: GetStaticProps = async context => {
   try {
     const cities = await api.getAllCities();
     if (['FAIL', 'ERROR'].includes(cities.status)) throw Error(cities.msg);
 
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=999');
+    // res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=999');
 
-    return { props: cities };
+    return { props: cities, revalidate: 59 };
   } catch (err) {
     return {
       props: { error: (err as Error).message },
