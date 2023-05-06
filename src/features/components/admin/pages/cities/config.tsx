@@ -76,6 +76,7 @@ const CityActions = function (props: CityActionsProps) {
         id={props.city._id}
         inputProps={{ 'aria-label': 'controlled' }}
         size="small"
+        title={`Make ${props.city.name} ${props.city.isFeatured ? 'non-' : ''}featured`}
       />
       <Icon
         onClick={props.onDelete.bind(null, props.city._id)}
