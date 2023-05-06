@@ -43,8 +43,8 @@ const KeywordsMain = (props: Props) => {
   };
 
   useEffect(() => {
-    if (adminUser?.accessToken) loadKeywords();
-  }, [adminUser.accessToken]);
+    if (adminUser?.isSignedIn) loadKeywords();
+  }, [adminUser.isSignedIn]);
 
   const tableData = useMemo(() => {
     const rowOptions = {

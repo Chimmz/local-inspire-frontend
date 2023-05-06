@@ -19,7 +19,7 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
     const req = sendRequest(makeRequest());
     req
       .then(res => {
-        if (res?.status !== 'SUCCESS') return;
+        if (!(responseDataField in res) && !Array.isArray(res.responseDataField)) return;
         setSearchResults(res[responseDataField]);
         showResults();
       })

@@ -1,5 +1,13 @@
 import { Icon } from '@iconify/react';
-import { AdminSearchKeyword } from '../../../../types';
+import { City } from '../../../../types';
+import Image from 'next/image';
+import { Form, Spinner } from 'react-bootstrap';
+import Switch from '@mui/material/Switch';
+import { useState } from 'react';
+import useRequest from '../../../../hooks/useRequest';
+import useSignedInUser from '../../../../hooks/useSignedInUser';
+import api from '../../../../library/api';
+import useToggle from '../../../../hooks/useToggle';
 
 export interface ReactSelectOption {
   label: string;
@@ -7,8 +15,13 @@ export interface ReactSelectOption {
 }
 
 interface RowConfig {
-  onEdit: (k: AdminSearchKeyword) => void;
-  onDelete: (k: AdminSearchKeyword) => void;
+  onEdit: (cityId: string) => void;
+  onDelete: (cityId: string) => void;
+}
+
+interface CityActionsProps extends RowConfig {
+  city: City;
+  featured: boolean;
 }
 
 export const getSelectOptions = (arr: string[] | undefined): ReactSelectOption[] => {
@@ -16,54 +29,61 @@ export const getSelectOptions = (arr: string[] | undefined): ReactSelectOption[]
   return arr.map(str => ({ label: str, value: str }));
 };
 
-export const tableColumns = [
+export const citiesColumns = [
   { name: 'Name', selector: (row: any) => row.name },
+  { name: 'Image', selector: (row: any) => row.imgUrl },
   { name: 'State', selector: (row: any) => row.stateName },
   { name: 'Featured', selector: (row: any) => row.isFeatured },
-  { name: 'Enable on business', selector: (row: any) => row.enableForBusiness },
-  { name: 'Show on nav bar', selector: (row: any) => row.showOnNavbar },
-  { name: 'Show for search', selector: (row: any) => row.showForSearch },
+  { name: 'Searches', selector: (row: any) => row.searches },
   { name: 'Actions', selector: (row: any) => row.actions },
 ];
 
-export const genTableData = (keywords: AdminSearchKeyword[] | undefined, rowOpts: RowConfig) => {
-  if (!keywords?.length) return [];
-
-  return keywords.map(k => ({
-    id: k._id,
-    name: k.name,
-    showOnNavbar: k.showOnNavbar ? 'Yes' : 'No',
-    showForSearch: k.showForSearch ? 'Yes' : 'No',
-    sic4Categories: k.sic4Categories?.join(', ') || '-',
-    enableForBusiness: k.enableForBusiness ? 'Yes' : 'No',
-    enableForFilter: k.enableForFilter ? 'Yes' : 'No',
-    actions: (
-      <div className="d-flex align-items-center gap-3 ">
-        <Icon
-          onClick={rowOpts.onEdit.bind(null, k)}
-          icon="material-symbols:edit-outline-rounded"
-          width={18}
-          className="cursor-pointer"
-          color="#555"
-        />
-        <Icon
-          onClick={rowOpts.onDelete.bind(null, k)}
-          icon="material-symbols:delete-outline"
-          className="cursor-pointer"
-          width={18}
-          color="#555"
-        />
-      </div>
-    ),
+export const genCitiesTableData = (cities: City[] | undefined, rowConfig: RowConfig) => {
+  if (!Array.isArray(cities)) return [];
+  return cities.map(city => ({
+    id: city._id,
+    name: city.name,
+    stateName: city.stateName,
+    isFeatured: city.isFeatured ? 'Yes' : 'No',
+    searches: city.searchesCount,
+    imgUrl: <Image src={city.imgUrl} width={300} height={170} objectFit="cover" />,
+    actions: <CityActions city={city} featured={city.isFeatured} {...rowConfig} />,
   }));
 };
 
-export const searchKeywords = [
-  'Restaurants',
-  'Hotels',
-  'Vacation Rentals',
-  'Things to do',
-  'Cruises',
-];
+const CityActions = function (props: CityActionsProps) {
+  const { state: isFeatured, toggle: toggleFeatured } = useToggle(props.featured);
+  const { send: sendToggleReq, loading: isToggling } = useRequest();
+  const currentUser = useSignedInUser();
 
-export const formTypes = ['input', 'checkbox', 'dropdown', 'textarea', 'slider'];
+  const handleSwitchFeatured = () => {
+    const req = api.toggleCityFeatured(props.city._id, currentUser.accessToken!);
+    sendToggleReq(req).then(res => res.status === 'SUCCESS' && toggleFeatured());
+  };
+  return (
+    <div className="d-flex align-items-center">
+      <Icon
+        onClick={props.onEdit.bind(null, props.city._id)}
+        icon="material-symbols:edit-outline-rounded"
+        width={19}
+        className="cursor-pointer "
+        color="#777"
+      />
+      <Switch
+        checked={isFeatured}
+        onChange={handleSwitchFeatured}
+        disabled={isToggling}
+        id={props.city._id}
+        inputProps={{ 'aria-label': 'controlled' }}
+        size="small"
+      />
+      <Icon
+        onClick={props.onDelete.bind(null, props.city._id)}
+        icon="material-symbols:delete-outline"
+        className="cursor-pointer"
+        width={19}
+        color="#777"
+      />
+    </div>
+  );
+};

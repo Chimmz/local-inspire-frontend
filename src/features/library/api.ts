@@ -572,6 +572,15 @@ class API {
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });
   }
+
+  /////// CITY API ////////////
+  async toggleCityFeatured(cityId: string, token: string) {
+    return this._makeRequest({
+      path: `/cities/${cityId}/toggle-featured`,
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
 }
 
 export default new API();

@@ -75,19 +75,6 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
     }
   };
 
-  // useEffect(() => {
-  //   const req = api.getBusinessUpgradePlans();
-
-  //   req.then((res: { data?: StripePrice[]; status?: string }) => {
-  //     if (res.status === 'SUCCESS' && 'data' in res) {
-  //       setPrices(
-  //         res.data!.filter((price: StripePrice) => planNicknames.includes(price.nickname)),
-  //       );
-  //     }
-  //   });
-  //   req.catch(console.log);
-  // }, []);
-
   const plans = useMemo(() => {
     return props.prices
       ?.filter(pr => pr.nickname.includes(selectedDuration))

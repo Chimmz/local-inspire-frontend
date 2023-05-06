@@ -79,17 +79,20 @@ export interface AdminSearchKeyword {
 }
 
 export interface City {
+  _id: string;
   name: string;
   stateCode: string;
   stateName: string;
   stateId: string;
   population: string;
+  imgUrl: string;
   lat: string;
   lng: string;
   density: string;
   zips: string;
   price: number;
   isFeatured: boolean;
+  searchesCount: Number;
 }
 
 export interface BusinessClaim {

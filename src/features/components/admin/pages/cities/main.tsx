@@ -1,27 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import DataTable from 'react-data-table-component';
 import api from '../../../../library/api';
 import useRequest from '../../../../hooks/useRequest';
+import { citiesColumns, genCitiesTableData } from './config';
+import { City } from '../../../../types';
+import useSignedInUser from '../../../../hooks/useSignedInUser';
+import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
+import Spinner from '../../../shared/spinner/Spinner';
+import DeleteConfirmModal from '../../../shared/DeleteConfirmModal';
 
 interface Props {
+  cities: City[] | undefined;
   getStyle: (className: string) => string;
 }
 
 const CitiesMain = (props: Props) => {
-  const [cities, setCities] = useState([]);
-  const { send: sendCitiesReq, loading: citiesLoading } = useRequest();
   const { getStyle } = props;
+  const [cities, setCities] = useState(props.cities);
+  const currentUser = useSignedInUser();
+
+  const {
+    withConfirmation,
+    confirmationShown: deleteConfirmationShown,
+    confirm: confirmDelete,
+    closeConfirmation: closeDeleteConfirmation,
+  } = useConfirmation();
+
+  const { send: sendCitiesReq, loading: citiesLoading } = useRequest();
+  const { send: sendDeleteReq, loading: deleting } = useRequest();
 
   const loadCities = () => {
     const req = api.getAllCities();
     sendCitiesReq(req).then(res => res.status === 'SUCCESS' && setCities(res.cities));
   };
 
-  useEffect(() => {
-    // loadCities();
-  }, []);
+  const deleteCity = async (cityId: string) => {
+    try {
+      console.log('Hi bro');
+      // const req = sendDeleteReq(api.deleteKeyword(cityId, currentUser.accessToken!));
+      // const res = await req;
+      // if (res.status !== 'SUCCESS') return;
+
+      closeDeleteConfirmation();
+      // loadCities();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const editCity = (cityId: string) => {};
+
+  const toggleCityFeatured = (cityId: string, optns: { onSuccess: () => void }) => {
+    const req = api.toggleCityFeatured(cityId, currentUser.accessToken!);
+    req.then(res => res.status === 'SUCCESS' && optns.onSuccess());
+  };
+
+  const tableData = useMemo(() => {
+    const rowConfig = {
+      onEdit: editCity,
+      onDelete: (id: string) => withConfirmation(deleteCity.bind(null, id)),
+    };
+    return genCitiesTableData(props.cities, rowConfig);
+  }, [props.cities]);
 
   return (
     <main className={getStyle('content')}>
@@ -42,12 +84,27 @@ const CitiesMain = (props: Props) => {
               </div>
 
               <div className={getStyle('card-body py-3')}>
-                <DataTable columns={[]} data={[]} dense fixedHeader pagination />
+                <DataTable
+                  columns={citiesColumns}
+                  data={tableData}
+                  dense
+                  fixedHeader
+                  pagination
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Spinner show={citiesLoading || deleting} pageWide />
+
+      <DeleteConfirmModal
+        show={deleteConfirmationShown}
+        onChooseDelete={confirmDelete}
+        loading={deleting}
+        close={closeDeleteConfirmation}
+      />
     </main>
   );
 };
