@@ -17,7 +17,7 @@ const useFileUploadsWithDescription = function (init: ItemUpload[] = []) {
   const {
     uploadedFile: newFile,
     setUploadedFile: setNewFile,
-    handleChangeInput: handleChangeFile,
+    onChangeFile: handleChangeFile,
   } = useDeviceFileUpload({ type: 'image' });
 
   const pushNewUpload = (fileUpload: FileUpload) => {
