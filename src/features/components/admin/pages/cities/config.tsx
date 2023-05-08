@@ -9,25 +9,16 @@ import useSignedInUser from '../../../../hooks/useSignedInUser';
 import api from '../../../../library/api';
 import useToggle from '../../../../hooks/useToggle';
 
-export interface ReactSelectOption {
-  label: string;
-  value: string;
-}
-
 interface RowConfig {
-  onEdit: (cityId: string) => void;
+  onEdit: (city: City, index: number) => void;
   onDelete: (cityId: string) => void;
 }
 
 interface CityActionsProps extends RowConfig {
   city: City;
+  index: number;
   featured: boolean;
 }
-
-export const getSelectOptions = (arr: string[] | undefined): ReactSelectOption[] => {
-  if (!arr) return [];
-  return arr.map(str => ({ label: str, value: str }));
-};
 
 export const citiesColumns = [
   { name: 'Name', selector: (row: any) => row.name },
@@ -40,14 +31,14 @@ export const citiesColumns = [
 
 export const genCitiesTableData = (cities: City[] | undefined, rowConfig: RowConfig) => {
   if (!Array.isArray(cities)) return [];
-  return cities.map(city => ({
+  return cities.map((city, i) => ({
     id: city._id,
     name: city.name,
     stateName: city.stateName,
     isFeatured: city.isFeatured ? 'Yes' : 'No',
     searches: city.searchesCount,
-    imgUrl: <Image src={city.imgUrl} width={300} height={170} objectFit="cover" />,
-    actions: <CityActions city={city} featured={city.isFeatured} {...rowConfig} />,
+    imgUrl: <Image src={city.imgUrl} width={300} height={150} objectFit="cover" />,
+    actions: <CityActions city={city} featured={city.isFeatured} {...rowConfig} index={i} />,
   }));
 };
 
@@ -63,7 +54,7 @@ const CityActions = function (props: CityActionsProps) {
   return (
     <div className="d-flex align-items-center">
       <Icon
-        onClick={props.onEdit.bind(null, props.city._id)}
+        onClick={props.onEdit.bind(null, props.city, props.index)}
         icon="material-symbols:edit-outline-rounded"
         width={19}
         className="cursor-pointer "
@@ -87,4 +78,14 @@ const CityActions = function (props: CityActionsProps) {
       />
     </div>
   );
+};
+
+export interface ReactSelectOption {
+  label: string;
+  value: string;
+}
+
+export const getSelectOptions = (arr: string[] | undefined): ReactSelectOption[] => {
+  if (!arr) return [];
+  return arr.map(str => ({ label: str, value: str }));
 };

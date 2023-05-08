@@ -11,10 +11,14 @@ import api from '../../features/library/api';
 import { useRouter } from 'next/router';
 import useSignedInUser from '../../features/hooks/useSignedInUser';
 import { City } from '../../features/types';
+import { SSRProvider } from 'react-bootstrap';
 
 interface Props {
-  status: 'SUCCESS' | 'FAIL' | 'ERROR';
-  cities?: City[];
+  cities?: { cities: City[] | undefined; total: number; status: 'SUCCESS' | 'FAIL' | 'ERROR' };
+  usaStates: {
+    stateNames: string[] | undefined;
+    status: 'SUCCESS' | 'FAIL' | 'ERROR';
+  };
 }
 
 const AdminCitiesPage: NextPage<Props> = function (props) {
@@ -32,26 +36,43 @@ const AdminCitiesPage: NextPage<Props> = function (props) {
   }, []);
 
   return (
-    <div className={getStyle('wrapper')}>
-      <AdminSidebar show={sidebarOpened} getStyle={getStyle} />
+    <SSRProvider>
+      <div className={getStyle('wrapper')}>
+        <AdminSidebar show={sidebarOpened} getStyle={getStyle} />
 
-      <div className={getStyle('main')}>
-        <AdminNavbar getStyle={getStyle} toggleSidebar={toggleSidebar} />
-        <CitiesMain getStyle={getStyle} cities={props.cities} />
-        <AdminFooter getStyle={getStyle} />
+        <div className={getStyle('main')}>
+          <AdminNavbar getStyle={getStyle} toggleSidebar={toggleSidebar} />
+          <CitiesMain
+            getStyle={getStyle}
+            cities={props.cities?.cities}
+            totalCities={props.cities?.total}
+            stateNames={props.usaStates.stateNames}
+          />
+          <AdminFooter getStyle={getStyle} />
+        </div>
       </div>
-    </div>
+    </SSRProvider>
   );
 };
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   try {
-    const cities = await api.getAllCities();
-    if (['FAIL', 'ERROR'].includes(cities.status)) throw Error(cities.msg);
+    const initialLimit = 60;
+    const responses = await Promise.allSettled([
+      api.getCities({ page: 1, limit: initialLimit }),
+      api.getUsaStates(),
+    ]);
 
-    // res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=999');
+    const [cities, usaStates] = responses
+      .filter(res => res.status === 'fulfilled' && res.value)
+      .map(res => res.status === 'fulfilled' && res.value);
 
-    return { props: cities, revalidate: 59 };
+    if ([cities, usaStates].some(resp => ['FAIL', 'ERROR'].includes(resp.status)))
+      throw Error(cities.msg);
+
+    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=100');
+
+    return { props: { cities, usaStates } };
   } catch (err) {
     return {
       props: { error: (err as Error).message },

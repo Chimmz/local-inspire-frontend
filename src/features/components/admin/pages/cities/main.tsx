@@ -10,16 +10,23 @@ import useSignedInUser from '../../../../hooks/useSignedInUser';
 import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
 import Spinner from '../../../shared/spinner/Spinner';
 import DeleteConfirmModal from '../../../shared/DeleteConfirmModal';
+import EditCityModal from './EditCityModal';
 
 interface Props {
   cities: City[] | undefined;
+  totalCities: number | undefined;
+  stateNames: string[] | undefined;
   getStyle: (className: string) => string;
 }
 
+const ROWS_PER_PAGE = 10;
+const TOTAL_PAGES_TO_PRELOAD = 6;
+
 const CitiesMain = (props: Props) => {
-  const { getStyle } = props;
   const [cities, setCities] = useState(props.cities);
+  const [cityToEdit, setCityToEdit] = useState<[c: City, index: number] | undefined>();
   const currentUser = useSignedInUser();
+  const { getStyle } = props;
 
   const {
     withConfirmation,
@@ -31,39 +38,40 @@ const CitiesMain = (props: Props) => {
   const { send: sendCitiesReq, loading: citiesLoading } = useRequest();
   const { send: sendDeleteReq, loading: deleting } = useRequest();
 
-  const loadCities = () => {
-    const req = api.getAllCities();
-    sendCitiesReq(req).then(res => res.status === 'SUCCESS' && setCities(res.cities));
+  const loadCities = (args?: { page: number; limit: number }, refresh = false) => {
+    const req = sendCitiesReq(api.getCities(args));
+    req.then(res => {
+      if (res.status !== 'SUCCESS') return;
+      if (!refresh) return setCities(prevCities => prevCities!.concat(res.cities));
+      setCities(res.cities);
+    });
   };
 
-  const deleteCity = async (cityId: string) => {
-    try {
-      console.log('Hi bro');
-      // const req = sendDeleteReq(api.deleteKeyword(cityId, currentUser.accessToken!));
-      // const res = await req;
-      // if (res.status !== 'SUCCESS') return;
-
-      closeDeleteConfirmation();
-      // loadCities();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const editCity = (cityId: string) => {};
-
-  const toggleCityFeatured = (cityId: string, optns: { onSuccess: () => void }) => {
-    const req = api.toggleCityFeatured(cityId, currentUser.accessToken!);
-    req.then(res => res.status === 'SUCCESS' && optns.onSuccess());
-  };
+  const deleteCity = async (cityId: string) => {};
 
   const tableData = useMemo(() => {
     const rowConfig = {
-      onEdit: editCity,
+      onEdit: (c: City, index: number) => setCityToEdit([c, index]),
       onDelete: (id: string) => withConfirmation(deleteCity.bind(null, id)),
     };
-    return genCitiesTableData(props.cities, rowConfig);
-  }, [props.cities]);
+    return genCitiesTableData(cities, rowConfig);
+  }, [cities]);
+
+  const refreshCities = () => {
+    loadCities(
+      { page: 1, limit: cities?.length || TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE },
+      true,
+    );
+  };
+
+  const handlePageChange = (pageNumber: number) => {
+    const totalPagesLoaded = cities!.length / ROWS_PER_PAGE;
+    const is3rdPageBeforeLastPage = pageNumber === totalPagesLoaded - 2; // SecondPageBeforeLastPage
+    if (!is3rdPageBeforeLastPage) return;
+
+    // Preload these pages now: pageNumber+3, pageNumber+4, ..., TOTAL_PAGES_TO_PRELOAD
+    loadCities({ page: pageNumber + 3, limit: TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE });
+  };
 
   return (
     <main className={getStyle('content')}>
@@ -90,6 +98,8 @@ const CitiesMain = (props: Props) => {
                   dense
                   fixedHeader
                   pagination
+                  onChangePage={handlePageChange}
+                  paginationTotalRows={props.totalCities}
                 />
               </div>
             </div>
@@ -98,6 +108,15 @@ const CitiesMain = (props: Props) => {
       </div>
 
       <Spinner show={citiesLoading || deleting} pageWide />
+
+      <EditCityModal
+        show={!!cityToEdit}
+        stateNames={props.stateNames}
+        close={setCityToEdit.bind(null, undefined)}
+        city={cityToEdit?.[0]}
+        cityIndex={cityToEdit?.[1]}
+        onUpdate={refreshCities}
+      />
 
       <DeleteConfirmModal
         show={deleteConfirmationShown}

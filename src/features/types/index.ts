@@ -90,8 +90,14 @@ export interface City {
   lng: string;
   density: string;
   zips: string;
-  price: number;
+  price: {
+    amount: number;
+    currency?: string;
+    stripePriceId?: string;
+    stripePriceNickname?: string;
+  };
   isFeatured: boolean;
+  description: string;
   searchesCount: Number;
 }
 

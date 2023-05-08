@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 interface UploadProps {
   // toUrl?: boolean;
-  type: 'image';
+  type?: 'image';
   multiple?: boolean;
 }
 
@@ -19,7 +19,7 @@ function useDeviceFileUpload(props: UploadProps) {
     console.log({ uploadedFile });
   }, [uploadedFile]);
 
-  const handleChangeInput: React.ChangeEventHandler<HTMLInputElement> = ev => {
+  const onChangeFile: React.ChangeEventHandler<HTMLInputElement> = ev => {
     const file = ev.target.files![0];
     if (!file) return;
     // const imgUrls = Array.from(files).map(URL.createObjectURL).join(' ');
@@ -30,7 +30,7 @@ function useDeviceFileUpload(props: UploadProps) {
     });
   };
 
-  return { uploadedFile, setUploadedFile, handleChangeInput };
+  return { uploadedFile, setUploadedFile, onChangeFile };
 }
 
 export default useDeviceFileUpload;

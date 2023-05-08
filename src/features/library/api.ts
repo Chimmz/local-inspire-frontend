@@ -128,14 +128,6 @@ class API {
     });
   }
 
-  async getAllCities() {
-    return this._makeRequest({
-      path: `/cities`,
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
   async findBusinesses(
     category: string,
     place: { city: string; stateCode: string },
@@ -574,11 +566,36 @@ class API {
   }
 
   /////// CITY API ////////////
+  async getCities(args?: { page: number; limit: number }) {
+    return this._makeRequest({
+      path: '/cities'.concat(args ? `?page=${args.page}&limit=${args.limit}` : ''),
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   async toggleCityFeatured(cityId: string, token: string) {
     return this._makeRequest({
       path: `/cities/${cityId}/toggle-featured`,
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
+    });
+  }
+
+  async getUsaStates() {
+    return this._makeRequest({
+      path: `/cities/all-states`,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  async updateCity(cityId: string, body: FormData, token: string) {
+    return this._makeRequest({
+      path: `/cities/${cityId}`,
+      method: 'PATCH',
+      body,
+      headers: { authorization: `Bearer ${token}` },
     });
   }
 }

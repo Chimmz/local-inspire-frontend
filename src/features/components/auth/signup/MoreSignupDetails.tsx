@@ -37,7 +37,7 @@ const MoreSignupDetails: React.FC<Props> = props => {
   const {
     uploadedFile: uploadedFile,
     setUploadedFile: setUploadedFile,
-    handleChangeInput: handleChangeFileInput,
+    onChangeFile: handleChangeFileInput,
   } = useDeviceFileUpload({ type: 'image' });
 
   const {
