@@ -35,7 +35,10 @@ function BestPlaces() {
       <h2 className="mb-">The best places in the top cities</h2>
       <div className={styles.places}>
         {cities.map((city, i) => (
-          <figure className={cls(styles.place, i % 3 === 0 && styles['place--special'])}>
+          <figure
+            className={cls(styles.place, i % 3 === 0 && styles['place--special'])}
+            key={city._id}
+          >
             <Image
               src={city.imgUrl}
               layout="fill"
