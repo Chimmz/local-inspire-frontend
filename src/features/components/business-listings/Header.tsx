@@ -45,10 +45,10 @@ function Header(props: Props) {
   );
   const [showShareModal, setShowShareModal] = useState(false);
   const [showCollectionsModal, setShowCollectionsModal] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
 
   const [showPopover, setShowPopover] = useState(false);
   const [target, setTarget] = useState<HTMLElement | null>(null);
-  const ref = useRef(null);
 
   const [userReviewImages, setUserReviewImages] = useState<Array<{
     _id: string;
@@ -260,7 +260,10 @@ function Header(props: Props) {
         close={setShowShareModal.bind(null, false)}
       />
 
-      {/* <PhotoGallery images={businessImages}/> */}
+      <PhotoGallery
+        show={!!businessImages?.length && showGallery}
+        imgUrls={businessImages?.map(img => img.imgUrl)}
+      />
     </>
   );
 }

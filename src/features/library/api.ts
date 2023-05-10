@@ -566,9 +566,20 @@ class API {
   }
 
   /////// CITY API ////////////
-  async getCities(args?: { page: number; limit: number }) {
+  async getCities(args?: {
+    page?: number;
+    limit?: number;
+    isFeatured?: boolean;
+    stateCode?: string;
+  }) {
+    const qString =
+      args &&
+      `?page=${args.page}&limit=${args.limit}`
+        .concat(args.isFeatured ? `&isFeatured=${args.isFeatured + ''}` : '')
+        .concat(args.stateCode ? `&stateCode=${args.stateCode}` : '');
+
     return this._makeRequest({
-      path: '/cities'.concat(args ? `?page=${args.page}&limit=${args.limit}` : ''),
+      path: '/cities'.concat(qString + ''),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

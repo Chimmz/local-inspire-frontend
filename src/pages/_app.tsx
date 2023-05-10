@@ -1,13 +1,19 @@
 import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 import { Session } from 'next-auth';
-
-import 'bootstrap/dist/css/bootstrap.css';
-import '../styles/sass/main.scss';
+import Head from 'next/head';
+// Contexts
 import AuthContextProvider from '../features/contexts/AuthContext';
 import { UserLocationProvider } from '../features/contexts/UserLocationContext';
-import Head from 'next/head';
+// Utils
 import { seoKeywords } from '../features/data/constants';
+// Styles
+import 'bootstrap/dist/css/bootstrap.css';
+import '../styles/sass/main.scss';
+import 'lightgallery/css/lightgallery.css';
+import 'lightgallery/css/lg-zoom.css';
+import 'lightgallery/css/lg-thumbnail.css';
+import 'lightgallery/css/lightgallery-bundle.min.css';
 
 interface PageProps {
   [key: string]: any;
@@ -23,6 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <AuthContextProvider>
           <Head>
             <meta name="keywords" content={seoKeywords} />
+            {/* <link rel="stylesheet" href="/styles/lightgallery/css/lightgallery-bundle.min.css" /> */}
           </Head>
           <Component {...restPageProps} />
         </AuthContextProvider>

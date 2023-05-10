@@ -308,7 +308,7 @@ export const getServerSideProps: GetServerSideProps = async function (context) {
     .map(res => res.status === 'fulfilled' && res.value);
 
   const loc = location.split('-');
-  const props: any = {
+  const props = {
     business: business || {},
     reviews: reviews || {},
     questions: questions || {},

@@ -39,7 +39,7 @@ const CitiesMain = (props: Props) => {
   const { send: sendDeleteReq, loading: deleting } = useRequest();
 
   const loadCities = (args?: { page: number; limit: number }, refresh = false) => {
-    const req = sendCitiesReq(api.getCities(args));
+    const req = refresh ? sendCitiesReq(api.getCities(args)) : api.getCities(args);
     req.then(res => {
       if (res.status !== 'SUCCESS') return;
       if (!refresh) return setCities(prevCities => prevCities!.concat(res.cities));
@@ -66,11 +66,16 @@ const CitiesMain = (props: Props) => {
 
   const handlePageChange = (pageNumber: number) => {
     const totalPagesLoaded = cities!.length / ROWS_PER_PAGE;
-    const is3rdPageBeforeLastPage = pageNumber === totalPagesLoaded - 2; // SecondPageBeforeLastPage
-    if (!is3rdPageBeforeLastPage) return;
+    const is3rdPageBeforeLastPage = pageNumber === totalPagesLoaded - 2;
+    const isLastLoadedPage = pageNumber === cities!.length / ROWS_PER_PAGE; // If user navig to last page
 
     // Preload these pages now: pageNumber+3, pageNumber+4, ..., TOTAL_PAGES_TO_PRELOAD
-    loadCities({ page: pageNumber + 3, limit: TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE });
+    if (is3rdPageBeforeLastPage)
+      return loadCities({ page: pageNumber + 3, limit: TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE });
+
+    // Preload the next page (and few other consecutive pages) after the last loaded page
+    if (isLastLoadedPage)
+      return loadCities({ page: pageNumber + 1, limit: TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE });
   };
 
   return (

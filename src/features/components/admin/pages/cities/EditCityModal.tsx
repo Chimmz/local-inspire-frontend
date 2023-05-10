@@ -157,7 +157,7 @@ const EditCityModal = function (props: Props) {
       lat: latitude,
       lng: longitude,
       price,
-      photo: uploadedImage?.rawFile || props.city!.imgUrl,
+      photo: uploadedImage?.rawFile,
       isFeatured,
     };
     if (!uploadedImage) delete body.photo;
@@ -170,7 +170,7 @@ const EditCityModal = function (props: Props) {
       api.updateCity(props.city!._id, formData, currenUser.accessToken!),
     );
     req.then(res => {
-      if (res.status !== 'SUCCESS' || !('city' in res)) return;
+      if (res.status !== 'SUCCESS') return;
       props.onUpdate();
       props.close();
     });
