@@ -175,7 +175,7 @@ function NewReviewForm(props: Props) {
   }, [props.userReview]);
 
   const validateFields = function () {
-    const validationResults = [
+    const validations = [
       runReviewTitleValidators(),
       runMainReviewValidators(),
       runVisitTypeValidators(),
@@ -183,9 +183,9 @@ function NewReviewForm(props: Props) {
       runAdviceValidators(),
       runUserAcceptedTermsValidators(),
     ];
-    console.log(validationResults);
+    console.log(validations);
 
-    if (validationResults.some(result => result.errorExists)) {
+    if (validations.some(v => v.errorExists)) {
       domUtils.scrollToElement('.invalid-feedback');
       console.log('Cannot submit review because of v-errors');
       return false;
@@ -209,9 +209,8 @@ function NewReviewForm(props: Props) {
     rawFiles.forEach(file => formData.append('photos', file));
     formData.append('photoDescriptions', JSON.stringify(photoDescriptions));
 
-    const res = await props.sendReviewRequest(
-      api.reviewBusiness({ businessId, token, formData }),
-    );
+    const req = api.reviewBusiness({ businessId, token, formData });
+    const res = await props.sendReviewRequest(req);
     console.log(res);
     if (res?.status === 'SUCCESS')
       setSubmittedReview(res.review as ReviewProps & { business: Partial<BusinessProps> });
@@ -219,14 +218,14 @@ function NewReviewForm(props: Props) {
 
   return (
     <>
-      <Modal show={!!submittedReview} centered backdrop="static" size="sm">
+      <Modal show={!!submittedReview} centered backdrop="static">
         <Modal.Body>
           <PageSuccess
             title="Thank you."
             description={`Your review on ${businessName} has been added successfully.`}
             className="mb-5 pt-2"
           />
-          <div className="success-actions d-flex flex-column mx-auto gap-3 px-4 pb-4 w-50">
+          <div className="success-actions d-flex flex-column align-items-center mx-auto gap-3 px-4 pb-4 w-50">
             <Link href={urlUtils.genBusinessPageUrl<string>({ slug: props.slug })} passHref>
               <a className="btn btn--lg btn-gray">Continue</a>
             </Link>
@@ -234,6 +233,7 @@ function NewReviewForm(props: Props) {
               layout="grid"
               urlCopyOption={false}
               pageUrl={getUrlToSubmittedReview()}
+              // pageUrl="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
               title={reviewTitle}
             />
             {/* <button className="btn btn--lg btn-gray">Share on Facebook</button>

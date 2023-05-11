@@ -36,7 +36,7 @@ function BestPlaces() {
       <div className={styles.places}>
         {cities.map((city, i) => (
           <figure
-            className={cls(styles.place, i % 3 === 0 && styles['place--special'])}
+            className={cls(styles.place, !(i % 3) && styles['place--special'])}
             key={city._id}
           >
             <Image

@@ -12,11 +12,11 @@ import useSignedInUser from '../../features/hooks/useSignedInUser';
 import useRequest from '../../features/hooks/useRequest';
 
 // Utils and helpers
+import cls from 'classnames';
 import { toTitleCase } from '../../features/utils/string-utils';
 import api from '../../features/library/api';
 
 // Classes, styles, and external components
-import cls from 'classnames';
 import { Icon } from '@iconify/react';
 import { SSRProvider } from 'react-bootstrap';
 import { BusinessProps } from '../../features/components/business-results/Business';
@@ -25,6 +25,7 @@ import Alert from 'react-bootstrap/Alert';
 import Layout from '../../features/components/layout';
 import NewReviewForm from '../../features/components/page-reviews/NewReviewForm';
 import styles from '../../styles/sass/pages/RecommendBusiness.module.scss';
+import Head from 'next/head';
 
 interface Props {
   reviews: { status: 'SUCCESS' | 'FAIL' | 'ERROR'; data: ReviewProps[] | undefined };
@@ -40,12 +41,8 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
   const [attemptedUserReviewFetch, setAttemptedUserReviewFetch] = useState(false);
   const { isSignedIn, ...currentUser } = useSignedInUser();
 
-  const { send: sendUserReviewReq, loading: isGettingUserReview } = useRequest({
-    autoStopLoading: true,
-  });
-  const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest({
-    autoStopLoading: true,
-  });
+  const { send: sendUserReviewReq, loading: isGettingUserReview } = useRequest();
+  const { send: sendReviewRequest, loading: isSubmittingReview } = useRequest();
 
   const router = useRouter();
   const userRecommendYes = router.query.recommend === 'yes';
@@ -74,6 +71,20 @@ const ReviewsPage: NextPage<Props> = function (props: Props) {
 
   return (
     <SSRProvider>
+      <Head>
+        <meta
+          property="og:image"
+          content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+        ></meta>
+        {/* <meta property="image" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:title" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:image:secure" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:image:url" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:site_name" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:url" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:description" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/>
+        <meta property="og:type" content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"/> */}
+      </Head>
       <Layout>
         <Spinner pageWide show={isGettingUserReview || isSubmittingReview} />
         <Layout.Nav>
