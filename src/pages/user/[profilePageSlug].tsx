@@ -180,9 +180,7 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
                     businessName={r.business.businessName}
                     openReviewLikers={openReviewLikers}
                     openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
-                    openShareModal={(reviewId: string, reviewTitle: string) =>
-                      setReviewToShare({ _id: reviewId, reviewTitle })
-                    }
+                    openShareModal={setReviewToShare.bind(null, r)}
                     hideLocation
                     useNativeLinkToProfile
                   />
