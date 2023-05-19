@@ -261,7 +261,8 @@ function Header(props: Props) {
       />
 
       <PhotoGallery
-        show={!!businessImages?.length && showGallery}
+        // show={!!businessImages?.length && showGallery}
+        show={false}
         imgUrls={businessImages?.map(img => img.imgUrl)}
       />
     </>

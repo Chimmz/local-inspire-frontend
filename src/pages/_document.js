@@ -4,7 +4,12 @@ export default function MyDoc() {
   return (
     <Html>
       <Head>
-        <link rel="stylesheet" href="/styles/lightgallery/css/lightgallery-bundle.min.css" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lightgallery.css" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lightgallery-core.css" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lightgallery-bundle.min" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lg-zoom.css" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lg-thumbnail.css" />
+        <link rel="stylesheet" type="text/css" href="../../styles/lg-fullscreen.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" async />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" async />
         <link

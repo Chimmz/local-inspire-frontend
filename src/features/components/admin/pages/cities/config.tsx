@@ -10,13 +10,12 @@ import api from '../../../../library/api';
 import useToggle from '../../../../hooks/useToggle';
 
 interface RowConfig {
-  onEdit: (city: City, index: number) => void;
+  onEdit: (city: City) => void;
   onDelete: (cityId: string) => void;
 }
 
 interface CityActionsProps extends RowConfig {
   city: City;
-  index: number;
   featured: boolean;
 }
 
@@ -31,14 +30,14 @@ export const citiesColumns = [
 
 export const genCitiesTableData = (cities: City[] | undefined, rowConfig: RowConfig) => {
   if (!Array.isArray(cities)) return [];
-  return cities.map((city, i) => ({
+  return cities.map(city => ({
     id: city._id,
     name: city.name,
     stateName: city.stateName,
     isFeatured: city.isFeatured ? 'Yes' : 'No',
     searches: city.searchesCount,
     imgUrl: <Image src={city.imgUrl} width={300} height={150} objectFit="cover" />,
-    actions: <CityActions city={city} featured={city.isFeatured} {...rowConfig} index={i} />,
+    actions: <CityActions city={city} featured={city.isFeatured} {...rowConfig} />,
   }));
 };
 
@@ -54,7 +53,7 @@ const CityActions = function (props: CityActionsProps) {
   return (
     <div className="d-flex align-items-center">
       <Icon
-        onClick={props.onEdit.bind(null, props.city, props.index)}
+        onClick={props.onEdit.bind(null, props.city)}
         icon="material-symbols:edit-outline-rounded"
         width={19}
         className="cursor-pointer "

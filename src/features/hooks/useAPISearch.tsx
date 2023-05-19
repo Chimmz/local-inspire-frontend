@@ -6,9 +6,9 @@ interface Params {
   responseDataField: string;
 }
 
-function useAPISearchResults({ makeRequest, responseDataField }: Params) {
+function useAPISearch<T>({ makeRequest, responseDataField }: Params) {
   const { send: sendRequest, loading } = useRequest({ autoStopLoading: true });
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<T[]>([]);
   const [resultsShown, setResultsShown] = useState(false);
 
   const showResults = useCallback(() => setResultsShown(true), [setResultsShown]);
@@ -37,4 +37,4 @@ function useAPISearchResults({ makeRequest, responseDataField }: Params) {
   };
 }
 
-export default useAPISearchResults;
+export default useAPISearch;

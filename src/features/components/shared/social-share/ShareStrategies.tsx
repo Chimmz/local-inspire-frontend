@@ -1,17 +1,16 @@
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
-import Link from 'next/link';
 
-import cls from 'classnames';
-
-import { Icon } from '@iconify/react';
-import { Modal, Spinner } from 'react-bootstrap';
-import { InputGroup, SSRProvider } from 'react-bootstrap';
+import { InputGroup } from 'react-bootstrap';
 import { FacebookShareButton, TwitterShareButton } from 'react-share';
+// @ts-ignore
+import { FacebookButton } from 'react-social';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { Icon } from '@iconify/react';
 import Tooltip from 'react-bootstrap/Tooltip';
 import TextInput from '../text-input/TextInput';
+
+import cls from 'classnames';
 import styles from './SocialShare.module.scss';
 
 export interface ShareStrategiesProps {
@@ -32,10 +31,7 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
   );
   const [userCopiedUrl, setUserCopiedUrl] = useState(false);
 
-  const layouts = useMemo(
-    () => ({ grid: styles.gridLayout, column: styles.columnLayout }),
-    [],
-  );
+  const layouts = useMemo(() => ({ grid: styles.gridLayout, column: styles.columnLayout }), []);
 
   useEffect(() => {
     setPageUrl(window.location.origin + pageUrl);
@@ -43,14 +39,24 @@ const ShareStrategies = function (props: ShareStrategiesProps) {
 
   return (
     <div className={cls(props.className, props.layout && layouts[props.layout])}>
-      <FacebookShareButton url={pageUrl} quote={props.title}>
+      <FacebookButton
+        url={pageUrl}
+        title={props.title}
+        media={props.imgUrl}
+        className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
+        element="button"
+        appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID}
+      >
+        Share on Facebook
+      </FacebookButton>
+      {/* <FacebookShareButton url={pageUrl} quote={props.title}>
         <button
           className="btn btn-pry btn--lg w-100 mb-3 flex-grow-1"
           style={{ backgroundColor: '#3b5998' }}
         >
           Share on Facebook
         </button>
-      </FacebookShareButton>
+      </FacebookShareButton> */}
 
       {/* <Link
         href={`https://www.facebook.com/sharer.php?u=${pageUrl}&imageurl=${props.imgUrl}}`}

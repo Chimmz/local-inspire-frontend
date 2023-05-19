@@ -5,7 +5,7 @@ import * as uuid from 'uuid';
 
 import useInput from '../../../hooks/useInput';
 import useRequest from '../../../hooks/useRequest';
-import useAPISearchResults from '../../../hooks/useAPISearchResults';
+import useAPISearch from '../../../hooks/useAPISearch';
 import useDelayActionUponTextInput from '../../../hooks/useDelayActionUponTextInput';
 
 import cls from 'classnames';
@@ -57,7 +57,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     showResults: showCategoryResults,
     hideResults: hideCategoryResults,
     resetResults: resetCategoryResults,
-  } = useAPISearchResults({
+  } = useAPISearch<string>({
     makeRequest: API.searchBusinessCategories.bind(API, categoryValue.trim()),
     responseDataField: 'categories',
   });
@@ -70,7 +70,7 @@ function BusinessSearchForm(props: BusinessSearchFormProps) {
     showResults: showCityResults,
     hideResults: hideCityResults,
     resetResults: resetCityResults,
-  } = useAPISearchResults({
+  } = useAPISearch<string>({
     makeRequest: API.searchCities.bind(API, cityValue.trim()),
     responseDataField: 'cities',
   });

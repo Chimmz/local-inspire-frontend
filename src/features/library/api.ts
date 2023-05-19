@@ -120,9 +120,10 @@ class API {
     });
   }
 
-  async searchCities(query: string) {
+  async searchCities(textQuery: string, populate = false) {
+    if (!textQuery.length) return;
     return this._makeRequest({
-      path: `/cities/search?textQuery=${query}`,
+      path: `/cities/search?textQuery=${textQuery}`.concat(populate ? '&populate=true' : ''),
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

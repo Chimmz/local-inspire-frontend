@@ -23,7 +23,6 @@ import useDeviceFileUpload from '../../../../hooks/useDeviceFileUpload';
 
 interface Props {
   city: City | undefined;
-  cityIndex: number | undefined;
   stateNames: string[] | undefined;
   onUpdate(): void;
 
@@ -33,9 +32,7 @@ interface Props {
 }
 
 const EditCityModal = function (props: Props) {
-  const [statesUSA, setStatesUSA] = useState<string[]>([]);
   const currenUser = useSignedInUser();
-  const { send: sendGetCategories, loading: loadingCategories } = useRequest();
   const { send: sendUpdateReq, loading: isUpdating } = useRequest();
 
   const {
@@ -139,7 +136,8 @@ const EditCityModal = function (props: Props) {
   useEffect(() => {
     if (!props.city) return;
     setCityName(props.city.name);
-    setPrice(props.city.price.amount + '' || '0.00');
+    setPrice(+props.city.population <= 5000 ? '19.95' : '49.95');
+    // setPrice(props.city.price.amount + '' || '0.00');
     setUploadedImage({ url: props.city.imgUrl });
     setPopulation(props.city.population);
     setUsaState(props.city.stateName);

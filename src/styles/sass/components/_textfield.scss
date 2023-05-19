@@ -11,6 +11,10 @@
   color: gray;
   transition: height 0.25s;
 
+  &-sm {
+    font-size: 0.8em;
+  }
+
   &::placeholder {
     color: rgba(#000, 0.5);
   }

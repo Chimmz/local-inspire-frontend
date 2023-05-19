@@ -1,16 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Icon } from '@iconify/react';
-import cls from 'classnames';
-import DataTable from 'react-data-table-component';
-import api from '../../../../library/api';
-import useRequest from '../../../../hooks/useRequest';
-import { citiesColumns, genCitiesTableData } from './config';
+// Types
 import { City } from '../../../../types';
+
+// Hooks
 import useSignedInUser from '../../../../hooks/useSignedInUser';
 import useConfirmation from '../../../../hooks/useConfirmationMiddleware';
+import useInput from '../../../../hooks/useInput';
+import useDelayActionUponTextInput from '../../../../hooks/useDelayActionUponTextInput';
+import useAPISearch from '../../../../hooks/useAPISearch';
+import useRequest from '../../../../hooks/useRequest';
+
+// Utils
+import DataTable from 'react-data-table-component';
+import api from '../../../../library/api';
+import cls from 'classnames';
+import { citiesColumns, genCitiesTableData } from './config';
+
+// Components
 import Spinner from '../../../shared/spinner/Spinner';
 import DeleteConfirmModal from '../../../shared/DeleteConfirmModal';
 import EditCityModal from './EditCityModal';
+import TextInput from '../../../shared/text-input/TextInput';
 
 interface Props {
   cities: City[] | undefined;
@@ -23,11 +33,14 @@ const ROWS_PER_PAGE = 10;
 const TOTAL_PAGES_TO_PRELOAD = 6;
 
 const CitiesMain = (props: Props) => {
-  const [cities, setCities] = useState(props.cities);
-  const [cityToEdit, setCityToEdit] = useState<[c: City, index: number] | undefined>();
-  const currentUser = useSignedInUser();
   const { getStyle } = props;
 
+  const [cities, setCities] = useState(props.cities);
+  const [citiesTotal, setCitiesTotal] = useState(props.totalCities);
+  const [cityToEdit, setCityToEdit] = useState<City | undefined>();
+
+  const { send: sendCitiesReq, loading: citiesLoading } = useRequest();
+  const { send: sendDeleteReq, loading: deleting } = useRequest();
   const {
     withConfirmation,
     confirmationShown: deleteConfirmationShown,
@@ -35,27 +48,39 @@ const CitiesMain = (props: Props) => {
     closeConfirmation: closeDeleteConfirmation,
   } = useConfirmation();
 
-  const { send: sendCitiesReq, loading: citiesLoading } = useRequest();
-  const { send: sendDeleteReq, loading: deleting } = useRequest();
+  const {
+    inputValue: searchText,
+    onChange: handleChangeSearchText,
+    clearInput: clearSearchText,
+  } = useInput({ init: '' });
 
-  const loadCities = (args?: { page: number; limit: number }, refresh = false) => {
-    const req = refresh ? sendCitiesReq(api.getCities(args)) : api.getCities(args);
-    req.then(res => {
+  const {
+    search: searchCities,
+    loading: isSearching,
+    searchResults,
+    resetResults: resetSearchResults,
+  } = useAPISearch<City>({
+    makeRequest: api.searchCities.bind(api, searchText, true),
+    //  searchText.length
+    //   ? api.searchCities.bind(api, searchText, true)
+    //   : async () => {},
+    responseDataField: 'cities',
+  });
+
+  const searchCitiesDelayed = useDelayActionUponTextInput({ action: searchCities });
+
+  const loadCities = async (args?: { page: number; limit: number }, refresh = false) => {
+    try {
+      const req = refresh ? sendCitiesReq(api.getCities(args)) : api.getCities(args);
+      const res = await req;
       if (res.status !== 'SUCCESS') return;
       if (!refresh) return setCities(prevCities => prevCities!.concat(res.cities));
       setCities(res.cities);
-    });
+      setCitiesTotal(res.total);
+    } catch (err) {
+      console.log(err);
+    }
   };
-
-  const deleteCity = async (cityId: string) => {};
-
-  const tableData = useMemo(() => {
-    const rowConfig = {
-      onEdit: (c: City, index: number) => setCityToEdit([c, index]),
-      onDelete: (id: string) => withConfirmation(deleteCity.bind(null, id)),
-    };
-    return genCitiesTableData(cities, rowConfig);
-  }, [cities]);
 
   const refreshCities = () => {
     loadCities(
@@ -64,7 +89,12 @@ const CitiesMain = (props: Props) => {
     );
   };
 
+  const deleteCity = () => {};
+
   const handlePageChange = (pageNumber: number) => {
+    // If search results are being displayed, return. Dont preload for search.
+    if (searchText && searchResults.length) return;
+
     const totalPagesLoaded = cities!.length / ROWS_PER_PAGE;
     const is3rdPageBeforeLastPage = pageNumber === totalPagesLoaded - 2;
     const isLastLoadedPage = pageNumber === cities!.length / ROWS_PER_PAGE; // If user navig to last page
@@ -77,6 +107,25 @@ const CitiesMain = (props: Props) => {
     if (isLastLoadedPage)
       return loadCities({ page: pageNumber + 1, limit: TOTAL_PAGES_TO_PRELOAD * ROWS_PER_PAGE });
   };
+
+  const tableData = useMemo(() => {
+    const rowConfig = {
+      onEdit: setCityToEdit,
+      onDelete: (id: string) => withConfirmation(deleteCity.bind(null, id)),
+    };
+
+    // If there's no results for current search term
+    if (searchText && !searchResults.length) return [];
+
+    // If there are search results for current search term
+    if (searchText && searchResults.length) {
+      setCitiesTotal(searchResults.length);
+      return genCitiesTableData(searchResults, rowConfig);
+    }
+
+    setCitiesTotal(props.totalCities);
+    return genCitiesTableData(cities, rowConfig);
+  }, [cities, searchResults]);
 
   return (
     <main className={getStyle('content')}>
@@ -91,12 +140,27 @@ const CitiesMain = (props: Props) => {
           <div className={getStyle('col-12')}>
             <div className={getStyle('card flex-fill w-100 px-2 py-4')}>
               <div className={getStyle('card-header')}>
-                <div className={cls(getStyle('card-title mb-0'), 'd-flex align-items-center')}>
+                <div
+                  className={cls(
+                    getStyle('card-title mb-0'),
+                    'd-flex justify-content-between align-items-center',
+                  )}
+                >
                   <h4> All Cities</h4>
+                  <div className="d-flex align-items-center gap-3">
+                    <TextInput
+                      value={searchText}
+                      onChange={handleChangeSearchText}
+                      // style={{ maxWidth: '200px' }}
+                      label={<small className="d-block fs-5">Search:</small>}
+                      className="d-flex align-items-center gap-2 textfield-sm"
+                      onKeyUp={searchCitiesDelayed}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className={getStyle('card-body py-3')}>
+              <div className={getStyle('card-body py-3 mt-5')}>
                 <DataTable
                   columns={citiesColumns}
                   data={tableData}
@@ -104,7 +168,7 @@ const CitiesMain = (props: Props) => {
                   fixedHeader
                   pagination
                   onChangePage={handlePageChange}
-                  paginationTotalRows={props.totalCities}
+                  paginationTotalRows={citiesTotal}
                 />
               </div>
             </div>
@@ -118,8 +182,7 @@ const CitiesMain = (props: Props) => {
         show={!!cityToEdit}
         stateNames={props.stateNames}
         close={setCityToEdit.bind(null, undefined)}
-        city={cityToEdit?.[0]}
-        cityIndex={cityToEdit?.[1]}
+        city={cityToEdit}
         onUpdate={refreshCities}
       />
 

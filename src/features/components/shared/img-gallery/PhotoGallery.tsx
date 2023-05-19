@@ -28,30 +28,74 @@ const PhotoGallery = function (props: Props) {
   };
 
   return (
-    <Modal fullscreen show={props.show && !!props.imgUrls?.length} scrollable={false}>
+    <Modal fullscreen show={props.show} scrollable={false}>
       <Modal.Header>Photo Gallery</Modal.Header>
 
       <Modal.Body className={cls(styles.modalBody, 'p-0')}>
         {/* <section className={styles.gallerySection}> */}
-        <LightGallery onInit={onInit} speed={500} plugins={[lgThumbnail, lgZoom]}>
-          <figure className={styles.figure}>
+        <LightGallery
+          mode="lg-fade"
+          onInit={onInit}
+          speed={500}
+          plugins={[lgThumbnail, lgZoom]}
+          animateThumb
+          closable
+          controls
+          selector="gallery-list"
+        >
+          <ul className="gallery-list">
+            <li data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg">
+              <a href="img/img1.jpg">
+                <img
+                  alt="img1"
+                  src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+                />
+              </a>
+            </li>
+            <li data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg">
+              <a href="img/img1.jpg">
+                <img
+                  alt="img1"
+                  src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+                />
+              </a>
+            </li>
+            <li data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg">
+              <a href="img/img1.jpg">
+                <img
+                  alt="img1"
+                  src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+                />
+              </a>
+            </li>
+          </ul>
+          {/* <figure
+            className={styles.figure}
+            data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+          >
             <Image
-              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1674969373/businesses/nfehdeqyh1g0pycccmph.jpg"
+              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
               layout="fill"
             />
-          </figure>
-          <figure className={styles.figure}>
+          </figure> */}
+          {/* <figure
+            className={styles.figure}
+            data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+          >
             <Image
-              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1674966681/businesses/xmpftfp9jxedut7cixvz.jpg"
+              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
               layout="fill"
             />
-          </figure>
-          <figure className={styles.figure}>
+          </figure> */}
+          {/* <figure
+            className={styles.figure}
+            data-src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+          >
             <Image
-              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1674966681/businesses/earpy9gbvkka2gjzfnaw.jpg"
+              src="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
               layout="fill"
             />
-          </figure>
+          </figure> */}
         </LightGallery>
         {/* </section> */}
 

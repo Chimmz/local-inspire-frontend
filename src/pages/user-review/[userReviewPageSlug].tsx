@@ -42,8 +42,6 @@ const UserReviewPage: NextPage<Props> = function (props) {
   const [showShareModal, setShowShareModal] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (!props.review) return;
     const req = api.getReviewById(props.review?._id);

@@ -10,10 +10,16 @@ import { seoKeywords } from '../features/data/constants';
 // Styles
 import 'bootstrap/dist/css/bootstrap.css';
 import '../styles/sass/main.scss';
-import 'lightgallery/css/lightgallery.css';
-import 'lightgallery/css/lg-zoom.css';
-import 'lightgallery/css/lg-thumbnail.css';
-import 'lightgallery/css/lightgallery-bundle.min.css';
+
+// import '../styles/lightgallery.css';
+// import '../styles/lg-zoom.css';
+// import '../styles/lg-thumbnail.css';
+import '../styles/lightgallery-bundle.min.css';
+
+// import 'lightgallery/css/lightgallery.css';
+// import 'lightgallery/css/lg-zoom.css';
+// import 'lightgallery/css/lg-thumbnail.css';
+// import 'lightgallery/css/lightgallery-bundle.min.css';
 
 interface PageProps {
   [key: string]: any;
@@ -21,7 +27,7 @@ interface PageProps {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { session, ...restPageProps } = pageProps as Partial<PageProps>;
+  const { session, ...restProps } = pageProps as Partial<PageProps>;
 
   return (
     <SessionProvider session={session}>
@@ -31,7 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <meta name="keywords" content={seoKeywords} />
             {/* <link rel="stylesheet" href="/styles/lightgallery/css/lightgallery-bundle.min.css" /> */}
           </Head>
-          <Component {...restPageProps} />
+          <Component {...restProps} />
         </AuthContextProvider>
       </UserLocationProvider>
     </SessionProvider>
