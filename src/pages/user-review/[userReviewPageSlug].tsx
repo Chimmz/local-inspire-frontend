@@ -69,7 +69,8 @@ const UserReviewPage: NextPage<Props> = function (props) {
         </title>
         <meta
           property="og:image"
-          content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+          // content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683556731/cities/nntym97fap8yabj3cbdx.jpg"
+          content={review?.images[0].photoUrl}
         ></meta>
       </Head>
       <Layout>
@@ -111,7 +112,7 @@ const UserReviewPage: NextPage<Props> = function (props) {
                 show
               />
             ) : (
-              <section></section>
+              <section />
             )}
 
             <aside>
