@@ -56,14 +56,9 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
 
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
   const [spinnerShown, setSpinnerShown] = useState(false);
-  const [reviewToShare, setReviewToShare] = useState<{
-    _id: string;
-    reviewTitle: string;
-  } | null>(null);
+  const [reviewToShare, setReviewToShare] = useState<ReviewProps | null>(null);
 
-  const [reviewLikers, setReviewLikers] = useState<null | {
-    reviewId: string;
-  }>(null);
+  const [reviewLikers, setReviewLikers] = useState<null | { reviewId: string }>(null);
 
   const { isSignedIn, ...currentUser } = useSignedInUser();
   const { send: sendReviewsReq, loading: isLoadingReviews } = useRequest();
@@ -219,7 +214,6 @@ const UserProfilePage: NextPage<PageProps> = function (props) {
                 useNativeLinkToProfile
               />
 
-              {/* Share review */}
               {/* <SocialShareModal
               heading="Share Review"
               pageUrl={() => {
