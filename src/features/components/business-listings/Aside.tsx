@@ -8,7 +8,7 @@ import { isRequired, minLength } from '../../utils/validators/inputValidators';
 
 import { Icon } from '@iconify/react';
 import TextInput from '../shared/text-input/TextInput';
-import PageSuccess from '../shared/success/PageSuccess';
+import SuccessFeedback from '../shared/success/SuccessFeedback';
 import styles from './Aside.module.scss';
 import api from '../../library/api';
 import { BusinessProps } from '../business-results/Business';
@@ -113,7 +113,7 @@ function Aside(props: Props) {
 
       {submittedQuestion ? (
         <div>
-          <PageSuccess description="Your question has been submitted" className="mb-3" />
+          <SuccessFeedback description="Your question has been submitted" className="mb-3" />
           <Link href={newQuestionUrl} passHref>
             <a className="btn btn-gray" target="_blank">
               See question

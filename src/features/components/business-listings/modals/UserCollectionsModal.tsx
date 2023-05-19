@@ -12,7 +12,7 @@ import { isRequired, maxLength } from '../../../utils/validators/inputValidators
 import RadioOptions from '../../shared/radio/RadioOptions';
 import cls from 'classnames';
 import AppTooltip from '../../AppTooltip';
-import PageSuccess from '../../shared/success/PageSuccess';
+import SuccessFeedback from '../../shared/success/SuccessFeedback';
 import LoadingButton from '../../shared/button/Button';
 
 interface Props {
@@ -161,7 +161,7 @@ const UserCollectionsModal = (props: Props) => {
           </div>
         ) : null}
 
-        <PageSuccess
+        <SuccessFeedback
           className={cls(
             ['save-success', 'delete-success'].includes(mode) ? 'd-block' : 'd-none',
             'text-center',

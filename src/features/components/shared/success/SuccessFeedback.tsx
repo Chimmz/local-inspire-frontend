@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import cls from 'classnames';
 import React from 'react';
-import styles from './PageSuccess.module.scss';
+import styles from './SuccessFeedback.module.scss';
 
 interface Props {
   title?: string | number;
@@ -10,11 +10,11 @@ interface Props {
   showSuccessIcon?: boolean;
 }
 
-function PageSuccess({ className, showSuccessIcon = true, title, description }: Props) {
+function SuccessFeedback({ className, showSuccessIcon = true, title, description }: Props) {
   return (
     <div className={cls(styles.success, className)}>
-      {showSuccessIcon && true ? (
-        <div className={cls(styles.successIcon, 'mb-5')}>
+      {showSuccessIcon ? (
+        <div className={cls(styles.successIcon, 'mb-4')}>
           <Icon icon="mdi:success" color="#008500" width="50" height="50" />
         </div>
       ) : null}
@@ -24,4 +24,4 @@ function PageSuccess({ className, showSuccessIcon = true, title, description }: 
   );
 }
 
-export default PageSuccess;
+export default SuccessFeedback;

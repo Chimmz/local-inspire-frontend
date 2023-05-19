@@ -556,11 +556,11 @@ class API {
   async getBusinessClaimCheckoutSession(
     priceId: string,
     businessId: string,
-    returnUrl: string,
     token: string,
+    { returnUrl, cancelUrl }: { returnUrl: string; cancelUrl?: string },
   ) {
     return this._makeRequest({
-      path: `/businesses/${businessId}/claim/checkout-session?priceId=${priceId}&returnUrl=${returnUrl}`,
+      path: `/businesses/${businessId}/claim/checkout-session?priceId=${priceId}&returnUrl=${returnUrl}&cancelUrl=${cancelUrl}`,
       method: 'GET',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${token}` },
     });

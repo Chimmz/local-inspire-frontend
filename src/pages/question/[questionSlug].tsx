@@ -45,7 +45,7 @@ import NewQuestionSection from '../../features/components/questions-page/NewQues
 import LoadingButton from '../../features/components/shared/button/Button';
 import AppDropdown from '../../features/components/shared/dropdown/AppDropdown';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import PageSuccess from '../../features/components/shared/success/PageSuccess';
+import SuccessFeedback from '../../features/components/shared/success/SuccessFeedback';
 import TextInput from '../../features/components/shared/text-input/TextInput';
 import ReportQA from '../../features/components/ReportQA';
 import styles from '../../styles/sass/pages/QuestionWIthAnswers.module.scss';
@@ -225,7 +225,7 @@ const QuestionWithAnswersPage: NextPage<Props> = function (props) {
       <Spinner show={isPaginating || submittingAnswer} pageWide />
       <Modal show={showNewQuestionSuccessModal}>
         <Modal.Body className="py-5">
-          <PageSuccess
+          <SuccessFeedback
             title="Submitted."
             description="Your question has been posted successfully in the Q&A page."
             className="mb-5"

@@ -12,7 +12,7 @@ import { isRequired } from '../../utils/validators/inputValidators';
 import { Icon } from '@iconify/react';
 import { Modal } from 'react-bootstrap';
 import LoadingButton from '../shared/button/Button';
-import SuccessUI from '../shared/success/PageSuccess';
+import SuccessUI from '../shared/success/SuccessFeedback';
 import TextInput from '../shared/text-input/TextInput';
 
 interface MsgModalProps {

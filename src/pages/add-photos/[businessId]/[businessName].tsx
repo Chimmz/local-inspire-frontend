@@ -14,11 +14,10 @@ import useMiddleware from '../../../features/hooks/useMiddleware';
 import api from '../../../features/library/api';
 import Spinner from '../../../features/components/shared/spinner/Spinner';
 import useRequest from '../../../features/hooks/useRequest';
-import PageSuccess from '../../../features/components/shared/success/PageSuccess';
+import SuccessFeedback from '../../../features/components/shared/success/SuccessFeedback';
 import { Modal, SSRProvider } from 'react-bootstrap';
 import { toTitleCase } from '../../../features/utils/string-utils';
 import { ParsedUrlQuery } from 'querystring';
-import Link from 'next/link';
 
 interface PageParams extends ParsedUrlQuery {
   businessName: string;
@@ -75,7 +74,7 @@ const AddPhotosPage: NextPage<Props> = function (props) {
         <Spinner pageWide show={submittingPhotos} />
         <Modal show={!!submitStatus?.length} centered backdrop="static">
           <Modal.Body>
-            <PageSuccess
+            <SuccessFeedback
               showSuccessIcon={submitStatus === 'success'}
               title={submitStatus === 'success' ? 'Thank you.' : 'Upload failed.'}
               description={uploadMsg}

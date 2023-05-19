@@ -23,7 +23,7 @@ import TextInput from '../shared/text-input/TextInput';
 import StarRating from '../shared/star-rating/StarRating';
 import FeatureRating from '../shared/feature-rating/FeatureRating';
 import PhotoUploadsWithDescription from '../shared/photo-uploads-with-description/PhotoUploadsWithDescription';
-import PageSuccess from '../shared/success/PageSuccess';
+import SuccessFeedback from '../shared/success/SuccessFeedback';
 import styles from './NewReviewForm.module.scss';
 import useMiddleware, { AuthMiddlewareNext } from '../../hooks/useMiddleware';
 import ShareStrategies from '../shared/social-share/ShareStrategies';
@@ -220,7 +220,7 @@ function NewReviewForm(props: Props) {
     <>
       <Modal show={!!submittedReview} centered backdrop="static">
         <Modal.Body>
-          <PageSuccess
+          <SuccessFeedback
             title="Thank you."
             description={`Your review on ${businessName} has been added successfully.`}
             className="mb-5 pt-2"

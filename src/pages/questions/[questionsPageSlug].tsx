@@ -26,7 +26,7 @@ import Question from '../../features/components/questions-page/Question';
 import Paginators from '../../features/components/shared/pagination/Paginators';
 import NewQuestionSection from '../../features/components/questions-page/NewQuestionSection';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import PageSuccess from '../../features/components/shared/success/PageSuccess';
+import SuccessFeedback from '../../features/components/shared/success/SuccessFeedback';
 import PopularQuestion from '../../features/components/questions-page/PopularQuestion';
 import Layout from '../../features/components/layout';
 import PopupInfo from '../../features/components/PopupInfo';
@@ -173,7 +173,7 @@ const QuestionsPage: NextPage<QuestionsPageProps> = function (props) {
       <Spinner show={submittingNewQuestion || isFiltering || submittingNewAnswer} pageWide />
       <Modal show={showAnswerSuccessModal}>
         <Modal.Body className="py-5">
-          <PageSuccess
+          <SuccessFeedback
             title="Answer Submitted."
             description="Your answer has been submitted successfully"
             className="mb-5"

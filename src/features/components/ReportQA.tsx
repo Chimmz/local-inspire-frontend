@@ -8,7 +8,7 @@ import { simulateRequest } from '../utils/async-utils';
 import { isRequired, maxLength } from '../utils/validators/inputValidators';
 import LoadingButton from './shared/button/Button';
 import RadioOptions from './shared/radio/RadioOptions';
-import PageSuccess from './shared/success/PageSuccess';
+import SuccessFeedback from './shared/success/SuccessFeedback';
 import TextInput from './shared/text-input/TextInput';
 
 interface ReportQAProps {
@@ -87,7 +87,7 @@ const ReportQA = function (props: ReportQAProps) {
       </Modal.Header>
       <Modal.Body className="py-5 px-5">
         {reportSubmitted ? (
-          <PageSuccess
+          <SuccessFeedback
             title="Thank you!"
             description="We have received your report and a moderator will investigate it."
           />

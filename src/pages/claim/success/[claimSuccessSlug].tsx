@@ -65,8 +65,11 @@ const ClaimSuccessPage: NextPage<Props> = function (props) {
       const res = await api.getBusinessClaimCheckoutSession(
         plan.id,
         props.claim!.business._id,
-        genBusinessPageUrl<string>({ slug: props.pageSlug }),
         accessToken!,
+        {
+          returnUrl: `/claim/payment-success/${props.pageSlug}`,
+          cancelUrl: `/claim/success/${props.pageSlug}`,
+        },
       );
       console.log(res);
       if (res.status === 'SUCCESS' && res.session?.url) window.location.href = res.session.url;

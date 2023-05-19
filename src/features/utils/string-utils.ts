@@ -1,4 +1,4 @@
-export const toTitleCase = (str: string, divider = ' ') => {
+export const toTitleCase = (str: string | undefined, divider = ' ') => {
   if (!str) return str;
   return str
     .toLowerCase()
@@ -29,4 +29,9 @@ export const addSuffixToNumber = (number: string | number) => {
   let s = ['th', 'st', 'nd', 'rd'];
   let v = +number % 100;
   return number + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+export const removeSubstrings = (str: string = '', substrings: string[]) => {
+  if (!substrings.length) return str;
+  return substrings.reduce((acc, val) => acc.replace(val, ''), str);
 };

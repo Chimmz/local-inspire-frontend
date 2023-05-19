@@ -17,7 +17,7 @@ import {
 import Layout from '../../features/components/layout';
 import Navbar from '../../features/components/layout/navbar/Navbar';
 import Spinner from '../../features/components/shared/spinner/Spinner';
-import PageSuccess from '../../features/components/shared/success/PageSuccess';
+import SuccessFeedback from '../../features/components/shared/success/SuccessFeedback';
 import TextInput from '../../features/components/shared/text-input/TextInput';
 import styles from '../../styles/sass/pages/PasswordReset.module.scss';
 
@@ -97,7 +97,7 @@ const PasswordReset: NextPage = function () {
       <Navbar bg="#003366" lightLogo />
       <main className={styles.main}>
         {response.status === 'SUCCESS' ? (
-          <PageSuccess title="Password Changed!" description="You can now exit this page" />
+          <SuccessFeedback title="Password Changed!" description="You can now exit this page" />
         ) : response.status === 'INVALID_CODE' ? (
           'Invalid URL'
         ) : (
