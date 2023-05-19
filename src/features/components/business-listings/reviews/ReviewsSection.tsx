@@ -77,10 +77,7 @@ function ReviewsSection(props: Props) {
   const [queryStr, setQueryString] = useState('');
 
   const [reviewReportId, setReviewReportId] = useState<string | null>(null);
-  const [reviewToShare, setReviewToShare] = useState<{
-    _id: string;
-    reviewTitle: string;
-  } | null>(null);
+  const [reviewToShare, setReviewToShare] = useState<ReviewProps | null>(null);
 
   const [reviewLikers, setReviewLikers] = useState<null | {
     reviewId: string;
@@ -202,7 +199,7 @@ function ReviewsSection(props: Props) {
         <Spinner show={isFilteringReviews} pageWide />
       </div>
 
-      {/* All reviews. Paginated and filtered */}
+      {/* All reviews, paginated and filtered */}
       {reviews?.map(r => (
         <ReviewItem
           key={r._id}
@@ -212,9 +209,7 @@ function ReviewsSection(props: Props) {
           businessData={props.business!}
           openReviewLikers={(reviewId: string) => setReviewLikers({ reviewId })}
           openReportModal={(reviewId: string) => setReviewReportId(reviewId)}
-          openShareModal={(reviewId: string, reviewTitle: string) =>
-            setReviewToShare({ _id: reviewId, reviewTitle })
-          }
+          openShareModal={setReviewToShare}
         />
       ))}
 
@@ -260,6 +255,7 @@ function ReviewsSection(props: Props) {
             });
           return '';
         }}
+        imgUrl={reviewToShare?.images[0].photoUrl || props.business?.images[0].imgUrl}
         show={!!reviewToShare}
         close={setReviewToShare.bind(null, null)}
         title={reviewToShare?.reviewTitle!}

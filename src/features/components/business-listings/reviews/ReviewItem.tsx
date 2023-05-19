@@ -39,7 +39,7 @@ type Props = ReviewProps & {
   businessName: string;
   businessData: Partial<BusinessProps>;
   openReportModal: (reviewId: string) => void;
-  openShareModal?: (...args: [string, string]) => void;
+  openShareModal?: (r: ReviewProps) => void;
   openReviewLikers(reviewId: string): void;
   useNativeLinkToProfile?: boolean;
 };
@@ -268,7 +268,7 @@ const ReviewItem = function (props: Props) {
 
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
-          onClick={props.openShareModal?.bind?.(null, props._id, props.reviewTitle)}
+          onClick={props.openShareModal?.bind?.(null, props)}
         >
           <Icon icon="fluent:share-48-regular" width={20} /> Share
         </button>

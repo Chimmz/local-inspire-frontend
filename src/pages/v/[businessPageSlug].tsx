@@ -85,7 +85,8 @@ const BusinessPage: NextPage<Props> = function (props) {
           <meta name="description" content={pageDescription} />
           <meta
             property="og:image"
-            content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683567477/cities/jl5sbxsqihw9ca0si5m1.jpg"
+            // content="https://res.cloudinary.com/dpvothk2d/image/upload/v1683567477/cities/jl5sbxsqihw9ca0si5m1.jpg"
+            content={props.business.data?.images[0].imgUrl}
           ></meta>
         </Head>
         <Layout>
