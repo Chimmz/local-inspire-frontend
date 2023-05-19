@@ -1,5 +1,5 @@
 export const toTitleCase = (str: string | undefined, divider = ' ') => {
-  if (!str) return str;
+  if (!str) return '';
   return str
     .toLowerCase()
     .split(divider)
