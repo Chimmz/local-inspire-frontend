@@ -265,7 +265,6 @@ const ReviewItem = function (props: Props) {
 
       <div className={styles.reviewFooter}>
         {btnLike}
-
         <button
           className="btn btn-transp d-flex align-items-center gap-2"
           onClick={props.openShareModal?.bind?.(null, props)}
