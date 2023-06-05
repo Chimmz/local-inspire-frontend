@@ -41,20 +41,11 @@ const ClaimCheckoutPage: NextPage<Props> = function (props) {
   const router = useRouter();
   const { package: selectedPackage, duration } = router.query;
 
-  const price = useMemo(() => {
-    if (!['monthly', 'yearly'].includes(duration as string)) return;
-    return prices[duration as keyof typeof prices][
-      selectedPackage as string as keyof typeof prices.monthly
-    ];
-  }, [prices]);
-
   const {
     inputValue: cardNumber,
     onChange: handleChangeCardNumber,
     validationErrors: cardValidationErrors,
     runValidators: runCardNumberValidators,
-    pushValidationError: pushCardError,
-    clearInput: clearCardNumber,
   } = useInput({
     init: '',
     type: 'number',
@@ -89,6 +80,13 @@ const ClaimCheckoutPage: NextPage<Props> = function (props) {
     type: 'number',
     validators: [{ fn: validators.isRequired, params: ['Please enter the security code'] }],
   });
+
+  const price = useMemo(() => {
+    if (!['monthly', 'yearly'].includes(duration as string)) return;
+    return prices[duration as keyof typeof prices][
+      selectedPackage as string as keyof typeof prices.monthly
+    ];
+  }, [prices]);
 
   const handleSubscribe = () => {
     const validations = [runCardNumberValidators(), runDateValidators(), runCvcValidators()];

@@ -127,12 +127,12 @@ export interface BusinessClaim {
 export interface StripePrice {
   id: string;
   object: string;
-  active: true;
+  active: boolean;
   billing_scheme: string;
   created: number;
   currency: string;
   custom_unit_amount: string | null;
-  livemode: false;
+  livemode: boolean;
   lookup_key: string | null;
   metadata: {};
   nickname: string;

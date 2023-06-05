@@ -255,7 +255,7 @@ function ReviewsSection(props: Props) {
             });
           return '';
         }}
-        imgUrl={reviewToShare?.images[0].photoUrl || props.business?.images[0].imgUrl}
+        imgUrl={reviewToShare?.images?.[0]?.photoUrl || props.business?.images?.[0]?.imgUrl}
         show={!!reviewToShare}
         close={setReviewToShare.bind(null, null)}
         title={reviewToShare?.reviewTitle!}

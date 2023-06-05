@@ -1,25 +1,29 @@
-import { GetServerSideProps, GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import React, { useMemo, useState } from 'react';
-import api from '../../features/library/api';
-import { toTitleCase } from '../../features/utils/string-utils';
-import { SSRProvider } from 'react-bootstrap';
-import Layout from '../../features/components/layout';
-import cls from 'classnames';
-import { BusinessProps } from '../../features/components/business-results/Business';
-import Image from 'next/image';
-import ClaimCtaImage1 from '../../../public/svg/claim-cta-img-1.svg';
-import ClaimCtaImage2 from '../../../public/svg/claim-cta-img-2.svg';
-import BusinessClaimModal from '../../features/components/business-claim/BusinessClaimModal';
-import useMiddleware from '../../features/hooks/useMiddleware';
+import { GetServerSideProps, NextPage } from 'next';
 import { NextAuthOptions, unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import styles from '../../styles/sass/pages/claimBusinessPage.module.scss';
+import Image from 'next/image';
+// Types
+import { BusinessProps } from '../../features/components/business-results/Business';
+import { BusinessClaim } from '../../features/types';
+
+import useMiddleware from '../../features/hooks/useMiddleware';
+
+import cls from 'classnames';
+import api from '../../features/library/api';
+import { toTitleCase } from '../../features/utils/string-utils';
 import {
   genBusinessClaimSuccessPageUrl,
   genBusinessPageUrl,
-  genClaimBusinessCheckoutPageUrl,
 } from '../../features/utils/url-utils';
-import { BusinessClaim } from '../../features/types';
+
+import ClaimCtaImage1 from '../../../public/svg/claim-cta-img-1.svg';
+import ClaimCtaImage2 from '../../../public/svg/claim-cta-img-2.svg';
+import BusinessClaimModal from '../../features/components/business-claim/BusinessClaimModal';
+
+import { SSRProvider } from 'react-bootstrap';
+import Layout from '../../features/components/layout';
+import styles from '../../styles/sass/pages/claimBusinessPage.module.scss';
 
 interface Props {
   business: BusinessProps;
